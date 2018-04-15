@@ -3,9 +3,13 @@ pragma solidity ^0.4.19;
 contract  Backup {
 
     address public  owner;
-    address private backupWallet;  
-    uint private    timeOut;
-    uint private    timestamp;
+    struct BackupInfo {
+        address backupWallet;  
+        uint32  timeOut;
+        uint32  timestamp;
+    }
+
+    BackupInfo private backupInfo; 
 
     modifier  OwnerOnly { 
         if (msg.sender != owner) {
@@ -16,27 +20,27 @@ contract  Backup {
 
     function Backup() public {
         owner = msg.sender;
-        timestamp = block.timestamp;
+        backupInfo.timestamp = uint32(block.timestamp);
     }
 
     function getBackupWallet() view public returns (address) {
-        return backupWallet;
+        return backupInfo.backupWallet;
     }
 
     function getTimeOut() view public returns (uint) {
-        return timeOut;
+        return backupInfo.timeOut;
     }
 
     function getTimestamp() view public returns (uint) {
-        return timestamp;
+        return backupInfo.timestamp;
     }
 
-    function setBackup(address _backupWallet, uint _timeOut) public OwnerOnly {
+    function setBackup(address _backupWallet, uint32 _timeOut) public OwnerOnly {
         if (_backupWallet != 0x0) {
-            backupWallet = _backupWallet;
+            backupInfo.backupWallet = _backupWallet;
         }
-        timeOut = _timeOut;
-        timestamp = block.timestamp;
+        backupInfo.timeOut = _timeOut;
+        backupInfo.timestamp = uint32(block.timestamp);
     }
 
     function getBalnace() view public returns (uint256) {
@@ -44,7 +48,7 @@ contract  Backup {
     }
 
     function touch() public OwnerOnly {
-        timestamp = block.timestamp;
+        backupInfo.timestamp = uint32(block.timestamp);
     }
 
     function() public payable { }
