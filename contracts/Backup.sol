@@ -3,6 +3,8 @@ pragma solidity ^0.4.19;
 contract  Backup {
 
     address public  owner;
+    uint256 private cancelCount;
+    
     struct BackupInfo {
         address backupWallet;  
         uint32  timeOut;
@@ -49,6 +51,11 @@ contract  Backup {
 
     function touch() public OwnerOnly {
         backupInfo.timestamp = uint32(block.timestamp);
+    }
+
+    function cancel() public {
+        ++cancelCount;
+        revert();
     }
 
     function() public payable { }

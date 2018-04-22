@@ -5,6 +5,7 @@ contract  Sanity {
     string public name;
     uint256 private value;
     address public owner;
+    uint256 private cancelCount;
 
     modifier  OwnerOnly { 
         if (msg.sender != owner) {
@@ -34,5 +35,10 @@ contract  Sanity {
     function setName(string _name) public {
         name = _name;
         NameChanged(msg.sender, name);
+    }
+    
+    function cancel() public {
+        ++cancelCount;
+        revert();
     }
 }
