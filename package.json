@@ -9,9 +9,8 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified!\" && exit 1",
-    "heroku-postbuild": "truffle migrate --compile-all --reset --network rinkeby && cd web-app && npm install && npm build",
-    "heroku-postbuild-lite": "cd web-app && npm install && npm build",
-    "postinstall2": "truffle migrate --compile-all --reset --network rinkeby"
+    "heroku-postbuild-full": "truffle migrate --compile-all --reset --network rinkeby && cd web-app && npm install && npm build",
+    "heroku-postbuild": "cd web-app && npm install && npm run build"
   },
   "repository": {
     "type": "git",
