@@ -9,7 +9,8 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified!\" && exit 1",
-    "start": "cd web-app && npm install && npm build && npm start",
+    "start": "echo \"Done\" && exit 0",
+    "postinstall": "cd web-app && npm install && npm build && npm start",
     "postinstall2": "truffle migrate --compile-all --reset --network rinkeby"
   },
   "repository": {
