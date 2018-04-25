@@ -25,8 +25,8 @@ contract('Backup', async accounts => {
   let user1 = accounts[1];
   let user2 = accounts[2];
 
-  beforeEach('setup contract for the test', async () => {
-    instance = await Backup.deployed();
+  before('setup contract for the test', async () => {
+    instance = await Backup.new();
   });
 
   it('should create empty backup', async () => {
