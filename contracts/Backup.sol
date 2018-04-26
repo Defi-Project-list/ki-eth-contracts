@@ -4,18 +4,27 @@ contract  Backup {
 
     address public  owner;
     uint256 private cancelCount;
-    
+
     struct BackupInfo {
-        address backupWallet;  
+        address backupWallet;
         uint32  timeOut;
         uint32  timestamp;
     }
 
-    BackupInfo private backupInfo; 
+    BackupInfo private backupInfo;
 
-    modifier  OwnerOnly { 
+    event GotMoneyEvent(address from, uint256 value);
+
+    modifier OwnerOnly {
         if (msg.sender != owner) {
             revert();
+        }
+        _;
+    }
+
+    modifier Payable {
+        if (msg.value > 0) {
+            GotMoneyEvent(msg.sender, msg.value);
         }
         _;
     }
@@ -58,5 +67,6 @@ contract  Backup {
         revert();
     }
 
-    function() public payable { }
+    function() public Payable {
+    }
 }
