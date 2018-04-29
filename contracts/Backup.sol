@@ -13,7 +13,7 @@ contract  Backup {
 
     BackupInfo private backupInfo;
 
-    event GotMoneyEvent(address from, uint256 value);
+    event EventGotMoney(address from, uint256 value);
 
     modifier OwnerOnly {
         if (msg.sender != owner) {
@@ -22,9 +22,9 @@ contract  Backup {
         _;
     }
 
-    modifier Payable {
+    modifier LogPayment {
         if (msg.value > 0) {
-            GotMoneyEvent(msg.sender, msg.value);
+            EventGotMoney(msg.sender, msg.value);
         }
         _;
     }
@@ -67,6 +67,6 @@ contract  Backup {
         revert();
     }
 
-    function() public Payable {
+    function() payable LogPayment public {
     }
 }
