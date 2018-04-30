@@ -1,4 +1,4 @@
-pragma solidity ^0.4.19;
+pragma solidity 0.4.23;
 
 contract  Sanity {
 
@@ -7,7 +7,7 @@ contract  Sanity {
     address public owner;
     uint256 private cancelCount;
 
-    modifier  OwnerOnly { 
+    modifier  OwnerOnly {
         if (msg.sender != owner) {
             revert();
         }
@@ -17,7 +17,7 @@ contract  Sanity {
     event NameChanged(address by, string to);
     event ValueChanged(uint256 value);
 
-    function  Sanity() public {
+    constructor() public {
         name = "Kirobo";
         owner = msg.sender;
         value = 100;
@@ -29,14 +29,14 @@ contract  Sanity {
 
     function setValue(uint256 _value) public OwnerOnly {
         value = _value;
-        ValueChanged(value);
+        emit ValueChanged(value);
     }
 
     function setName(string _name) public {
         name = _name;
-        NameChanged(msg.sender, name);
+        emit NameChanged(msg.sender, name);
     }
-    
+
     function cancel() public {
         ++cancelCount;
         revert();

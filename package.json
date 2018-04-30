@@ -8,7 +8,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified!\" && exit 1",
+    "test": "truffle test --network",
     "heroku-postbuild-full": "truffle migrate --compile-all --reset --network rinkeby && cd web-app && npm i && npm i --only=dev && npm build",
     "heroku-postbuild": "cd web-app && npm i && npm i --only=dev && npm run build",
     "migrate": "truffle migrate --compile-all --reset  --network"
@@ -32,6 +32,7 @@
     "eslint-plugin-react": "^7.7.0",
     "ganache-cli": "^6.1.0",
     "mocha-logger": "^1.0.5",
+    "solc": "0.4.23",
     "truffle": "^4.1.7"
   }
 }

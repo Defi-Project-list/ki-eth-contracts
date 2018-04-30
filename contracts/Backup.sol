@@ -1,4 +1,4 @@
-pragma solidity ^0.4.19;
+pragma solidity 0.4.23;
 
 contract  Backup {
 
@@ -7,13 +7,13 @@ contract  Backup {
 
     struct BackupInfo {
         address backupWallet;
-        uint32  timeOut;
-        uint32  timestamp;
+        uint64  timestamp;
+        uint64  timeOut;
     }
 
     BackupInfo private backupInfo;
 
-    event EventGotMoney(address from, uint256 value);
+    event GotMoney(address indexed from, uint256 value);
 
     modifier OwnerOnly {
         if (msg.sender != owner) {
@@ -24,14 +24,14 @@ contract  Backup {
 
     modifier LogPayment {
         if (msg.value > 0) {
-            EventGotMoney(msg.sender, msg.value);
+            emit GotMoney(msg.sender, msg.value);
         }
         _;
     }
 
-    function Backup() public {
+    constructor() public {
         owner = msg.sender;
-        backupInfo.timestamp = uint32(block.timestamp);
+        backupInfo.timestamp = uint64(block.timestamp);
     }
 
     function getBackupWallet() view public returns (address) {
@@ -46,12 +46,13 @@ contract  Backup {
         return backupInfo.timestamp;
     }
 
-    function setBackup(address _backupWallet, uint32 _timeOut) public OwnerOnly {
+    function setBackup(address _backupWallet, uint64 _timeOut) public OwnerOnly {
         if (_backupWallet != 0x0) {
             backupInfo.backupWallet = _backupWallet;
         }
         backupInfo.timeOut = _timeOut;
-        backupInfo.timestamp = uint32(block.timestamp);
+        // solium-disable-next-line security/no-block-members
+        backupInfo.timestamp = uint64(block.timestamp); //safe for next 500B years
     }
 
     function getBalnace() view public returns (uint256) {
@@ -59,7 +60,8 @@ contract  Backup {
     }
 
     function touch() public OwnerOnly {
-        backupInfo.timestamp = uint32(block.timestamp);
+        // solium-disable-next-line security/no-block-members
+        backupInfo.timestamp = uint64(block.timestamp);
     }
 
     function cancel() public {
