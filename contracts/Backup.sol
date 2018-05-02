@@ -1,8 +1,8 @@
 pragma solidity 0.4.23;
 
-import "./lib/";
+import "./lib/Heritable.sol";
 
-contract  Backup is Heritable {
+contract Backup is Heritable {
 
     address public  owner;
     uint256 private cancelCount;
