@@ -1,6 +1,8 @@
 pragma solidity 0.4.23;
 
-contract  Backup {
+import "./lib/";
+
+contract  Backup is Heritable {
 
     address public  owner;
     uint256 private cancelCount;
@@ -31,6 +33,7 @@ contract  Backup {
 
     constructor() public {
         owner = msg.sender;
+        // solium-disable-next-line security/no-block-members
         backupInfo.timestamp = uint64(block.timestamp);
     }
 
