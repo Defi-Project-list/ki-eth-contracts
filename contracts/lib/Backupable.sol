@@ -21,10 +21,9 @@ contract Backupable is Ownable {
     }
 
     function setBackup(address _backupWallet, uint64 _timeout) public onlyOwner {
-        if (_backupWallet != 0x0) {
-            backupInfo.backupWallet = _backupWallet;
-        }
+        require(_backupWallet != 0x0);
         emit BackupChanged(owner, backupInfo.backupWallet, _timeout);
+        backupInfo.backupWallet = _backupWallet;
         backupInfo.timeout = _timeout;
         backupInfo.timestamp = getBlockTimestamp();
     }
@@ -41,16 +40,25 @@ contract Backupable is Ownable {
     }
 
     function getBackupTimeout() view public returns (uint64) {
+        return backupInfo.timeout;
+    }
+
+    function getBackupTimestamp() view public returns (uint64) {
         return backupInfo.timestamp;
     }
 
-    function getBackupTimeLeft() public view returns (uint64) {
-        return (getBlockTimestamp() - backupInfo.timestamp);
+    function getBackupTimeLeft() public view returns (uint64 _res) {
+        if (backupInfo.timestamp + backupInfo.timeout <= getBlockTimestamp()){
+            _res = uint64(0);
+        }
+        else {
+            _res = backupInfo.timestamp + backupInfo.timeout - getBlockTimestamp();
+        }
     }
 
     function getBlockTimestamp() internal view returns (uint64){
         // solium-disable-next-line security/no-block-members
-        return backupInfo.timestamp; //safe for next 500B years
+        return uint64(block.timestamp); //safe for next 500B years
     }
 
     function touch() public onlyOwner {
