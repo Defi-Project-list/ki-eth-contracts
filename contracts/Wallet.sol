@@ -3,6 +3,7 @@ pragma solidity 0.4.23;
 import "./lib/Backupable.sol";
 
 contract Wallet is Backupable {
+    uint256 public passCount;
 
     event GotEther(address indexed from, uint256 value);
     event SentEther(address indexed to, uint256 value);
@@ -26,6 +27,10 @@ contract Wallet is Backupable {
 
     function getBalance() view public returns (uint256) {
         return address(this).balance;
+    }
+
+    function pass() public {
+        ++passCount;
     }
 
     function() payable logPayment() public {
