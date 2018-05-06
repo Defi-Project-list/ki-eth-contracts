@@ -11,12 +11,8 @@
     "test": "truffle test --network",
     "heroku-postbuild-full": "truffle migrate --compile-all --reset --network rinkeby && cd web-app && npm i && npm i --only=dev && npm build",
     "heroku-postbuild": "cd web-app && npm i && npm i --only=dev && npm run build",
-<<<<<<< HEAD
-    "migrate": "truffle migrate"
-=======
     "migrate": "truffle migrate --compile-all --reset  --network",
     "deployed": "truffle networks"
->>>>>>> 17bdc31eaa983cbe551849d8f3752fae0950aea5
   },
   "repository": {
     "type": "git",
