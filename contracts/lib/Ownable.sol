@@ -11,7 +11,7 @@ contract Ownable {
     }
 
     modifier onlyOwner() {
-        require(msg.sender == owner, "sending is not owner");
+        require(msg.sender == owner, "msg.sender != ownder");
         _;
     }
 

@@ -14,12 +14,12 @@ contract Wallet is Heritable {
         _;
     }
 
-    constructor() Heritable(100000) public {
+    constructor() Heritable(100000) payable public {
     }
 
     function sendEther(address _to, uint256 _value) public onlyOwner() {
-        require(_value > 0, "value is zero");
-        require(address(this).balance >= _value, "value is greater than balance");
+        require(_value > 0, "value == 0");
+        require(_value <= address(this).balance, "value > balance");
         emit SentEther(msg.sender, _value);
         _to.transfer(_value);
     }
