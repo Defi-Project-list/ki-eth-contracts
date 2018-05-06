@@ -23,7 +23,7 @@ contract Wallet is Heritable {
         _to.transfer(_value);
     }
 
-    function getBalnace() view public returns (uint256) {
+    function getBalance() view public returns (uint256) {
         return address(this).balance;
     }
 
