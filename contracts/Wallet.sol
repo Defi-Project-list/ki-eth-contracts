@@ -1,8 +1,8 @@
 pragma solidity 0.4.23;
 
-import "./lib/Heritable.sol";
+import "./lib/Backupable.sol";
 
-contract Wallet is Heritable {
+contract Wallet is Backupable {
 
     event GotEther(address indexed from, uint256 value);
     event SentEther(address indexed to, uint256 value);
@@ -14,7 +14,7 @@ contract Wallet is Heritable {
         _;
     }
 
-    constructor() Heritable(100000) payable public {
+    constructor() payable public {
     }
 
     function sendEther(address _to, uint256 _value) public onlyOwner() {
