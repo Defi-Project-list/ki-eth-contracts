@@ -19,7 +19,7 @@ contract Proxy is Proxied {
         bytes4 initializeSignature = bytes4(keccak256("initialize()"));
         assert(target.delegatecall(initializeSignature));
 
-        EventUpgrade(_target, oldTarget, msg.sender);
+        emit EventUpgrade(_target, oldTarget, msg.sender);
     }
 
     function () payable public {
@@ -47,7 +47,9 @@ contract Proxy is Proxied {
         return size > 0;
     }
 
-    function isUpgradeable(address _target) internal view returns (bool) {
-        return Upgradeable(_target).call(bytes4(keccak256("upgradeTo(address)")), address(this));
+    //function isUpgradeable(address _target) internal view returns (bool) {
+    function isUpgradeable(address _target) internal returns (bool) {
+        //return Upgradeable(_target).call(bytes4(keccak256("upgradeTo(address)")), address(this));
+        return address(_target).call(bytes4(keccak256("upgradeTo(address)")), address(this));
     }
 }

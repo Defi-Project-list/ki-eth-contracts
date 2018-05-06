@@ -15,7 +15,7 @@ contract Upgradeable is Proxied {
     modifier initializeOnceOnly() {
         if(!initialized[target]) {
             initialized[target] = true;
-            EventInitialized(target);
+            emit EventInitialized(target);
             _;
         }
     }

@@ -2,9 +2,8 @@ pragma solidity 0.4.23;
 
 import "./lib/Heritable.sol";
 
-contract Backup {
+contract Backup is Heritable {
 
-    address public  owner;
     uint256 private cancelCount;
 
     struct BackupInfo {
@@ -17,22 +16,14 @@ contract Backup {
 
     event GotMoney(address indexed from, uint256 value);
 
-    modifier OwnerOnly {
-        if (msg.sender != owner) {
-            revert();
-        }
-        _;
-    }
-
-    modifier LogPayment {
+    modifier logPayment {
         if (msg.value > 0) {
             emit GotMoney(msg.sender, msg.value);
         }
         _;
     }
 
-    constructor() public {
-        owner = msg.sender;
+    constructor() Heritable(1000) public {
         // solium-disable-next-line security/no-block-members
         backupInfo.timestamp = uint64(block.timestamp);
     }
@@ -49,7 +40,7 @@ contract Backup {
         return backupInfo.timestamp;
     }
 
-    function setBackup(address _backupWallet, uint64 _timeOut) public OwnerOnly {
+    function setBackup(address _backupWallet, uint64 _timeOut) public onlyOwner {
         if (_backupWallet != 0x0) {
             backupInfo.backupWallet = _backupWallet;
         }
@@ -62,7 +53,7 @@ contract Backup {
         return address(this).balance;
     }
 
-    function touch() public OwnerOnly {
+    function touch() public onlyOwner {
         // solium-disable-next-line security/no-block-members
         backupInfo.timestamp = uint64(block.timestamp);
     }
@@ -72,6 +63,6 @@ contract Backup {
         revert();
     }
 
-    function() payable LogPayment public {
+    function() payable logPayment public {
     }
 }
