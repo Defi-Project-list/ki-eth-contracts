@@ -18,7 +18,8 @@ contract Wallet is Heritable {
     }
 
     function sendEther(address _to, uint256 _value) public onlyOwner() {
-        require(_value > 0 && address(this).balance <= _value);
+        require(_value > 0, "value is zero");
+        require(address(this).balance <= _value, "value is greater than balance");
         emit SentEther(msg.sender, _value);
         _to.transfer(_value);
     }
