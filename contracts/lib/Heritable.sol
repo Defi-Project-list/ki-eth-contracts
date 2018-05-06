@@ -79,4 +79,5 @@ contract Heritable is Ownable {
     function ownerLives() internal view returns (bool) {
         return timeOfDeath_ == 0;
     }
+
 }
