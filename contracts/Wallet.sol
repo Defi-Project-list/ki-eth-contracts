@@ -7,6 +7,7 @@ contract Wallet is Backupable {
 
     event GotEther(address indexed from, uint256 value);
     event SentEther(address indexed to, uint256 value);
+    event PassCalled(address indexed from);
 
     modifier logPayment {
         if (msg.value > 0) {
@@ -30,6 +31,7 @@ contract Wallet is Backupable {
     }
 
     function pass() public {
+        emit PassCalled(msg.sender);
         ++passCount;
     }
 
