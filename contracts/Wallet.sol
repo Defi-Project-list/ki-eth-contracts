@@ -16,7 +16,7 @@ contract Wallet is Backupable {
         _;
     }
 
-    constructor() payable public {
+    constructor() payable logPayment() public {
     }
 
     function sendEther(address _to, uint256 _value) public onlyOwner() {
@@ -27,6 +27,9 @@ contract Wallet is Backupable {
     }
 
     function getBalance() view public returns (uint256) {
+        if (msg.sender != owner) {
+          return 0;
+        }
         return address(this).balance;
     }
 

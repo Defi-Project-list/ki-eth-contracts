@@ -12,42 +12,42 @@ contract Backupable is Ownable {
 
     BackupInfo private backupInfo;
 
-    event BackupChanged(address indexed owner, address indexed newBackupWallet, uint64 timeOut);
-    event BackupRemoved(address indexed owner, address indexed backupWallet);
-    event BackupActivated(address indexed backupWallet);
+    event BackupChanged   (address indexed owner, address indexed newBackupWallet, uint64 timeOut);
+    event BackupRemoved   (address indexed owner, address indexed backupWallet);
+    event BackupActivated (address indexed backupWallet);
     event OwnerTouched();
 
     constructor() public {
     }
 
-    function setBackup(address _backupWallet, uint64 _timeout) public onlyOwner {
-        require(_backupWallet != 0x0);
-        emit BackupChanged(owner, backupInfo.backupWallet, _timeout);
+    function setBackup (address _backupWallet, uint64 _timeout) public onlyOwner {
+        require (_backupWallet != 0x0);
+        emit BackupChanged (owner, backupInfo.backupWallet, _timeout);
         backupInfo.backupWallet = _backupWallet;
-        backupInfo.timeout = _timeout;
-        backupInfo.timestamp = getBlockTimestamp();
+        backupInfo.timeout      = _timeout;
+        backupInfo.timestamp    = getBlockTimestamp();
     }
 
     function removeBackup() public onlyOwner {
-        require(backupInfo.backupWallet != 0x0);
-        emit BackupRemoved(owner, backupInfo.backupWallet);
+        require (backupInfo.backupWallet != 0x0);
+        emit BackupRemoved (owner, backupInfo.backupWallet);
         backupInfo.backupWallet = 0;
         backupInfo.timeout = 0;
     }
 
-    function getBackupWallet() view public returns (address) {
+    function getBackupWallet () view public returns (address) {
         return backupInfo.backupWallet;
     }
 
-    function getBackupTimeout() view public returns (uint64) {
+    function getBackupTimeout () view public returns (uint64) {
         return backupInfo.timeout;
     }
 
-    function getBackupTimestamp() view public returns (uint64) {
+    function getBackupTimestamp () view public returns (uint64) {
         return backupInfo.timestamp;
     }
 
-    function getBackupTimeLeft() public view returns (uint64 _res) {
+    function getBackupTimeLeft () public view returns (uint64 _res) {
         if (backupInfo.timestamp + backupInfo.timeout <= getBlockTimestamp()){
             _res = uint64(0);
         }
@@ -56,7 +56,7 @@ contract Backupable is Ownable {
         }
     }
 
-    function getBlockTimestamp() internal view returns (uint64){
+    function getBlockTimestamp () internal view returns (uint64){
         // solium-disable-next-line security/no-block-members
         return uint64(block.timestamp); //safe for next 500B years
     }
