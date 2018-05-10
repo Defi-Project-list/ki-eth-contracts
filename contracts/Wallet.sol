@@ -19,17 +19,14 @@ contract Wallet is Backupable {
     constructor() payable logPayment() public {
     }
 
-    function sendEther(address _to, uint256 _value) public onlyOwner() {
+    function sendEther(address _to, uint256 _value) public onlyClaimableOwner() {
         require(_value > 0, "value == 0");
         require(_value <= address(this).balance, "value > balance");
         emit SentEther(msg.sender, _value);
         _to.transfer(_value);
     }
 
-    function getBalance() view public returns (uint256) {
-        if (msg.sender != owner) {
-          return 0;
-        }
+    function getBalance() view public onlyClaimableOwner() returns (uint256) {
         return address(this).balance;
     }
 

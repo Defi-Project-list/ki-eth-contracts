@@ -16,17 +16,30 @@ contract Ownable {
     }
 
     modifier onlyPendingOwner() {
-        require(msg.sender == pendingOwner);
+        require(msg.sender == pendingOwner, "msg.sender != pendingOwner");
+        _;
+    }
+
+    modifier onlyClaimableOwner() {
+        require((msg.sender == owner && pendingOwner == address(0)) || (msg.sender == pendingOwner && pendingOwner != 0));
         _;
     }
 
     function transferOwnership(address newOwner) onlyOwner public {
+        _transferOwnership(newOwner);
+    }
+
+    function _transferOwnership(address newOwner) private {
         pendingOwner = newOwner;
     }
 
     function claimOwnership() onlyPendingOwner public {
         emit OwnershipTransferred(owner, pendingOwner);
         owner = pendingOwner;
+        pendingOwner = address(0);
+    }
+
+    function reClaimOwnership() onlyOwner public {
         pendingOwner = address(0);
     }
 

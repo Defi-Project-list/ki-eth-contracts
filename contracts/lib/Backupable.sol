@@ -24,8 +24,8 @@ contract Backupable is Ownable {
         require (_backupWallet != 0x0);
         emit BackupChanged (owner, backupInfo.backupWallet, _timeout);
         backupInfo.backupWallet = _backupWallet;
-        backupInfo.timeout      = _timeout;
-        backupInfo.timestamp    = getBlockTimestamp();
+        backupInfo.timeout = _timeout;
+        backupInfo.timestamp = getBlockTimestamp();
     }
 
     function removeBackup() public onlyOwner {
@@ -47,7 +47,7 @@ contract Backupable is Ownable {
         return backupInfo.timestamp;
     }
 
-    function getBackupTimeLeft () public view returns (uint64 _res) {
+    function getBackupTimeLeft () view public returns (uint64 _res) {
         if (backupInfo.timestamp + backupInfo.timeout <= getBlockTimestamp()){
             _res = uint64(0);
         }
@@ -65,7 +65,5 @@ contract Backupable is Ownable {
         emit OwnerTouched();
         backupInfo.timestamp = getBlockTimestamp();
     }
-
-
 
 }

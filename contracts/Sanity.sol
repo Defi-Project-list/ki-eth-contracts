@@ -1,13 +1,13 @@
 pragma solidity 0.4.23;
 
-contract  Sanity {
+contract Sanity {
 
     string public name;
     uint256 private value;
     address public owner;
     uint256 private cancelCount;
 
-    modifier  OwnerOnly {
+    modifier  ownerOnly {
         if (msg.sender != owner) {
             revert();
         }
@@ -27,7 +27,7 @@ contract  Sanity {
         return value;
     }
 
-    function setValue(uint256 _value) public OwnerOnly {
+    function setValue(uint256 _value) public ownerOnly {
         value = _value;
         emit ValueChanged(value);
     }
