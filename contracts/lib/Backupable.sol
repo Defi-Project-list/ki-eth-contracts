@@ -21,7 +21,7 @@ contract Backupable is Ownable {
     }
 
     function setBackup (address _backupWallet, uint64 _timeout) public onlyOwner {
-        require (_backupWallet != 0x0);
+        require (_backupWallet != address(0));
         emit BackupChanged (owner, backupInfo.backupWallet, _timeout);
         backupInfo.backupWallet = _backupWallet;
         backupInfo.timeout = _timeout;
@@ -29,10 +29,21 @@ contract Backupable is Ownable {
     }
 
     function removeBackup() public onlyOwner {
-        require (backupInfo.backupWallet != 0x0);
+        require (backupInfo.backupWallet != address(0));
         emit BackupRemoved (owner, backupInfo.backupWallet);
-        backupInfo.backupWallet = 0;
+        _removeBackup();
+    }
+
+    function _removeBackup() private {
+        backupInfo.backupWallet = address(0);
         backupInfo.timeout = 0;
+    }
+
+    function activateBackup () public {
+        require (backupInfo.backupWallet != address(0));
+        require (getBackupTimeLeft() == 0);
+        emit BackupActivated (backupInfo.backupWallet);
+        _transferOwnership (backupInfo.backupWallet);
     }
 
     function getBackupWallet () view public returns (address) {
@@ -56,7 +67,7 @@ contract Backupable is Ownable {
         }
     }
 
-    function getBlockTimestamp () internal view returns (uint64){
+    function getBlockTimestamp () private view returns (uint64){
         // solium-disable-next-line security/no-block-members
         return uint64(block.timestamp); //safe for next 500B years
     }
@@ -64,6 +75,25 @@ contract Backupable is Ownable {
     function touch() public onlyOwner {
         emit OwnerTouched();
         backupInfo.timestamp = getBlockTimestamp();
+    }
+
+    function transferOwnership(address _newOwner) onlyOwner public {
+        _transferOwnership(_newOwner);
+    }
+
+    function _transferOwnership(address _newOwner) internal {
+        touch();
+        super._transferOwnership(_newOwner);
+    }
+
+    function claimOwnership() onlyPendingOwner public {
+        _removeBackup();
+        super.claimOwnership();
+    }
+
+    function reClaimOwnership() onlyOwner public {
+        touch();
+        super.reClaimOwnership();
     }
 
 }

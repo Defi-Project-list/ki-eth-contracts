@@ -29,7 +29,7 @@ contract Ownable {
         _transferOwnership(newOwner);
     }
 
-    function _transferOwnership(address newOwner) private {
+    function _transferOwnership(address newOwner) internal {
         pendingOwner = newOwner;
     }
 
