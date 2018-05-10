@@ -12,7 +12,8 @@
     "heroku-postbuild-full": "truffle migrate --compile-all --reset --network rinkeby && cd web-app && npm i && npm i --only=dev && npm build",
     "heroku-postbuild": "cd web-app && npm i && npm i --only=dev && npm run build",
     "migrate": "truffle migrate --compile-all --reset  --network",
-    "deployed": "truffle networks"
+    "deployed": "truffle networks",
+    "web3j": "web3j truffle generate ./build/contracts/Wallet.json -o ./android-app/app/src/main/java -p com.kirobo.smartwallet.Utils"
   },
   "repository": {
     "type": "git",
