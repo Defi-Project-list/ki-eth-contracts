@@ -15,6 +15,7 @@
     "deployed": "truffle networks",
     "web3j": "run-script-os",
     "web3j:linux": "./tools/web3j-3.4.0/bin/web3j truffle generate ./build/contracts/Wallet.json -o ./android-app/app/src/main/java -p com.kirobo.smartwallet.Contracts",
+    "web3j:darwin": "./tools/web3j-3.4.0/bin/web3j truffle generate ./build/contracts/Wallet.json -o ./android-app/app/src/main/java -p com.kirobo.smartwallet.Contracts",
     "web3j:win32": "tools\\web3j-3.4.0\\bin\\web3j truffle generate ./build/contracts/Wallet.json -o ./android-app/app/src/main/java -p com.kirobo.smartwallet.Contracts"
   },
   "repository": {
