@@ -73,6 +73,10 @@ contract Backupable is Ownable {
     }
 
     function touch () public onlyOwner {
+        _touch();
+    }
+
+    function _touch() internal {
         emit OwnerTouched();
         backupInfo.timestamp = getBlockTimestamp();
     }
@@ -82,7 +86,7 @@ contract Backupable is Ownable {
     }
 
     function _transferOwnership (address _newOwner) internal {
-        touch ();
+        _touch ();
         super._transferOwnership (_newOwner);
     }
 
