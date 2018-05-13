@@ -8,6 +8,7 @@ contract Backupable is Ownable {
         address backupWallet;
         uint64  timestamp;
         uint64  timeout;
+        bool    activated;
     }
 
     BackupInfo private backupInfo;
@@ -26,6 +27,7 @@ contract Backupable is Ownable {
         backupInfo.backupWallet = _backupWallet;
         backupInfo.timeout = _timeout;
         backupInfo.timestamp = getBlockTimestamp();
+        backupInfo.activated = false;
     }
 
     function removeBackup () public onlyOwner {
@@ -37,13 +39,20 @@ contract Backupable is Ownable {
     function _removeBackup () private {
         backupInfo.backupWallet = address(0);
         backupInfo.timeout = 0;
+        backupInfo.activated = false;
     }
 
     function activateBackup () public {
+        require (backupInfo.activated == false);
         require (backupInfo.backupWallet != address(0));
         require (getBackupTimeLeft() == 0);
+        backupInfo.activated = true;
         emit BackupActivated (backupInfo.backupWallet);
         _transferOwnership (backupInfo.backupWallet);
+    }
+
+    function isBackupActivated () view public returns (bool) {
+        return backupInfo.activated;
     }
 
     function getBackupWallet () view public returns (address) {
@@ -96,6 +105,7 @@ contract Backupable is Ownable {
     }
 
     function reClaimOwnership () onlyOwner public {
+        backupInfo.activated = false;
         touch ();
         super.reClaimOwnership ();
     }
