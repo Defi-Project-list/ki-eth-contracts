@@ -22,7 +22,7 @@ contract Wallet is Backupable {
     function sendEther (address _to, uint256 _value) public onlyClaimableOwner() {
         require (_value > 0, "value == 0");
         require (_value <= address(this).balance, "value > balance");
-        emit SentEther (msg.sender, _value);
+        emit SentEther (_to, _value);
         _to.transfer (_value);
     }
 

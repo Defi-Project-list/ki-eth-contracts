@@ -1,5 +1,6 @@
 const Wallet = artifacts.require("Wallet");
-const truffleAssert = require('truffle-assertions');
+const mlog = require('mocha-logger');
+//const truffleAssert = require('truffle-assertions');
 
 console.log("Using web3 '" + web3.version.api + "'");
 
@@ -31,17 +32,18 @@ const assertPayable = (err) => {
 
 
 contract('Wallet', async accounts => {
+  let instance;
 
   const owner = accounts[0];
   const user1 = accounts[1];
   const user2 = accounts[2];
 
-  const val1  = web3.toWei(1.5, 'ether');
-  const val2  = web3.toWei(4,   'ether');
-  const val3  = web3.toWei(6,   'ether');
+  const val1  = web3.toWei(0.5, 'gwei');
+  const val2  = web3.toWei(0.4, 'gwei');
+  const val3  = web3.toWei(0.6, 'gwei');
   const valBN = web3.toBigNumber(val1).add(web3.toBigNumber(val2)).add(web3.toBigNumber(val3));
 
-  before('checking consts', async () => {
+  before('checking constants', async () => {
       assert(typeof owner == 'string', 'owner should be string');
       assert(typeof user1 == 'string', 'user1 should be string');
       assert(typeof user2 == 'string', 'user2 should be string');
@@ -53,6 +55,14 @@ contract('Wallet', async accounts => {
 
   before('setup contract for the test', async () => {
     instance = await Wallet.new();
+
+    mlog.log('wallet  ', instance.address);
+    mlog.log('owner   ', owner);
+    mlog.log('user1   ', user1);
+    mlog.log('user2   ', user2);
+    mlog.log('val1    ', val1);
+    mlog.log('val2    ', val2);
+    mlog.log('val3    ', val3);
   });
 
   it('should create empty wallet', async () => {
@@ -69,7 +79,7 @@ contract('Wallet', async accounts => {
     assert.equal(balance.toString(10), valBN.toString(10));
   });
 
-  it("only owner can call getBalance", async () => {
+  it('only owner can call getBalance', async () => {
     const balance = await instance.getBalance.call({
       from: owner
     });
@@ -84,11 +94,11 @@ contract('Wallet', async accounts => {
     }
   });
 
-  it("only owner can send ether", async () => {
+  it('only owner can send ether', async () => {
     const userBalanceBefore = await web3.eth.getBalance(user2);
     await instance.sendEther(user2, web3.toBigNumber(val1), { from: owner });
     const userBalanceAfter = await web3.eth.getBalance(user2);
-    const userBalanceDelta = userBalanceAfter - userBalanceBefore;
+    const userBalanceDelta = userBalanceAfter.sub(userBalanceBefore);
     assert.equal(userBalanceDelta, val1);
 
     try {
@@ -100,7 +110,7 @@ contract('Wallet', async accounts => {
 
   });
 
-  it("should not allow sendEther to be payable", async () => {
+  it('should not allow sendEther to be payable', async () => {
     const contractBalanceBefore = await web3.eth.getBalance(instance.address);
     try {
       await instance.sendEther(owner, web3.toBigNumber(val1), { from: owner, value: val1 });
@@ -109,11 +119,11 @@ contract('Wallet', async accounts => {
       assertPayable(err);
     }
     const contractBalanceAfter = await web3.eth.getBalance(instance.address);
-    const contractBalanceDelta = contractBalanceBefore - contractBalanceAfter;
+    const contractBalanceDelta = contractBalanceBefore.sub(contractBalanceAfter);
     assert.equal(contractBalanceDelta, web3.toBigNumber(0).toString(10));
   });
 
-  it("should send ether from the contract when calling sendEther", async() => {
+  it('should send ether from the contract when calling sendEther', async() => {
     const contractBalanceBefore = await web3.eth.getBalance(instance.address);
     const walletBalanceBefore = await instance.getBalance.call({ from: owner });
 
@@ -122,24 +132,42 @@ contract('Wallet', async accounts => {
     const contractBalanceAfter = await web3.eth.getBalance(instance.address);
     const walletBalanceAfter = await instance.getBalance.call({ from: owner });
 
-    const contractBalanceDelta = contractBalanceBefore - walletBalanceAfter;
-    const walletBalanceDelta = walletBalanceBefore - walletBalanceAfter;
+    const contractBalanceDelta = contractBalanceBefore.sub(walletBalanceAfter);
+    const walletBalanceDelta = walletBalanceBefore.sub(walletBalanceAfter);
 
     assert.equal(contractBalanceDelta, val2);
     assert.equal(walletBalanceDelta, val2);
   });
 
-  it ("should send event with the sender and the value when getting ether", async () => {
-    await web3.eth.sendTransaction({ from: owner, value: val3, to: instance.address });
+  assetEvent_getArgs = (logs, eventName) => {
 
-    await instance.GotEther({}, { fromBlock: 'latest', toBlock: 'latest' })
-    .get((err, txReceipt) => {
-      assert.equal(err, undefined);
-      assert.equal(txReceipt[0].event, "GotEther");
-      const args = txReceipt[0].args;
-      assert.equal(args.from, owner);
-      assert.equal(args.value, val3);
-    });
+    assert.ok    (logs instanceof Array, 'logs should be an array');
+    assert.equal (logs.length, 1, 'should return one log');
+    const log =  logs[0];
+    assert.equal (log.event, eventName, 'event');
+    return log.args;
+  }
+
+  it ('should send event "GotEther(from, value)" when getting ether', async () => {
+    await web3.eth.sendTransaction({ from: user2, value: val3, to: instance.address });
+
+    const logs = await new Promise((r,j) => instance.GotEther({}, { fromBlock: 'latest', toBlock: 'latest' })
+    .get((err, logs) => { r(logs) }));
+
+    const args = assetEvent_getArgs(logs, 'GotEther');
+    assert.equal (args.from, user2, '..(from, ..)');
+    assert.equal (args.value, val3, '..(.. ,value)');
+  });
+
+  it ('should send event "SentEther(to, value)" when calling sendEther', async () => {
+    await instance.sendEther(user1, val2, { from: owner });
+
+    const logs = await new Promise((r,j) => instance.SentEther({}, { fromBlock: 'latest', toBlock: 'latest' })
+    .get((err, logs) => { r(logs) }));
+
+    const args = assetEvent_getArgs(logs, 'SentEther');
+    assert.equal (args.to, user1, '..(to, ..)');
+    assert.equal (args.value, val2, '..(.. ,value)');
   });
 
     /*,

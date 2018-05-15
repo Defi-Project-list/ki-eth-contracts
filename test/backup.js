@@ -1,4 +1,5 @@
 const Backup = artifacts.require("Backup");
+const mlog = require('mocha-logger');
 
 console.log("Using web3 '" + web3.version.api + "'");
 
