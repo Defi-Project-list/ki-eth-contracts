@@ -5,7 +5,7 @@ let mnemonic = "candy maple cake sugar pudding cream honey rich smooth crumble s
 // const ganache = require('ganache-cli');
 const devNetwork = {
   host: "127.0.0.1",	
-  port: 7545,
+  port: 8545,
   network_id: "*"
 };
 
