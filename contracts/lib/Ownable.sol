@@ -11,7 +11,7 @@ contract Ownable {
     }
 
     modifier onlyOwner () {
-        require (msg.sender == owner, "msg.sender != ownder");
+        require (msg.sender == owner, "msg.sender != owner");
         _;
     }
 
@@ -39,7 +39,7 @@ contract Ownable {
         pendingOwner = address(0);
     }
 
-    function reClaimOwnership () onlyOwner public {
+    function reclaimOwnership () onlyOwner public {
         pendingOwner = address(0);
     }
 

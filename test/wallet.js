@@ -1,35 +1,15 @@
 const Wallet = artifacts.require("Wallet");
 const mlog = require('mocha-logger');
+const {
+  assertRevert,
+  assertInvalidOpcode,
+  assertPayable,
+  assetEvent_getArgs
+} = require('./lib/asserts');
+
 //const truffleAssert = require('truffle-assertions');
 
 console.log("Using web3 '" + web3.version.api + "'");
-
-const assertRevert = (err) => {
-    if (web3.version.api.startsWith("1")) {
-        assert.equal('revert', Object.values(err.results)[0].error);
-    }
-    else {
-        assert.ok(err && err.message && err.message.includes('revert'));
-    }
-};
-
-const assertInvalidOpcode = (err) => {
-    if (web3.version.api.startsWith("1")) {
-        assert.equal('invalid opcode', Object.values(err.results)[0].error);
-    }
-    else{
-        assert.ok(err && err.message && err.message.includes('invalid opcode'));
-    }
-};
-
-const assertPayable = (err) => {
-  if (web3.version.api.startsWith("1")) {
-    assert.equal('revert', Object.values(err.results)[0].error);
-  } else {
-    assert.ok(err && err.message && err.message.includes('payable'));
-  }
-};
-
 
 contract('Wallet', async accounts => {
   let instance;
@@ -139,16 +119,7 @@ contract('Wallet', async accounts => {
     assert.equal(walletBalanceDelta, val2);
   });
 
-  assetEvent_getArgs = (logs, eventName) => {
-
-    assert.ok    (logs instanceof Array, 'logs should be an array');
-    assert.equal (logs.length, 1, 'should return one log');
-    const log =  logs[0];
-    assert.equal (log.event, eventName, 'event');
-    return log.args;
-  }
-
-  it ('should send event "GotEther(from, value)" when getting ether', async () => {
+  it ('should emit event "GotEther(from, value)" when getting ether', async () => {
     await web3.eth.sendTransaction({ from: user2, value: val3, to: instance.address });
 
     const logs = await new Promise((r,j) => instance.GotEther({}, { fromBlock: 'latest', toBlock: 'latest' })
@@ -159,7 +130,7 @@ contract('Wallet', async accounts => {
     assert.equal (args.value, val3, '..(.. ,value)');
   });
 
-  it ('should send event "SentEther(to, value)" when calling sendEther', async () => {
+  it ('should emit event "SentEther(to, value)" when calling sendEther', async () => {
     await instance.sendEther(user1, val2, { from: owner });
 
     const logs = await new Promise((r,j) => instance.SentEther({}, { fromBlock: 'latest', toBlock: 'latest' })

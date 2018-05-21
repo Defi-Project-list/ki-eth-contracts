@@ -104,10 +104,10 @@ contract Backupable is Ownable {
         super.claimOwnership ();
     }
 
-    function reClaimOwnership () onlyOwner public {
+    function reclaimOwnership () onlyOwner public {
         backupInfo.activated = false;
         touch ();
-        super.reClaimOwnership ();
+        super.reclaimOwnership ();
     }
 
 }
