@@ -18,7 +18,7 @@ contract Backupable is Ownable {
     event BackupActivated (address indexed backupWallet);
     event OwnerTouched    ();
 
-    constructor () public {
+    constructor () Ownable() public {
     }
 
     function setBackup (address _backupWallet, uint64 _timeout) public onlyOwner {

@@ -1,0 +1,4 @@
+module.exports = {
+  ZERO_ADDRESS: "0x0000000000000000000000000000000000000000",
+  ZERO_BN: web3.toBigNumber(0)
+}
