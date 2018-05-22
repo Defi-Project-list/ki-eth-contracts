@@ -50,6 +50,65 @@ contract('Backupable', async accounts => {
     assert.equal(isBackupActivated, false, 'isBackupActivated');
   });
 
+  it('only owner can set backup', async () => {
+    try {
+      await instance.setBackup(user2, 60, { from: user1 });
+      assert(false);
+    } catch (err) {
+      assertRevert(err);
+    }
+
+    let backupWallet = await instance.getBackupWallet();
+    let backupTimeout = await instance.getBackupTimeout();
+    let backupTimestamp = await instance.getBackupTimestamp();
+    let isBackupActivated = await instance.isBackupActivated();
+
+    assert.equal(backupWallet, ZERO_ADDRESS, "backupWallet");
+    assert.equal(backupTimeout.toString(10), ZERO_BN.toString(10), 'backupTimeout');
+    assert.equal(backupTimestamp.toString(10), ZERO_BN.toString(10), 'backupTimestamp');
+    assert.equal(isBackupActivated, false, 'isBackupActivated');
+
+    await instance.setBackup(user1, 120, { from: owner });
+
+    const blockTimestamp = web3.eth.getBlock('latest').timestamp;
+
+    backupWallet = await instance.getBackupWallet();
+    backupTimeout = await instance.getBackupTimeout();
+    backupTimestamp = await instance.getBackupTimestamp();
+    isBackupActivated = await instance.isBackupActivated();
+
+    assert.equal(backupWallet, user1, "backupWallet");
+    assert.equal(backupTimeout.toString(10), web3.toBigNumber(120).toString(10), `backupTimeout`);
+    assert.equal(backupTimestamp.toString(10), web3.toBigNumber(blockTimestamp).toString(10), `backupTimestamp`);
+    assert.equal(isBackupActivated, false, 'isBackupActivated');
+  });
+
+  it('should revert when trying to set empty backup', async () => {
+    try {
+      await instance.setBackup(ZERO_ADDRESS, 60, { from: owner });
+      assert(false);
+    } catch (err) {
+      assertRevert(err);
+    }
+  });
+
+  it('should emit event "BackupChanged(owner, backupWallet, timeout)" when backup is set', async () => {
+    await instance.setBackup(user2, 240, { from: owner });
+
+    const logs = await new Promise((r, j) => instance.BackupChanged({}, {
+         fromBlock: 'latest',
+         toBlock: 'latest'
+       })
+       .get((err, logs) => {
+         r(logs)
+       }));
+
+     const args = assetEvent_getArgs(logs, 'BackupChanged');
+     assert.equal(args.owner, owner, '..(owner, .., ..)');
+     assert.equal(args.wallet, user2, '..(.., backupWallet, ..)');
+     assert.equal(args.timeout, 240, '..(.., .., timeout)');
+  });
+
 
   // it('only owner can transfer ownership', async () => {
   //   try {

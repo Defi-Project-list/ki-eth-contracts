@@ -25,12 +25,14 @@ contract Ownable {
         _;
     }
 
-    function transferOwnership (address newOwner) onlyOwner public {
-        _transferOwnership (newOwner);
+    function transferOwnership (address _newOwner) onlyOwner public {
+        _transferOwnership (_newOwner);
     }
 
-    function _transferOwnership (address newOwner) internal {
-        pendingOwner = newOwner;
+    function _transferOwnership (address _newOwner) internal {
+        require(_newOwner != owner);
+        require(_newOwner != address(0));
+        pendingOwner = _newOwner;
     }
 
     function claimOwnership () onlyPendingOwner public {

@@ -16,7 +16,7 @@ contract Wallet is Backupable {
         _;
     }
 
-    constructor () payable logPayment() public {
+    constructor () Backupable () payable logPayment() public {
     }
 
     function sendEther (address _to, uint256 _value) public onlyClaimableOwner() {
