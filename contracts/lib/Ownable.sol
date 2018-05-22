@@ -21,17 +21,17 @@ contract Ownable {
     }
 
     modifier onlyClaimableOwner () {
-        require ((msg.sender == owner && pendingOwner == address(0)) || (msg.sender == pendingOwner && pendingOwner != 0));
+        require (msg.sender == owner || (msg.sender == pendingOwner && pendingOwner != 0));
         _;
     }
 
     function transferOwnership (address _newOwner) onlyOwner public {
+        require(_newOwner != owner);
+        require(_newOwner != address(0));
         _transferOwnership (_newOwner);
     }
 
     function _transferOwnership (address _newOwner) internal {
-        require(_newOwner != owner);
-        require(_newOwner != address(0));
         pendingOwner = _newOwner;
     }
 
