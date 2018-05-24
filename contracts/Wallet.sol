@@ -1,8 +1,8 @@
 pragma solidity 0.4.23;
 
-import "./lib/Backupable.sol";
+import "./lib/Heritable.sol";
 
-contract Wallet is Backupable {
+contract Wallet is Heritable {
     uint256 public passCount;
 
     event GotEther   (address indexed from, uint256 value);

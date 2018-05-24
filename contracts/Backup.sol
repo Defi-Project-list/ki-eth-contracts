@@ -1,6 +1,6 @@
 pragma solidity 0.4.23;
 
-import "./lib/Heritable.sol";
+import "./lib/HeritableOne.sol";
 
 contract Backup is Heritable {
 

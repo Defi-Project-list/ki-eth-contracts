@@ -25,16 +25,21 @@ contract Backupable is Ownable {
         require (_wallet != address(0));
         require (_wallet != owner);
         require (backup.activated == false);
+        reclaimOwnership();
         emit BackupChanged (owner, _wallet, _timeout);
         backup.wallet = _wallet;
         backup.timeout = _timeout;
-        backup.timestamp = getBlockTimestamp();
         backup.activated = false;
     }
 
     function removeBackup () public onlyOwner {
         require (backup.wallet != address(0));
-        require (backup.activated == false);
+        if (backup.activated == true) {
+            reclaimOwnership ();
+        }
+        else {
+            _touch ();
+        }
         _removeBackup ();
     }
 
@@ -42,7 +47,6 @@ contract Backupable is Ownable {
         emit BackupRemoved (owner, backup.wallet);
         backup.wallet = address(0);
         backup.timeout = 0;
-        backup.timestamp = 0;
         backup.activated = false;
     }
 
@@ -98,7 +102,7 @@ contract Backupable is Ownable {
         require (_newOwner != backup.wallet);
         require (backup.activated == false);
         super.transferOwnership (_newOwner);
-        touch();
+        _touch();
     }
 
     function _transferOwnership (address _newOwner) internal {

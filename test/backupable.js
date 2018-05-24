@@ -11,6 +11,18 @@ const {
 
 console.log("Using web3 '" + web3.version.api + "'");
 
+const getLatestBlockTimestamp = async () => {
+  const timestamp =  await new Promise(
+    (r, j) => web3.eth.getBlock('latest', (err, block) => r(block.timestamp) ));
+  return timestamp;
+};
+
+const sleep = async (milliseconds) => {
+  const timestamp =  await new Promise(
+    (r, j) => setTimeout(()=> { r() }, milliseconds));
+  return timestamp;
+};
+
 const ownableTests = require('./ownableTests');
 ownableTests(Backupable, "Backupable as Ownable");
 
@@ -20,6 +32,8 @@ contract('Backupable', async accounts => {
   const owner = accounts[0];
   const user1 = accounts[1];
   const user2 = accounts[2];
+
+  let blockTimestamp = 0;
 
   before('checking constants', async () => {
       assert(typeof owner == 'string', 'owner should be string');
@@ -72,8 +86,7 @@ contract('Backupable', async accounts => {
     assert.equal(isBackupActivated, false, 'isBackupActivated');
 
     await instance.setBackup(user1, 120, { from: owner });
-
-    const blockTimestamp = web3.eth.getBlock('latest').timestamp;
+    blockTimestamp = await getLatestBlockTimestamp();
 
     backupWallet = await instance.getBackupWallet();
     backupTimeout = await instance.getBackupTimeout();
@@ -113,6 +126,7 @@ contract('Backupable', async accounts => {
       assertRevert(err);
     }
     await instance.removeBackup({ from: owner });
+    blockTimestamp = await getLatestBlockTimestamp();
 
     const backupWallet = await instance.getBackupWallet();
     const backupTimeout = await instance.getBackupTimeout();
@@ -121,10 +135,10 @@ contract('Backupable', async accounts => {
 
     assert.equal(backupWallet, ZERO_ADDRESS, "backupWallet");
     assert.equal(backupTimeout.toString(10), ZERO_BN.toString(10), 'backupTimeout');
-    assert.equal(backupTimestamp.toString(10), ZERO_BN.toString(10), 'backupTimestamp');
+    assert.equal(backupTimestamp.toString(10), blockTimestamp, 'backupTimestamp');
     assert.equal(isBackupActivated, false, 'isBackupActivated');
-
   });
+
   it('should revert when trying to activate an empty backup', async () => {
     try {
       await instance.activateBackup({ from: owner });
@@ -181,28 +195,20 @@ contract('Backupable', async accounts => {
 
   it('anyone should be able to activate backup when time is out', async () => {
     await instance.setBackup(user1, 0, { from: owner });
+    blockTimestamp = await getLatestBlockTimestamp();
+
     await instance.activateBackup({ from: user2 });
   });
 
   it('should revert when trying to set a backup when backup is activated', async () => {
     try {
-      await instance.setBackup(owner, 120, {
-        from: owner
-      });
+      await instance.setBackup(user1, 120, { from: owner });
       assert(false);
     } catch (err) {
       assertRevert(err);
     }
   });
 
-  it('should revert when trying to remove a backup when backup is activated', async () => {
-    try {
-      await instance.removeBackup({ from: owner });
-      assert(false);
-    } catch (err) {
-      assertRevert(err);
-    }
-  });
 
   it('should revert when trying to activate a backup when backup is already activated', async () => {
     try {
@@ -215,27 +221,57 @@ contract('Backupable', async accounts => {
 
   it('only owner can reclaim ownership', async () => {
     try {
-      await instance.activateBackup({ from: user1 });
+      await instance.reclaimOwnership({ from: user1 });
       assert(false);
     } catch (err) {
       assertRevert(err);
     }
   });
 
+  it('owner should be able to remove a backup when backup is activated', async () => {
+    await instance.removeBackup({ from: owner });
+    blockTimestamp = await getLatestBlockTimestamp();
+
+    const backupWallet = await instance.getBackupWallet();
+    const backupTimeout = await instance.getBackupTimeout();
+    const backupTimestamp = await instance.getBackupTimestamp();
+    const isBackupActivated = await instance.isBackupActivated();
+
+    assert.equal(backupWallet, ZERO_ADDRESS, "backupWallet");
+    assert.equal(backupTimeout.toString(10), ZERO_BN.toString(10), 'backupTimeout');
+    assert.equal(backupTimestamp.toString(10), blockTimestamp, 'backupTimestamp');
+    assert.equal(isBackupActivated, false, 'isBackupActivated');
+  });
+
+  // it('should revert when trying to remove a backup when backup is activated', async () => {
+    //   try {
+      //     await instance.removeBackup({ from: owner });
+      //     assert(false);
+  //   } catch (err) {
+    //     assertRevert(err);
+    //   }
+  // });
+
   it('owner should be able to reclaim ownership when backup is activated', async () => {
+
+    await instance.setBackup(user1, 0, { from: owner });
+    blockTimestamp = await getLatestBlockTimestamp();
+    await instance.activateBackup({ from: user2 });
+
     let backupWallet = await instance.getBackupWallet();
     let backupTimeout = await instance.getBackupTimeout();
     let backupTimestamp = await instance.getBackupTimestamp();
     let isBackupActivated = await instance.isBackupActivated();
 
-    let blockTimestamp = web3.eth.getBlock('latest').timestamp;
-
     assert.equal(backupWallet, user1, "backupWallet");
     assert.equal(backupTimeout.toString(10), ZERO_BN.toString(10), 'backupTimeout');
-    assert.equal(backupTimestamp.toString(10), blockTimestamp.toString(10), 'backupTimestamp');
+    assert.equal(backupTimestamp.toString(10), web3.toBigNumber(blockTimestamp).toString(10), 'backupTimestamp');
     assert.equal(isBackupActivated, true, 'isBackupActivated');
 
+    await sleep(2000);
+
     await instance.reclaimOwnership({ from: owner });
+    blockTimestamp = await getLatestBlockTimestamp();
 
     backupWallet = await instance.getBackupWallet();
     backupTimeout = await instance.getBackupTimeout();
@@ -244,84 +280,16 @@ contract('Backupable', async accounts => {
 
     assert.equal(backupWallet, user1, "backupWallet");
     assert.equal(backupTimeout.toString(10), ZERO_BN.toString(10), 'backupTimeout');
-    assert.equal(backupTimestamp.toString(10), blockTimestamp.toString(10), 'backupTimestamp');
+    assert.equal(backupTimestamp.toString(10), web3.toBigNumber(blockTimestamp).toString(10), 'backupTimestamp');
     assert.equal(isBackupActivated, false, 'isBackupActivated');
   });
 
+  it('should revert when trying to transferOwnership when backup is defined', async () => {
+    await instance.setBackup(user1, 0, { from: owner });
+    blockTimestamp = await getLatestBlockTimestamp();
+    //await instance.activateBackup({ from: user2 });
+    await instance.transferOwnership(user2, { from: owner });
 
-
-  // it('only owner can transfer ownership', async () => {
-  //   try {
-  //     await instance.transferOwnership(user2, { from: user1 });
-  //     assert(false);
-  //   } catch (err) {
-  //     assertRevert(err);
-  //   }
-  //   await instance.transferOwnership(user1, { from: owner });
-  //   const pendingOwner = await instance.pendingOwner.call();
-  //   assert.equal(pendingOwner, user1);
-  // });
-
-  // it('only owner can reclaim ownership', async () => {
-  //   try {
-  //     await instance.reclaimOwnership({ from: user1 });
-  //     assert(false);
-  //   } catch (err) {
-  //     assertRevert(err);
-  //   }
-
-  //   await instance.reclaimOwnership({ from: owner });
-  //   const contactOwner = await instance.owner.call();
-  //   const pendingOwner = await instance.pendingOwner.call();
-  //   assert.equal(contactOwner, owner);
-  //   assert.equal(pendingOwner, ZERO_ADDRESS);
-  // });
-
-  // it ('only pending owner can claim ownership', async () => {
-  //   await instance.transferOwnership(user2, { from:owner });
-  //   try {
-  //     await instance.claimOwnership({ from: owner });
-  //     assert(false);
-  //   } catch (err) {
-  //     assertRevert(err);
-  //   }
-  //   try {
-  //     await instance.claimOwnership({ from: user1 });
-  //     assert(false);
-  //   } catch (err) {
-  //     assertRevert(err);
-  //   }
-  //   await instance.claimOwnership({ from: user2 });
-  //   const contactOwner = await instance.owner.call();
-  //   const pendingOwner = await instance.pendingOwner.call();
-  //   assert.equal(contactOwner, user2);
-  //   assert.equal(pendingOwner, ZERO_ADDRESS);
-  // });
-
-  // it ('should reject when trying to call internal _transferOwnership', async ()=> {
-  //   try {
-  //     await instance._transferOwnership(user1, { from: user2 });
-  //     assert(false);
-  //   } catch (err) {
-  //     assertFunction(err);
-  //   }
-  // });
-
-  // it('should emit event "OwnershipTransferred(to)" when owner is changed', async () => {
-  //   await instance.transferOwnership(user1, { from: user2 });
-  //   await instance.claimOwnership({ from: user1 });
-
-  //   const logs = await new Promise((r, j) => instance.OwnershipTransferred({}, {
-  //        fromBlock: 'latest',
-  //        toBlock: 'latest'
-  //      })
-  //      .get((err, logs) => {
-  //        r(logs)
-  //      }));
-
-  //    const args = assetEvent_getArgs(logs, 'OwnershipTransferred');
-  //    assert.equal(args.previousOwner, user2, '..(previousOwner, ..)');
-  //    assert.equal(args.newOwner, user1, '..(.., newOwner)');
-  //  });
+  });
 
 });

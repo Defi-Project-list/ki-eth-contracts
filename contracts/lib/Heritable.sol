@@ -1,83 +1,67 @@
 pragma solidity 0.4.23;
 
-import "./Ownable.sol";
+import "./Backupable.sol";
 
-contract Heritable is Ownable {
-    address private heir_;
+contract Heritable is Backupable {
 
-    // Time window the owner has to notify they are alive.
-    uint256 private heartbeatTimeout_;
-
-    // Timestamp of the owner's death, as pronounced by the heir.
-    uint256 private timeOfDeath_;
-
-    event HeirChanged(address indexed owner, address indexed newHeir);
-    event OwnerHeartbeated(address indexed owner);
-    event OwnerProclaimedDead(address indexed owner, address indexed heir, uint256 timeOfDeath);
-    event HeirOwnershipClaimed(address indexed previousOwner, address indexed newOwner);
-
-    modifier onlyHeir() {
-        require(msg.sender == heir_);
-        _;
+    struct Heir {
+        address wallet;
+        uint8   percent;
+        bool    activated;
+        bool    sent;
     }
 
-    constructor(uint256 _heartbeatTimeout) public {
-        setHeartbeatTimeout(_heartbeatTimeout);
+    struct Inheritance {
+        Heir[8] heirs;
+        uint64  timeout;
+        uint64  timestamp;
     }
 
-    function setHeir(address newHeir) public onlyOwner {
-        require(newHeir != owner);
-        heartbeat();
-        emit HeirChanged(owner, newHeir);
-        heir_ = newHeir;
+    Inheritance private inheritance;
+
+    constructor() public {
     }
 
-    function heir() public view returns(address) {
-        return heir_;
+    function getTotalPercent() view public returns (uint256) {
+        uint256 total = 0;
+        for (uint256 i = 0; i < inheritance.heirs.length; i++) {
+            total += inheritance.heirs[i].percent;
+        }
+        return total;
     }
 
-    function heartbeatTimeout() public view returns(uint256) {
-        return heartbeatTimeout_;
+    function setHeir (uint8 _slot, uint8 _percent, address _wallet) onlyOwner() public {
+        require (_slot < 8);
+        require (_wallet != address(0));
+        Heir memory heir = Heir(_wallet, _percent, false, false);
+        inheritance.heirs[_slot] = heir;
     }
 
-    function timeOfDeath() public view returns(uint256) {
-        return timeOfDeath_;
+    function removeHeir(uint8 _slot) onlyOwner() public {
+        require (_slot < 8);
+        Heir storage heir = inheritance.heirs[_slot];
+        heir.wallet = address(0);
+        heir.percent = 0;
+        heir.activated = false;
+        heir.sent = false;
     }
 
-    function removeHeir() public onlyOwner {
-        heartbeat();
-        heir_ = 0;
+    function getHeir(uint256 _slot) view public returns (address, uint8 , bool, bool) {
+        require (_slot < 8);
+        Heir storage heir = inheritance.heirs [_slot];
+        return (heir.wallet, heir.percent, heir.activated, heir.sent);
     }
 
-    function proclaimDeath() public onlyHeir {
-        require(ownerLives());
-        emit OwnerProclaimedDead(owner, heir_, timeOfDeath_);
-        // solium-disable-next-line security/no-block-members
-        timeOfDeath_ = block.timestamp;
-    }
-
-    function heartbeat() public onlyOwner {
-        emit OwnerHeartbeated(owner);
-        timeOfDeath_ = 0;
-    }
-
-    function claimHeirOwnership() public onlyHeir {
-        require(!ownerLives());
-        // solium-disable-next-line security/no-block-members
-        require(block.timestamp >= timeOfDeath_ + heartbeatTimeout_);
-        emit OwnershipTransferred(owner, heir_);
-        emit HeirOwnershipClaimed(owner, heir_);
-        owner = heir_;
-        timeOfDeath_ = 0;
-    }
-
-    function setHeartbeatTimeout(uint256 newHeartbeatTimeout) internal onlyOwner {
-        require(ownerLives());
-        heartbeatTimeout_ = newHeartbeatTimeout;
-    }
-
-    function ownerLives() internal view returns (bool) {
-        return timeOfDeath_ == 0;
+    function activate () public {
+        uint256 currentBalance = address(this).balance;
+        for (uint256 i = 0; i < inheritance.heirs.length; i++) {
+            Heir storage heir = inheritance.heirs [i];
+            if (heir.percent > 0 && heir.activated == false) {
+                heir.activated = true;
+                // solium-disable-next-line security/no-send
+                heir.sent = heir.wallet.send((currentBalance * heir.percent)/100);
+            }
+        }
     }
 
 }
