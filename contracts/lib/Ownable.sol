@@ -41,6 +41,10 @@ contract Ownable {
         pendingOwner = address(0);
     }
 
+    function imOwner () external view returns (bool) {
+        return (owner == msg.sender);
+    }
+
     function reclaimOwnership () onlyOwner public {
         pendingOwner = address(0);
     }

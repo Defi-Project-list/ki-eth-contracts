@@ -59,12 +59,16 @@ contract Backupable is Ownable {
         backup.activated = true;
     }
 
-    function isBackupActivated () view public returns (bool) {
+    function backupActivated () view public returns (bool) {
         return backup.activated;
     }
 
     function getBackupWallet () view public returns (address) {
         return backup.wallet;
+    }
+
+    function imBackup () external view returns (bool) {
+        return (backup.wallet == msg.sender);
     }
 
     function getBackupTimeout () view public returns (uint64) {
@@ -84,7 +88,11 @@ contract Backupable is Ownable {
         }
     }
 
-    function getBlockTimestamp () private view returns (uint64) {
+    function getTouchTimestamp () internal view returns (uint64) {
+        return uint64(backup.timestamp);
+    }
+
+    function getBlockTimestamp () internal view returns (uint64) {
         // solium-disable-next-line security/no-block-members
         return uint64(block.timestamp); //safe for next 500B years
     }

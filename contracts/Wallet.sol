@@ -16,7 +16,7 @@ contract Wallet is Heritable {
         _;
     }
 
-    constructor () Backupable () payable logPayment() public {
+    constructor () Heritable () payable logPayment() public {
     }
 
     function sendEther (address _to, uint256 _value) public onlyClaimableOwner() {

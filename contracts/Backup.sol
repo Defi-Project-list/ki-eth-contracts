@@ -2,7 +2,7 @@ pragma solidity 0.4.23;
 
 import "./lib/HeritableOne.sol";
 
-contract Backup is Heritable {
+contract Backup is HeritableOne {
 
     uint256 private cancelCount;
 
@@ -23,7 +23,7 @@ contract Backup is Heritable {
         _;
     }
 
-    constructor() Heritable(1000) public {
+    constructor() HeritableOne(1000) public {
         // solium-disable-next-line security/no-block-members
         backupInfo.timestamp = uint64(block.timestamp);
     }

@@ -2,7 +2,7 @@ pragma solidity 0.4.23;
 
 import "./Ownable.sol";
 
-contract Heritable is Ownable {
+contract HeritableOne is Ownable {
     address private heir_;
 
     // Time window the owner has to notify they are alive.
