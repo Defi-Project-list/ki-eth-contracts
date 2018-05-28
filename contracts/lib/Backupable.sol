@@ -59,7 +59,7 @@ contract Backupable is Ownable {
         backup.activated = true;
     }
 
-    function backupActivated () view public returns (bool) {
+    function isBackupActivated () view public returns (bool) {
         return backup.activated;
     }
 
@@ -67,7 +67,7 @@ contract Backupable is Ownable {
         return backup.wallet;
     }
 
-    function imBackup () external view returns (bool) {
+    function isBackup () external view returns (bool) {
         return (backup.wallet == msg.sender);
     }
 

@@ -99,7 +99,7 @@ contract Heritable is Backupable {
         return total;
     }
 
-    function getHeir(uint256 _slot) view public returns (address, uint8 , bool) {
+    function getHeir(uint256 _slot) view public returns (address wallet, uint8 percent, bool sent) {
         require (_slot < MAX_HEIRS);
 
         Heir storage heir = inheritance.heirs [_slot];
@@ -108,6 +108,16 @@ contract Heritable is Backupable {
             return (heir.wallet, heir.percent, heir.sent);
         }
         return (address(0), 0, false);
+    }
+
+    function getHeirs() view public returns (bytes32[MAX_HEIRS] heirs) {
+        for (uint256 i = 0; i < inheritance.heirs.length; i++) {
+            Heir storage heir = inheritance.heirs [i];
+            if (heir.wallet == address(0)) {
+                break;
+            }
+            heirs[i] = bytes32((uint256(heir.wallet) << 96) + (uint256(heir.percent) << 88));
+        }
     }
 
     function getInheritanceTimeLeft () view public returns (uint64 _res) {
@@ -119,12 +129,16 @@ contract Heritable is Backupable {
         }
     }
 
-    function inheritanceActivated () view public returns (bool) {
+    function isInheritanceActivated () view public returns (bool) {
         return (inheritance.activated == true );
     }
 
-    function inheritanceEnabled () view public returns (bool) {
+    function isInheritanceEnabled () view public returns (bool) {
         return (inheritance.enabled == true );
+    }
+
+    function getInheritanceTimeout () view public returns (uint64) {
+        return inheritance.timeout;
     }
 
     function activateInheritance () public {
