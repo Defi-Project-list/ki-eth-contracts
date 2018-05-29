@@ -1,4 +1,4 @@
-pragma solidity 0.4.23;
+pragma solidity 0.4.24;
 
 import "./Backupable.sol";
 
@@ -53,11 +53,10 @@ contract Heritable is Backupable {
     function setHeirs (address[] _wallets, uint8[] _percents) onlyOwner() public {
         require (inheritance.activated == false);
         require (_wallets.length <= MAX_HEIRS);
-        require (_percents.length <= MAX_HEIRS);
         require (_wallets.length == _percents.length);
 
         uint256 totalPercent = 0;
-        for (uint256 i = 0; i < _percents.length; ++i) {
+        for (uint256 i = 0; i < _wallets.length; ++i) {
             totalPercent += _percents[i];
             require(_wallets[i] != address(0));
             require(_wallets[i] != address(this));
@@ -84,8 +83,7 @@ contract Heritable is Backupable {
         }
     }
 
-    function getTotalPercent() view public returns (uint256) {
-        uint256 total = 0;
+    function getTotalPercent () view public returns (uint256 total) {
         for (uint256 i = 0; i < inheritance.heirs.length; i++) {
             if (inheritance.heirs[i].wallet == address(0)) {
                 break;
@@ -95,7 +93,7 @@ contract Heritable is Backupable {
         return total;
     }
 
-    function getHeirs() view public returns (bytes32[MAX_HEIRS] heirs) {
+    function getHeirs () view public returns (bytes32[MAX_HEIRS] heirs) {
         for (uint256 i = 0; i < inheritance.heirs.length; i++) {
             Heir storage heir = inheritance.heirs [i];
             if (heir.wallet == address(0)) {
@@ -144,6 +142,9 @@ contract Heritable is Backupable {
                 heir.sent = heir.wallet.send((currentBalance * heir.percent)/100);
             }
         }
+    }
+
+    function () payable public {
     }
 
 }
