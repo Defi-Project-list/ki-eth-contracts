@@ -84,10 +84,6 @@ contract Heritable is Backupable {
         }
     }
 
-    function removeAllHeirs () onlyOwner() public {
-        inheritance.heirs[0].wallet = address(0);
-    }
-
     function getTotalPercent() view public returns (uint256) {
         uint256 total = 0;
         for (uint256 i = 0; i < inheritance.heirs.length; i++) {
@@ -99,24 +95,13 @@ contract Heritable is Backupable {
         return total;
     }
 
-    function getHeir(uint256 _slot) view public returns (address wallet, uint8 percent, bool sent) {
-        require (_slot < MAX_HEIRS);
-
-        Heir storage heir = inheritance.heirs [_slot];
-
-        if (heir.wallet != 0) {
-            return (heir.wallet, heir.percent, heir.sent);
-        }
-        return (address(0), 0, false);
-    }
-
     function getHeirs() view public returns (bytes32[MAX_HEIRS] heirs) {
         for (uint256 i = 0; i < inheritance.heirs.length; i++) {
             Heir storage heir = inheritance.heirs [i];
             if (heir.wallet == address(0)) {
                 break;
             }
-            heirs[i] = bytes32((uint256(heir.wallet) << 96) + (uint256(heir.percent) << 88));
+            heirs[i] = bytes32 ((uint256(heir.wallet) << 96) + (uint256(heir.percent) << 88) + (heir.sent ? uint256(1) << 86 : 0));
         }
     }
 
