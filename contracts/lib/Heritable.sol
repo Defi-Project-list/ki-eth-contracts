@@ -21,7 +21,7 @@ contract Heritable is Backupable {
 
     Inheritance private inheritance;
 
-    event InheritanceActivated (address[] wallets);
+    event InheritanceActivated (address indexed activator, address[] wallets);
 
     constructor() Backupable () public {
     }
@@ -150,7 +150,7 @@ contract Heritable is Backupable {
             heir = inheritance.heirs [inx];
             wallets[inx] = heir.wallet;
         }
-        emit InheritanceActivated(wallets);
+        emit InheritanceActivated(msg.sender, wallets);
     }
 
     function () payable public {
