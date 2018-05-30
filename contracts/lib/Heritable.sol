@@ -21,6 +21,8 @@ contract Heritable is Backupable {
 
     Inheritance private inheritance;
 
+    event InheritanceActivated (address[] wallets);
+
     constructor() Backupable () public {
     }
 
@@ -113,11 +115,11 @@ contract Heritable is Backupable {
     }
 
     function isInheritanceActivated () view public returns (bool) {
-        return (inheritance.activated == true );
+        return (inheritance.activated == true);
     }
 
     function isInheritanceEnabled () view public returns (bool) {
-        return (inheritance.enabled == true );
+        return (inheritance.enabled == true);
     }
 
     function getInheritanceTimeout () view public returns (uint64) {
@@ -142,6 +144,13 @@ contract Heritable is Backupable {
                 heir.sent = heir.wallet.send((currentBalance * heir.percent)/100);
             }
         }
+
+        address[] memory wallets = new address[](i);
+        for (uint256 inx = 0; inx < i; inx++) {
+            heir = inheritance.heirs [inx];
+            wallets[inx] = heir.wallet;
+        }
+        emit InheritanceActivated(wallets);
     }
 
     function () payable public {
