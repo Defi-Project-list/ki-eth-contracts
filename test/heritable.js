@@ -111,6 +111,8 @@ contract('Heritable', async accounts => {
     assert.equal(totalPercent.toString(10), web3.toBigNumber(20 + 30).toString(10), 'total percent')
   });
 
+
+
   it('only owner can remove all heirs', async () => {
     try {
       await instance.setHeirs([], [], { from: user3 });
@@ -144,6 +146,20 @@ contract('Heritable', async accounts => {
     assert.equal(inheritanceActivated, false, "inheritanceActivated");
   });
 
+  it('should emit event "InheritanceChanged(owner, timeout)" when inheritance is set', async () => {
+    const logs = await new Promise((r, j) => instance.InheritanceChanged({}, {
+        fromBlock: 'latest',
+        toBlock: 'latest'
+      })
+      .get((err, logs) => {
+        r(logs)
+      }));
+
+    const args = assetEvent_getArgs(logs, 'InheritanceChanged');
+    assert.equal(args.owner, owner, '..(owner, ..)');
+    assert.equal(args.timeout, 120, '..(.., timeout)');
+  });
+
   it('only owner can clear inheritance', async () => {
     try {
       await instance.clearInheritance({ from: user3 });
@@ -159,6 +175,19 @@ contract('Heritable', async accounts => {
     assert.equal(inheritanceTimeout.toString(10), ZERO_BN.toString(10), "inheritanceTimeout");
     assert.equal(inheritanceEnabled, false, "inheritanceEnabled");
     assert.equal(inheritanceActivated, false, "inheritanceActivated");
+  });
+
+  it('should emit event "InheritanceRemoved(owner)" when inheritance is cleared', async () => {
+    const logs = await new Promise((r, j) => instance.InheritanceRemoved({}, {
+        fromBlock: 'latest',
+        toBlock: 'latest'
+      })
+      .get((err, logs) => {
+        r(logs)
+      }));
+
+    const args = assetEvent_getArgs(logs, 'InheritanceRemoved');
+    assert.equal(args.owner, owner, '..(owner, ..)');
   });
 
   it('set heirs overrides previous settings', async () => {
@@ -214,11 +243,34 @@ contract('Heritable', async accounts => {
     assert.equal(heirs[0].percent,  25,     "heir1 percent");
     assert.equal(heirs[0].sent,     false,  "heir1 sent");
 
-    assert.equal(heirs[1].wallet,   user1,  "heir1 wallet");
-    assert.equal(heirs[1].percent,  30,     "heir1 percent");
-    assert.equal(heirs[1].sent,     false,  "heir1 sent");
+    assert.equal(heirs[1].wallet,   user1,  "heir2 wallet");
+    assert.equal(heirs[1].percent,  30,     "heir2 percent");
+    assert.equal(heirs[1].sent,     false,  "heir2 sent");
 
     assert.equal(totalPercent.toString(10), web3.toBigNumber(25 + 30).toString(10), 'total percent')
+  });
+
+  it('should emit event "InheritanceHeirsChanged(owner, wallets[], percents[])" when heirs are set', async () => {
+    const logs = await new Promise((r, j) => instance.InheritanceHeirsChanged({}, {
+        fromBlock: 'latest',
+        toBlock: 'latest'
+      })
+      .get((err, logs) => {
+        r(logs)
+      }));
+
+    const args = assetEvent_getArgs(logs, 'InheritanceHeirsChanged');
+
+    assert.equal(args.owner, owner, '..(owner, ..)');
+
+    assert.equal(args.wallets.length, 2, "num of wallets");
+    assert.equal(args.percents.length, 2, "num of percents");
+
+    assert.equal(args.wallets[0], user2, "heir1 wallet");
+    assert.equal(args.percents[0], 25, "heir1 percent");
+
+    assert.equal(args.wallets[1], user1, "heir2 wallet");
+    assert.equal(args.percents[1], 30, "heir2 percent");
   });
 
   it('should revert when trying to activate inheritance before timeout has reached', async () => {

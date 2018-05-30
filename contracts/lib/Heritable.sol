@@ -21,7 +21,10 @@ contract Heritable is Backupable {
 
     Inheritance private inheritance;
 
-    event InheritanceActivated (address indexed activator, address[] wallets);
+    event InheritanceActivated    (address indexed activator, address[] wallets);
+    event InheritanceChanged      (address indexed owner, uint64 timeout);
+    event InheritanceRemoved      (address indexed owner);
+    event InheritanceHeirsChanged (address indexed owner, address[] wallets, uint64[] percents);
 
     constructor() Backupable () public {
     }
@@ -29,6 +32,9 @@ contract Heritable is Backupable {
     function setInheritance (uint64 _timeout) onlyOwner() public {
         _touch();
         require (inheritance.activated == false);
+
+        emit InheritanceChanged(msg.sender, _timeout);
+
         if (inheritance.timeout != _timeout) {
             inheritance.timeout = _timeout;
         }
@@ -38,6 +44,8 @@ contract Heritable is Backupable {
     }
 
     function clearInheritance () onlyOwner() public {
+        emit InheritanceRemoved(msg.sender);
+
         inheritance.timeout = 0;
         inheritance.enabled = false;
         inheritance.activated = false;
@@ -83,6 +91,16 @@ contract Heritable is Backupable {
                 heir.wallet = 0;
             }
         }
+
+        // event related code starts here
+        address[] memory wallets = new address[](i);
+        uint64[] memory percents = new uint64[](i);
+        for (uint256 inx = 0; inx < i; inx++) {
+            heir = inheritance.heirs [inx];
+            wallets[inx] = heir.wallet;
+            percents[inx] = heir.percent;
+        }
+        emit InheritanceHeirsChanged(msg.sender, wallets, percents);
     }
 
     function getTotalPercent () view public returns (uint256 total) {
@@ -145,6 +163,7 @@ contract Heritable is Backupable {
             }
         }
 
+        // event related code starts here
         address[] memory wallets = new address[](i);
         for (uint256 inx = 0; inx < i; inx++) {
             heir = inheritance.heirs [inx];
