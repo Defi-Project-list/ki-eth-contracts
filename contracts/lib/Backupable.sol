@@ -1,40 +1,60 @@
 pragma solidity 0.4.24;
 
-import "./Ownable.sol";
+contract Backupable {
 
-contract Backupable is Ownable {
+    struct Self {
+        address owner;
+        bool    activated;
+    }
 
     struct Backup {
         address wallet;
         uint64  timestamp;
-        uint64  timeout;
-        bool    activated;
+        uint32  timeout;
     }
 
+    Self   private self;
     Backup private backup;
 
-    event BackupChanged   (address indexed owner, address indexed wallet, uint64 timeout);
-    event BackupRemoved   (address indexed owner, address indexed wallet);
-    event BackupActivated (address indexed wallet);
-    event OwnerTouched    ();
+    event OwnerTouched          ();
+    event BackupChanged         (address indexed owner, address indexed wallet, uint32 timeout);
+    event BackupRemoved         (address indexed owner, address indexed wallet);
+    event BackupActivated       (address indexed wallet);
+    event OwnershipTransferred  (address indexed previousOwner, address indexed newOwner);
 
-    constructor () Ownable () public {
+    constructor () public {
+        self.owner = msg.sender;
     }
 
-    function setBackup (address _wallet, uint64 _timeout) public onlyOwner {
+    modifier onlyOwner () {
+        require (msg.sender == self.owner, "msg.sender != backup.owner");
+        _;
+    }
+
+    modifier onlyActiveOwner () {
+        require (msg.sender == self.owner && self.activated == false, "msg.sender != backup.owner");
+        _;
+    }
+
+    modifier onlyBackup () {
+        require (msg.sender == backup.wallet, "msg.sender != backup.wallet");
+        _;
+    }
+
+    function setBackup (address _wallet, uint32 _timeout) public onlyOwner {
         require (_wallet != address(0));
-        require (_wallet != owner);
-        require (backup.activated == false);
+        require (_wallet != self.owner);
+        require (self.activated == false);
         reclaimOwnership();
-        emit BackupChanged (owner, _wallet, _timeout);
-        backup.wallet = _wallet;
-        backup.timeout = _timeout;
-        backup.activated = false;
+        emit BackupChanged (self.owner, _wallet, _timeout);
+        if (backup.wallet != _wallet)   backup.wallet = _wallet;
+        if (backup.timeout != _timeout) backup.timeout = _timeout;
+        if (self.activated != false)    self.activated = false;
     }
 
     function removeBackup () public onlyOwner {
         require (backup.wallet != address(0));
-        if (backup.activated == true) {
+        if (self.activated == true) {
             reclaimOwnership ();
         }
         else {
@@ -44,27 +64,30 @@ contract Backupable is Ownable {
     }
 
     function _removeBackup () private {
-        emit BackupRemoved (owner, backup.wallet);
-        backup.wallet = address(0);
-        backup.timeout = 0;
-        backup.activated = false;
+        emit BackupRemoved (self.owner, backup.wallet);
+        if (backup.wallet != address(0)) backup.wallet = address(0);
+        if (backup.timeout != 0) backup.timeout = 0;
+        if (self.activated != false) self.activated = false;
     }
 
     function activateBackup () public {
-        require (backup.activated == false);
+        require (self.activated == false);
         require (backup.wallet != address(0));
         require (getBackupTimeLeft() == 0);
-        _transferOwnership (backup.wallet);
         emit BackupActivated (backup.wallet);
-        backup.activated = true;
+        if (self.activated != true) self.activated = true;
     }
 
     function isBackupActivated () view public returns (bool) {
-        return backup.activated;
+        return self.activated;
     }
 
     function getBackupWallet () view public returns (address) {
         return backup.wallet;
+    }
+
+    function isOwner () external view returns (bool) {
+        return (self.owner == msg.sender);
     }
 
     function isBackup () external view returns (bool) {
@@ -80,10 +103,7 @@ contract Backupable is Ownable {
     }
 
     function getBackupTimeLeft () view public returns (uint64 _res) {
-        if (backup.timestamp + backup.timeout <= getBlockTimestamp()){
-            _res = uint64(0);
-        }
-        else {
+        if (backup.timestamp + backup.timeout > getBlockTimestamp()){
             _res = backup.timestamp + backup.timeout - getBlockTimestamp();
         }
     }
@@ -106,25 +126,15 @@ contract Backupable is Ownable {
         backup.timestamp = getBlockTimestamp();
     }
 
-    function transferOwnership (address _newOwner) onlyOwner public {
-        require (_newOwner != backup.wallet);
-        require (backup.activated == false);
-        super.transferOwnership (_newOwner);
-        _touch();
-    }
-
-    function _transferOwnership (address _newOwner) internal {
-        super._transferOwnership (_newOwner);
-    }
-
-    function claimOwnership () onlyPendingOwner public {
+    function claimOwnership () onlyBackup public {
+        require (self.activated == true);
+        emit OwnershipTransferred (self.owner, backup.wallet);
+        if (self.owner != backup.wallet) self.owner = backup.wallet;
         _removeBackup ();
-        super.claimOwnership ();
     }
 
     function reclaimOwnership () onlyOwner public {
-        super.reclaimOwnership ();
-        backup.activated = false;
+        if (self.activated != false) self.activated = false;
         _touch ();
     }
 

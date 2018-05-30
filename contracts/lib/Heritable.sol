@@ -35,28 +35,23 @@ contract Heritable is Backupable {
 
         emit InheritanceChanged(msg.sender, _timeout);
 
-        if (inheritance.timeout != _timeout) {
-            inheritance.timeout = _timeout;
-        }
-        if (inheritance.enabled != true) {
-            inheritance.enabled = true;
-        }
+        if (inheritance.timeout != _timeout)  inheritance.timeout = _timeout;
+        if (inheritance.enabled != true)      inheritance.enabled = true;
     }
 
     function clearInheritance () onlyOwner() public {
         emit InheritanceRemoved(msg.sender);
 
-        inheritance.timeout = 0;
-        inheritance.enabled = false;
-        inheritance.activated = false;
+        if (inheritance.timeout != uint32(0)) inheritance.timeout = uint32(0);
+        if (inheritance.enabled != false)     inheritance.enabled = false;
+        if (inheritance.activated != false)   inheritance.activated = false;
+
         for (uint256 i = 0; i < MAX_HEIRS; ++i) {
             Heir storage heir = inheritance.heirs [i];
             if (heir.wallet == address(0)) {
                 break;
             }
-            if (heir.sent == true) {
-                heir.sent = false;
-            }
+            if (heir.sent != false) heir.sent = false;
         }
     }
 
@@ -75,21 +70,13 @@ contract Heritable is Backupable {
 
         for (i = 0; i < _wallets.length; ++i) {
             Heir storage heir = inheritance.heirs[i];
-            if (heir.wallet != _wallets[i]) {
-                heir.wallet = _wallets[i];
-            }
-            if (heir.percent != _percents[i]) {
-                heir.percent = _percents[i];
-            }
-            if (heir.sent) {
-                heir.sent = false;
-            }
+            if (heir.wallet != _wallets[i])     heir.wallet = _wallets[i];
+            if (heir.percent != _percents[i])   heir.percent = _percents[i];
+            if (heir.sent != false)             heir.sent = false;
         }
         if (i < MAX_HEIRS - 1) {
             heir = inheritance.heirs[i];
-            if (heir.wallet != address(0)) {
-                heir.wallet = 0;
-            }
+            if (heir.wallet != address(0)) heir.wallet = address(0);
         }
 
         // event related code starts here
@@ -124,10 +111,7 @@ contract Heritable is Backupable {
     }
 
     function getInheritanceTimeLeft () view public returns (uint64 _res) {
-        if (getTouchTimestamp() + inheritance.timeout <= getBlockTimestamp()){
-            _res = uint64(0);
-        }
-        else {
+        if (getTouchTimestamp() + inheritance.timeout > getBlockTimestamp()){
             _res = getTouchTimestamp() + inheritance.timeout - getBlockTimestamp();
         }
     }

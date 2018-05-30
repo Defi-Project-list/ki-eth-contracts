@@ -28,11 +28,8 @@ const parseHeirs = (heirs) => {
   return res;
 }
 
-const ownableTests = require('./ownableTests');
-ownableTests(Heritable, "Heritable as Ownable");
-
 const backupableTests = require('./backupableTests');
-ownableTests(Heritable, "Heritable as Backupable");
+backupableTests(Heritable, "Heritable as Backupable");
 
 contract('Heritable', async accounts => {
   let instance;
@@ -62,8 +59,8 @@ contract('Heritable', async accounts => {
   });
 
   it('constructor: owner should be the contract creator', async () => {
-    const contractOwner = await instance.owner.call();
-    assert.equal(contractOwner, owner);
+    const isOwner = await instance.isOwner.call({from: owner});
+    assert.equal(isOwner, true);
   });
 
   it('constructor: heirs should be empty', async () => {

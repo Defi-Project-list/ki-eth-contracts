@@ -19,14 +19,14 @@ contract Wallet is Heritable {
     constructor () Heritable () payable logPayment() public {
     }
 
-    function sendEther (address _to, uint256 _value) public onlyClaimableOwner() {
+    function sendEther (address _to, uint256 _value) public onlyActiveOwner() {
         require (_value > 0, "value == 0");
         require (_value <= address(this).balance, "value > balance");
         emit SentEther (_to, _value);
         _to.transfer (_value);
     }
 
-    function getBalance () view public onlyClaimableOwner() returns (uint256) {
+    function getBalance () view public returns (uint256) {
         return address(this).balance;
     }
 

@@ -59,7 +59,7 @@ contract('Wallet', async accounts => {
     assert.equal(balance.toString(10), valBN.toString(10));
   });
 
-  it('only owner can call getBalance', async () => {
+  /*it('only owner can call getBalance', async () => {
     const balance = await instance.getBalance.call({
       from: owner
     });
@@ -72,7 +72,7 @@ contract('Wallet', async accounts => {
     } catch (err) {
       assertRevert(err);
     }
-  });
+  });*/
 
   it('only owner can send ether', async () => {
     const userBalanceBefore = await web3.eth.getBalance(user2);

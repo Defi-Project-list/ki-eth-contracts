@@ -40,8 +40,10 @@ contract(contractName, async accounts => {
   });
 
   it('constructor: owner should be the contract creator', async () => {
-    const contractOwner = await instance.owner.call();
-    assert.equal(contractOwner, owner);
+    //const contractOwner = await instance.owner.call();
+    //assert.equal(contractOwner, owner);
+    const isOwner = await instance.isOwner.call({from: owner});
+    assert.equal(isOwner, true);
   });
 
   it('constructor: backupInfo should be empty', async () => {
@@ -273,6 +275,7 @@ contract(contractName, async accounts => {
     assert.equal(backupActivated, false, 'backupActivated');
   });
 
+  /*
   it('should revert when trying to transferOwnership when backup is defined', async () => {
     await instance.setBackup(user1, 0, { from: owner });
     blockTimestamp = await utils.getLatestBlockTimestamp();
@@ -280,6 +283,6 @@ contract(contractName, async accounts => {
     await instance.transferOwnership(user2, { from: owner });
 ``
   });
-
+  */
 });
 };
