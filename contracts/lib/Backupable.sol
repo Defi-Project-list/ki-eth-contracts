@@ -82,6 +82,10 @@ contract Backupable {
         return self.activated;
     }
 
+    function getOwner () view public returns (address) {
+        return self.owner;
+    }
+
     function getBackupWallet () view public returns (address) {
         return backup.wallet;
     }

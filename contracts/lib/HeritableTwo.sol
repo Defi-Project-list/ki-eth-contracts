@@ -1,7 +1,7 @@
 pragma solidity ^0.4.24;
 
 
-import "./Backupable.sol";
+import "./BackupableOne.sol";
 
 contract HeritableTwo is Backupable {
 
