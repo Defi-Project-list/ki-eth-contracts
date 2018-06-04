@@ -2,19 +2,19 @@ pragma solidity 0.4.24;
 
 contract Backupable {
 
-    struct Self {
-        address owner;
-        bool    activated;
-    }
-
     struct Backup {
         address wallet;
         uint64  timestamp;
         uint32  timeout;
     }
 
-    Self   private self;
+    struct Self {
+        address owner;
+        bool    activated;
+    }
+
     Backup private backup;
+    Self   private self;
 
     event OwnerTouched          ();
     event BackupChanged         (address indexed owner, address indexed wallet, uint32 timeout);
