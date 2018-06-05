@@ -46,7 +46,6 @@ contract Trust {
 
     struct Self {
         address owner;
-        uint16 payments;
     }
 
     uint256 private amount;
@@ -61,7 +60,7 @@ contract Trust {
         require(_wallet != address(0));
         require(_wallet != msg.sender);
         require((_start > 0) && (_period > 0) && (_times > 0) && (amount > 0));
-        require(msg.value >= _amount.mul(_times));
+        //require(msg.value >= _amount.mul(_times));
 
         self.owner = msg.sender;
         trust.wallet = _wallet;
