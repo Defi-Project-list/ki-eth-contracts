@@ -1,9 +1,13 @@
 pragma solidity 0.4.24;
 
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+
 import "./lib/Heritable.sol";
 import "./Trust.sol";
 
 contract Wallet is Heritable {
+    using SafeMath for uint256;
+
     uint256 public passCount;
 
     event GotEther   (address indexed from, uint256 value);
