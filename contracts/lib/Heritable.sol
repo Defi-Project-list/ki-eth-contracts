@@ -1,8 +1,10 @@
 pragma solidity 0.4.24;
 
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "./Backupable.sol";
 
 contract Heritable is Backupable {
+    using SafeMath for uint256;
 
     uint256 constant private MAX_HEIRS = 8;
 
@@ -19,6 +21,7 @@ contract Heritable is Backupable {
         bool    activated;
     }
 
+    uint256 private totalTransfered;
     Inheritance private inheritance;
 
     event InheritanceActivated    (address indexed activator, address[] wallets);
@@ -45,6 +48,7 @@ contract Heritable is Backupable {
         if (inheritance.timeout != uint32(0)) inheritance.timeout = uint32(0);
         if (inheritance.enabled != false)     inheritance.enabled = false;
         if (inheritance.activated != false)   inheritance.activated = false;
+        if (totalTransfered != 0)             totalTransfered = 0;
 
         for (uint256 i = 0; i < MAX_HEIRS; ++i) {
             Heir storage heir = inheritance.heirs [i];
@@ -100,6 +104,10 @@ contract Heritable is Backupable {
         return total;
     }
 
+    function getTotalTransfered () view public returns (uint256 total) {
+        return totalTransfered;
+    }
+
     function getHeirs () view public returns (bytes32[MAX_HEIRS] heirs) {
         for (uint256 i = 0; i < inheritance.heirs.length; i++) {
             Heir storage heir = inheritance.heirs [i];
@@ -146,6 +154,7 @@ contract Heritable is Backupable {
                 heir.sent = heir.wallet.send((currentBalance * heir.percent)/100);
             }
         }
+        totalTransfered = currentBalance.sub(address(this).balance);
 
         // event related code starts here
         address[] memory wallets = new address[](i);

@@ -53,8 +53,9 @@ contract Trust {
     TrustFund private trust;
     Self private self;
 
-    event GotEther   (address indexed from, uint256 value);
-    event SentEther  (address indexed to, uint256 value);
+    event GotEther          (address indexed from, uint256 value);
+    event SentEther         (address indexed to, uint256 value);
+    event TrustActivated    (address indexed owner, address indexed wallet);
 
     constructor (address _wallet, uint40 _start, uint32 _period, uint16 _times, uint256 _amount, bool _cancelable) payable logPayment() public {
         require(_wallet != address(0));
@@ -123,6 +124,7 @@ contract Trust {
         require (toPay > 0);
         payed += toPay;
         trust.wallet.transfer(toPay);
+        emit TrustActivated(self.owner, trust.wallet);
     }
 
     function getBalance () view public returns (uint256) {
