@@ -36,7 +36,7 @@ contract Trust {
     using SafeMath for uint40;
     using SafeMath for uint256;
 
-    struct TrustFund {
+    struct Fund {
         address wallet;
         uint40  start;
         uint32  period;
@@ -50,7 +50,7 @@ contract Trust {
 
     uint256 private amount;
     uint256 private payed;
-    TrustFund private trust;
+    Fund public fund;
     Self private self;
 
     event GotEther          (address indexed from, uint256 value);
@@ -70,12 +70,12 @@ contract Trust {
         require(msg.value >= _amount.mul(_times));
 
         self.owner = msg.sender;
-        trust.wallet = _wallet;
-        trust.start = _start;
-        trust.period = _period;
-        trust.times = _times;
+        fund.wallet = _wallet;
+        fund.start = _start;
+        fund.period = _period;
+        fund.times = _times;
         amount = _amount;
-        trust.cancelable = _cancelable;
+        fund.cancelable = _cancelable;
     }
 
     modifier logPayment {
@@ -86,29 +86,33 @@ contract Trust {
     }
 
     modifier onlyOwner () {
-        require (msg.sender == self.owner, "msg.sender != trust.owner");
+        require (msg.sender == self.owner, "msg.sender != self.owner");
         _;
+    }
+
+    function isOwner () view public returns (bool) {
+        return msg.sender == self.owner;
     }
 
     function getPaymentValue() view public returns (uint256) {
         // solium-disable-next-line security/no-block-members
-        if (block.timestamp < trust.start) {
+        if (block.timestamp < fund.start) {
             return 0;
         }
         // solium-disable-next-line security/no-block-members
-        if (block.timestamp >= trust.start.add(trust.period.mul(trust.times))) {
+        if (block.timestamp >= fund.start.add(fund.period.mul(fund.times))) {
             return address(this).balance;
         }
         // solium-disable-next-line security/no-block-members
-        return block.timestamp.sub(trust.start).div(trust.period).add(1).mul(amount).sub(payed);
+        return block.timestamp.sub(fund.start).div(fund.period).add(1).mul(amount).sub(payed);
     }
 
     function getNextPaymentTimestamp() view public returns (uint256) {
         // solium-disable-next-line security/no-block-members
-        if (block.timestamp < trust.start) {
-            return trust.start;
+        if (block.timestamp < fund.start) {
+            return fund.start;
         }
-        uint256 endTimestamp = trust.start.add(trust.period.mul(trust.times));
+        uint256 endTimestamp = fund.start.add(fund.period.mul(fund.times));
         // solium-disable-next-line security/no-block-members
         if (block.timestamp >= endTimestamp) {
             if (address(this).balance > 0) {
@@ -118,19 +122,23 @@ contract Trust {
             return uint40(0);
         }
         // solium-disable-next-line security/no-block-members
-        return trust.start.add(payed.div(amount).mul(trust.period));
+        return fund.start.add(payed.div(amount).mul(fund.period));
     }
 
     function getTotalPayed () view public returns (uint256) {
         return payed;
     }
 
+    function getPaymentAmount () view public returns (uint256) {
+        return amount;
+    }
+
     function activateTrust() public {
         uint256 toPay = getPaymentValue();
         require (toPay > 0);
         payed += toPay;
-        trust.wallet.transfer(toPay);
-        emit SentEther(trust.wallet, toPay);
+        fund.wallet.transfer(toPay);
+        emit SentEther(fund.wallet, toPay);
     }
 
     function getBalance () view public returns (uint256) {
