@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity 0.4.24;
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 /*
@@ -55,13 +55,19 @@ contract Trust {
 
     event GotEther          (address indexed from, uint256 value);
     event SentEther         (address indexed to, uint256 value);
-    event TrustActivated    (address indexed owner, address indexed wallet);
 
-    constructor (address _wallet, uint40 _start, uint32 _period, uint16 _times, uint256 _amount, bool _cancelable) payable logPayment() public {
+    constructor (address  _wallet,
+                 uint40   _start,
+                 uint32   _period,
+                 uint16   _times,
+                 uint256  _amount,
+                 bool     _cancelable)
+                payable logPayment() public {
+
         require(_wallet != address(0));
         require(_wallet != msg.sender);
-        require((_start > 0) && (_period > 0) && (_times > 0) && (amount > 0));
-        //require(msg.value >= _amount.mul(_times));
+        require((_start > 0) && (_period > 0) && (_times > 0) && (_amount > 0));
+        require(msg.value >= _amount.mul(_times));
 
         self.owner = msg.sender;
         trust.wallet = _wallet;
@@ -124,7 +130,7 @@ contract Trust {
         require (toPay > 0);
         payed += toPay;
         trust.wallet.transfer(toPay);
-        emit TrustActivated(self.owner, trust.wallet);
+        emit SentEther(trust.wallet, toPay);
     }
 
     function getBalance () view public returns (uint256) {
