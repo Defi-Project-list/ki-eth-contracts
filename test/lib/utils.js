@@ -12,8 +12,12 @@ const getLatestBlockTimestamp = async () => {
   return timestamp;
 };
 
+const mine = async (account) => {
+  web3.eth.sendTransaction({ value: 0, from: account, to: account});
+};
+
 module.exports = {
   sleep,
-  getLatestBlockTimestamp
+  getLatestBlockTimestamp,
+  mine
 }
-

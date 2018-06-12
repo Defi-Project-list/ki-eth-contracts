@@ -141,7 +141,7 @@ contract UintEther_NotPayable is Upgradeable {
 contract Test {
     uint256 value;
 
-    function Test() public {
+    constructor() public {
         value = 10;
     }
 
