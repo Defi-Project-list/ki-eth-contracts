@@ -1,10 +1,13 @@
 (returnlll
 (seq
-    (mstore 0x40 0xbebebebebebebebebebebebebebebebebebebebe) 
-    ;(mstore 0x20 0)
-    ;(calldatacopy 0x3c 0x00 4)
+    [0x40]: 0xbebebebebebebebebebebebebebebebebebebebe
+    [0x20]: 0
+    (calldatacopy 0x3c 0x00 4)
+    (when (eq @0x20 0x0ee2cb10)
+       (return 0xdadadadadadadadadadadadadadadadadadadada)
+    )
     (calldatacopy 0x80 0x00 (calldatasize))
-    (mstore 0x60 (delegatecall (gas) @0x40 0x80 (calldatasize) 0x00 0x00))
+    [0x60]: (delegatecall (gas) @0x40 0x80 (calldatasize) 0x00 0x00)
     (returndatacopy 0x80 0x00 (returndatasize))
     (if (= @0x60 0)
 	(revert 0x80 (returndatasize))
@@ -12,4 +15,3 @@
     )
 )
 )
-
