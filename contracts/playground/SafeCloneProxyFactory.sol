@@ -61,22 +61,21 @@ contract SWProxy is Storage0 {
             assembly {
                 let result := delegatecall(gas, impl, add(data, 0x20), mload(data), 0, 0)
                 let size := returndatasize
-
                 let ptr := mload(0x40)
                 returndatacopy(ptr, 0, size)
-
                 switch result
                 case 0 { revert(ptr, size) }
                 default { return(ptr, size) }
             }
         }
+        // solium-disable-next-line security/no-inline-assembly
         assembly {
-                let value := callvalue
-                if gt(value, 0) {
-                        mstore(0x20, caller)
-                        mstore(0x40, value)
-                        log0(0x20, 0x40)
-                }
+            let value := callvalue
+            if gt(value, 0) {
+                mstore(0x20, caller)
+                mstore(0x40, value)
+                log0(0x20, 0x40)
+            }
         }
 
     }
