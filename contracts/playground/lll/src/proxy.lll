@@ -1,17 +1,16 @@
 (returnlll
 (seq
-    [0x40]: 0xbebebebebebebebebebebebebebebebebebebebe
     [0x20]: 0
     (calldatacopy 0x3c 0x00 4)
     (when (eq @0x20 0x0ee2cb10)
-       (return 0xdadadadadadadadadadadadadadadadadadadada)
+        (return 0xdadadadadadadadadadadadadadadadadadadada)
     )
-    (calldatacopy 0x80 0x00 (calldatasize))
-    [0x60]: (delegatecall (gas) @0x40 0x80 (calldatasize) 0x00 0x00)
-    (returndatacopy 0x80 0x00 (returndatasize))
-    (if (= @0x60 0)
-	(revert 0x80 (returndatasize))
-    	(return 0x80 (returndatasize))
+    (calldatacopy 0x40 0x00 (calldatasize))
+    [0x20]: (delegatecall (gas) 0xbebebebebebebebebebebebebebebebebebebebe 0x40 (calldatasize) 0x00 0x00)
+    (returndatacopy 0x40 0x00 (returndatasize))
+    (if (= @0x20 0)
+        (revert 0x40 (returndatasize))
+        (return 0x40 (returndatasize))
     )
 )
 )
