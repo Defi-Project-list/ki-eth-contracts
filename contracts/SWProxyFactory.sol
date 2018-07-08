@@ -35,7 +35,8 @@ contract SWProxyFactory {
         bytes memory
         //clone = hex"73bebebebebebebebebebebebebebebebebebebebe60005573acacacacacacacacacacacacacacacacacacacac600155605e80603c6000396000f3006000805260046000601c376302d05d3f600051141560355773dadadadadadadadadadadadadadadadadadadada60005260206000f35b366000803760008036600080545af46000523d600060203e600051156059573d6020f35b3d6020fd";
         //clone = hex"73bebebebebebebebebebebebebebebebebebebebe60005573acacacacacacacacacacacacacacacacacacacac60015560968061003d6000396000f300366018573415601657336000523460205260206000a05b005b6000805260046000601c3773dadadadadadadadadadadadadadadadadadadada6020526302d05d3f6000511415604d57602080f35b366000803760008036600073bebebebebebebebebebebebebebebebebebebebe5af46000523d600060403e60005115609157336000523460205260206000a03d6040f35b3d6040fd";
-        clone = hex"60968061000d6000396000f300366018573415601657336000523460205260406000a05b005b6000805260046000601c3773dadadadadadadadadadadadadadadadadadadada6020526302d05d3f6000511415604d57602080f35b366000803760008036600073bebebebebebebebebebebebebebebebebebebebe5af46000523d600060403e60005115609157336000523460205260406000a03d6040f35b3d6040fd";
+        //clone = hex"60968061000d6000396000f300366018573415601657336000523460205260406000a05b005b6000805260046000601c3773dadadadadadadadadadadadadadadadadadadada6020526302d05d3f6000511415604d57602080f35b366000803760008036600073bebebebebebebebebebebebebebebebebebebebe5af46000523d600060403e60005115609157336000523460205260406000a03d6040f35b3d6040fd";
+        clone = hex"609c8061000d6000396000f300366018573415601657336000523460205260406000a05b005b6000805260046000601c376302d05d3f6000511415604d5773dadadadadadadadadadadadadadadadadadadada602052602080f35b366000803760008036600073bebebebebebebebebebebebebebebebebebebebe5af46000523d600060403e600051156097573415609257336000523460205260406000a05b3d6040f35b3d6040fd";
         bytes20 creatorBytes = bytes20(_creator);
         bytes20 targetBytes = bytes20(_target);
         //bytes20 ownerBytes = bytes20(_owner);
@@ -44,7 +45,7 @@ contract SWProxyFactory {
             // clone[25 + i] = ownerBytes[i];
             // clone[98 + i] = creatorBytes[i];
             // clone[151 + i] = targetBytes[i];
-            clone[50 + i] = creatorBytes[i];
+            clone[63 + i] = creatorBytes[i];
             clone[103 + i] = targetBytes[i];
         }
         // solium-disable-next-line security/no-inline-assembly
@@ -68,7 +69,7 @@ contract SWProxyFactory {
             _clone = createClone(address(this), swProxy);
             require(_clone != address(0));
             clones[msg.sender] = _clone;
-            //(SWProxy(_clone)).init(msg.sender, _target);
+            (SWProxy(_clone)).init(msg.sender, _target);
         }
     }
 }

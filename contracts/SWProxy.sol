@@ -31,8 +31,6 @@ contract Storage0 {
 
 contract SWProxy is Storage0 {
 
-    event GotEther   (address indexed from, uint256 value);
-
     function () payable public {
         bytes memory data = msg.data;
 
