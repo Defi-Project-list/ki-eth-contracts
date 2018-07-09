@@ -5,13 +5,14 @@ import "./SWProxy.sol";
 contract SWProxyFactory {
     address public swProxy;
     mapping(address => address) public clones;
+    mapping(bytes32 => address) public versions;
 
     event CloneCreated(address indexed target, address clone);
 
     constructor() public {
         swProxy = new SWProxy();
     }
-
+    /*
     function createClone2(address _creator, address _target) internal returns (address result) {
         bytes memory
         //clone = hex"600034603b57603080600f833981f36000368180378080368173bebebebebebebebebebebebebebebebebebebebe5af43d82803e15602c573d90f35b3d90fd";
@@ -29,6 +30,7 @@ contract SWProxyFactory {
             result := create(0, add(clone, 0x20), mload(clone))
         }
     }
+    */
 
     //function createClone(address _creator, address _target, address _owner) internal returns (address result) {
     function createClone(address _creator, address _target) internal returns (address result) {
@@ -37,10 +39,12 @@ contract SWProxyFactory {
         //clone = hex"73bebebebebebebebebebebebebebebebebebebebe60005573acacacacacacacacacacacacacacacacacacacac60015560968061003d6000396000f300366018573415601657336000523460205260206000a05b005b6000805260046000601c3773dadadadadadadadadadadadadadadadadadadada6020526302d05d3f6000511415604d57602080f35b366000803760008036600073bebebebebebebebebebebebebebebebebebebebe5af46000523d600060403e60005115609157336000523460205260206000a03d6040f35b3d6040fd";
         //clone = hex"60968061000d6000396000f300366018573415601657336000523460205260406000a05b005b6000805260046000601c3773dadadadadadadadadadadadadadadadadadadada6020526302d05d3f6000511415604d57602080f35b366000803760008036600073bebebebebebebebebebebebebebebebebebebebe5af46000523d600060403e60005115609157336000523460205260406000a03d6040f35b3d6040fd";
         clone = hex"609c8061000d6000396000f300366018573415601657336000523460205260406000a05b005b6000805260046000601c376302d05d3f6000511415604d5773dadadadadadadadadadadadadadadadadadadada602052602080f35b366000803760008036600073bebebebebebebebebebebebebebebebebebebebe5af46000523d600060403e600051156097573415609257336000523460205260406000a05b3d6040f35b3d6040fd";
+        //clone = hex"600034603b57603080600f833981f36000368180378080368173bebebebebebebebebebebebebebebebebebebebe5af43d82803e15602c573d90f35b3d90fd";
         bytes20 creatorBytes = bytes20(_creator);
         bytes20 targetBytes = bytes20(_target);
         //bytes20 ownerBytes = bytes20(_owner);
         for (uint i = 0; i < 20; i++) {
+            //clone[26 + i] = targetBytes[i];
             // clone[1 + i] = targetBytes[i];
             // clone[25 + i] = ownerBytes[i];
             // clone[98 + i] = creatorBytes[i];
