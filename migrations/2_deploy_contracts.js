@@ -2,8 +2,8 @@ var Sanity = artifacts.require("./Sanity.sol");
 //var Backup = artifacts.require("./Backup.sol");
 var Wallet = artifacts.require("./Wallet.sol");
 var SWProxyFactory = artifacts.require("./SWProxyFactory.sol");
-var SMartWallet = artifacts.require("./SmartWallet.sol");
-var SMartWallet2 = artifacts.require("./SmartWallet2.sol");
+var SmartWallet = artifacts.require("./SmartWallet.sol");
+var SmartWallet2 = artifacts.require("./SmartWallet2.sol");
 var SWProxy = artifacts.require("./SWProxy.sol");
 var Sender = artifacts.require("./Sender.sol");
 
