@@ -29,9 +29,12 @@ contract SWProxyFactory {
         }
     }
 
-    function setTarget(bytes8 _id) public {
-        require(versions[_id] != address(0));
-
+    function setTarget(bytes8 _id) external {
+        address _target = versions[_id];
+        require(_target != address(0));
+        address _owner = SWProxy(msg.sender).owner();
+        require(msg.sender == smartwallets[_owner]);
+        SWProxy(msg.sender).init(_owner, _target);
     }
 
     function addVersion(bytes8 _id, address _target) public {

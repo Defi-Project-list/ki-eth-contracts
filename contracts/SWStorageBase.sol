@@ -1,5 +1,9 @@
 pragma solidity 0.4.24;
 
+interface Creator {
+    function setTarget(bytes8 _id) external;
+}
+
 contract SWStorageBase {
     address public target;
     address public owner;
@@ -23,8 +27,8 @@ contract SWStorageBase {
         target = _target;
     }
 
-    function setTarget(address _target) onlyOwner() public {
-        target = _target;
+    function setTarget(bytes8 _version) onlyOwner() public {
+        Creator(this.creator()).setTarget(_version);
     }
 
 }

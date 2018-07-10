@@ -95,7 +95,9 @@ contract('SWProxyFactory', async accounts => {
     const swver2 = await SmartWallet2.new();
     mlog.log('version2:', swver2.address);
 
-    await SmartWallet.at(sw).setTarget(swver2.address);
+    await instance.addVersion(web3.fromAscii("1.2", 8), swver2.address, { from: owner });
+
+    await SmartWallet.at(sw).setTarget(web3.fromAscii("1.2", 8));
 
     await SmartWallet2.at(sw).setValue(235, 10);
     const swvalue2 = await SmartWallet2.at(sw).getValue();
