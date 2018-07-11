@@ -1,6 +1,6 @@
 pragma solidity 0.4.24;
 
-import "./SWProxy.sol";
+import "./lib/SWProxy.sol";
 
 contract SWProxyFactory {
     SWProxy public swProxy;

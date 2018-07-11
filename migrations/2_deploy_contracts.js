@@ -1,12 +1,11 @@
-var Sanity = artifacts.require("./Sanity.sol");
-//var Backup = artifacts.require("./Backup.sol");
+var Sanity = artifacts.require("./test/Sanity.sol");
+var Sender = artifacts.require("./test/Sender.sol");
+
 var Wallet = artifacts.require("./Wallet.sol");
+
 var SWProxyFactory = artifacts.require("./SWProxyFactory.sol");
 var SmartWallet = artifacts.require("./SmartWallet.sol");
-var SmartWallet2 = artifacts.require("./SmartWallet2.sol");
-var SWProxy = artifacts.require("./SWProxy.sol");
-var Sender = artifacts.require("./Sender.sol");
-
+var SmartWallet2 = artifacts.require("./test/SmartWallet2.sol");
 
 module.exports = function(deployer) {
   deployer.deploy(SWProxyFactory, { gas: 4712388 });

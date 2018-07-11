@@ -80,16 +80,19 @@ contract('SWProxyFactory', async accounts => {
     logs = await new Promise((r,j) => sw_proxy.allEvents({}, { fromBlock: 'latest', toBlock: 'latest' }).get((err, logs) => { r(logs) }));
     mlog.log('logs', JSON.stringify(logs[0]));
 
-    await SmartWallet.at(sw).setValue(12);
-    await SmartWallet.at(sw).setValue(235);
-    const swvalue = await SmartWallet.at(sw).getValue();
-    mlog.log('value(proxy)', swvalue);
+    let swvalue = await SmartWallet.at(sw).getBalance();
+    mlog.log('balance(proxy)', swvalue);
+    //await SmartWallet.at(sw).setValue(12);
+    await SmartWallet.at(sw).sendEther(user2, val2);
+    swvalue = await SmartWallet.at(sw).getBalance();
+    mlog.log('balance(proxy)', swvalue);
 
+    /*
     await swver.setValue(12);
     await swver.setValue(235);
     const vervalue = await swver.getValue();
     mlog.log('value(direct)', vervalue);
-
+    */
     const swver2 = await SmartWallet2.new();
     mlog.log('version2:', swver2.address);
 
