@@ -40,6 +40,35 @@ contract SWProxyFactory {
         }
     }
 
+    function changeOwner(address _newOwner) external {
+        address _curOwner = SWProxy(msg.sender).owner();
+        SmartWallet storage _sw = accounts_smartwallet[_curOwner];
+        require(msg.sender == _sw.addr && _sw.owner == true);
+        SmartWallet storage _sw2 = accounts_smartwallet[_newOwner];
+        require(msg.sender == _sw2.addr && _sw2.owner == false);
+        bytes8 _version = smartwallets_version[msg.sender];
+        address _code = versions_code[_version];
+        require(_code != address(0));
+        _sw.owner = false;
+        _sw2.owner = true;
+        SWProxy(msg.sender).init(_newOwner, _code);
+    }
+
+    function addBackup(address _backup) external {
+        SmartWallet storage _sw = accounts_smartwallet[_backup];
+        require(_sw.addr == address(0) && _sw.owner == false);
+        address _owner = SWProxy(msg.sender).owner();
+        SmartWallet storage _sw_owner = accounts_smartwallet[_owner];
+        require(msg.sender == _sw_owner.addr && _sw_owner.owner == true);
+        _sw.addr = msg.sender;
+    }
+
+    function removeBackup(address _backup) external {
+        SmartWallet storage _sw = accounts_smartwallet[_backup];
+        require(_sw.addr == msg.sender && _sw.owner == false);
+        _sw.addr = address(0);
+    }
+
     function upgrade(bytes8 _version) external {
         address _code = versions_code[_version];
         require(_code != address(0));

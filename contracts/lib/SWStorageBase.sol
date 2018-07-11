@@ -2,6 +2,9 @@ pragma solidity 0.4.24;
 
 interface Creator {
     function upgrade(bytes8 _id) external;
+    function changeOwner(address _newOwner) external;
+    function addBackup(address _wallet) external;
+    function removeBackup(address _wallet) external;
 }
 
 contract SWStorageBase {

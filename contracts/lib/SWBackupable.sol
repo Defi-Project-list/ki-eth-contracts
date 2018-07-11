@@ -31,7 +31,10 @@ contract SWBackupable is SWStorage {
         require (activated == false);
         reclaimOwnership();
         emit BackupChanged (owner, _wallet, _timeout);
-        if (backup.wallet != _wallet)   backup.wallet = _wallet;
+        if (backup.wallet != _wallet) {
+            backup.wallet = _wallet;
+            Creator(this.creator()).addBackup(_wallet);
+        }
         if (backup.timeout != _timeout) backup.timeout = _timeout;
         if (activated != false)    activated = false;
     }
@@ -49,7 +52,10 @@ contract SWBackupable is SWStorage {
 
     function _removeBackup () private {
         emit BackupRemoved (owner, backup.wallet);
-        if (backup.wallet != address(0)) backup.wallet = address(0);
+        if (backup.wallet != address(0)){
+            backup.wallet = address(0);
+            Creator(this.creator()).removeBackup(backup.wallet);
+        }
         if (backup.timeout != 0) backup.timeout = 0;
         if (activated != false) activated = false;
     }
@@ -117,7 +123,7 @@ contract SWBackupable is SWStorage {
     function claimOwnership () onlyBackup public {
         require (activated == true);
         emit OwnershipTransferred (owner, backup.wallet);
-        if (owner != backup.wallet) owner = backup.wallet;
+        if (owner != backup.wallet) Creator(this.creator()).changeOwner(backup.wallet);
         _removeBackup ();
     }
 
