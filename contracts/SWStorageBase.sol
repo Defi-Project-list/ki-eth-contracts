@@ -1,7 +1,7 @@
 pragma solidity 0.4.24;
 
 interface Creator {
-    function setTarget(bytes8 _id) external;
+    function upgrade(bytes8 _id) external;
 }
 
 contract SWStorageBase {
@@ -23,12 +23,12 @@ contract SWStorageBase {
     }
 
     function init(address _owner, address _target) onlyCreator() public {
-        owner = _owner;
-        target = _target;
+        if (owner != _owner) owner = _owner;
+        if (target != _target) target = _target;
     }
 
-    function setTarget(bytes8 _version) onlyOwner() public {
-        Creator(this.creator()).setTarget(_version);
+    function upgrade(bytes8 _version) onlyOwner() public {
+        Creator(this.creator()).upgrade(_version);
     }
 
 }
