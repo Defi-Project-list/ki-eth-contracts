@@ -1,9 +1,9 @@
 pragma solidity 0.4.24;
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
-import "./SWBackupable.sol";
+import "./SW_Backupable.sol";
 
-contract SWHeritable is SWBackupable {
+contract SW_Heritable is SW_Backupable {
     using SafeMath for uint256;
 
     event InheritanceActivated    (address indexed activator, address[] wallets);

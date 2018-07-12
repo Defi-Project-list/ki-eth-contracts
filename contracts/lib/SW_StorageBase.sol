@@ -8,7 +8,7 @@ interface Creator {
     function getLatestVersion() external view returns (address);
 }
 
-contract SWStorageBase {
+contract SW_StorageBase {
     address public target;
     address public owner;
 

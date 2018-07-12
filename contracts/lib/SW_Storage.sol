@@ -1,9 +1,9 @@
 pragma solidity 0.4.24;
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
-import "./SWStorageBase.sol";
+import "./SW_StorageBase.sol";
 
-contract SWStorage is SWStorageBase {
+contract SW_Storage is SW_StorageBase {
 
     // ------------- Backupable ---------
     struct Backup {

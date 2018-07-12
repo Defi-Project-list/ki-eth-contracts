@@ -1,8 +1,8 @@
 pragma solidity 0.4.24;
 
-import "./SWStorageBase.sol";
+import "./SW_StorageBase.sol";
 
-contract SWProxyLatest is SWStorageBase {
+contract SW_ProxyLatest is SW_StorageBase {
 
     function () payable public {
         address latest = Creator(this.creator()).getLatestVersion();

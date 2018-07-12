@@ -1,8 +1,8 @@
 pragma solidity 0.4.24;
 
-import "./SWStorageBase.sol";
+import "./SW_StorageBase.sol";
 
-contract SWProxy is SWStorageBase {
+contract SW_Proxy is SW_StorageBase {
 
     function () payable public {
         // solium-disable-next-line security/no-inline-assembly

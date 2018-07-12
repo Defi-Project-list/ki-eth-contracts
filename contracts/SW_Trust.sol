@@ -2,7 +2,7 @@ pragma solidity 0.4.24;
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
-contract SWTrust {
+contract SW_Trust {
 
     using SafeMath for uint32;
     using SafeMath for uint40;

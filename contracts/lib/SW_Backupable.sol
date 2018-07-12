@@ -1,8 +1,8 @@
 pragma solidity 0.4.24;
 
-import "./SWStorage.sol";
+import "./SW_Storage.sol";
 
-contract SWBackupable is SWStorage {
+contract SW_Backupable is SW_Storage {
 
     event OwnerTouched          ();
     event BackupChanged         (address indexed owner, address indexed wallet, uint32 timeout);

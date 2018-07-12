@@ -1,11 +1,11 @@
 pragma solidity 0.4.24;
 
-import "./lib/SWProxy.sol";
-import "./lib/SWProxyLatest.sol";
+import "./lib/SW_Proxy.sol";
+import "./lib/SW_ProxyLatest.sol";
 
-contract SWProxyFactory {
-    SWProxy public swProxy;
-    SWProxyLatest public swProxyLatest;
+contract SW_ProxyFactory {
+    SW_Proxy public swProxy;
+    SW_ProxyLatest public swProxyLatest;
 
     bytes8 public constant LATEST = bytes8("latest");
 
@@ -20,14 +20,14 @@ contract SWProxyFactory {
     bytes8 private production_version;
     address private production_version_code;
 
-    event SWCreated(address indexed sw, bytes8 indexed version, address indexed owner);
-    event SWUpgraded(address indexed sw, bytes8 indexed version);
-    event SWFixed(address indexed sw, bytes8 indexed version, address indexed owner);
+    event SW_Created(address indexed sw, bytes8 indexed version, address indexed owner);
+    event SW_Upgraded(address indexed sw, bytes8 indexed version);
+    event SW_Fixed(address indexed sw, bytes8 indexed version, address indexed owner);
     event VersionAdded(bytes8 indexed version, address indexed code);
 
     constructor() public {
-        swProxy = new SWProxy();
-        swProxyLatest = new SWProxyLatest();
+        swProxy = new SW_Proxy();
+        swProxyLatest = new SW_ProxyLatest();
         versions_code[LATEST] = swProxyLatest;
     }
 
@@ -47,7 +47,7 @@ contract SWProxyFactory {
     }
 
     function changeOwner(address _newOwner) external {
-        address _curOwner = SWProxy(msg.sender).owner();
+        address _curOwner = SW_Proxy(msg.sender).owner();
         SmartWallet storage _sw = accounts_smartwallet[_curOwner];
         require(msg.sender == _sw.addr && _sw.owner == true);
         SmartWallet storage _sw2 = accounts_smartwallet[_newOwner];
@@ -57,13 +57,13 @@ contract SWProxyFactory {
         require(_code != address(0));
         _sw.owner = false;
         _sw2.owner = true;
-        SWProxy(msg.sender).init(_newOwner, _code);
+        SW_Proxy(msg.sender).init(_newOwner, _code);
     }
 
     function addBackup(address _backup) external {
         SmartWallet storage _sw = accounts_smartwallet[_backup];
         require(_sw.addr == address(0) && _sw.owner == false);
-        address _owner = SWProxy(msg.sender).owner();
+        address _owner = SW_Proxy(msg.sender).owner();
         SmartWallet storage _sw_owner = accounts_smartwallet[_owner];
         require(msg.sender == _sw_owner.addr && _sw_owner.owner == true);
         _sw.addr = msg.sender;
@@ -82,12 +82,12 @@ contract SWProxyFactory {
     function upgrade(bytes8 _version) external {
         address _code = versions_code[_version];
         require(_code != address(0));
-        address _owner = SWProxy(msg.sender).owner();
+        address _owner = SW_Proxy(msg.sender).owner();
         SmartWallet storage _sw = accounts_smartwallet[_owner];
         require(msg.sender == _sw.addr && _sw.owner == true);
         smartwallets_version[_sw.addr] = _version;
-        SWProxy(msg.sender).init(_owner, _code);
-        emit SWUpgraded(_sw.addr, _version);
+        SW_Proxy(msg.sender).init(_owner, _code);
+        emit SW_Upgraded(_sw.addr, _version);
     }
 
     function addVersion(bytes8 _version, address _target) public {
@@ -106,8 +106,8 @@ contract SWProxyFactory {
         bytes8 _version = smartwallets_version[_sw.addr];
         address _code = versions_code[_version];
         require(_code != address(0));
-        SWProxy(msg.sender).init(msg.sender, _code);
-        emit SWFixed(_sw.addr, _version, msg.sender);
+        SW_Proxy(msg.sender).init(msg.sender, _code);
+        emit SW_Fixed(_sw.addr, _version, msg.sender);
     }
 
     function getSmartWallet(address _account) public view returns (address) {
@@ -123,12 +123,12 @@ contract SWProxyFactory {
             _sw.owner = true;
             if (_auto) {
                 smartwallets_version[_sw.addr] = LATEST;
-                SWProxy(_sw.addr).init(msg.sender, address(swProxyLatest));
-                emit SWCreated(_sw.addr, LATEST, msg.sender);
+                SW_Proxy(_sw.addr).init(msg.sender, address(swProxyLatest));
+                emit SW_Created(_sw.addr, LATEST, msg.sender);
             } else {
                 smartwallets_version[_sw.addr] = production_version;
-                SWProxy(_sw.addr).init(msg.sender, production_version_code);
-                emit SWCreated(_sw.addr, production_version, msg.sender);
+                SW_Proxy(_sw.addr).init(msg.sender, production_version_code);
+                emit SW_Created(_sw.addr, production_version, msg.sender);
             }
 
         }
