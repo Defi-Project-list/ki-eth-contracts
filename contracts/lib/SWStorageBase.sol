@@ -5,6 +5,7 @@ interface Creator {
     function changeOwner(address _newOwner) external;
     function addBackup(address _wallet) external;
     function removeBackup(address _wallet) external;
+    function getLatestVersion() external view returns (address);
 }
 
 contract SWStorageBase {

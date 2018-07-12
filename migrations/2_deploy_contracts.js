@@ -8,7 +8,7 @@ var SmartWallet = artifacts.require("./SmartWallet.sol");
 var SmartWallet2 = artifacts.require("./test/SmartWallet2.sol");
 
 module.exports = function(deployer) {
-  deployer.deploy(SWProxyFactory, { gas: 4712388 });
+  deployer.deploy(SWProxyFactory, { gas: 5712388 });
   deployer.deploy(SmartWallet, { gas: 5712388 });
   deployer.deploy(SmartWallet2, { gas: 4712388 });
   deployer.deploy(Sender, { gas: 4712388 });

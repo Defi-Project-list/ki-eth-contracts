@@ -144,7 +144,4 @@ contract SWHeritable is SWBackupable {
         emit InheritanceActivated(msg.sender, wallets);
     }
 
-    function () payable public {
-    }
-
 }

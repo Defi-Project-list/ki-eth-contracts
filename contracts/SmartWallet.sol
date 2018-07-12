@@ -8,10 +8,10 @@ import "./SWTrust.sol";
 contract SmartWallet is SWHeritable {
     using SafeMath for uint256;
 
-    uint256 public passCount;
+    //uint256 public passCount;
 
     event SentEther  (address indexed to, uint256 value);
-    event PassCalled (address indexed from);
+    //event PassCalled (address indexed from);
 
     function sendEther (address _to, uint256 _value) public onlyActiveOwner() {
         require (_value > 0, "value == 0");
@@ -41,8 +41,8 @@ contract SmartWallet is SWHeritable {
         return trust;
     }
 
-    function pass () public {
-        emit PassCalled (msg.sender);
-        ++passCount;
-    }
+    //function pass () public {
+    //    emit PassCalled (msg.sender);
+    //    ++passCount;
+    //}
 }
