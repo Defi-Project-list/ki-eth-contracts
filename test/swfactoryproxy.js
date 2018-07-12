@@ -157,12 +157,16 @@ contract('SW_FactoryProxy', async accounts => {
     let swvalue2 = await SmartWallet2.at(sw).getValue();
     mlog.log('value(proxy)', swvalue2);
     */
+
     //await SmartWallet.at(sw).upgrade(web3.fromAscii("2.2", 8), {from: user1});
 
     await SmartWallet2.at(sw).setValue(235, 10, {from:user1});
     swvalue2 = await SmartWallet2.at(sw).getValue();
     mlog.log('value(proxy)', swvalue2);
 
+    await swver2.setValue(235, 10, {from:user1});
+    swvalue2 = await swver2.getValue();
+    mlog.log('value', swvalue2);
   });
 
 });
