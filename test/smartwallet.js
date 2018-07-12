@@ -1,5 +1,6 @@
 const SmartWallet = artifacts.require("SmartWallet");
-const SW_ProxyFactory = artifacts.require("SW_ProxyFactory");
+const SW_Factory = artifacts.require("SW_Factory");
+const SW_FactoryProxy = artifacts.require("SW_FactoryProxy");
 const mlog = require('mocha-logger');
 const {
   assertRevert,
@@ -37,7 +38,12 @@ contract('SmartWallet', async accounts => {
   });
 
   before('setup contract for the test', async () => {
-    const factory = await SW_ProxyFactory.new({ from: creator });
+    const sw_factory = await SW_Factory.new({ from: creator });
+    const sw_factory_proxy = await SW_FactoryProxy.new({ from: creator });
+    await sw_factory_proxy.setTarget(sw_factory.address, { from: creator });
+    const factory = await SW_Factory.at(sw_factory_proxy.address, { from: creator });
+
+    //const factory = await SW_FactoryProxy.new({ from: creator });
     const version = await SmartWallet.new({ from: creator });
     await factory.addVersion(web3.fromAscii("1.1", 8), version.address, { from: creator });
     await factory.createSmartWallet(false, { from: owner });

@@ -10,6 +10,7 @@ const {
 
 module.exports = (contractClass, contractName) => {
 
+  describe.skip("old backup", () => {
   contract(contractName, async accounts => {
     let instance;
 
@@ -109,5 +110,6 @@ module.exports = (contractClass, contractName) => {
       assert.equal(args.previousOwner, user2, '..(previousOwner, ..)');
       assert.equal(args.newOwner, user1, '..(.., newOwner)');
     });
+  });
   });
 };

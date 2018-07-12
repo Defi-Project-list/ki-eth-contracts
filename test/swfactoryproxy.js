@@ -1,5 +1,6 @@
 const SW_Proxy = artifacts.require("SW_Proxy");
-const SW_ProxyFactory = artifacts.require("SW_ProxyFactory");
+const SW_Factory = artifacts.require("SW_Factory");
+const SW_FactoryProxy = artifacts.require("SW_FactoryProxy");
 const SmartWallet = artifacts.require("SmartWallet");
 const SmartWallet2 = artifacts.require("SmartWallet2");
 const mlog = require('mocha-logger');
@@ -12,7 +13,7 @@ const {
 
 console.log("Using web3 '" + web3.version.api + "'");
 
-contract('SW_ProxyFactory', async accounts => {
+contract('SW_FactoryProxy', async accounts => {
   let instance;
 
   const owner = accounts[0];
@@ -35,7 +36,10 @@ contract('SW_ProxyFactory', async accounts => {
   });
 
   before('setup contract for the test', async () => {
-    instance = await SW_ProxyFactory.new();
+    const sw_factory = await SW_Factory.new({ from: owner });
+    const sw_factory_proxy = await SW_FactoryProxy.new({ from: owner });
+    await sw_factory_proxy.setTarget(sw_factory.address, { from: owner });
+    instance = await SW_Factory.at(sw_factory_proxy.address, { from: owner });
 
     mlog.log('contract  ', instance.address);
     mlog.log('owner   ', owner);
@@ -51,7 +55,7 @@ contract('SW_ProxyFactory', async accounts => {
     assert.equal(balance.toString(10), web3.toBigNumber(0).toString(10));
   });
 
-  it.skip ('should be able to create smart wallet', async () => {
+  it ('should be able to create smart wallet', async () => {
     const swver = await SmartWallet.new();
     mlog.log('version:', swver.address);
 
