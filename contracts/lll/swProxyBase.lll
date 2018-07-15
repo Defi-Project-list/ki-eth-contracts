@@ -2,14 +2,18 @@
   ; (sstore 0x00 0xbebebebebebebebebebebebebebebebebebebebe)
   ; (sstore 0x01 0xacacacacacacacacacacacacacacacacacacacac)
 (returnlll
-(seq 
-     (unless (calldatasize)
+(seq
+    (unless (calldatasize)
         (seq
             (when (callvalue)
               (seq
                   (mstore 0x00 (caller))
                   (mstore 0x20 (callvalue))
-                  (log0 0x00 64)
+                  ;(log0 0x00 64)
+                  (log1 0x00 64 0x01)
+                  ;(mstore 0x00 (callvalue))
+                  ;(log1 0x00 32 (caller))
+   		  ;(log2 0x00 32 0xC105BC3E1F2504FD54E7E6356AF5F26FD670EFC4A667B823E75F65D63C6BAB66  (caller))
               )
             )
             (stop)
@@ -35,7 +39,11 @@
              (seq
                (mstore 0x00 (caller))
                (mstore 0x20 (callvalue))
-               (log0 0x00 64)
+               ;(log0 0x00 64)
+               (log1 0x00 64 0x02)
+               ;(mstore 0x00 (callvalue))
+               ;(log1 0x00 32 (caller))
+   	       ;(log2 0x00 32 0xC105BC3E1F2504FD54E7E6356AF5F26FD670EFC4A667B823E75F65D63C6BAB66  (caller))
              )
            )           
            (return 0x40 (returndatasize))
