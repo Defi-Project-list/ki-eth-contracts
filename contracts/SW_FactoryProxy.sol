@@ -6,12 +6,13 @@ import "./SW_Factory.sol";
 contract SW_FactoryProxy is SW_FactoryStorage {
 
     constructor() SW_FactoryStorage() public {
+        proxy = address(this);
     }
 
     function setTarget(address _target) onlyOwner() public {
         require(_target != address(0));
         target = _target;
-        SW_Factory(this).init();
+        SW_FactoryStorage(this).migrate();
     }
 
     function () payable public {

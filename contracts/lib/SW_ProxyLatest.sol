@@ -5,7 +5,7 @@ import "./SW_StorageBase.sol";
 contract SW_ProxyLatest is SW_StorageBase {
 
     function () payable public {
-        address latest = Creator(this.creator()).getLatestVersion();
+        address latest = ICreator(this.creator()).getLatestVersion();
         // solium-disable-next-line security/no-inline-assembly
         assembly {
                 calldatacopy(0x00, 0x00, calldatasize)

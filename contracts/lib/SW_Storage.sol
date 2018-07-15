@@ -1,9 +1,8 @@
 pragma solidity 0.4.24;
 
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "./SW_StorageBase.sol";
 
-contract SW_Storage is SW_StorageBase {
+contract SW_Storage is SW_StorageBase, IStorage {
 
     // ------------- Backupable ---------
     struct Backup {
@@ -33,4 +32,18 @@ contract SW_Storage is SW_StorageBase {
 
     uint256 internal totalTransfered;
     Inheritance internal inheritance;
+
+    modifier onlyActiveOwner () {
+        require (msg.sender == owner && activated == false, "msg.sender != backup.owner");
+        _;
+    }
+
+    modifier onlyBackup () {
+        require (msg.sender == backup.wallet, "msg.sender != backup.wallet");
+        _;
+    }
+
+    function migrate () external onlyCreator()  {
+    }
+
 }

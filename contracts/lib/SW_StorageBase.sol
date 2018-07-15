@@ -1,6 +1,6 @@
 pragma solidity 0.4.24;
 
-interface Creator {
+interface ICreator {
     function upgrade(bytes8 _id) external;
     function changeOwner(address _newOwner) external;
     function addBackup(address _wallet) external;
@@ -8,9 +8,27 @@ interface Creator {
     function getLatestVersion() external view returns (address);
 }
 
-contract SW_StorageBase {
-    address public target;
+interface IProxy {
+    function init(address _owner, address _target) external;
+    function owner() view external returns (address);
+    function target() view external returns (address);
+}
+
+interface IStorage {
+    function migrate() external;
+}
+
+contract SW_StorageBase is IProxy {
     address public owner;
+    address public target;
+
+    function owner() view external returns (address) {
+        return owner;
+    }
+
+    function target() view external returns (address) {
+        return target;
+    }
 
     function creator() view external returns (address) {
         return address(this);
@@ -26,13 +44,13 @@ contract SW_StorageBase {
         _;
     }
 
-    function init(address _owner, address _target) onlyCreator() public {
+    function init(address _owner, address _target) onlyCreator() external {
         if (owner != _owner) owner = _owner;
         if (target != _target) target = _target;
     }
 
     function upgrade(bytes8 _version) onlyOwner() public {
-        Creator(this.creator()).upgrade(_version);
+        ICreator(this.creator()).upgrade(_version);
     }
 
 }

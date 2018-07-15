@@ -10,21 +10,6 @@ contract SW_Backupable is SW_Storage {
     event BackupActivated       (address indexed wallet);
     event OwnershipTransferred  (address indexed previousOwner, address indexed newOwner);
 
-    modifier onlyOwner () {
-        require (msg.sender == owner, "msg.sender != backup.owner");
-        _;
-    }
-
-    modifier onlyActiveOwner () {
-        require (msg.sender == owner && activated == false, "msg.sender != backup.owner");
-        _;
-    }
-
-    modifier onlyBackup () {
-        require (msg.sender == backup.wallet, "msg.sender != backup.wallet");
-        _;
-    }
-
     function setBackup (address _wallet, uint32 _timeout) public onlyOwner {
         require (_wallet != address(0));
         require (_wallet != owner);
@@ -33,7 +18,7 @@ contract SW_Backupable is SW_Storage {
         emit BackupChanged (owner, _wallet, _timeout);
         if (backup.wallet != _wallet) {
             backup.wallet = _wallet;
-            Creator(this.creator()).addBackup(_wallet);
+            ICreator(this.creator()).addBackup(_wallet);
         }
         if (backup.timeout != _timeout) backup.timeout = _timeout;
         if (activated != false)    activated = false;
@@ -54,7 +39,7 @@ contract SW_Backupable is SW_Storage {
         emit BackupRemoved (owner, backup.wallet);
         if (backup.wallet != address(0)){
             backup.wallet = address(0);
-            Creator(this.creator()).removeBackup(backup.wallet);
+            ICreator(this.creator()).removeBackup(backup.wallet);
         }
         if (backup.timeout != 0) backup.timeout = 0;
         if (activated != false) activated = false;
@@ -123,7 +108,7 @@ contract SW_Backupable is SW_Storage {
     function claimOwnership () onlyBackup public {
         require (activated == true);
         emit OwnershipTransferred (owner, backup.wallet);
-        if (owner != backup.wallet) Creator(this.creator()).changeOwner(backup.wallet);
+        if (owner != backup.wallet) ICreator(this.creator()).changeOwner(backup.wallet);
         _removeBackup ();
     }
 

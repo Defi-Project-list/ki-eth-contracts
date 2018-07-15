@@ -17,6 +17,7 @@ contract SW_FactoryStorage is Claimable {
     uint256 internal dummy8;
 
     address public target;
+    address public proxy;
 
     SW_Proxy public swProxy;
     SW_ProxyLatest public swProxyLatest;
@@ -28,6 +29,11 @@ contract SW_FactoryStorage is Claimable {
         bool owner;
     }
 
+    modifier onlyProxy () {
+        require (msg.sender == proxy);
+        _;
+    }
+
     mapping(address => SmartWallet) internal accounts_smartwallet;
     mapping(address => bytes8) internal smartwallets_version;
     mapping(bytes8 => address) internal versions_code;
@@ -36,9 +42,20 @@ contract SW_FactoryStorage is Claimable {
     address internal production_version_code;
 
     constructor() Claimable() public {
-        swProxy = new SW_Proxy();
-        swProxyLatest = new SW_ProxyLatest();
-        versions_code[LATEST] = swProxyLatest;
+        //swProxy = new SW_Proxy();
+        //swProxyLatest = new SW_ProxyLatest();
+        //versions_code[LATEST] = swProxyLatest;
+    }
+
+    function migrate() public onlyProxy() {
+        if (address(swProxy) == address(0x00)){
+            swProxy = new SW_Proxy();
+        }
+
+        if (address(swProxyLatest) == address(0x00)){
+            swProxyLatest = new SW_ProxyLatest();
+            versions_code[LATEST] = swProxyLatest;
+        }
     }
 
     function getLatestVersion() external view returns (address) {

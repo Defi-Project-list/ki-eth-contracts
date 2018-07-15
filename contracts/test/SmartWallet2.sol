@@ -1,8 +1,8 @@
 pragma solidity 0.4.24;
 
-import "../lib/SW_StorageBase.sol";
+import "../lib/SW_Storage.sol";
 
-contract SmartWallet2 is SW_StorageBase {
+contract SmartWallet2 is SW_Storage {
 
     uint256 value;
 
