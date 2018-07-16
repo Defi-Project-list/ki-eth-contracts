@@ -55,11 +55,12 @@ contract('SW_FactoryProxy', async accounts => {
     assert.equal(balance.toString(10), web3.toBigNumber(0).toString(10));
   });
 
-  it ('should be able to create smart wallet', async () => {
+  it.skip ('should be able to create smart wallet', async () => {
     const swver = await SmartWallet.new();
     mlog.log('version:', swver.address);
 
-    await instance.addVersion(web3.fromAscii("1.1", 8), swver.address, { from: owner });
+    //await instance.addVersion(web3.fromAscii("1.1", 8), swver.address, { from: owner });
+    await instance.addVersion(swver.address, { from: owner });
 
     await instance.createSmartWallet(false, { from: owner });
     let logs = await new Promise((r,j) => instance.allEvents({}, { fromBlock: 'latest', toBlock: 'latest' }).get((err, logs) => { r(logs) }));
@@ -100,7 +101,8 @@ contract('SW_FactoryProxy', async accounts => {
     const swver2 = await SmartWallet2.new();
     mlog.log('version2:', swver2.address);
 
-    await instance.addVersion(web3.fromAscii("1.2", 8), swver2.address, { from: owner });
+    //await instance.addVersion(web3.fromAscii("1.2", 8), swver2.address, { from: owner });
+    await instance.addVersion(swver2.address, { from: owner });
 
     await SmartWallet.at(sw).upgrade(web3.fromAscii("1.2", 8), {from: owner});
 
@@ -113,7 +115,8 @@ contract('SW_FactoryProxy', async accounts => {
     const swver = await SmartWallet.new();
     mlog.log('version:', swver.address);
 
-    await instance.addVersion(web3.fromAscii("2.1", 8), swver.address, { from: owner });
+    //await instance.addVersion(web3.fromAscii("2.1", 8), swver.address, { from: owner });
+    await instance.addVersion(swver.address, { from: owner });
 
     await instance.createSmartWallet(true, { from: user1 });
     let logs = await new Promise((r,j) => instance.allEvents({}, { fromBlock: 'latest', toBlock: 'latest' }).get((err, logs) => { r(logs) }));
@@ -151,7 +154,8 @@ contract('SW_FactoryProxy', async accounts => {
     const swver2 = await SmartWallet2.new();
     mlog.log('version2:', swver2.address);
 
-    await instance.addVersion(web3.fromAscii("2.2", 8), swver2.address, { from: owner });
+    //await instance.addVersion(web3.fromAscii("2.2", 8), swver2.address, { from: owner });
+    await instance.addVersion(swver2.address, { from: owner });
 
     /*await SmartWallet2.at(sw).setValue(235, 10, {from:user1});
     let swvalue2 = await SmartWallet2.at(sw).getValue();
@@ -164,14 +168,19 @@ contract('SW_FactoryProxy', async accounts => {
     swvalue2 = await SmartWallet2.at(sw).getValue();
     mlog.log('value(proxy)', swvalue2);
 
-    logs = await new Promise((r,j) => sw_proxy.allEvents({}, { fromBlock: 'latest', toBlock: 'latest' }).get((err, logs) => { r(logs) }));
+    //logs = await new Promise((r,j) => sw_proxy.allEvents({ fromBlock: 'latest', toBlock: 'latest' }).get((err, logs) => { r(logs) }));
+    //logs = await new Promise((r, j) => web3.eth.filter({ address: sw_proxy.address, fromBlock: 'latest', toBlock: 'latest',
+    //      topics: ['0x0000000000000000000000000000000000000000000000000000000000000002']}).get((err, logs) => { r(logs) }));
+    logs = await new Promise((r, j) => web3.eth.filter({ address: sw_proxy.address, fromBlock: 'latest', toBlock: 'latest',
+          topics: [null, null,'0x000000000000000000000000000000000000000000000000000000007b8d56e3']}).get((err, logs) => { r(logs) }));
+
     mlog.log('logs', JSON.stringify(logs));
 
     await swver2.setValue(235, 10, {from:user1, value:10000});
     swvalue2 = await swver2.getValue();
     mlog.log('value', swvalue2);
 
-    logs = await new Promise((r,j) => sw_proxy.allEvents({}, { fromBlock: 'latest', toBlock: 'latest' }).get((err, logs) => { r(logs) }));
+    logs = await new Promise((r,j) => sw_proxy.allEvents({ fromBlock: 'latest', toBlock: 'latest' }).get((err, logs) => { r(logs) }));
     mlog.log('logs', JSON.stringify(logs));
 
   });

@@ -17,5 +17,9 @@ contract SmartWallet2 is SW_Storage {
         return value;
     }
 
+    function version() pure public returns (bytes8){
+        return bytes8("0.1");
+    }
+
 }
 

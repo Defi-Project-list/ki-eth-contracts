@@ -45,7 +45,8 @@ contract('SmartWallet', async accounts => {
 
     //const factory = await SW_FactoryProxy.new({ from: creator });
     const version = await SmartWallet.new({ from: creator });
-    await factory.addVersion(web3.fromAscii("1.1", 8), version.address, { from: creator });
+    //await factory.addVersion(web3.fromAscii("1.1", 8), version.address, { from: creator });
+    await factory.addVersion(version.address, { from: creator });
     await factory.createSmartWallet(false, { from: owner });
     instance = await SmartWallet.at( await factory.getSmartWallet(owner) );
 

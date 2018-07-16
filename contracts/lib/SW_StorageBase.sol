@@ -16,6 +16,7 @@ interface IProxy {
 
 interface IStorage {
     function migrate() external;
+    function version() pure external returns (bytes8);
 }
 
 contract SW_StorageBase is IProxy {

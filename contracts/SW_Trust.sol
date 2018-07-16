@@ -123,4 +123,8 @@ contract SW_Trust {
 
     function () payable logPayment() public {
     }
+
+    function version() pure public returns (bytes8) {
+        return bytes8("0.1");
+    }
 }

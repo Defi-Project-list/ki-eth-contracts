@@ -41,6 +41,9 @@ contract SmartWallet is SW_Heritable {
         return trust;
     }
 
+    function version() pure public returns (bytes8){
+        return bytes8("1.1");
+    }
     //function pass () public {
     //    emit PassCalled (msg.sender);
     //    ++passCount;
