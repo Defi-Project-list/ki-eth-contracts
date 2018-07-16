@@ -3,6 +3,7 @@ const SW_Factory = artifacts.require("SW_Factory");
 const SW_FactoryProxy = artifacts.require("SW_FactoryProxy");
 const SmartWallet = artifacts.require("SmartWallet");
 const SmartWallet2 = artifacts.require("SmartWallet2");
+const Sender = artifacts.require("Sender");
 const mlog = require('mocha-logger');
 const {
   assertRevert,
@@ -169,10 +170,10 @@ contract('SW_FactoryProxy', async accounts => {
     mlog.log('value(proxy)', swvalue2);
 
     //logs = await new Promise((r,j) => sw_proxy.allEvents({ fromBlock: 'latest', toBlock: 'latest' }).get((err, logs) => { r(logs) }));
-    //logs = await new Promise((r, j) => web3.eth.filter({ address: sw_proxy.address, fromBlock: 'latest', toBlock: 'latest',
-    //      topics: ['0x0000000000000000000000000000000000000000000000000000000000000002']}).get((err, logs) => { r(logs) }));
     logs = await new Promise((r, j) => web3.eth.filter({ address: sw_proxy.address, fromBlock: 'latest', toBlock: 'latest',
-          topics: [null, null,'0x000000000000000000000000000000000000000000000000000000007b8d56e3']}).get((err, logs) => { r(logs) }));
+          topics: ['0x0000000000000000000000000000000000000000000000000000000000000002']}).get((err, logs) => { r(logs) }));
+    //logs = await new Promise((r, j) => web3.eth.filter({ address: sw_proxy.address, fromBlock: 'latest', toBlock: 'latest',
+    //      topics: [null, null,'0x7b8d56e300000000000000000000000000000000000000000000000000000000']}).get((err, logs) => { r(logs) }));
 
     mlog.log('logs', JSON.stringify(logs));
 
@@ -180,9 +181,22 @@ contract('SW_FactoryProxy', async accounts => {
     swvalue2 = await swver2.getValue();
     mlog.log('value', swvalue2);
 
-    logs = await new Promise((r,j) => sw_proxy.allEvents({ fromBlock: 'latest', toBlock: 'latest' }).get((err, logs) => { r(logs) }));
+    logs = await new Promise((r,j) => sw_proxy.allEvents({ fromBlock: '0', toBlock: 'latest' }).get((err, logs) => { r(logs) }));
     mlog.log('logs', JSON.stringify(logs));
 
+    let bal = await web3.eth.getBalance(sw);
+    mlog.log('sw balance before: ', bal.toString(10));
+
+    const sender = await Sender.new({from: user2});
+    await web3.eth.sendTransaction({ from: user2, value: web3.toWei(50, 'gwei'), to: sender.address });
+
+    bal = await web3.eth.getBalance(sender.address);
+    mlog.log('sender balance before: ', bal.toString(10));
+
+    await sender.sendEther(sw, 300, {from: user2});
+
+    bal = await web3.eth.getBalance(sw);
+    mlog.log('sw balance after: ', bal.toString(10));
   });
 
 });
