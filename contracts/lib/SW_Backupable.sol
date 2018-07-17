@@ -38,8 +38,8 @@ contract SW_Backupable is SW_Storage {
     function _removeBackup () private {
         emit BackupRemoved (owner, backup.wallet);
         if (backup.wallet != address(0)){
-            backup.wallet = address(0);
             ICreator(this.creator()).removeBackup(backup.wallet);
+            backup.wallet = address(0);
         }
         if (backup.timeout != 0) backup.timeout = 0;
         if (activated != false) activated = false;

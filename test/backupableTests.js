@@ -1,4 +1,3 @@
-//const Backupable = artifacts.require("Backupable");
 const mlog = require('mocha-logger');
 const { ZERO_ADDRESS, ZERO_BYTES32, ZERO_BN } = require('./lib/consts');
 const {
@@ -31,7 +30,12 @@ contract(contractName, async accounts => {
   });
 
   before('setup contract for the test', async () => {
-    instance = await contractClass.new();
+	  if (contractClass.new instanceof Function) {
+      instance = await contractClass.new();
+	  }
+	  else {
+      instance = await contractClass(owner);
+	  }
 
     mlog.log('contract ', instance.address);
     mlog.log('owner    ', owner);

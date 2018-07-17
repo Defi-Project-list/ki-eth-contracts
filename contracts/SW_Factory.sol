@@ -61,6 +61,7 @@ contract SW_Factory is SW_FactoryStorage {
 
     function removeBackup(address _backup) external {
         SmartWallet storage _sw = accounts_smartwallet[_backup];
+        require(_sw.addr != address(0));
         require(_sw.addr == msg.sender && _sw.owner == false);
         _sw.addr = address(0);
     }
