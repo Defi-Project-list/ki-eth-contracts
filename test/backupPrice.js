@@ -1,7 +1,4 @@
 const Backup = {}; //artifacts.require("Backup");
-const mlog  = require('mocha-logger');
-
-console.log("Using web3 '" + web3.version.api + "'");
 
 const getBalanceInWei = async (account) => {
   let balance = 0;

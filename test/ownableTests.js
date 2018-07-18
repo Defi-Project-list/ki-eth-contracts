@@ -27,6 +27,7 @@ module.exports = (contractClass, contractName) => {
     before('setup contract for the test', async () => {
       instance = await contractClass.new();
 
+      mlog.log('web3     ', web3.version.api);
       mlog.log('contract ', instance.address);
       mlog.log('owner    ', owner);
       mlog.log('user1    ', user1);

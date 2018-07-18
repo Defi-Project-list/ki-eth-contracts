@@ -10,8 +10,6 @@ const {
 
 const utils = require('./lib/utils');
 
-console.log("Using web3 '" + web3.version.api + "'");
-
 const parseHeirs = (heirs) => {
   let res = [];
   for (let i = 0; i < heirs.length; ++i) {
@@ -53,6 +51,7 @@ contract(contractName, async accounts => {
   	    instance = await contractClass(owner);
  	  }
 
+    mlog.log('web3     ', web3.version.api);
     mlog.log('contract ', instance.address);
     mlog.log('owner    ', owner);
     mlog.log('user1    ', user1);

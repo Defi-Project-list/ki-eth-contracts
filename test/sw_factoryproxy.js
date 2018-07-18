@@ -12,8 +12,6 @@ const {
   assetEvent_getArgs
 } = require('./lib/asserts');
 
-console.log("Using web3 '" + web3.version.api + "'");
-
 contract('SW_FactoryProxy', async accounts => {
   let instance;
 
@@ -42,13 +40,14 @@ contract('SW_FactoryProxy', async accounts => {
     await sw_factory_proxy.setTarget(sw_factory.address, { from: owner });
     instance = await SW_Factory.at(sw_factory_proxy.address, { from: owner });
 
-    mlog.log('contract  ', instance.address);
-    mlog.log('owner   ', owner);
-    mlog.log('user1   ', user1);
-    mlog.log('user2   ', user2);
-    mlog.log('val1    ', val1);
-    mlog.log('val2    ', val2);
-    mlog.log('val3    ', val3);
+    mlog.log('web3     ', web3.version.api);
+    mlog.log('contract ', instance.address);
+    mlog.log('owner    ', owner);
+    mlog.log('user1    ', user1);
+    mlog.log('user2    ', user2);
+    mlog.log('val1     ', val1);
+    mlog.log('val2     ', val2);
+    mlog.log('val3     ', val3);
   });
 
   it('should create empty factory', async () => {

@@ -11,8 +11,6 @@ const {
 
 const utils = require('./lib/utils');
 
-console.log("Using web3 '" + web3.version.api + "'");
-
 module.exports = (contractClass, contractName) => {
 
 contract(contractName, async accounts => {
@@ -51,6 +49,7 @@ contract(contractName, async accounts => {
  	    instance = await contractClass(owner, wallet, start, period, times, amount, cancelable);
  	  }
 
+    mlog.log('web3     ', web3.version.api);
     mlog.log('contract ', instance.address);
     mlog.log('owner    ', owner);
     mlog.log('user1    ', user1);

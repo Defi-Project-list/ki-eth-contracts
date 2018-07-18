@@ -3,10 +3,6 @@ const SW_Factory = artifacts.require("SW_Factory");
 const SW_FactoryProxy = artifacts.require("SW_FactoryProxy");
 const SmartWallet = artifacts.require("SmartWallet");
 
-
-const mlog = require('mocha-logger');
-console.log("Using web3 '" + web3.version.api + "'");
-
 const backupableTests = require('./backupableTests');
 backupableTests(async (owner) => {
     const sw_factory = await SW_Factory.new({ from: owner });
