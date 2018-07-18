@@ -8,16 +8,18 @@ var SW_FactoryProxy = artifacts.require("./SW_FactoryProxy.sol");
 var SmartWallet = artifacts.require("./SmartWallet.sol");
 var SmartWallet2 = artifacts.require("./test/SmartWallet2.sol");
 
-module.exports = function(deployer) {
-  deployer.deploy(SW_Factory, { gas: 5712388 });
-  deployer.deploy(SW_FactoryProxy, { gas: 5712388 });
-  deployer.deploy(SmartWallet, { gas: 5712388 });
-  deployer.deploy(SmartWallet2, { gas: 4712388 });
-  deployer.deploy(Sender, { gas: 4712388 });
-  deployer.deploy(Sanity, { gas: 4712389 });
-  deployer.deploy(Wallet, {
-    gas: 4712388,
-    // value: web3.toWei(1, 'finney')
+const liveNetworks = { rinkeby: true }
+
+module.exports = function(deployer, network) {
+  deployer.then(async () => {
+	  const factoryProxy = await deployer.deploy(SW_FactoryProxy, { gas: 5712388 , overwrite: !liveNetworks[network] });
+  	  const factory = await deployer.deploy(SW_Factory, { gas: 5712388 });
+	  await factoryProxy.setTarget(factory.address);
+  	  const sw = await deployer.deploy(SmartWallet, { gas: 5712388 });
+	  await SW_Factory.at(factoryProxy.address).addVersion(sw.address);
+  });
+
+  deployer.deploy(Wallet, { gas: 4712388, // value: web3.toWei(1, 'finney')
   });
 }
 
