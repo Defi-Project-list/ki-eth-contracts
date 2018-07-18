@@ -17,9 +17,8 @@ module.exports = function(deployer, network) {
 	  await factoryProxy.setTarget(factory.address);
   	  const sw = await deployer.deploy(SmartWallet, { gas: 5712388 });
 	  await SW_Factory.at(factoryProxy.address).addVersion(sw.address);
+  	  await deployer.deploy(Wallet, { gas: 4712388 });
   });
 
-  deployer.deploy(Wallet, { gas: 4712388, // value: web3.toWei(1, 'finney')
-  });
 }
 
