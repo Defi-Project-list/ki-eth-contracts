@@ -1,3 +1,5 @@
+'use strict';
+
 const SW_Trust = artifacts.require("SW_Trust");
 
 const trustTests = require('./trustTests');

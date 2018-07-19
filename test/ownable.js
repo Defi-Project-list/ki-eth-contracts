@@ -1,3 +1,5 @@
+'use strict';
+
 const Ownable = artifacts.require("Ownable");
 
 const ownableTests = require('./ownableTests');

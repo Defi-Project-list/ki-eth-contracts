@@ -1,3 +1,5 @@
+'use strict';
+
 const Wallet = artifacts.require("Wallet");
 const mlog = require('mocha-logger');
 const {

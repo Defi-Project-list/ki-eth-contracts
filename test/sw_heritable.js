@@ -1,3 +1,5 @@
+'use strict';
+
 const SW_Backupable = artifacts.require("SW_Backupable");
 const SW_Heritable = artifacts.require("SW_Heritable");
 const SW_Factory = artifacts.require("SW_Factory");

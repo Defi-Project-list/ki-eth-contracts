@@ -1,3 +1,5 @@
+'use strict';
+
 const Backupable = artifacts.require("Backupable");
 const Heritable = artifacts.require("Heritable");
 

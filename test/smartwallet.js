@@ -1,3 +1,5 @@
+'use strict';
+
 const SmartWallet = artifacts.require("SmartWallet");
 const SW_Factory = artifacts.require("SW_Factory");
 const SW_FactoryProxy = artifacts.require("SW_FactoryProxy");

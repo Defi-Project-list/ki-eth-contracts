@@ -1,3 +1,5 @@
+'use strict';
+
 const sleep = async (milliseconds) => {
   const timestamp = await new Promise(
     (r, j) => setTimeout(() => {

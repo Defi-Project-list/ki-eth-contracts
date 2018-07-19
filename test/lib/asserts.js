@@ -1,3 +1,5 @@
+'use strict';
+
 const assertRevert = (err) => {
   if (web3.version.api.startsWith("1")) {
     assert.equal('revert', Object.values(err.results)[0].error);

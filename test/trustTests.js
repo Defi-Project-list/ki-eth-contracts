@@ -1,3 +1,5 @@
+'use strict';
+
 const mlog = require('mocha-logger');
 
 const { ZERO_ADDRESS, ZERO_BYTES32, ZERO_BN } = require('./lib/consts');

@@ -1,4 +1,6 @@
-const Backup = {};//artifacts.require("Backup");
+'use strict';
+
+const Backup = {}; //artifacts.require("Backup");
 const mlog = require('mocha-logger');
 
 const assertRevert = (err) => {

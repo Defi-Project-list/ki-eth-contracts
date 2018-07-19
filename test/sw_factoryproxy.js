@@ -1,3 +1,5 @@
+'use strict';
+
 const SW_Proxy = artifacts.require("SW_Proxy");
 const SW_Factory = artifacts.require("SW_Factory");
 const SW_FactoryProxy = artifacts.require("SW_FactoryProxy");
