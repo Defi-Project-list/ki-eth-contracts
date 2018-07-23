@@ -46,9 +46,9 @@ contract('Backup', async accounts => {
   let user1Balance = new web3.BigNumber(0);
   let gasPrice;
 
-  sendOptions = (account) => ({ from: account, gasPrice: gasPrice });
+  const sendOptions = (account) => ({ from: account, gasPrice: gasPrice });
 
-  updateBalance = async () => {
+  const updateBalance = async () => {
     ownerPrevBalance = ownerBalance;
     ownerBalance = await getBalanceInWei(owner);
     mlog.log(`owner balance: \t${await toEtherString(ownerBalance)}`);

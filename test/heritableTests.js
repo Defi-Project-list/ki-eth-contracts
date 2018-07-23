@@ -302,7 +302,7 @@ contract(contractName, async accounts => {
 
     balance = await web3.eth.getBalance(instance.address);
 
-    totalPercent = await instance.getTotalPercent.call();
+    let totalPercent = await instance.getTotalPercent.call();
     assert.equal(totalPercent.toString(10), web3.toBigNumber(25 + 30).toString(10), 'total percent')
 
     const valueLeft = (value * 45) / 100;
@@ -349,7 +349,7 @@ contract(contractName, async accounts => {
     const rawHeirs = await instance.getHeirs.call();
     const heirs = parseHeirs(rawHeirs);
 
-    totalPercent = await instance.getTotalPercent.call();
+    const totalPercent = await instance.getTotalPercent.call();
 
     assert.equal(heirs.length, 2, "num of heirs");
 

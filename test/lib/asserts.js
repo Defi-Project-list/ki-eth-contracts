@@ -34,7 +34,7 @@ const assertFunction = (err) => {
   }
 };
 
-assetEvent_getArgs = (logs, eventName) => {
+const assetEvent_getArgs = (logs, eventName) => {
   assert.ok(logs instanceof Array, 'logs should be an array');
   assert.equal(logs.length, 1, 'should return one log');
   const log = logs[0];

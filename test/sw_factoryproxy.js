@@ -167,7 +167,7 @@ contract('SW_FactoryProxy', async accounts => {
     //await SmartWallet.at(sw).upgrade(web3.fromAscii("2.2", 8), {from: user1});
 
     await SmartWallet2.at(sw).setValue(235, 10, {from:user1, value:10000});
-    swvalue2 = await SmartWallet2.at(sw).getValue();
+    let swvalue2 = await SmartWallet2.at(sw).getValue();
     mlog.log('value(proxy)', swvalue2);
 
     //logs = await new Promise((r,j) => sw_proxy.allEvents({ fromBlock: 'latest', toBlock: 'latest' }).get((err, logs) => { r(logs) }));
