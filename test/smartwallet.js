@@ -1,3 +1,5 @@
+'use strict';
+
 const SmartWallet = artifacts.require("SmartWallet");
 const SW_Factory = artifacts.require("SW_Factory");
 const SW_FactoryProxy = artifacts.require("SW_FactoryProxy");
@@ -8,10 +10,6 @@ const {
   assertPayable,
   assetEvent_getArgs
 } = require('./lib/asserts');
-
-//const truffleAssert = require('truffle-assertions');
-
-console.log("Using web3 '" + web3.version.api + "'");
 
 contract('SmartWallet', async accounts => {
   let instance;
@@ -50,6 +48,7 @@ contract('SmartWallet', async accounts => {
     await factory.createSmartWallet(false, { from: owner });
     instance = await SmartWallet.at( await factory.getSmartWallet(owner) );
 
+    mlog.log('web3    ', web3.version.api);
     mlog.log('wallet  ', instance.address);
     mlog.log('owner   ', owner);
     mlog.log('user1   ', user1);

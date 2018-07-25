@@ -1,7 +1,6 @@
-const Ownable = artifacts.require("Ownable");
-const mlog = require('mocha-logger');
+'use strict';
 
-console.log("Using web3 '" + web3.version.api + "'");
+const Ownable = artifacts.require("Ownable");
 
 const ownableTests = require('./ownableTests');
 ownableTests(Ownable, "Ownable");

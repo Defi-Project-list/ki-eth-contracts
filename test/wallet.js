@@ -1,3 +1,5 @@
+'use strict';
+
 const Wallet = artifacts.require("Wallet");
 const mlog = require('mocha-logger');
 const {
@@ -6,10 +8,6 @@ const {
   assertPayable,
   assetEvent_getArgs
 } = require('./lib/asserts');
-
-//const truffleAssert = require('truffle-assertions');
-
-console.log("Using web3 '" + web3.version.api + "'");
 
 contract('Wallet', async accounts => {
   let instance;
@@ -36,6 +34,7 @@ contract('Wallet', async accounts => {
   before('setup contract for the test', async () => {
     instance = await Wallet.new();
 
+    mlog.log('web3    ', web3.version.api);
     mlog.log('wallet  ', instance.address);
     mlog.log('owner   ', owner);
     mlog.log('user1   ', user1);

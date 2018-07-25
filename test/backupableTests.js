@@ -1,3 +1,5 @@
+'use strict';
+
 const mlog = require('mocha-logger');
 const { ZERO_ADDRESS, ZERO_BYTES32, ZERO_BN } = require('./lib/consts');
 const {
@@ -9,8 +11,6 @@ const {
 } = require('./lib/asserts');
 
 const utils = require('./lib/utils');
-
-console.log("Using web3 '" + web3.version.api + "'");
 
 module.exports = (contractClass, contractName) => {
 
@@ -37,6 +37,7 @@ contract(contractName, async accounts => {
       instance = await contractClass(owner);
 	  }
 
+    mlog.log('web3     ', web3.version.api);
     mlog.log('contract ', instance.address);
     mlog.log('owner    ', owner);
     mlog.log('user1    ', user1);

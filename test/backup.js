@@ -1,7 +1,7 @@
-const Backup = artifacts.require("Backup");
-const mlog = require('mocha-logger');
+'use strict';
 
-console.log("Using web3 '" + web3.version.api + "'");
+const Backup = {}; //artifacts.require("Backup");
+const mlog = require('mocha-logger');
 
 const assertRevert = (err) => {
     if (web3.version.api.startsWith("1")) {

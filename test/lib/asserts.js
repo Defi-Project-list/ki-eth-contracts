@@ -1,3 +1,5 @@
+'use strict';
+
 const assertRevert = (err) => {
   if (web3.version.api.startsWith("1")) {
     assert.equal('revert', Object.values(err.results)[0].error);
@@ -32,7 +34,7 @@ const assertFunction = (err) => {
   }
 };
 
-assetEvent_getArgs = (logs, eventName) => {
+const assetEvent_getArgs = (logs, eventName) => {
   assert.ok(logs instanceof Array, 'logs should be an array');
   assert.equal(logs.length, 1, 'should return one log');
   const log = logs[0];

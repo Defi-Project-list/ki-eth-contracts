@@ -1,7 +1,6 @@
-const Backupable = artifacts.require("Backupable");
-const mlog = require('mocha-logger');
+'use strict';
 
-console.log("Using web3 '" + web3.version.api + "'");
+const Backupable = artifacts.require("Backupable");
 
 const backupableTests = require('./backupableTests');
 backupableTests(Backupable, "Backupable");
