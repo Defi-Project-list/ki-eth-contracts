@@ -16,4 +16,4 @@ backupableTests(async (owner) => {
     await factory.createSmartWallet(true, { from: owner });
     const sw = await factory.getSmartWallet(owner);
     return SW_Backupable.at(sw);
-}, "SW_Backupable");
+}, "SW_Backupable", 1);

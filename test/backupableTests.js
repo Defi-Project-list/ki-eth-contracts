@@ -12,7 +12,7 @@ const {
 
 const utils = require('./lib/utils');
 
-module.exports = (contractClass, contractName) => {
+module.exports = (contractClass, contractName, timeUnitInSeconds=1) => {
 
 contract(contractName, async accounts => {
   let instance;
@@ -82,7 +82,7 @@ contract(contractName, async accounts => {
     assert.equal(backupActivated, false, 'backupActivated');
 
     await instance.setBackup(user1, 120, { from: owner });
-    blockTimestamp = await utils.getLatestBlockTimestamp();
+    blockTimestamp = await utils.getLatestBlockTimestamp(timeUnitInSeconds);
 
     backupWallet = await instance.getBackupWallet();
     backupTimeout = await instance.getBackupTimeout();
@@ -122,7 +122,7 @@ contract(contractName, async accounts => {
       assertRevert(err);
     }
     await instance.removeBackup({ from: owner });
-    blockTimestamp = await utils.getLatestBlockTimestamp();
+    blockTimestamp = await utils.getLatestBlockTimestamp(timeUnitInSeconds);
 
     const backupWallet = await instance.getBackupWallet();
     const backupTimeout = await instance.getBackupTimeout();
@@ -191,7 +191,8 @@ contract(contractName, async accounts => {
 
   it('anyone should be able to activate backup when time is out', async () => {
     await instance.setBackup(user1, 0, { from: owner });
-    blockTimestamp = await utils.getLatestBlockTimestamp();
+    if (instance.accept) await instance.accept({from: user1 });
+    blockTimestamp = await utils.getLatestBlockTimestamp(timeUnitInSeconds);
 
     await instance.activateBackup({ from: user2 });
   });
@@ -226,7 +227,7 @@ contract(contractName, async accounts => {
 
   it('owner should be able to remove a backup when backup is activated', async () => {
     await instance.removeBackup({ from: owner });
-    blockTimestamp = await utils.getLatestBlockTimestamp();
+    blockTimestamp = await utils.getLatestBlockTimestamp(timeUnitInSeconds);
 
     const backupWallet = await instance.getBackupWallet();
     const backupTimeout = await instance.getBackupTimeout();
@@ -251,7 +252,8 @@ contract(contractName, async accounts => {
   it('owner should be able to reclaim ownership when backup is activated', async () => {
 
     await instance.setBackup(user1, 0, { from: owner });
-    blockTimestamp = await utils.getLatestBlockTimestamp();
+    blockTimestamp = await utils.getLatestBlockTimestamp(timeUnitInSeconds);
+    if (instance.accept) await instance.accept({from: user1 });
     await instance.activateBackup({ from: user2 });
 
     let backupWallet = await instance.getBackupWallet();
@@ -267,7 +269,7 @@ contract(contractName, async accounts => {
     await utils.sleep(2000);
 
     await instance.reclaimOwnership({ from: owner });
-    blockTimestamp = await utils.getLatestBlockTimestamp();
+    blockTimestamp = await utils.getLatestBlockTimestamp(timeUnitInSeconds);
 
     backupWallet = await instance.getBackupWallet();
     backupTimeout = await instance.getBackupTimeout();

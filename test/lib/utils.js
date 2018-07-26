@@ -8,10 +8,10 @@ const sleep = async (milliseconds) => {
   return timestamp;
 };
 
-const getLatestBlockTimestamp = async () => {
+const getLatestBlockTimestamp = async (timeUnitInSeconds=1) => {
   const timestamp = await new Promise(
     (r, j) => web3.eth.getBlock('latest', (err, block) => r(block.timestamp)));
-  return timestamp;
+  return Math.floor(timestamp/timeUnitInSeconds);
 };
 
 const mine = async (account) => {

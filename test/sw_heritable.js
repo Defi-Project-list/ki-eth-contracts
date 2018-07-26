@@ -17,7 +17,7 @@ backupableTests(async (owner) => {
     await factory.createSmartWallet(true, { from: owner });
     const sw = await factory.getSmartWallet(owner);
     return SW_Heritable.at(sw);
-}, "SW_Heritable as SW_Backupable");
+}, "SW_Heritable as SW_Backupable", 1);
 
 
 const heritableTests = require('./heritableTests');
