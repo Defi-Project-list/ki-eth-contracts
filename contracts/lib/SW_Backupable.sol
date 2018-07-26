@@ -7,6 +7,7 @@ contract SW_Backupable is SW_Storage {
     event OwnerTouched          ();
     event BackupChanged         (address indexed owner, address indexed wallet, uint32 timeout);
     event BackupRemoved         (address indexed owner, address indexed wallet);
+    event BackupRegistered      (address indexed wallet);
     event BackupActivated       (address indexed wallet);
     event OwnershipTransferred  (address indexed previousOwner, address indexed newOwner);
 
@@ -64,6 +65,10 @@ contract SW_Backupable is SW_Storage {
 
     function isBackupActivated () view public returns (bool) {
         return backup.state == BACKUP_STATE_ACTIVATED;
+    }
+
+    function isBackupRegistered () view public returns (bool) {
+        return backup.state == BACKUP_STATE_REGISTERED;
     }
 
     function getOwner () view public returns (address) {
@@ -128,7 +133,9 @@ contract SW_Backupable is SW_Storage {
 
     function accept () onlyBackup public {
         require(backup.state == BACKUP_STATE_PENDING);
+        emit BackupRegistered (backup.wallet);
         backup.state = BACKUP_STATE_REGISTERED;
+        backup.timestamp = getBlockTimestamp();
     }
 
     function decline () onlyBackup public {
