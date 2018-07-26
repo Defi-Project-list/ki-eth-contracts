@@ -4,19 +4,19 @@ import "./SW_Storage.sol";
 
 contract SW_Backupable is SW_Storage {
 
-    event OwnerTouched          ();
-    event BackupChanged         (address indexed owner, address indexed wallet, uint32 timeout);
-    event BackupRemoved         (address indexed owner, address indexed wallet);
-    event BackupRegistered      (address indexed wallet);
-    event BackupActivated       (address indexed wallet);
-    event OwnershipTransferred  (address indexed previousOwner, address indexed newOwner);
+    event OwnerTouched          (address indexed creator);
+    event BackupChanged         (address indexed creator, address indexed owner, address indexed wallet, uint32 timeout);
+    event BackupRemoved         (address indexed creator, address indexed owner, address indexed wallet);
+    event BackupRegistered      (address indexed creator, address indexed wallet);
+    event BackupActivated       (address indexed creator, address indexed wallet);
+    event OwnershipTransferred  (address indexed creator, address indexed previousOwner, address indexed newOwner);
 
     function setBackup (address _wallet, uint32 _timeout) public onlyOwner {
         require (_wallet != address(0));
         require (_wallet != owner);
         require (backup.state != BACKUP_STATE_ACTIVATED);
         reclaimOwnership();
-        emit BackupChanged (owner, _wallet, _timeout);
+        emit BackupChanged (this.creator(), owner, _wallet, _timeout);
         if (backup.wallet != _wallet) {
             if (backup.wallet != address(0)){
                 ICreator(this.creator()).removeBackup(backup.wallet);
@@ -46,7 +46,7 @@ contract SW_Backupable is SW_Storage {
     }
 
     function _removeBackup () private {
-        emit BackupRemoved (owner, backup.wallet);
+        emit BackupRemoved (this.creator(), owner, backup.wallet);
         if (backup.wallet != address(0)){
             ICreator(this.creator()).removeBackup(backup.wallet);
             backup.wallet = address(0);
@@ -59,7 +59,7 @@ contract SW_Backupable is SW_Storage {
         require (backup.state == BACKUP_STATE_REGISTERED);
         require (backup.wallet != address(0));
         require (getBackupTimeLeft() == 0);
-        emit BackupActivated (backup.wallet);
+        emit BackupActivated (this.creator(), backup.wallet);
         if (backup.state != BACKUP_STATE_ACTIVATED) backup.state = BACKUP_STATE_ACTIVATED;
     }
 
@@ -115,13 +115,13 @@ contract SW_Backupable is SW_Storage {
     }
 
     function _touch() internal {
-        emit OwnerTouched();
+        emit OwnerTouched(this.creator());
         backup.timestamp = getBlockTimestamp();
     }
 
     function claimOwnership () onlyBackup public {
         require (backup.state == BACKUP_STATE_ACTIVATED);
-        emit OwnershipTransferred (owner, backup.wallet);
+        emit OwnershipTransferred (this.creator(), owner, backup.wallet);
         if (owner != backup.wallet) ICreator(this.creator()).changeOwner(backup.wallet);
         _removeBackup ();
     }
@@ -133,7 +133,7 @@ contract SW_Backupable is SW_Storage {
 
     function accept () onlyBackup public {
         require(backup.state == BACKUP_STATE_PENDING);
-        emit BackupRegistered (backup.wallet);
+        emit BackupRegistered (this.creator(), backup.wallet);
         backup.state = BACKUP_STATE_REGISTERED;
         backup.timestamp = getBlockTimestamp();
     }

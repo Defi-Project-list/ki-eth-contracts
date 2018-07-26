@@ -6,23 +6,23 @@ import "./SW_Backupable.sol";
 contract SW_Heritable is SW_Backupable {
     using SafeMath for uint256;
 
-    event InheritanceActivated    (address indexed activator, address[] wallets);
-    event InheritanceChanged      (address indexed owner, uint40 timeout);
-    event InheritanceRemoved      (address indexed owner);
-    event InheritanceHeirsChanged (address indexed owner, address[] wallets, uint8[] percents);
+    event InheritanceActivated    (address indexed creator, address indexed activator, address[] wallets);
+    event InheritanceChanged      (address indexed creator, address indexed owner, uint40 timeout);
+    event InheritanceRemoved      (address indexed creator, address indexed owner);
+    event InheritanceHeirsChanged (address indexed creator, address indexed owner, address[] wallets, uint8[] percents);
 
     function setInheritance (uint32 _timeout) onlyOwner() public {
         _touch();
         require (inheritance.activated == false);
 
-        emit InheritanceChanged(msg.sender, _timeout);
+        emit InheritanceChanged(this.creator(), msg.sender, _timeout);
 
         if (inheritance.timeout != _timeout)  inheritance.timeout = _timeout;
         if (inheritance.enabled != true)      inheritance.enabled = true;
     }
 
     function clearInheritance () onlyOwner() public {
-        emit InheritanceRemoved(msg.sender);
+        emit InheritanceRemoved(this.creator(), msg.sender);
 
         if (inheritance.timeout != uint32(0)) inheritance.timeout = uint32(0);
         if (inheritance.enabled != false)     inheritance.enabled = false;
@@ -70,7 +70,7 @@ contract SW_Heritable is SW_Backupable {
             wallets[inx] = heir.wallet;
             percents[inx] = heir.percent;
         }
-        emit InheritanceHeirsChanged(msg.sender, wallets, percents);
+        emit InheritanceHeirsChanged(this.creator(), msg.sender, wallets, percents);
     }
 
     function getTotalPercent () view public returns (uint256 total) {
@@ -141,7 +141,7 @@ contract SW_Heritable is SW_Backupable {
             heir = inheritance.heirs [inx];
             wallets[inx] = heir.wallet;
         }
-        emit InheritanceActivated(msg.sender, wallets);
+        emit InheritanceActivated(this.creator(), msg.sender, wallets);
     }
 
 }
