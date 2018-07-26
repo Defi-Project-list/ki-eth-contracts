@@ -7,11 +7,11 @@ contract SW_Heritable is SW_Backupable {
     using SafeMath for uint256;
 
     event InheritanceActivated    (address indexed activator, address[] wallets);
-    event InheritanceChanged      (address indexed owner, uint64 timeout);
+    event InheritanceChanged      (address indexed owner, uint40 timeout);
     event InheritanceRemoved      (address indexed owner);
-    event InheritanceHeirsChanged (address indexed owner, address[] wallets, uint64[] percents);
+    event InheritanceHeirsChanged (address indexed owner, address[] wallets, uint8[] percents);
 
-    function setInheritance (uint64 _timeout) onlyOwner() public {
+    function setInheritance (uint32 _timeout) onlyOwner() public {
         _touch();
         require (inheritance.activated == false);
 
@@ -64,7 +64,7 @@ contract SW_Heritable is SW_Backupable {
 
         // event related code starts here
         address[] memory wallets = new address[](i);
-        uint64[] memory percents = new uint64[](i);
+        uint8[] memory percents = new uint8[](i);
         for (uint256 inx = 0; inx < i; inx++) {
             heir = inheritance.heirs [inx];
             wallets[inx] = heir.wallet;
@@ -97,7 +97,7 @@ contract SW_Heritable is SW_Backupable {
         }
     }
 
-    function getInheritanceTimeLeft () view public returns (uint64 _res) {
+    function getInheritanceTimeLeft () view public returns (uint40 _res) {
         if (getTouchTimestamp() + inheritance.timeout > getBlockTimestamp()){
             _res = getTouchTimestamp() + inheritance.timeout - getBlockTimestamp();
         }
@@ -111,7 +111,7 @@ contract SW_Heritable is SW_Backupable {
         return (inheritance.enabled == true);
     }
 
-    function getInheritanceTimeout () view public returns (uint64) {
+    function getInheritanceTimeout () view public returns (uint40) {
         return inheritance.timeout;
     }
 

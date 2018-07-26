@@ -4,15 +4,19 @@ import "./SW_StorageBase.sol";
 
 contract SW_Storage is SW_StorageBase, IStorage {
 
+    uint8 constant internal BACKUP_STATE_PENDING   = 0;
+    uint8 constant internal BACKUP_STATE_REGISTERED  = 1;
+    uint8 constant internal BACKUP_STATE_ACTIVATED = 2;
+
     // ------------- Backupable ---------
     struct Backup {
         address wallet;
-        uint64  timestamp;
-        uint32  timeout;
+        uint40  timestamp;
+        uint32  timeout;        
+        uint8   state;
     }
 
     Backup internal backup;
-    bool    activated;
 
     // ------------- Heritable ---------
     uint256 constant internal MAX_HEIRS = 8;
@@ -25,7 +29,7 @@ contract SW_Storage is SW_StorageBase, IStorage {
 
     struct Inheritance {
         Heir[MAX_HEIRS] heirs;
-        uint64  timeout;
+        uint40  timeout;
         bool    enabled;
         bool    activated;
     }
@@ -34,7 +38,7 @@ contract SW_Storage is SW_StorageBase, IStorage {
     Inheritance internal inheritance;
 
     modifier onlyActiveOwner () {
-        require (msg.sender == owner && activated == false, "msg.sender != backup.owner");
+        require (msg.sender == owner && backup.state != BACKUP_STATE_ACTIVATED, "msg.sender != backup.owner");
         _;
     }
 
