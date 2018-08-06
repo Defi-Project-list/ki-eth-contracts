@@ -22,6 +22,26 @@ module.exports = {
       },
       network_id: "4"
     },
+    kovan: {
+      provider: function() {
+        mnemonic =
+          "pelican bench orchard wisdom honey deputy donate suspect airport sail quick decade";
+        return new HDWalletProvider(
+          mnemonic, "https://kovan.infura.io/Mi3WQKlqLIU6IQtAvddB"
+        );
+      },
+      network_id: "42"
+    },
+    ropsten: {
+      provider: function() {
+        mnemonic =
+          "pelican bench orchard wisdom honey deputy donate suspect airport sail quick decade";
+        return new HDWalletProvider(
+          mnemonic, "https://ropsten.infura.io/Mi3WQKlqLIU6IQtAvddB"
+        );
+      },
+      network_id: "3"
+    },
     ganache: {
       provider: function() {
         return new HDWalletProvider(mnemonic, "http://127.0.0.1:8545/");

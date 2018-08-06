@@ -13,11 +13,16 @@ const liveNetworks = { rinkeby: true }
 
 module.exports = function(deployer, network) {
   deployer.then(async () => {
-	  const factoryProxy = await deployer.deploy(SW_FactoryProxy, { gas: 5712388 , overwrite: !liveNetworks[network] });
-  	  const factory = await deployer.deploy(SW_Factory, { gas: 5712388 });
+	  const factoryProxy = await deployer.deploy(SW_FactoryProxy, { gas: 5812388 , overwrite: !liveNetworks[network] });
+  	  const factory = await deployer.deploy(SW_Factory, { gas: 5812388 });
 	  await factoryProxy.setTarget(factory.address);
-  	  const sw = await deployer.deploy(SmartWallet, { gas: 5712388 });
-	  await SW_Factory.at(factoryProxy.address).addVersion(sw.address);
+  	  const sw = await deployer.deploy(SmartWallet, { gas: 5812388 });
+	  try { 
+	  	await SW_Factory.at(factoryProxy.address).addVersion(sw.address);
+	  }
+	  catch(err) {
+		console.error('addVersion failed. Please check version number.');
+	  }
 	  //await deployer.deploy(Wallet, { gas: 4712388 });
   	  //await deployer.deploy(Root, { gas: 4712388 });
   });

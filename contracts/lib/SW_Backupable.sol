@@ -68,7 +68,7 @@ contract SW_Backupable is SW_Storage {
     }
 
     function isBackupRegistered () view public returns (bool) {
-        return backup.state == BACKUP_STATE_REGISTERED;
+        return backup.state == BACKUP_STATE_REGISTERED || backup.state == BACKUP_STATE_ACTIVATED;
     }
 
     function getOwner () view public returns (address) {
@@ -123,7 +123,9 @@ contract SW_Backupable is SW_Storage {
         require (backup.state == BACKUP_STATE_ACTIVATED);
         emit OwnershipTransferred (this.creator(), owner, backup.wallet);
         if (owner != backup.wallet) ICreator(this.creator()).changeOwner(backup.wallet);
-        _removeBackup ();
+        backup.wallet = address(0);
+        if (backup.timeout != 0) backup.timeout = 0;
+        backup.state = BACKUP_STATE_PENDING;
     }
 
     function reclaimOwnership () onlyOwner public {

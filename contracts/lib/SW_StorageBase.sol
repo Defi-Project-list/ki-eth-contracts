@@ -46,8 +46,8 @@ contract SW_StorageBase is IProxy {
     }
 
     function init(address _owner, address _target) onlyCreator() external {
-        if (owner != _owner) owner = _owner;
-        if (target != _target) target = _target;
+        if (_owner != owner && _owner != address(0)) owner = _owner;
+        if (_target != target && _target != address(0)) target = _target;
     }
 
     function upgrade(bytes8 _version) onlyOwner() public {

@@ -42,12 +42,10 @@ contract SW_Factory is SW_FactoryStorage {
         require(msg.sender == _sw.addr && _sw.owner == true);
         SmartWallet storage _sw2 = accounts_smartwallet[_newOwner];
         require(msg.sender == _sw2.addr && _sw2.owner == false);
-        bytes8 _version = smartwallets_version[msg.sender];
-        address _code = versions_code[_version];
-        require(_code != address(0));
-        _sw.owner = false;
         _sw2.owner = true;
-        IProxy(msg.sender).init(_newOwner, _code);
+        _sw.owner = false;
+        _sw.addr = address(0);
+        IProxy(msg.sender).init(_newOwner, address(0));
     }
 
     function addBackup(address _backup) external {
@@ -56,7 +54,7 @@ contract SW_Factory is SW_FactoryStorage {
         address _owner = IProxy(msg.sender).owner();
         SmartWallet storage _sw_owner = accounts_smartwallet[_owner];
         require(msg.sender == _sw_owner.addr && _sw_owner.owner == true);
-        _sw.addr = msg.sender;
+        _sw.addr = msg.sender;  
     }
 
     function removeBackup(address _backup) external {
@@ -92,11 +90,14 @@ contract SW_Factory is SW_FactoryStorage {
 
     function fixMySmartWallet() public {
         SmartWallet storage _sw = accounts_smartwallet[msg.sender];
-        require(msg.sender == _sw.addr && _sw.owner == true);
+        require(_sw.addr != address(0) && _sw.owner == true);
         bytes8 _version = smartwallets_version[_sw.addr];
+        if (_version == LATEST) {
+            _version = production_version;
+        }
         address _code = versions_code[_version];
         require(_code != address(0));
-        IProxy(msg.sender).init(msg.sender, _code);
+        IProxy(_sw.addr).init(msg.sender, _code);
         emit SW_Fixed(_sw.addr, _version, msg.sender);
     }
 
