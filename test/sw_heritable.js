@@ -14,8 +14,8 @@ backupableTests(async (owner) => {
     const factory = await SW_Factory.at(sw_factory_proxy.address, { from: owner });
     const swver = await SmartWallet.new();
     await factory.addVersion(swver.address, { from: owner });
-    await factory.createSmartWallet(true, { from: owner });
-    const sw = await factory.getSmartWallet(owner);
+    await factory.createWallet(true, { from: owner });
+    const sw = await factory.getWallet(owner);
     return SW_Heritable.at(sw);
 }, "SW_Heritable as SW_Backupable", 1);
 
@@ -28,7 +28,7 @@ heritableTests(async (owner) => {
     const factory = await SW_Factory.at(sw_factory_proxy.address, { from: owner });
     const swver = await SmartWallet.new();
     await factory.addVersion(swver.address, { from: owner });
-    await factory.createSmartWallet(true, { from: owner });
-    const sw = await factory.getSmartWallet(owner);
+    await factory.createWallet(true, { from: owner });
+    const sw = await factory.getWallet(owner);
     return SW_Heritable.at(sw);
 }, "SW_Heritable");

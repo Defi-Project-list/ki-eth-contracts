@@ -62,7 +62,7 @@ contract SW_FactoryStorage is Claimable {
         return production_version_code;
     }
 
-    function getSmartWallet(address _account) external view returns (address) {
+    function getWallet(address _account) external view returns (address) {
         return accounts_smartwallet[_account].addr;
     }
 

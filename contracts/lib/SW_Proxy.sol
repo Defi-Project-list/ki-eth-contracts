@@ -13,21 +13,6 @@ contract SW_Proxy is SW_StorageBase {
                 if res { return(0x00, returndatasize) }
                 revert(0x00, returndatasize)
             }
-
-        /*
-        bytes memory data = msg.data;
-        address impl = target;
-            // solium-disable-next-line security/no-inline-assembly
-        assembly {
-                let result := delegatecall(gas, impl, add(data, 0x20), mload(data), 0, 0)
-                let size := returndatasize
-                let ptr := mload(0x40)
-                returndatacopy(ptr, 0, size)
-                switch result
-                case 0 { revert(ptr, size) }
-                default { return(ptr, size) }
-            }
-         */
     }
 }
 

@@ -19,6 +19,10 @@ interface IStorage {
     function version() pure external returns (bytes8);
 }
 
+interface IStorageBase {
+    function owner() view external returns (address);
+}
+
 contract SW_StorageBase is IProxy {
     address public owner;
     address public target;
@@ -48,6 +52,10 @@ contract SW_StorageBase is IProxy {
     function init(address _owner, address _target) onlyCreator() external {
         if (_owner != owner && _owner != address(0)) owner = _owner;
         if (_target != target && _target != address(0)) target = _target;
+    }
+
+    constructor () public {
+        owner = msg.sender;
     }
 
     function upgrade(bytes8 _version) onlyOwner() public {

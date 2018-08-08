@@ -5,13 +5,10 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "./lib/SW_Heritable.sol";
 import "./SW_Trust.sol";
 
-contract SmartWallet is SW_Heritable {
+contract SmartWallet is IStorage, SW_Heritable {
     using SafeMath for uint256;
 
-    //uint256 public passCount;
-
     event SentEther  (address indexed creator, address indexed owner, address indexed to, uint256 value);
-    //event PassCalled (address indexed from);
 
     function sendEther (address _to, uint256 _value) public onlyActiveOwner() {
         require (_value > 0, "value == 0");
@@ -23,8 +20,6 @@ contract SmartWallet is SW_Heritable {
     function getBalance () view public returns (uint256) {
         return address(this).balance;
     }
-
-    SW_Trust private trust;
 
     function createTrust(address _wallet, uint40 _start, uint32 _period, uint16 _times, uint256 _amount, bool _cancelable) payable public {
         require(trust == SW_Trust(0));
@@ -41,11 +36,12 @@ contract SmartWallet is SW_Heritable {
         return trust;
     }
 
+    // IStorage Implementation
+    function migrate () external onlyCreator()  {
+    }
+
     function version() pure public returns (bytes8){
         return bytes8("1.1");
     }
-    //function pass () public {
-    //    emit PassCalled (msg.sender);
-    //    ++passCount;
-    //}
+
 }

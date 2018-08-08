@@ -9,14 +9,14 @@ var SmartWallet = artifacts.require("./SmartWallet.sol");
 var SmartWallet2 = artifacts.require("./test/SmartWallet2.sol");
 var Root = artifacts.require("./Root.sol");
 
-const liveNetworks = { rinkeby: true }
+const liveNetworks = { rinkeby: true, kovan: true }
 
 module.exports = function(deployer, network) {
   deployer.then(async () => {
-	  const factoryProxy = await deployer.deploy(SW_FactoryProxy, { gas: 5812388 , overwrite: !liveNetworks[network] });
-  	  const factory = await deployer.deploy(SW_Factory, { gas: 5812388 });
+	  const factoryProxy = await deployer.deploy(SW_FactoryProxy, { gas: 5912388 , overwrite: !liveNetworks[network] });
+  	  const factory = await deployer.deploy(SW_Factory, { gas: 5912388 });
 	  await factoryProxy.setTarget(factory.address);
-  	  const sw = await deployer.deploy(SmartWallet, { gas: 5812388 });
+  	  const sw = await deployer.deploy(SmartWallet, { gas: 5912388 });
 	  try { 
 	  	await SW_Factory.at(factoryProxy.address).addVersion(sw.address);
 	  }

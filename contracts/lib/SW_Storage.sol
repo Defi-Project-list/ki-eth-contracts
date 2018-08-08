@@ -1,8 +1,9 @@
 pragma solidity 0.4.24;
 
 import "./SW_StorageBase.sol";
+import "../SW_Trust.sol";
 
-contract SW_Storage is SW_StorageBase, IStorage {
+contract SW_Storage is IStorage {
 
     uint8 constant internal BACKUP_STATE_PENDING   = 0;
     uint8 constant internal BACKUP_STATE_REGISTERED  = 1;
@@ -37,17 +38,7 @@ contract SW_Storage is SW_StorageBase, IStorage {
     uint256 internal totalTransfered;
     Inheritance internal inheritance;
 
-    modifier onlyActiveOwner () {
-        require (msg.sender == owner && backup.state != BACKUP_STATE_ACTIVATED, "msg.sender != backup.owner");
-        _;
-    }
-
-    modifier onlyBackup () {
-        require (msg.sender == backup.wallet, "msg.sender != backup.wallet");
-        _;
-    }
-
-    function migrate () external onlyCreator()  {
-    }
+    // ------------- Trust ---------
+    SW_Trust internal trust;
 
 }

@@ -1,8 +1,9 @@
 pragma solidity 0.4.24;
 
+import "./SW_StorageBase.sol";
 import "./SW_Storage.sol";
 
-contract SW_Backupable is SW_Storage {
+contract SW_Backupable is IStorage, SW_StorageBase, SW_Storage {
 
     event OwnerTouched          (address indexed creator);
     event BackupChanged         (address indexed creator, address indexed owner, address indexed wallet, uint32 timeout);
@@ -10,6 +11,16 @@ contract SW_Backupable is SW_Storage {
     event BackupRegistered      (address indexed creator, address indexed wallet);
     event BackupActivated       (address indexed creator, address indexed wallet);
     event OwnershipTransferred  (address indexed creator, address indexed previousOwner, address indexed newOwner);
+
+    modifier onlyActiveOwner () {
+        require (msg.sender == this.owner() && backup.state != BACKUP_STATE_ACTIVATED, "msg.sender != backup.owner");
+        _;
+    }
+
+    modifier onlyBackup () {
+        require (msg.sender == backup.wallet, "msg.sender != backup.wallet");
+        _;
+    }
 
     function setBackup (address _wallet, uint32 _timeout) public onlyOwner {
         require (_wallet != address(0));
