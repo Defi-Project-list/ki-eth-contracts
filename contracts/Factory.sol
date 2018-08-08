@@ -1,18 +1,18 @@
 pragma solidity 0.4.24;
 
-import "./SW_FactoryStorage.sol";
+import "./FactoryStorage.sol";
 
-contract SW_Factory is SW_FactoryStorage {
+contract Factory is FactoryStorage {
 
-    event SW_Created(address indexed sw, bytes8 indexed version, address indexed owner);
-    event SW_Upgraded(address indexed sw, bytes8 indexed version);
-    event SW_Fixed(address indexed sw, bytes8 indexed version, address indexed owner);
+    event Created(address indexed sw, bytes8 indexed version, address indexed owner);
+    event Upgraded(address indexed sw, bytes8 indexed version);
+    event Fixed(address indexed sw, bytes8 indexed version, address indexed owner);
     event VersionAdded(bytes8 indexed version, address indexed code);
 
-    constructor() SW_FactoryStorage() public {
+    constructor() FactoryStorage() public {
     }
 
-    function _createSmartWallet(address _creator, address _target) private returns (address result) {
+    function _createWallet(address _creator, address _target) private returns (address result) {
         bytes memory
         _code   = hex"60998061000d6000396000f30036601657341560145734602052336001602080a25b005b6000805260046000601c376302d05d3f6000511415604b5773dadadadadadadadadadadadadadadadadadadada602052602080f35b366000803760008036600073bebebebebebebebebebebebebebebebebebebebe5af415608f57341560855734602052600051336002602080a35b3d6000803e3d6000f35b3d6000803e3d6000fd"; //log3-event-ids-address-funcid-opt (-2,-2) (min: 22440)
         bytes20 creatorBytes = bytes20(_creator);
@@ -29,9 +29,9 @@ contract SW_Factory is SW_FactoryStorage {
 
     function changeOwner(address _newOwner) external {
         address _curOwner = IProxy(msg.sender).owner();
-        SmartWallet storage _sw = accounts_smartwallet[_curOwner];
+        Wallet storage _sw = accounts_wallet[_curOwner];
         require(msg.sender == _sw.addr && _sw.owner == true);
-        SmartWallet storage _sw2 = accounts_smartwallet[_newOwner];
+        Wallet storage _sw2 = accounts_wallet[_newOwner];
         require(msg.sender == _sw2.addr && _sw2.owner == false);
         _sw2.owner = true;
         _sw.owner = false;
@@ -40,32 +40,31 @@ contract SW_Factory is SW_FactoryStorage {
     }
 
     function addBackup(address _backup) external {
-        SmartWallet storage _sw = accounts_smartwallet[_backup];
+        Wallet storage _sw = accounts_wallet[_backup];
         require(_sw.addr == address(0) && _sw.owner == false);
         address _owner = IProxy(msg.sender).owner();
-        SmartWallet storage _sw_owner = accounts_smartwallet[_owner];
+        Wallet storage _sw_owner = accounts_wallet[_owner];
         require(msg.sender == _sw_owner.addr && _sw_owner.owner == true);
         _sw.addr = msg.sender;  
     }
 
     function removeBackup(address _backup) external {
-        SmartWallet storage _sw = accounts_smartwallet[_backup];
+        Wallet storage _sw = accounts_wallet[_backup];
         require(_sw.addr != address(0));
         require(_sw.addr == msg.sender && _sw.owner == false);
         _sw.addr = address(0);
     }
 
-
     function upgrade(bytes8 _version) external {
         address _code = versions_code[_version];
         require(_code != address(0));
         address _owner = IProxy(msg.sender).owner();
-        SmartWallet storage _sw = accounts_smartwallet[_owner];
+        Wallet storage _sw = accounts_wallet[_owner];
         require(msg.sender == _sw.addr && _sw.owner == true);
-        smartwallets_version[_sw.addr] = _version;
+        wallets_version[_sw.addr] = _version;
         IProxy(msg.sender).init(_owner, _code);
         IStorage(msg.sender).migrate();
-        emit SW_Upgraded(_sw.addr, _version);
+        emit Upgraded(_sw.addr, _version);
     }
 
     function addVersion(address _target) onlyOwner() public {
@@ -82,35 +81,35 @@ contract SW_Factory is SW_FactoryStorage {
     }
 
     function fixWalletPermissions() public {
-        SmartWallet storage _sw = accounts_smartwallet[msg.sender];
+        Wallet storage _sw = accounts_wallet[msg.sender];
         require(_sw.addr != address(0) && _sw.owner == true);
-        bytes8 _version = smartwallets_version[_sw.addr];
+        bytes8 _version = wallets_version[_sw.addr];
         if (_version == LATEST) {
             _version = production_version;
         }
         address _code = versions_code[_version];
         require(_code != address(0));
         IProxy(_sw.addr).init(msg.sender, _code);
-        emit SW_Fixed(_sw.addr, _version, msg.sender);
+        emit Fixed(_sw.addr, _version, msg.sender);
     }
 
     function createWallet(bool _auto) public returns (address) {
         require(production_version_code != address(0));
-        SmartWallet storage _sw = accounts_smartwallet[msg.sender];
+        Wallet storage _sw = accounts_wallet[msg.sender];
         if (_sw.addr == address(0)) {
-            _sw.addr = _createSmartWallet(address(this), address(swProxy));
+            _sw.addr = _createWallet(address(this), address(swProxy));
             require(_sw.addr != address(0));
             _sw.owner = true;
             if (_auto) {
-                smartwallets_version[_sw.addr] = LATEST;
+                wallets_version[_sw.addr] = LATEST;
                 IProxy(_sw.addr).init(msg.sender, address(swProxyLatest));
                 IStorage(_sw.addr).migrate();
-                emit SW_Created(_sw.addr, LATEST, msg.sender);
+                emit Created(_sw.addr, LATEST, msg.sender);
             } else {
-                smartwallets_version[_sw.addr] = production_version;
+                wallets_version[_sw.addr] = production_version;
                 IProxy(_sw.addr).init(msg.sender, production_version_code);
                 IStorage(_sw.addr).migrate();
-                emit SW_Created(_sw.addr, production_version, msg.sender);
+                emit Created(_sw.addr, production_version, msg.sender);
             }
 
         }

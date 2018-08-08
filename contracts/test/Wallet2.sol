@@ -1,10 +1,10 @@
 pragma solidity 0.4.24;
 
-import "../lib/SW_StorageBase.sol";
-import "../lib/SW_Storage.sol";
-import "./SW_Storage2.sol";
+import "../lib/StorageBase.sol";
+import "../lib/Storage.sol";
+import "./Storage2.sol";
 
-contract SmartWallet2 is IStorage, SW_StorageBase, SW_Storage, SW_Storage2 {
+contract Wallet2 is IStorage, StorageBase, Storage, Storage2 {
 
     event ValueChanged(uint256 newValue);
 

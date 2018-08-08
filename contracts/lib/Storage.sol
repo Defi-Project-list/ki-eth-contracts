@@ -1,9 +1,9 @@
 pragma solidity 0.4.24;
 
-import "./SW_StorageBase.sol";
-import "../SW_Trust.sol";
+import "./StorageBase.sol";
+import "../Trust.sol";
 
-contract SW_Storage is IStorage {
+contract Storage is IStorage {
 
     uint8 constant internal BACKUP_STATE_PENDING   = 0;
     uint8 constant internal BACKUP_STATE_REGISTERED  = 1;
@@ -39,6 +39,6 @@ contract SW_Storage is IStorage {
     Inheritance internal inheritance;
 
     // ------------- Trust ---------
-    SW_Trust internal trust;
+    Trust internal trust;
 
 }

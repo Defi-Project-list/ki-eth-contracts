@@ -23,7 +23,7 @@ interface IStorageBase {
     function owner() view external returns (address);
 }
 
-contract SW_StorageBase is IProxy {
+contract StorageBase is IProxy {
     address public owner;
     address public target;
 

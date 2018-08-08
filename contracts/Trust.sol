@@ -1,34 +1,6 @@
 pragma solidity 0.4.24;
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
-/*
-
-contract Wallet {
-    Trust private trust;
-
-    function createTrust(address _wallet, uint40 _start, uint32 _period, uint16 _times, uint256 _amount, bool _cancelable) payable public {
-        require(trust == Trust(0));
-        trust = (new Trust).value(msg.value)(_wallet, _start, _period, _times, _amount, _cancelable);
-    }
-
-    function destroyTrust() public {
-        require(trust != Trust(0));
-        trust.destroy();
-        trust = Trust(0);
-    }
-
-    function getTrust() public view returns (Trust) {
-        return trust;
-    }
-
-    function isContract(address addr) public view returns (bool) {
-        uint size;
-        assembly { size := extcodesize(addr) }
-        return size > 0;
-    }
-
-}
-*/
 
 contract Trust {
 
@@ -150,5 +122,9 @@ contract Trust {
     }
 
     function () payable logPayment() public {
+    }
+
+    function version() pure public returns (bytes8) {
+        return bytes8("0.1");
     }
 }

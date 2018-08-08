@@ -3,10 +3,10 @@ pragma solidity 0.4.24;
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/ownership/Claimable.sol";
 
-import "./lib/SW_Proxy.sol";
-import "./lib/SW_ProxyLatest.sol";
+import "./lib/Proxy.sol";
+import "./lib/ProxyLatest.sol";
 
-contract SW_FactoryStorage is Claimable {
+contract FactoryStorage is Claimable {
     uint256 internal dummy1;
     uint256 internal dummy2;
     uint256 internal dummy3;
@@ -19,12 +19,12 @@ contract SW_FactoryStorage is Claimable {
     address public target;
     address public proxy;
 
-    SW_Proxy public swProxy;
-    SW_ProxyLatest public swProxyLatest;
+    Proxy public swProxy;
+    ProxyLatest public swProxyLatest;
 
     bytes8 public constant LATEST = bytes8("latest");
 
-    struct SmartWallet {
+    struct Wallet {
         address addr;
         bool owner;
     }
@@ -34,26 +34,26 @@ contract SW_FactoryStorage is Claimable {
         _;
     }
 
-    mapping(address => SmartWallet) internal accounts_smartwallet;
-    mapping(address => bytes8) internal smartwallets_version;
+    mapping(address => Wallet) internal accounts_wallet;
+    mapping(address => bytes8) internal wallets_version;
     mapping(bytes8 => address) internal versions_code;
 
     bytes8 internal production_version;
     address internal production_version_code;
 
     constructor() Claimable() public {
-        //swProxy = new SW_Proxy();
-        //swProxyLatest = new SW_ProxyLatest();
+        //swProxy = new Proxy();
+        //swProxyLatest = new ProxyLatest();
         //versions_code[LATEST] = swProxyLatest;
     }
 
     function migrate() public onlyProxy() {
         if (address(swProxy) == address(0x00)){
-            swProxy = new SW_Proxy();
+            swProxy = new Proxy();
         }
 
         if (address(swProxyLatest) == address(0x00)){
-            swProxyLatest = new SW_ProxyLatest();
+            swProxyLatest = new ProxyLatest();
             versions_code[LATEST] = swProxyLatest;
         }
     }
@@ -63,7 +63,7 @@ contract SW_FactoryStorage is Claimable {
     }
 
     function getWallet(address _account) external view returns (address) {
-        return accounts_smartwallet[_account].addr;
+        return accounts_wallet[_account].addr;
     }
 
 }

@@ -5,37 +5,21 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "./lib/Heritable.sol";
 import "./Trust.sol";
 
-contract Wallet is Heritable {
+contract Wallet is IStorage, Heritable {
     using SafeMath for uint256;
 
-    uint256 public passCount;
-
-    event GotEther   (address indexed from, uint256 value);
-    event SentEther  (address indexed to, uint256 value);
-    event PassCalled (address indexed from);
-
-    modifier logPayment {
-        if (msg.value > 0) {
-            emit GotEther(msg.sender, msg.value);
-        }
-        _;
-    }
-
-    constructor () Heritable () payable logPayment() public {
-    }
+    event SentEther  (address indexed creator, address indexed owner, address indexed to, uint256 value);
 
     function sendEther (address _to, uint256 _value) public onlyActiveOwner() {
         require (_value > 0, "value == 0");
         require (_value <= address(this).balance, "value > balance");
-        emit SentEther (_to, _value);
+        emit SentEther (this.creator(), owner, _to, _value);
         _to.transfer (_value);
     }
 
     function getBalance () view public returns (uint256) {
         return address(this).balance;
     }
-
-    Trust private trust;
 
     function createTrust(address _wallet, uint40 _start, uint32 _period, uint16 _times, uint256 _amount, bool _cancelable) payable public {
         require(trust == Trust(0));
@@ -52,11 +36,12 @@ contract Wallet is Heritable {
         return trust;
     }
 
-    function pass () public {
-        emit PassCalled (msg.sender);
-        ++passCount;
+    // IStorage Implementation
+    function migrate () external onlyCreator()  {
     }
 
-    function () payable logPayment() public {
+    function version() pure public returns (bytes8){
+        return bytes8("1.1");
     }
+
 }

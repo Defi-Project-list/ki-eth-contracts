@@ -6,44 +6,23 @@ import "./Backupable.sol";
 contract Heritable is Backupable {
     using SafeMath for uint256;
 
-    uint256 constant private MAX_HEIRS = 8;
+    event InheritanceActivated    (address indexed creator, address indexed activator, address[] wallets);
+    event InheritanceChanged      (address indexed creator, address indexed owner, uint40 timeout);
+    event InheritanceRemoved      (address indexed creator, address indexed owner);
+    event InheritanceHeirsChanged (address indexed creator, address indexed owner, address[] wallets, uint8[] percents);
 
-    struct Heir {
-        address wallet;
-        uint8   percent;
-        bool    sent;
-    }
-
-    struct Inheritance {
-        Heir[MAX_HEIRS] heirs;
-        uint64  timeout;
-        bool    enabled;
-        bool    activated;
-    }
-
-    uint256 private totalTransfered;
-    Inheritance private inheritance;
-
-    event InheritanceActivated    (address indexed activator, address[] wallets);
-    event InheritanceChanged      (address indexed owner, uint64 timeout);
-    event InheritanceRemoved      (address indexed owner);
-    event InheritanceHeirsChanged (address indexed owner, address[] wallets, uint64[] percents);
-
-    constructor() Backupable () public {
-    }
-
-    function setInheritance (uint64 _timeout) onlyOwner() public {
+    function setInheritance (uint32 _timeout) onlyOwner() public {
         _touch();
         require (inheritance.activated == false);
 
-        emit InheritanceChanged(msg.sender, _timeout);
+        emit InheritanceChanged(this.creator(), msg.sender, _timeout);
 
         if (inheritance.timeout != _timeout)  inheritance.timeout = _timeout;
         if (inheritance.enabled != true)      inheritance.enabled = true;
     }
 
     function clearInheritance () onlyOwner() public {
-        emit InheritanceRemoved(msg.sender);
+        emit InheritanceRemoved(this.creator(), msg.sender);
 
         if (inheritance.timeout != uint32(0)) inheritance.timeout = uint32(0);
         if (inheritance.enabled != false)     inheritance.enabled = false;
@@ -85,13 +64,13 @@ contract Heritable is Backupable {
 
         // event related code starts here
         address[] memory wallets = new address[](i);
-        uint64[] memory percents = new uint64[](i);
+        uint8[] memory percents = new uint8[](i);
         for (uint256 inx = 0; inx < i; inx++) {
             heir = inheritance.heirs [inx];
             wallets[inx] = heir.wallet;
             percents[inx] = heir.percent;
         }
-        emit InheritanceHeirsChanged(msg.sender, wallets, percents);
+        emit InheritanceHeirsChanged(this.creator(), msg.sender, wallets, percents);
     }
 
     function getTotalPercent () view public returns (uint256 total) {
@@ -118,7 +97,7 @@ contract Heritable is Backupable {
         }
     }
 
-    function getInheritanceTimeLeft () view public returns (uint64 _res) {
+    function getInheritanceTimeLeft () view public returns (uint40 _res) {
         if (getTouchTimestamp() + inheritance.timeout > getBlockTimestamp()){
             _res = getTouchTimestamp() + inheritance.timeout - getBlockTimestamp();
         }
@@ -132,7 +111,7 @@ contract Heritable is Backupable {
         return (inheritance.enabled == true);
     }
 
-    function getInheritanceTimeout () view public returns (uint64) {
+    function getInheritanceTimeout () view public returns (uint40) {
         return inheritance.timeout;
     }
 
@@ -162,10 +141,7 @@ contract Heritable is Backupable {
             heir = inheritance.heirs [inx];
             wallets[inx] = heir.wallet;
         }
-        emit InheritanceActivated(msg.sender, wallets);
-    }
-
-    function () payable public {
+        emit InheritanceActivated(this.creator(), msg.sender, wallets);
     }
 
 }
