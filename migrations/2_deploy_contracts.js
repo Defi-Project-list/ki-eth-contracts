@@ -3,8 +3,8 @@ var Sender = artifacts.require("./test/Sender.sol");
 
 var Wallet = artifacts.require("./Wallet.sol");
 
-var SW_Factory = artifacts.require("./SW_Factory.sol");
-var SW_FactoryProxy = artifacts.require("./SW_FactoryProxy.sol");
+var Factory = artifacts.require("./Factory.sol");
+var FactoryProxy = artifacts.require("./FactoryProxy.sol");
 var SmartWallet = artifacts.require("./SmartWallet.sol");
 var SmartWallet2 = artifacts.require("./test/SmartWallet2.sol");
 var Root = artifacts.require("./Root.sol");
@@ -15,12 +15,12 @@ const gas = 5912388;
 
 module.exports = function(deployer, network) {
   deployer.then(async () => {
-	  const factoryProxy = await deployer.deploy(SW_FactoryProxy, { gas, gasPrice, overwrite: !liveNetworks[network] });
-  	  const factory = await deployer.deploy(SW_Factory, { gas, gasPrice });
+	  const factoryProxy = await deployer.deploy(FactoryProxy, { gas, gasPrice, overwrite: !liveNetworks[network] });
+  	  const factory = await deployer.deploy(Factory, { gas, gasPrice });
 	  await factoryProxy.setTarget(factory.address, { gas, gasPrice });
   	  const sw = await deployer.deploy(SmartWallet, { gas, gasPrice });
 	  try { 
-	  	await SW_Factory.at(factoryProxy.address).addVersion(sw.address, { gas, gasPrice });
+	  	await Factory.at(factoryProxy.address).addVersion(sw.address, { gas, gasPrice });
 	  }
 	  catch(err) {
 		console.error('addVersion failed. Please check version number.');
