@@ -18,8 +18,8 @@ contract Factory is FactoryStorage {
         bytes20 creatorBytes = bytes20(_creator);
         bytes20 targetBytes = bytes20(_target);
         for (uint i = 0; i < 20; i++) {
-            _code[63 + i - 2] = creatorBytes[i];
-            _code[103 + i - 2] = targetBytes[i];
+            _code[61 + i] = creatorBytes[i];
+            _code[101 + i] = targetBytes[i];
         }
         // solium-disable-next-line security/no-inline-assembly
         assembly {
@@ -94,13 +94,16 @@ contract Factory is FactoryStorage {
     }
 
     function createWallet(bool _auto) public returns (address) {
-        require(production_version_code != address(0));
+        require(swProxy != address(0));
+        require(production_version_code != address(0)); //Must be here - ProxyLatest also needs it.
         Wallet storage _sw = accounts_wallet[msg.sender];
         if (_sw.addr == address(0)) {
             _sw.addr = _createWallet(address(this), address(swProxy));
             require(_sw.addr != address(0));
             _sw.owner = true;
             if (_auto) {
+                require(swProxyLatest != address(0));
+                require(versions_code[LATEST] == address(swProxyLatest));
                 wallets_version[_sw.addr] = LATEST;
                 IProxy(_sw.addr).init(msg.sender, address(swProxyLatest));
                 IStorage(_sw.addr).migrate();

@@ -42,9 +42,9 @@ contract FactoryStorage is Claimable {
     address internal production_version_code;
 
     constructor() Claimable() public {
-        //swProxy = new Proxy();
-        //swProxyLatest = new ProxyLatest();
-        //versions_code[LATEST] = swProxyLatest;
+        swProxy = new Proxy();
+        swProxyLatest = new ProxyLatest();
+        versions_code[LATEST] = swProxyLatest;
     }
 
     function migrate() public onlyProxy() {
