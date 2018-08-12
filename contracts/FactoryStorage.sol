@@ -19,6 +19,16 @@ contract FactoryStorage {
         bool owner;
     }
 
+    mapping(address => Wallet) internal accounts_wallet;
+    mapping(address => bytes8) internal wallets_version;
+    mapping(bytes8 => address) internal versions_code;
+
+    bytes8 internal production_version;
+    address internal production_version_code;
+
+
+    // storage end
+
     modifier onlyProxy () {
         require (msg.sender == proxy);
         _;
@@ -28,13 +38,6 @@ contract FactoryStorage {
         require (msg.sender == owner);
         _;
     }
-
-    mapping(address => Wallet) internal accounts_wallet;
-    mapping(address => bytes8) internal wallets_version;
-    mapping(bytes8 => address) internal versions_code;
-
-    bytes8 internal production_version;
-    address internal production_version_code;
 
     constructor() public {
         owner = msg.sender;

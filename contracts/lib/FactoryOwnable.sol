@@ -27,13 +27,13 @@ contract FactoryOwnable is FactoryStorage {
 //     owner = msg.sender;
 //   }
 
-  /**
-   * @dev Throws if called by any account other than the owner.
-   */
-  modifier onlyOwner() {
-    require(msg.sender == owner);
-    _;
-  }
+//   /**
+//    * @dev Throws if called by any account other than the owner.
+//    */
+//   modifier onlyOwner() {
+//     require(msg.sender == owner);
+//     _;
+//   }
 
   /**
    * @dev Allows the current owner to relinquish control of the contract.

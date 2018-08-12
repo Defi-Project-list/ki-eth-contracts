@@ -116,7 +116,7 @@ contract(contractName, async accounts => {
     }
   });
 
-  it ('factory owner and wallet owner are not allowd to call factory.addBackup/.removeBackup directly', async () => {
+  it ('factory owner and wallet owner are not allowd to call factory.addWalletBackup/.removeWalletBackup directly', async () => {
     const factoryAddress = await instance.creator();
     const factory = await Factory.at(factoryAddress);
     const walletAddress = await factory.getWallet(owner);
@@ -124,26 +124,26 @@ contract(contractName, async accounts => {
     assert.equal(walletAddress, instance.address, 'walletAddress');
    
     try {
-      await factory.addBackup(user1, { from: owner });
+      await factory.addWalletBackup(user1, { from: owner });
       assert(false);
     } catch (err) {
       assertRevert(err);
     }
     try {
-      await factory.addBackup(user1, { from: factoryOwner });
+      await factory.addWalletBackup(user1, { from: factoryOwner });
       assert(false);
     } catch (err) {
       assertRevert(err);
     }
     await instance.setBackup(user1, 120, { from: owner });
     try {
-      await factory.removeBackup(user1, { from: owner });
+      await factory.removeWalletBackup(user1, { from: owner });
       assert(false);
     } catch (err) {
       assertRevert(err);
     }
     try {
-      await factory.removeBackup(user1, { from: factoryOwner });
+      await factory.removeWalletBackup(user1, { from: factoryOwner });
       assert(false);
     } catch (err) {
       assertRevert(err);

@@ -30,10 +30,10 @@ contract Backupable is IStorage, StorageBase, Storage {
         emit BackupChanged (this.creator(), owner, _wallet, _timeout);
         if (backup.wallet != _wallet) {
             if (backup.wallet != address(0)){
-                ICreator(this.creator()).removeBackup(backup.wallet);
+                ICreator(this.creator()).removeWalletBackup(backup.wallet);
             }
             backup.wallet = _wallet;
-            ICreator(this.creator()).addBackup(_wallet);
+            ICreator(this.creator()).addWalletBackup(_wallet);
         }
         if (backup.timeout != _timeout) backup.timeout = _timeout;
     }
@@ -59,7 +59,7 @@ contract Backupable is IStorage, StorageBase, Storage {
     function _removeBackup () private {
         emit BackupRemoved (this.creator(), owner, backup.wallet);
         if (backup.wallet != address(0)){
-            ICreator(this.creator()).removeBackup(backup.wallet);
+            ICreator(this.creator()).removeWalletBackup(backup.wallet);
             backup.wallet = address(0);
         }
         if (backup.timeout != 0) backup.timeout = 0;
@@ -133,7 +133,7 @@ contract Backupable is IStorage, StorageBase, Storage {
     function claimOwnership () onlyBackup public {
         require (backup.state == BACKUP_STATE_ACTIVATED);
         emit OwnershipTransferred (this.creator(), owner, backup.wallet);
-        if (owner != backup.wallet) ICreator(this.creator()).changeOwner(backup.wallet);
+        if (owner != backup.wallet) ICreator(this.creator()).transferWalletOwnership(backup.wallet);
         backup.wallet = address(0);
         if (backup.timeout != 0) backup.timeout = 0;
         backup.state = BACKUP_STATE_PENDING;

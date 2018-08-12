@@ -1,10 +1,10 @@
 pragma solidity 0.4.24;
 
 interface ICreator {
-    function upgrade(bytes8 _id) external;
-    function changeOwner(address _newOwner) external;
-    function addBackup(address _wallet) external;
-    function removeBackup(address _wallet) external;
+    function upgradeWallet(bytes8 _id) external;
+    function transferWalletOwnership(address _newOwner) external;
+    function addWalletBackup(address _wallet) external;
+    function removeWalletBackup(address _wallet) external;
     function getLatestVersion() external view returns (address);
 }
 
@@ -59,7 +59,7 @@ contract StorageBase is IProxy {
     }
 
     function upgrade(bytes8 _version) onlyOwner() public {
-        ICreator(this.creator()).upgrade(_version);
+        ICreator(this.creator()).upgradeWallet(_version);
     }
 
 }

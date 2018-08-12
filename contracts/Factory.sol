@@ -4,9 +4,9 @@ import "./FactoryStorage.sol";
 
 contract Factory is FactoryStorage {
 
-    event Created(address indexed sw, bytes8 indexed version, address indexed owner);
-    event Upgraded(address indexed sw, bytes8 indexed version);
-    event Fixed(address indexed sw, bytes8 indexed version, address indexed owner);
+    event WalletCreated(address indexed sw, bytes8 indexed version, address indexed owner);
+    event WalletUpgraded(address indexed sw, bytes8 indexed version);
+    event WalletFixed(address indexed sw, bytes8 indexed version, address indexed owner);
     event VersionAdded(bytes8 indexed version, address indexed code);
     event VersionDeployed(bytes8 indexed version, address indexed code);
 
@@ -28,7 +28,7 @@ contract Factory is FactoryStorage {
         }
     }
 
-    function changeOwner(address _newOwner) external {
+    function transferWalletOwnership(address _newOwner) external {
         address _curOwner = IProxy(msg.sender).owner();
         Wallet storage _sw = accounts_wallet[_curOwner];
         require(msg.sender == _sw.addr && _sw.owner == true);
@@ -40,7 +40,7 @@ contract Factory is FactoryStorage {
         IProxy(msg.sender).init(_newOwner, address(0));
     }
 
-    function addBackup(address _backup) external {
+    function addWalletBackup(address _backup) external {
         Wallet storage _sw = accounts_wallet[_backup];
         require(_sw.addr == address(0) && _sw.owner == false);
         address _owner = IProxy(msg.sender).owner();
@@ -49,14 +49,14 @@ contract Factory is FactoryStorage {
         _sw.addr = msg.sender;  
     }
 
-    function removeBackup(address _backup) external {
+    function removeWalletBackup(address _backup) external {
         Wallet storage _sw = accounts_wallet[_backup];
         require(_sw.addr != address(0));
         require(_sw.addr == msg.sender && _sw.owner == false);
         _sw.addr = address(0);
     }
 
-    function upgrade(bytes8 _version) external {
+    function upgradeWallet(bytes8 _version) external {
         address _code = versions_code[_version];
         require(_code != address(0));
         address _owner = IProxy(msg.sender).owner();
@@ -65,7 +65,7 @@ contract Factory is FactoryStorage {
         wallets_version[_sw.addr] = _version;
         IProxy(msg.sender).init(_owner, _code);
         IStorage(msg.sender).migrate();
-        emit Upgraded(_sw.addr, _version);
+        emit WalletUpgraded(_sw.addr, _version);
     }
 
     function addVersion(address _target) onlyOwner() public {
@@ -97,7 +97,7 @@ contract Factory is FactoryStorage {
         address _code = versions_code[_version];
         require(_code != address(0));
         IProxy(_sw.addr).init(msg.sender, _code);
-        emit Fixed(_sw.addr, _version, msg.sender);
+        emit WalletFixed(_sw.addr, _version, msg.sender);
     }
 
     function createWallet(bool _auto) public returns (address) {
@@ -114,12 +114,12 @@ contract Factory is FactoryStorage {
                 wallets_version[_sw.addr] = LATEST;
                 IProxy(_sw.addr).init(msg.sender, address(swProxyLatest));
                 IStorage(_sw.addr).migrate();
-                emit Created(_sw.addr, LATEST, msg.sender);
+                emit WalletCreated(_sw.addr, LATEST, msg.sender);
             } else {
                 wallets_version[_sw.addr] = production_version;
                 IProxy(_sw.addr).init(msg.sender, production_version_code);
                 IStorage(_sw.addr).migrate();
-                emit Created(_sw.addr, production_version, msg.sender);
+                emit WalletCreated(_sw.addr, production_version, msg.sender);
             }
 
         }

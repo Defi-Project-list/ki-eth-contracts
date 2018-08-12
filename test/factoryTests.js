@@ -210,22 +210,22 @@ contract (contractName, async accounts => {
 
   });
 
-  it ('factory owner cannot call to addBackup/removeBackup/changeOwner', async () => {
+  it ('factory owner cannot call to addWalletBackup/removeWalletBackup/transferWalletOwnership', async () => {
     try {
-      await instance.addBackup (user3, { from: owner });
+      await instance.addWalletBackup (user3, { from: owner });
       assert(false);
     } catch (err) {
       assertRevert(err);
     }
     try {
-      await instance.removeBackup (user3, { from: owner });
+      await instance.removeWalletBackup (user3, { from: owner });
       assert(false);
     } catch (err) {
       assertRevert(err);
     }
 
     try {
-      await instance.changeOwner (user3, { from: owner });
+      await instance.transferWalletOwnership (user3, { from: owner });
       assert(false);
     } catch (err) {
       assertRevert(err);
@@ -233,22 +233,22 @@ contract (contractName, async accounts => {
 
   });
 
-  it ('wallet owner cannot call directly to factory methods addBackup/removeBackup/changeOwner', async () => {      
+  it ('wallet owner cannot call directly to factory methods addWalletBackup/removeWalletBackup/transferWalletOwnership', async () => {      
     try {
-      await instance.addBackup (user3, { from: user1 });
+      await instance.addWalletBackup (user3, { from: user1 });
       assert(false);
     } catch (err) {
       assertRevert(err);
     }
     try {
-      await instance.removeBackup (user3, { from: user1 });
+      await instance.removeWalletBackup (user3, { from: user1 });
       assert(false);
     } catch (err) {
       assertRevert(err);
     }
 
     try {
-      await instance.changeOwner (user3, { from: user1 });
+      await instance.transferWalletOwnership (user3, { from: user1 });
       assert(false);
     } catch (err) {
       assertRevert(err);
