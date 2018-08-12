@@ -8,6 +8,7 @@ contract Factory is FactoryStorage {
     event Upgraded(address indexed sw, bytes8 indexed version);
     event Fixed(address indexed sw, bytes8 indexed version, address indexed owner);
     event VersionAdded(bytes8 indexed version, address indexed code);
+    event VersionDeployed(bytes8 indexed version, address indexed code);
 
     constructor() FactoryStorage() public {
     }
@@ -75,9 +76,15 @@ contract Factory is FactoryStorage {
         address _code = versions_code[_version];
         require(_code == address(0));
         versions_code[_version] = _target;
-        production_version = _version;
-        production_version_code = _target;
         emit VersionAdded(_version, _code);
+    }
+
+    function deployVersion(bytes8 _version) onlyOwner() public {
+        address _code = versions_code[_version];
+        require(_code != address(0));
+        production_version = _version;
+        production_version_code = _code;
+        emit VersionDeployed(_version, _code);
     }
 
     function fixWalletPermissions() public {

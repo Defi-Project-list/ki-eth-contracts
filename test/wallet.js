@@ -45,6 +45,7 @@ contract('Wallet', async accounts => {
     const version = await Wallet.new({ from: creator });
     //await factory.addVersion(web3.fromAscii("1.1", 8), version.address, { from: creator });
     await factory.addVersion(version.address, { from: creator });
+    await factory.deployVersion(await version.version(), { from: creator });
     await factory.createWallet(false, { from: owner });
     instance = await Wallet.at( await factory.getWallet(owner) );
 

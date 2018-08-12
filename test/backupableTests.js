@@ -1,5 +1,7 @@
 'use strict';
 
+const Factory = artifacts.require("Factory");
+
 const mlog = require('mocha-logger');
 const { ZERO_ADDRESS, ZERO_BYTES32, ZERO_BN } = require('./lib/consts');
 const {
@@ -17,9 +19,10 @@ module.exports = (contractClass, contractName, timeUnitInSeconds=1) => {
 contract(contractName, async accounts => {
   let instance;
 
-  const owner = accounts[0];
-  const user1 = accounts[1];
-  const user2 = accounts[2];
+  const factoryOwner = accounts[0];
+  const owner = accounts[1];
+  const user1 = accounts[2];
+  const user2 = accounts[3];
 
   let blockTimestamp = 0;
 
@@ -34,7 +37,7 @@ contract(contractName, async accounts => {
       instance = await contractClass.new();
 	  }
 	  else {
-      instance = await contractClass(owner);
+      instance = await contractClass(factoryOwner, owner);
 	  }
 
     mlog.log('web3     ', web3.version.api);
@@ -111,6 +114,42 @@ contract(contractName, async accounts => {
     } catch (err) {
       assertRevert(err);
     }
+  });
+
+  it ('factory owner and wallet owner are not allowd to call factory.addBackup/.removeBackup directly', async () => {
+    const factoryAddress = await instance.creator();
+    const factory = await Factory.at(factoryAddress);
+    const walletAddress = await factory.getWallet(owner);
+
+    assert.equal(walletAddress, instance.address, 'walletAddress');
+   
+    try {
+      await factory.addBackup(user1, { from: owner });
+      assert(false);
+    } catch (err) {
+      assertRevert(err);
+    }
+    try {
+      await factory.addBackup(user1, { from: factoryOwner });
+      assert(false);
+    } catch (err) {
+      assertRevert(err);
+    }
+    await instance.setBackup(user1, 120, { from: owner });
+    try {
+      await factory.removeBackup(user1, { from: owner });
+      assert(false);
+    } catch (err) {
+      assertRevert(err);
+    }
+    try {
+      await factory.removeBackup(user1, { from: factoryOwner });
+      assert(false);
+    } catch (err) {
+      assertRevert(err);
+    }
+    await instance.removeBackup({ from: owner });
+
   });
 
   it('only owner can remove a backup', async () => {

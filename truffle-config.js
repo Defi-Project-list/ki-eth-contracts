@@ -1,7 +1,8 @@
 
 const HDWalletProvider = require("truffle-hdwallet-provider");
 // let mnemonic = "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat";
-let mnemonic = "pelican bench orchard wisdom honey deputy donate suspect airport sail quick decade";
+//let mnemonic = "pelican bench orchard wisdom honey deputy donate suspect airport sail quick decade";
+let mnemonic = "front assume robust donkey senior economy maple enhance click bright game alcohol";
 
 // const ganache = require('ganache-cli');
 const devNetwork = {
@@ -15,7 +16,7 @@ module.exports = {
     rinkeby: {
       provider: function() {
         mnemonic =
-          "pelican bench orchard wisdom honey deputy donate suspect airport sail quick decade";
+          "front assume robust donkey senior economy maple enhance click bright game alcohol";
         return new HDWalletProvider(
           mnemonic, "https://rinkeby.infura.io/Mi3WQKlqLIU6IQtAvddB"
         );
@@ -25,7 +26,7 @@ module.exports = {
     kovan: {
       provider: function() {
         mnemonic =
-          "pelican bench orchard wisdom honey deputy donate suspect airport sail quick decade";
+          "front assume robust donkey senior economy maple enhance click bright game alcohol";
         return new HDWalletProvider(
           mnemonic, "https://kovan.infura.io/Mi3WQKlqLIU6IQtAvddB"
         );
@@ -35,7 +36,7 @@ module.exports = {
     ropsten: {
       provider: function() {
         mnemonic =
-          "pelican bench orchard wisdom honey deputy donate suspect airport sail quick decade";
+          "front assume robust donkey senior economy maple enhance click bright game alcohol";
         return new HDWalletProvider(
           mnemonic, "https://ropsten.infura.io/Mi3WQKlqLIU6IQtAvddB"
         );

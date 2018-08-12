@@ -63,6 +63,7 @@ contract('FactoryProxy', async accounts => {
 
     //await instance.addVersion(web3.fromAscii("1.1", 8), swver.address, { from: owner });
     await instance.addVersion(swver.address, { from: owner });
+    await instance.deployVersion(await swver.version(), { from: owner });
 
     await instance.createWallet(false, { from: owner });
     let logs = await new Promise((r,j) => instance.allEvents({}, { fromBlock: 'latest', toBlock: 'latest' }).get((err, logs) => { r(logs) }));
@@ -105,6 +106,7 @@ contract('FactoryProxy', async accounts => {
 
     //await instance.addVersion(web3.fromAscii("1.2", 8), swver2.address, { from: owner });
     await instance.addVersion(swver2.address, { from: owner });
+    await instance.deployVersion(await swver2.version(), { from: owner });
 
     await Wallet.at(sw).upgrade(web3.fromAscii("1.2", 8), {from: owner});
 
@@ -113,12 +115,13 @@ contract('FactoryProxy', async accounts => {
     mlog.log('value(proxy)', swvalue2);
   });
 
-  it ('should be able to create  wallet', async () => {
+  it ('should be able to create a wallet', async () => {
     const swver = await Wallet.new({ from: owner });
     mlog.log('version:', swver.address);
 
     //await instance.addVersion(web3.fromAscii("2.1", 8), swver.address, { from: owner });
     await instance.addVersion(swver.address, { from: owner });
+    await instance.deployVersion(await swver.version(), { from: owner });
 
     await instance.createWallet(true, { from: user1 });
     let logs = await new Promise((r,j) => instance.allEvents({}, { fromBlock: 'latest', toBlock: 'latest' }).get((err, logs) => { r(logs) }));
@@ -174,6 +177,7 @@ contract('FactoryProxy', async accounts => {
     mlog.log('user1 is owner of sw_user2:', isUser1Owner);
     //await instance.addVersion(web3.fromAscii("2.2", 8), swver2.address, { from: owner });
     await instance.addVersion(swver2.address, { from: owner });
+    await instance.deployVersion(await swver2.version(), { from: owner });
 
     /*await Wallet2.at(sw).setValue(235, 10, {from:user1});
     let swvalue2 = await Wallet2.at(sw).getValue();
@@ -194,7 +198,7 @@ contract('FactoryProxy', async accounts => {
 
     mlog.log('logs', JSON.stringify(logs));
 
-    await swver2.setValue(235, 10, {from:user1, value:10000});
+    await swver2.setValue(235, 10, {from:owner, value:10000});
     swvalue2 = await swver2.getValue();
     mlog.log('value', swvalue2);
 

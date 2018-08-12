@@ -105,6 +105,8 @@ contract (contractName, async accounts => {
        assertRevert(err);
      }
     await instance.addVersion (wallet_owner.address, { from: owner });
+    await instance.deployVersion(await wallet_owner.version(), { from: owner }); 
+
     const version = await instance.getLatestVersion ({ from: owner });
     assert.equal (wallet_owner.address, version);
     latestWallet = wallet_owner;
@@ -132,31 +134,130 @@ contract (contractName, async accounts => {
     const walletAddress = await instance.getWallet (user1, { from: user1 });
     let version = await Wallet.at(walletAddress).version();
     let latestVersion = await latestWallet.version();
-    mlog.log('latestVersion:', latestVersion);
-    mlog.log('version:', version);
+    mlog.log ('latestVersion:', latestVersion);
+    mlog.log ('version:', version);
     
-    assert.ok(version != ZERO_BYTES8);    
-    assert.equal(latestVersionAddress, latestWallet.address);
-    assert.equal(version, latestVersion);
+    assert.ok (version != ZERO_BYTES8);    
+    assert.equal (latestVersionAddress, latestWallet.address);
+    assert.equal (version, latestVersion);
     
     const wallet2 = await Wallet2.new({from : owner});
 
     await instance.addVersion (wallet2.address, { from: owner });
+    await instance.deployVersion (await wallet2.version(), { from: owner });
 
     latestVersionAddress = await instance.getLatestVersion ({ from: owner });
 
     version = await Wallet.at(walletAddress).version(); //should return Wallet2 version (not Wallet)
     latestVersion = await wallet2.version();
 
-    mlog.log('latestVersion:', latestVersion);
-    mlog.log('version:', version);
+    mlog.log ('latestVersion:', latestVersion);
+    mlog.log ('version:', version);
 
-    assert.equal(latestVersionAddress, wallet2.address);
-    assert.equal(version, latestVersion);
+    assert.equal (latestVersionAddress, wallet2.address);
+    assert.equal (version, latestVersion);
     
     latestWallet = wallet2;
   });
 
+  it ('new user does not have a wallet without creating one', async () => {
+    const walletAddress = await instance.getWallet.call (user2, { from: user2 });
+    assert.equal (walletAddress, ZERO_ADDRESS);
+  });
+
+  it ('new user will get the latest version when creating a wallet in auto mode', async () => {
+    await instance.createWallet (true, { from : user2 });
+    const walletAddress = await instance.getWallet (user1, { from: user2 });
+    const walletVersion = await Wallet.at(walletAddress).version();
+    const latestVersionAddress = await instance.getLatestVersion ({ from: owner });
+    const latestVersion = await latestWallet.version();
+    assert.equal (walletVersion, latestVersion);
+  });
+
+  it ('fixWalletPermissions returns original owner and target when changed localy in case of version bug', async () => { 
+    const walletAddress = await instance.getWallet.call(user2, { from: user2 });
+    const wallet = await Wallet2.at(walletAddress);
+
+    let value = await wallet.getValue.call({ from :user2 });
+    assert.equal (value.toString(10), 0);
+      
+    await wallet.setValue (2, 4, { from: user2 });
+    value = await wallet.getValue.call({ from :user2 });
+    assert.equal (value.toString(10), 8);
+
+    await wallet.removeOwner ({ from: user2 });
+
+    try {
+      await wallet.setValue (2, 4, { from: user2 });
+      assert(false);
+    } catch (err) {
+      assertRevert(err);
+    }
+
+    await wallet.removeTarget ({ from: user2 });
+
+    value = await wallet.getValue.call({ from: user2 });
+    assert.equal (value.toString(10), 0);
+
+    await instance.fixWalletPermissions({ from: user2 });
+
+    value = await wallet.getValue.call({ from: user2 });
+    assert.equal (value.toString(10), 8);
+
+    await wallet.setValue (3, 5, { from: user2 });
+    value = await wallet.getValue.call({ from :user2 });
+    assert.equal (value.toString(10), 15);
+
+  });
+
+  it ('factory owner cannot call to addBackup/removeBackup/changeOwner', async () => {
+    try {
+      await instance.addBackup (user3, { from: owner });
+      assert(false);
+    } catch (err) {
+      assertRevert(err);
+    }
+    try {
+      await instance.removeBackup (user3, { from: owner });
+      assert(false);
+    } catch (err) {
+      assertRevert(err);
+    }
+
+    try {
+      await instance.changeOwner (user3, { from: owner });
+      assert(false);
+    } catch (err) {
+      assertRevert(err);
+    }
+
+  });
+
+  it ('wallet owner cannot call directly to factory methods addBackup/removeBackup/changeOwner', async () => {      
+    try {
+      await instance.addBackup (user3, { from: user1 });
+      assert(false);
+    } catch (err) {
+      assertRevert(err);
+    }
+    try {
+      await instance.removeBackup (user3, { from: user1 });
+      assert(false);
+    } catch (err) {
+      assertRevert(err);
+    }
+
+    try {
+      await instance.changeOwner (user3, { from: user1 });
+      assert(false);
+    } catch (err) {
+      assertRevert(err);
+    }
+
+  });
+
+  it ('', async () => {      
+  });
 
 });
 };

@@ -21,6 +21,7 @@ module.exports = function(deployer, network) {
   	  const sw = await deployer.deploy(Wallet, { gas, gasPrice });
 	  try { 
 	  	await Factory.at(factoryProxy.address).addVersion(sw.address, { gas, gasPrice });
+	  	await Factory.at(factoryProxy.address).deployVersion(await sw.version(), { gas, gasPrice });
 	  }
 	  catch(err) {
 		console.error('addVersion failed. Please check version number.');

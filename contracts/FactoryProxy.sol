@@ -1,13 +1,11 @@
 pragma solidity 0.4.24;
 
-import "openzeppelin-solidity/contracts/ownership/Claimable.sol";
-
-import "./FactoryStorage.sol";
+import "./lib/FactoryClaimable.sol";
 import "./Factory.sol";
 
-contract FactoryProxy is Claimable, FactoryStorage {
+contract FactoryProxy is FactoryClaimable {
 
-    constructor() Claimable() FactoryStorage() public {
+    constructor() FactoryClaimable() public {
         proxy = address(this);
     }
 

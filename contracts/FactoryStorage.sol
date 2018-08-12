@@ -1,21 +1,11 @@
 pragma solidity 0.4.24;
 
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
-import "openzeppelin-solidity/contracts/ownership/Claimable.sol";
-
 import "./lib/Proxy.sol";
 import "./lib/ProxyLatest.sol";
 
-contract FactoryStorage is Claimable {
-    uint256 internal dummy1;
-    uint256 internal dummy2;
-    uint256 internal dummy3;
-    uint256 internal dummy4;
-    uint256 internal dummy5;
-    uint256 internal dummy6;
-    uint256 internal dummy7;
-    uint256 internal dummy8;
-
+contract FactoryStorage {
+    address public owner;
+    address public pendingOwner;
     address public target;
     address public proxy;
 
@@ -34,6 +24,11 @@ contract FactoryStorage is Claimable {
         _;
     }
 
+     modifier onlyOwner () {
+        require (msg.sender == owner);
+        _;
+    }
+
     mapping(address => Wallet) internal accounts_wallet;
     mapping(address => bytes8) internal wallets_version;
     mapping(bytes8 => address) internal versions_code;
@@ -41,7 +36,8 @@ contract FactoryStorage is Claimable {
     bytes8 internal production_version;
     address internal production_version_code;
 
-    constructor() Claimable() public {
+    constructor() public {
+        owner = msg.sender;
         swProxy = new Proxy();
         swProxyLatest = new ProxyLatest();
         versions_code[LATEST] = swProxyLatest;
