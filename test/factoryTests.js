@@ -174,7 +174,7 @@ contract (contractName, async accounts => {
     assert.equal (walletVersion, latestVersion);
   });
 
-  it ('fixWalletPermissions returns original owner and target when changed localy in case of version bug', async () => { 
+  it ('restoreWalletConfiguration returns original owner and target when changed localy in case of version bug', async () => { 
     const walletAddress = await instance.getWallet.call(user2, { from: user2 });
     const wallet = await Wallet2.at(walletAddress);
 
@@ -199,7 +199,7 @@ contract (contractName, async accounts => {
     value = await wallet.getValue.call({ from: user2 });
     assert.equal (value.toString(10), 0);
 
-    await instance.fixWalletPermissions({ from: user2 });
+    await instance.restoreWalletConfiguration({ from: user2 });
 
     value = await wallet.getValue.call({ from: user2 });
     assert.equal (value.toString(10), 8);

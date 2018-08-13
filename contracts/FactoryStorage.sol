@@ -57,12 +57,4 @@ contract FactoryStorage {
         }
     }
 
-    function getLatestVersion() external view returns (address) {
-        return production_version_code;
-    }
-
-    function getWallet(address _account) external view returns (address) {
-        return accounts_wallet[_account].addr;
-    }
-
 }

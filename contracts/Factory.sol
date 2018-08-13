@@ -6,11 +6,18 @@ contract Factory is FactoryStorage {
 
     event WalletCreated(address indexed sw, bytes8 indexed version, address indexed owner);
     event WalletUpgraded(address indexed sw, bytes8 indexed version);
-    event WalletFixed(address indexed sw, bytes8 indexed version, address indexed owner);
+    event WalletConfigurationRestored(address indexed sw, bytes8 indexed version, address indexed owner);
+    event WalletOwnershipRestored(address indexed sw, address indexed owner);
+    event WalletVersionRestored(address indexed sw, bytes8 indexed version, address indexed owner);
     event VersionAdded(bytes8 indexed version, address indexed code);
     event VersionDeployed(bytes8 indexed version, address indexed code);
 
     constructor() FactoryStorage() public {
+    }
+
+    modifier onlyWalletOwner () {
+        require (msg.sender == owner);
+        _;
     }
 
     function _createWallet(address _creator, address _target) private returns (address result) {
@@ -50,8 +57,8 @@ contract Factory is FactoryStorage {
     }
 
     function removeWalletBackup(address _backup) external {
+        require(_backup != address(0));
         Wallet storage _sw = accounts_wallet[_backup];
-        require(_sw.addr != address(0));
         require(_sw.addr == msg.sender && _sw.owner == false);
         _sw.addr = address(0);
     }
@@ -87,7 +94,7 @@ contract Factory is FactoryStorage {
         emit VersionDeployed(_version, _code);
     }
 
-    function fixWalletPermissions() public {
+    function restoreWalletConfiguration() public {
         Wallet storage _sw = accounts_wallet[msg.sender];
         require(_sw.addr != address(0) && _sw.owner == true);
         bytes8 _version = wallets_version[_sw.addr];
@@ -97,7 +104,35 @@ contract Factory is FactoryStorage {
         address _code = versions_code[_version];
         require(_code != address(0));
         IProxy(_sw.addr).init(msg.sender, _code);
-        emit WalletFixed(_sw.addr, _version, msg.sender);
+        emit WalletConfigurationRestored(_sw.addr, _version, msg.sender);
+    }
+
+    function restoreWalletOwnership() public {
+        Wallet storage _sw = accounts_wallet[msg.sender];
+        require(_sw.addr != address(0) && _sw.owner == true);
+        IProxy(_sw.addr).init(msg.sender, address(0));
+        emit WalletOwnershipRestored(_sw.addr, msg.sender);
+    }
+
+    function restoreWalletVersion() public {
+        Wallet storage _sw = accounts_wallet[msg.sender];
+        require(_sw.addr != address(0) && _sw.owner == true);
+        bytes8 _version = wallets_version[_sw.addr];
+        if (_version == LATEST) {
+            _version = production_version;
+        }
+        address _code = versions_code[_version];
+        require(_code != address(0));
+        IProxy(_sw.addr).init(address(0), _code);
+        emit WalletVersionRestored(_sw.addr, _version, msg.sender);
+    }
+
+    function getLatestVersion() public view returns (address) {
+        return production_version_code;
+    }
+
+    function getWallet(address _account) public view returns (address) {
+        return accounts_wallet[_account].addr;
     }
 
     function createWallet(bool _auto) public returns (address) {
