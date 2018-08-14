@@ -4,11 +4,11 @@ import "./FactoryStorage.sol";
 
 contract Factory is FactoryStorage {
 
-    event WalletCreated(address indexed sw, bytes8 indexed version, address indexed owner);
-    event WalletUpgraded(address indexed sw, bytes8 indexed version);
-    event WalletConfigurationRestored(address indexed sw, bytes8 indexed version, address indexed owner);
-    event WalletOwnershipRestored(address indexed sw, address indexed owner);
-    event WalletVersionRestored(address indexed sw, bytes8 indexed version, address indexed owner);
+    event WalletCreated(address indexed wallet, bytes8 indexed version, address indexed owner);
+    event WalletUpgraded(address indexed wallet, bytes8 indexed version);
+    event WalletConfigurationRestored(address indexed wallet, bytes8 indexed version, address indexed owner);
+    event WalletOwnershipRestored(address indexed wallet, address indexed owner);
+    event WalletVersionRestored(address indexed wallet, bytes8 indexed version, address indexed owner);
     event VersionAdded(bytes8 indexed version, address indexed code);
     event VersionDeployed(bytes8 indexed version, address indexed code);
 
