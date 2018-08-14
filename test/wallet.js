@@ -62,6 +62,8 @@ contract('Wallet', async accounts => {
   it('should create empty wallet', async () => {
     const balance = await web3.eth.getBalance(instance.address);
     assert.equal(balance.toString(10), web3.toBigNumber(0).toString(10));
+    await web3.eth.sendTransaction({ from: owner, value: val2, to: instance.address });
+    await instance.sendEther(user1, val2, { from: owner });
   });
 
   it('should accept ether from everyone', async () => {
