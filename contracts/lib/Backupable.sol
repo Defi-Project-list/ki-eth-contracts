@@ -36,6 +36,7 @@ contract Backupable is IStorage, StorageBase, Storage {
             ICreator(this.creator()).addWalletBackup(_wallet);
         }
         if (backup.timeout != _timeout) backup.timeout = _timeout;
+        if (backup.state != BACKUP_STATE_PENDING) backup.state = BACKUP_STATE_PENDING;
     }
 
     function setTimeout (uint32 _timeout) public onlyOwner {

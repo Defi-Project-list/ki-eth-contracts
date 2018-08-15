@@ -41,7 +41,7 @@ contract Wallet is IStorage, Heritable {
     }
 
     function version() pure public returns (bytes8){
-        return bytes8("1.1");
+        return bytes8("1.0.1");
     }
 
 }
