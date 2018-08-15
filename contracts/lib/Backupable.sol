@@ -5,10 +5,10 @@ import "./Storage.sol";
 
 contract Backupable is IStorage, StorageBase, Storage {
 
-    event OwnerTouched          (address indexed creator);
+    event OwnerTouched          (address indexed creator, uint40 timestamp);
     event BackupChanged         (address indexed creator, address indexed owner, address indexed wallet, uint32 timeout);
     event BackupRemoved         (address indexed creator, address indexed owner, address indexed wallet);
-    event BackupRegistered      (address indexed creator, address indexed wallet);
+    event BackupRegistered      (address indexed creator, address indexed wallet, uint40 timestamp);
     event BackupActivated       (address indexed creator, address indexed wallet);
     event OwnershipTransferred  (address indexed creator, address indexed previousOwner, address indexed newOwner);
 
@@ -126,8 +126,9 @@ contract Backupable is IStorage, StorageBase, Storage {
     }
 
     function _touch() internal {
-        emit OwnerTouched(this.creator());
-        backup.timestamp = getBlockTimestamp();
+        uint40 timestamp = getBlockTimestamp();
+        emit OwnerTouched(this.creator(), timestamp);
+        backup.timestamp = timestamp;
     }
 
     function claimOwnership () onlyBackup public {
@@ -146,9 +147,10 @@ contract Backupable is IStorage, StorageBase, Storage {
 
     function accept () onlyBackup public {
         require(backup.state == BACKUP_STATE_PENDING);
-        emit BackupRegistered (this.creator(), backup.wallet);
+        uint40 timestamp = getBlockTimestamp();
+        emit BackupRegistered (this.creator(), backup.wallet, timestamp);
         backup.state = BACKUP_STATE_REGISTERED;
-        backup.timestamp = getBlockTimestamp();
+        backup.timestamp = timestamp;
     }
 
     function decline () onlyBackup public {
