@@ -9,7 +9,7 @@ contract Backupable is IStorage, StorageBase, Storage {
     event BackupChanged         (address indexed creator, address indexed owner, address indexed wallet, uint32 timeout);
     event BackupRemoved         (address indexed creator, address indexed owner, address indexed wallet);
     event BackupRegistered      (address indexed creator, address indexed wallet, uint40 timestamp);
-    event BackupActivated       (address indexed creator, address indexed wallet);
+    event BackupActivated       (address indexed creator, address indexed wallet, address indexed activator);
     event OwnershipTransferred  (address indexed creator, address indexed previousOwner, address indexed newOwner);
 
     modifier onlyActiveOwner () {
@@ -71,7 +71,8 @@ contract Backupable is IStorage, StorageBase, Storage {
         require (backup.state == BACKUP_STATE_REGISTERED);
         require (backup.wallet != address(0));
         require (getBackupTimeLeft() == 0);
-        emit BackupActivated (this.creator(), backup.wallet);
+        require (msg.sender == msg.origin);
+        emit BackupActivated (this.creator(), backup.wallet, msg.sender);
         if (backup.state != BACKUP_STATE_ACTIVATED) backup.state = BACKUP_STATE_ACTIVATED;
     }
 
