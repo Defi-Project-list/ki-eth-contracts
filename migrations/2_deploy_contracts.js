@@ -10,7 +10,7 @@ var SmartWallet2 = artifacts.require("./test/Wallet2.sol");
 var Root = artifacts.require("./Root.sol");
 
 const liveNetworks = { rinkeby: true, kovan: true };
-const gasPrice =  web3.toWei(1, 'gwei');
+const gasPrice =  web3.toWei(2, 'gwei');
 const gas = 5912388;
 
 module.exports = function(deployer, network) {

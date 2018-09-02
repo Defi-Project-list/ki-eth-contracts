@@ -11,7 +11,7 @@ contract Heritable is Backupable {
     event InheritanceRemoved      (address indexed creator, address indexed owner);
     event InheritanceHeirsChanged (address indexed creator, address indexed owner, address[] wallets, uint8[] percents);
 
-    function setInheritance (uint32 _timeout) onlyOwner() public {
+    function setInheritance (uint32 _timeout) onlyActiveOwner() public {
         _touch();
         require (inheritance.activated == false);
 
@@ -21,7 +21,7 @@ contract Heritable is Backupable {
         if (inheritance.enabled != true)      inheritance.enabled = true;
     }
 
-    function clearInheritance () onlyOwner() public {
+    function clearInheritance () onlyActiveOwner() public {
         emit InheritanceRemoved(this.creator(), msg.sender);
 
         if (inheritance.timeout != uint32(0)) inheritance.timeout = uint32(0);
@@ -38,7 +38,7 @@ contract Heritable is Backupable {
         }
     }
 
-    function setHeirs (address[] _wallets, uint8[] _percents) onlyOwner() public {
+    function setHeirs (address[] _wallets, uint8[] _percents) onlyActiveOwner() public {
         require (inheritance.activated == false);
         require (_wallets.length <= MAX_HEIRS);
         require (_wallets.length == _percents.length);
