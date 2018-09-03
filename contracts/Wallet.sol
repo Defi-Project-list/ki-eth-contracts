@@ -17,7 +17,7 @@ contract Wallet is IStorage, Heritable {
         _to.transfer (_value);
     }
 
-    function getBalance () view public returns (uint256) {
+    function getBalance () public view returns (uint256) {
         return address(this).balance;
     }
 
@@ -42,8 +42,8 @@ contract Wallet is IStorage, Heritable {
     function migrate () external onlyCreator()  {
     }
 
-    function version() pure public returns (bytes8){
-        return bytes8("1.1.0");
+    function version() public pure returns (bytes8){
+        return bytes8("1.1.2");
     }
 
 }

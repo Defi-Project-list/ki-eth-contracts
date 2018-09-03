@@ -33,6 +33,7 @@ contract Storage is IStorage {
         uint40  timeout;
         bool    enabled;
         bool    activated;
+        uint40  timestamp;
     }
 
     uint256 internal totalTransfered;

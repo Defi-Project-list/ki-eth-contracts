@@ -7,21 +7,23 @@ contract Heritable is Backupable {
     using SafeMath for uint256;
 
     event InheritanceActivated    (address indexed creator, address indexed activator, address[] wallets);
-    event InheritanceChanged      (address indexed creator, address indexed owner, uint40 timeout);
+    event InheritanceChanged      (address indexed creator, address indexed owner, uint40 timeout, uint40 timestamp);
     event InheritanceRemoved      (address indexed creator, address indexed owner);
     event InheritanceHeirsChanged (address indexed creator, address indexed owner, address[] wallets, uint8[] percents);
 
-    function setInheritance (uint32 _timeout) onlyActiveOwner() public {
-        _touch();
-        require (inheritance.activated == false);
+    function setInheritance (uint32 _timeout) public onlyActiveOwner() {
+        require (inheritance.activated == false, "inheritance.activated==false");
 
-        emit InheritanceChanged(this.creator(), msg.sender, _timeout);
+        uint40 timestamp = getBlockTimestamp();
 
         if (inheritance.timeout != _timeout)  inheritance.timeout = _timeout;
         if (inheritance.enabled != true)      inheritance.enabled = true;
+        inheritance.timestamp = timestamp;        
+        
+        emit InheritanceChanged(this.creator(), msg.sender, _timeout, timestamp);
     }
 
-    function clearInheritance () onlyActiveOwner() public {
+    function clearInheritance () public onlyActiveOwner() {
         emit InheritanceRemoved(this.creator(), msg.sender);
 
         if (inheritance.timeout != uint32(0)) inheritance.timeout = uint32(0);
@@ -38,18 +40,18 @@ contract Heritable is Backupable {
         }
     }
 
-    function setHeirs (address[] _wallets, uint8[] _percents) onlyActiveOwner() public {
-        require (inheritance.activated == false);
-        require (_wallets.length <= MAX_HEIRS);
-        require (_wallets.length == _percents.length);
+    function setHeirs (address[] _wallets, uint8[] _percents) public onlyActiveOwner() {
+        require (inheritance.activated == false, "inheritance.activated==false");
+        require (_wallets.length <= MAX_HEIRS, "_wallets.length<=MAX_HEIRS");
+        require (_wallets.length == _percents.length, "_wallets.length==_percents.length");
 
         uint256 totalPercent = 0;
         for (uint256 i = 0; i < _wallets.length; ++i) {
             totalPercent += _percents[i];
-            require(_wallets[i] != address(0));
-            require(_wallets[i] != address(this));
+            require(_wallets[i] != address(0), "_wallets[i]!=address(0)");
+            require(_wallets[i] != address(this), "_wallets[i]!=address(this)");
         }
-        require(totalPercent <= 100);
+        require(totalPercent <= 100, "totalPercent<=100");
 
         for (i = 0; i < _wallets.length; ++i) {
             Heir storage heir = inheritance.heirs[i];
@@ -73,7 +75,7 @@ contract Heritable is Backupable {
         emit InheritanceHeirsChanged(this.creator(), msg.sender, wallets, percents);
     }
 
-    function getTotalPercent () view public returns (uint256 total) {
+    function getTotalPercent () public view returns (uint256 total) {
         for (uint256 i = 0; i < inheritance.heirs.length; i++) {
             if (inheritance.heirs[i].wallet == address(0)) {
                 break;
@@ -83,11 +85,11 @@ contract Heritable is Backupable {
         return total;
     }
 
-    function getTotalTransfered () view public returns (uint256 total) {
+    function getTotalTransfered () public view returns (uint256 total) {
         return totalTransfered;
     }
 
-    function getHeirs () view public returns (bytes32[MAX_HEIRS] heirs) {
+    function getHeirs () public view returns (bytes32[MAX_HEIRS] heirs) {
         for (uint256 i = 0; i < inheritance.heirs.length; i++) {
             Heir storage heir = inheritance.heirs [i];
             if (heir.wallet == address(0)) {
@@ -97,28 +99,32 @@ contract Heritable is Backupable {
         }
     }
 
-    function getInheritanceTimeLeft () view public returns (uint40 _res) {
-        if (getTouchTimestamp() + inheritance.timeout > getBlockTimestamp()){
-            _res = getTouchTimestamp() + inheritance.timeout - getBlockTimestamp();
+    function getInheritanceTimeLeft () public view returns (uint40 _res) {
+        uint40 blockTimestamp = getBlockTimestamp();
+        if (inheritance.timestamp > 0 && 
+            blockTimestamp >= inheritance.timestamp && 
+            inheritance.timeout > blockTimestamp - inheritance.timestamp
+        ) {
+            _res = inheritance.timeout - (blockTimestamp - inheritance.timestamp);
         }
     }
 
-    function isInheritanceActivated () view public returns (bool) {
+    function isInheritanceActivated () public view returns (bool) {
         return (inheritance.activated == true);
     }
 
-    function isInheritanceEnabled () view public returns (bool) {
+    function isInheritanceEnabled () public view returns (bool) {
         return (inheritance.enabled == true);
     }
 
-    function getInheritanceTimeout () view public returns (uint40) {
+    function getInheritanceTimeout () public view returns (uint40) {
         return inheritance.timeout;
     }
 
     function activateInheritance () public {
-        require (inheritance.enabled == true);
-        require (inheritance.activated == false);
-        require (getInheritanceTimeLeft() == 0);
+        require (inheritance.enabled == true, "inheritance.enabled==true");
+        require (inheritance.activated == false, "inheritance.activated==false");
+        require (getInheritanceTimeLeft() == 0, "getInheritanceTimeLeft()==0");
 
         inheritance.activated = true;
 
