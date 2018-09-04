@@ -18,8 +18,13 @@ const mine = async (account) => {
   web3.eth.sendTransaction({ value: 0, from: account, to: account});
 };
 
+const isBackupActivated = async (wallet) => {
+    return (await wallet.getBackupState()).eq(await wallet.BACKUP_STATE_ACTIVATED());
+}
+
 module.exports = {
   sleep,
   getLatestBlockTimestamp,
-  mine
+  mine,
+  isBackupActivated
 }

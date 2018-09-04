@@ -58,7 +58,8 @@ contract(contractName, async accounts => {
     const backupWallet = await instance.getBackupWallet();
     const backupTimeout = await instance.getBackupTimeout();
     const backupTimestamp = await instance.getBackupTimestamp();
-    const backupActivated = await instance.isBackupActivated();
+    const backupActivated = await utils.isBackupActivated(instance);
+
 
     assert.equal(backupWallet, ZERO_ADDRESS, "backupWallet");
     assert.ok(backupTimeout.equals(ZERO_BN), 'backupTimeout is not zero');
@@ -77,7 +78,7 @@ contract(contractName, async accounts => {
     let backupWallet = await instance.getBackupWallet();
     let backupTimeout = await instance.getBackupTimeout();
     let backupTimestamp = await instance.getBackupTimestamp();
-    let backupActivated = await instance.isBackupActivated();
+    let backupActivated = await utils.isBackupActivated(instance);
 
     assert.equal(backupWallet, ZERO_ADDRESS, "backupWallet");
     assert.equal(backupTimeout.toString(10), ZERO_BN.toString(10), 'backupTimeout');
@@ -90,11 +91,12 @@ contract(contractName, async accounts => {
     backupWallet = await instance.getBackupWallet();
     backupTimeout = await instance.getBackupTimeout();
     backupTimestamp = await instance.getBackupTimestamp();
-    backupActivated = await instance.isBackupActivated();
+    //backupActivated = await instance.isBackupActivated();
+    backupActivated = await utils.isBackupActivated(instance);
 
     assert.equal(backupWallet, user1, "backupWallet");
     assert.equal(backupTimeout.toString(10), web3.toBigNumber(120).toString(10), `backupTimeout`);
-    assert.equal(backupTimestamp.toString(10), web3.toBigNumber(blockTimestamp).toString(10), `backupTimestamp`);
+    assert.equal(backupTimestamp.toString(10), web3.toBigNumber(0).toString(10), `backupTimestamp`);
     assert.equal(backupActivated, false, 'backupActivated');
   });
 
@@ -166,11 +168,11 @@ contract(contractName, async accounts => {
     const backupWallet = await instance.getBackupWallet();
     const backupTimeout = await instance.getBackupTimeout();
     const backupTimestamp = await instance.getBackupTimestamp();
-    const backupActivated = await instance.isBackupActivated();
+    const backupActivated = await utils.isBackupActivated(instance);
 
     assert.equal(backupWallet, ZERO_ADDRESS, "backupWallet");
     assert.equal(backupTimeout.toString(10), ZERO_BN.toString(10), 'backupTimeout');
-    assert.equal(backupTimestamp.toString(10), blockTimestamp, 'backupTimestamp');
+    assert.equal(backupTimestamp.toString(10), ZERO_BN.toString(10), 'backupTimestamp');
     assert.equal(backupActivated, false, 'backupActivated');
   });
 
@@ -231,6 +233,7 @@ contract(contractName, async accounts => {
   it('anyone should be able to activate backup when time is out', async () => {
     await instance.setBackup(user1, 0, { from: owner });
     if (instance.accept) await instance.accept({from: user1 });
+    if (instance.enable) await instance.enable({from: user1 });
     blockTimestamp = await utils.getLatestBlockTimestamp(timeUnitInSeconds);
 
     await instance.activateBackup({ from: user2 });
@@ -271,11 +274,11 @@ contract(contractName, async accounts => {
     const backupWallet = await instance.getBackupWallet();
     const backupTimeout = await instance.getBackupTimeout();
     const backupTimestamp = await instance.getBackupTimestamp();
-    const backupActivated = await instance.isBackupActivated();
+    const backupActivated = await utils.isBackupActivated(instance);
 
     assert.equal(backupWallet, ZERO_ADDRESS, "backupWallet");
     assert.equal(backupTimeout.toString(10), ZERO_BN.toString(10), 'backupTimeout');
-    assert.equal(backupTimestamp.toString(10), blockTimestamp, 'backupTimestamp');
+    assert.equal(backupTimestamp.toString(10), ZERO_BN.toString(10), 'backupTimestamp');
     assert.equal(backupActivated, false, 'backupActivated');
   });
 
@@ -289,16 +292,18 @@ contract(contractName, async accounts => {
   // });
 
   it('owner should be able to reclaim ownership when backup is activated', async () => {
-
     await instance.setBackup(user1, 0, { from: owner });
-    blockTimestamp = await utils.getLatestBlockTimestamp(timeUnitInSeconds);
     if (instance.accept) await instance.accept({from: user1 });
+    if (instance.enable) await instance.enable({from: user1 });
+    blockTimestamp = await utils.getLatestBlockTimestamp(timeUnitInSeconds);
+    await utils.sleep(1000);
     await instance.activateBackup({ from: user2 });
 
     let backupWallet = await instance.getBackupWallet();
     let backupTimeout = await instance.getBackupTimeout();
     let backupTimestamp = await instance.getBackupTimestamp();
-    let backupActivated = await instance.isBackupActivated();
+    let backupActivated = await utils.isBackupActivated(instance);
+
 
     assert.equal(backupWallet, user1, "backupWallet");
     assert.equal(backupTimeout.toString(10), ZERO_BN.toString(10), 'backupTimeout');
@@ -308,12 +313,15 @@ contract(contractName, async accounts => {
     await utils.sleep(2000);
 
     await instance.reclaimOwnership({ from: owner });
+    if (instance.enable) await instance.enable({from: user1 });
+
     blockTimestamp = await utils.getLatestBlockTimestamp(timeUnitInSeconds);
 
     backupWallet = await instance.getBackupWallet();
     backupTimeout = await instance.getBackupTimeout();
     backupTimestamp = await instance.getBackupTimestamp();
-    backupActivated = await instance.isBackupActivated();
+    backupActivated = await utils.isBackupActivated(instance);
+
 
     assert.equal(backupWallet, user1, "backupWallet");
     assert.equal(backupTimeout.toString(10), ZERO_BN.toString(10), 'backupTimeout');

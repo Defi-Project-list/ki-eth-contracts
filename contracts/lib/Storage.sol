@@ -5,9 +5,10 @@ import "../Trust.sol";
 
 contract Storage is IStorage {
 
-    uint8 constant internal BACKUP_STATE_PENDING   = 0;
-    uint8 constant internal BACKUP_STATE_REGISTERED  = 1;
-    uint8 constant internal BACKUP_STATE_ACTIVATED = 2;
+    uint8 constant public BACKUP_STATE_PENDING    = 0;
+    uint8 constant public BACKUP_STATE_REGISTERED = 1;
+    uint8 constant public BACKUP_STATE_ENABLED    = 2;
+    uint8 constant public BACKUP_STATE_ACTIVATED  = 3;
 
     // ------------- Backupable ---------
     struct Backup {

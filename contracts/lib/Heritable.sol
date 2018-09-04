@@ -100,12 +100,10 @@ contract Heritable is Backupable {
     }
 
     function getInheritanceTimeLeft () public view returns (uint40 _res) {
-        uint40 blockTimestamp = getBlockTimestamp();
-        if (inheritance.timestamp > 0 && 
-            blockTimestamp >= inheritance.timestamp && 
-            inheritance.timeout > blockTimestamp - inheritance.timestamp
+        uint40 _timestamp = getBlockTimestamp();
+        if (inheritance.timestamp > 0 && _timestamp >= inheritance.timestamp && inheritance.timeout > _timestamp - inheritance.timestamp
         ) {
-            _res = inheritance.timeout - (blockTimestamp - inheritance.timestamp);
+            _res = inheritance.timeout - (_timestamp - inheritance.timestamp);
         }
     }
 
