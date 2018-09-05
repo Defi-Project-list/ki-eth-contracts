@@ -35,6 +35,7 @@ contract Backupable is IStorage, StorageBase, Storage {
             backup.wallet = _wallet;
             ICreator(this.creator()).addWalletBackup(_wallet);
             if (backup.state != BACKUP_STATE_PENDING) backup.state = BACKUP_STATE_PENDING;
+            if (backup.timestamp != 0) backup.timestamp = 0;
         }
         if (backup.timeout != _timeout) backup.timeout = _timeout;
         if (backup.state == BACKUP_STATE_ENABLED) {
