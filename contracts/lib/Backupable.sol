@@ -118,7 +118,8 @@ contract Backupable is IStorage, StorageBase, Storage {
     }
 
     function reclaimOwnership () public onlyOwner {
-        if (backup.state == BACKUP_STATE_ACTIVATED) backup.state = BACKUP_STATE_REGISTERED;
+        require (backup.state == BACKUP_STATE_ACTIVATED, "backup.state==BACKUP_STATE_ACTIVATED");
+        backup.state = BACKUP_STATE_REGISTERED;
         emit OwnershipReclaimed (this.creator(), owner, backup.wallet);
     }
 
