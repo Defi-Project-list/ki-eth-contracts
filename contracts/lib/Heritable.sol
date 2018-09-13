@@ -119,6 +119,10 @@ contract Heritable is Backupable {
         return inheritance.timeout;
     }
 
+    function getInheritanceTimestamp () public view returns (uint40) {
+        return inheritance.timestamp;
+    }
+
     function activateInheritance () public {
         require (inheritance.enabled == true, "inheritance.enabled==true");
         require (inheritance.activated == false, "inheritance.activated==false");
