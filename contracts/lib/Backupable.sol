@@ -122,6 +122,7 @@ contract Backupable is IStorage, StorageBase, Storage {
         if (owner != backup.wallet) ICreator(this.creator()).transferWalletOwnership(backup.wallet);
         backup.wallet = address(0);
         if (backup.timeout != 0) backup.timeout = 0;
+        if (backup.timestamp != 0) backup.timestamp = 0;
     }
 
     function reclaimOwnership () public onlyOwner {
