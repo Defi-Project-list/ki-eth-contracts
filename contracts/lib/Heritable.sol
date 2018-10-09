@@ -9,7 +9,7 @@ contract Heritable is Backupable {
     event InheritanceActivated    (address indexed creator, address indexed activator, address[] wallets);
     event InheritanceChanged      (address indexed creator, address indexed owner, uint40 timeout, uint40 timestamp);
     event InheritanceRemoved      (address indexed creator, address indexed owner);
-    event InheritanceHeirsChanged (address indexed creator, address indexed owner, address[] wallets, uint8[] percents);
+    event InheritanceHeirsChanged (address indexed creator, address indexed owner, address[] wallets, uint16[] percents);
 
     function setInheritance (uint32 _timeout) public onlyActiveOwner() {
         require (inheritance.activated == false, "inheritance.activated==false");
@@ -40,7 +40,7 @@ contract Heritable is Backupable {
         }
     }
 
-    function setHeirs (address[] _wallets, uint8[] _percents) public onlyActiveOwner() {
+    function setHeirs (address[] _wallets, uint16[] _percents) public onlyActiveOwner() {
         require (inheritance.activated == false, "inheritance.activated==false");
         require (_wallets.length <= MAX_HEIRS, "_wallets.length<=MAX_HEIRS");
         require (_wallets.length == _percents.length, "_wallets.length==_percents.length");
@@ -51,7 +51,7 @@ contract Heritable is Backupable {
             require(_wallets[i] != address(0), "_wallets[i]!=address(0)");
             require(_wallets[i] != address(this), "_wallets[i]!=address(this)");
         }
-        require(totalPercent <= 100, "totalPercent<=100");
+        require(totalPercent <= 10000, "totalPercent<=10000");
 
         for (i = 0; i < _wallets.length; ++i) {
             Heir storage heir = inheritance.heirs[i];
@@ -66,7 +66,7 @@ contract Heritable is Backupable {
 
         // event related code starts here
         address[] memory wallets = new address[](i);
-        uint8[] memory percents = new uint8[](i);
+        uint16[] memory percents = new uint16[](i);
         for (uint256 inx = 0; inx < i; inx++) {
             heir = inheritance.heirs [inx];
             wallets[inx] = heir.wallet;
@@ -95,7 +95,7 @@ contract Heritable is Backupable {
             if (heir.wallet == address(0)) {
                 break;
             }
-            heirs[i] = bytes32 ((uint256(heir.wallet) << 96) + (uint256(heir.percent) << 88) + (heir.sent ? uint256(1) << 86 : 0));
+            heirs[i] = bytes32 ((uint256(heir.wallet) << 96) + (heir.sent ? uint256(1) << 88 : 0) + (uint256(heir.percent) << 72));
         }
     }
 
@@ -138,7 +138,7 @@ contract Heritable is Backupable {
             }
             if (heir.percent > 0) {
                 // solium-disable-next-line security/no-send
-                heir.sent = heir.wallet.send((currentBalance * heir.percent)/100);
+                heir.sent = heir.wallet.send((currentBalance * heir.percent)/10000);
             }
         }
         totalTransfered = currentBalance.sub(address(this).balance);

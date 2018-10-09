@@ -16,6 +16,7 @@ contract Storage is IStorage {
         uint40  timestamp;
         uint32  timeout;        
         uint8   state;
+        uint16  filler;
     }
 
     Backup internal backup;
@@ -25,8 +26,9 @@ contract Storage is IStorage {
 
     struct Heir {
         address wallet;
-        uint8   percent;
         bool    sent;
+        uint16  percent;
+        uint72  filler;
     }
 
     struct Inheritance {
@@ -35,6 +37,7 @@ contract Storage is IStorage {
         bool    enabled;
         bool    activated;
         uint40  timestamp;
+        uint16  filler;
     }
 
     uint256 internal totalTransfered;

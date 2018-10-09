@@ -13,7 +13,6 @@ const {
 
 contract('Wallet', async accounts => {
   let instance;
-
   const creator = accounts[9];
   const owner   = accounts[0];
   const user1   = accounts[1];
