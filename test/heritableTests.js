@@ -192,7 +192,12 @@ contract(contractName, async accounts => {
 
 
   it('cannot set heirs when total percent is greater than 10000 (100.00%)', async () => {
-    await instance.setHeirs([user2, user1, user3], [2000, 4000, 5000], { from: owner });
+    try {
+      await instance.setHeirs([user2, user1, user3], [2000, 4000, 5000], { from: owner });
+      assert(false);
+    } catch (err) {
+      assertRevert(err);
+    }
   });
 
   it('set heirs overrides previous settings', async () => {
