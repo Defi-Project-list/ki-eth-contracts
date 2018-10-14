@@ -21,7 +21,7 @@ const parseHeirs = (heirs) => {
     res.push ({
       wallet: heirs[i].slice(0, 42),
       sent: heirs[i].slice(42, 44) != '00' ? true : false,
-      percent: parseInt(heirs[i].slice(44, 48), 16)
+      bps: parseInt(heirs[i].slice(44, 48), 16)
     });
   }
   return res;
@@ -96,21 +96,20 @@ contract(contractName, async accounts => {
     const rawHeirs = await instance.getHeirs.call();
     const heirs = parseHeirs(rawHeirs);
 
-    const totalPercent = await instance.getTotalPercent.call();
+    const totalBPS = await instance.getTotalBPS.call();
 
     assert.equal(heirs.length, 2, "num of heirs");
 
     assert.equal(heirs[0].wallet,   user1,  "heir1 wallet");
-    assert.equal(heirs[0].percent,  2000,     "heir1 percent");
+    assert.equal(heirs[0].bps, 2000, "heir1 bps");
     assert.equal(heirs[0].sent,     false,  "heir1 sent");
 
     assert.equal(heirs[1].wallet,   user2,  "heir2 wallet");
-    assert.equal(heirs[1].percent,  3000,     "heir2 percent");
+    assert.equal(heirs[1].bps, 3000, "heir2 bps");
     assert.equal(heirs[1].sent,     false,  "heir2 sent");
 
-    assert.equal(totalPercent.toString(10), web3.toBigNumber(2000 + 3000).toString(10), 'total percent')
+    assert.equal(totalBPS.toString(10), web3.toBigNumber(2000 + 3000).toString(10), 'total bps')
   });
-
 
 
   it('only owner can remove all heirs', async () => {
@@ -123,10 +122,10 @@ contract(contractName, async accounts => {
     await instance.setHeirs([], [], { from: owner });
     const rawHeirs = await instance.getHeirs.call();
     const heirs = parseHeirs(rawHeirs);
-    const totalPercent = await instance.getTotalPercent.call();
+    const totalBPS = await instance.getTotalBPS.call();
 
     assert.equal(heirs.length, 0, "num of heirs");
-    assert.equal(totalPercent.toString(10), ZERO_BN.toString(10), 'total percent')
+    assert.equal(totalBPS.toString(10), ZERO_BN.toString(10), 'total bps')
   });
 
   it('only owner can set inheritance', async () => {
@@ -191,7 +190,7 @@ contract(contractName, async accounts => {
   });
 
 
-  it('cannot set heirs when total percent is greater than 10000 (100.00%)', async () => {
+  it('cannot set heirs when total bps is greater than 10000 (100.00%)', async () => {
     try {
       await instance.setHeirs([user2, user1, user3], [2000, 4000, 5000], { from: owner });
       assert(false);
@@ -207,60 +206,60 @@ contract(contractName, async accounts => {
     let rawHeirs = await instance.getHeirs.call();
     let heirs = parseHeirs(rawHeirs);
 
-    let totalPercent = await instance.getTotalPercent.call();
+    let totalBPS = await instance.getTotalBPS.call();
 
     assert.equal(heirs.length, 3, "num of heirs");
 
     assert.equal(heirs[0].wallet,   user2,  "heir1 wallet");
-    assert.equal(heirs[0].percent,  1500,     "heir1 percent");
+    assert.equal(heirs[0].bps,  1500,     "heir1 bps");
     assert.equal(heirs[0].sent,     false,  "heir1 sent");
 
     assert.equal(heirs[1].wallet,   user3,  "heir2 wallet");
-    assert.equal(heirs[1].percent,  3000,     "heir2 percent");
+    assert.equal(heirs[1].bps,  3000,     "heir2 bps");
     assert.equal(heirs[1].sent,     false,  "heir2 sent");
 
     assert.equal(heirs[2].wallet,   user1,  "heir3 wallet");
-    assert.equal(heirs[2].percent,  5000,     "heir3 percent");
+    assert.equal(heirs[2].bps,  5000,     "heir3 bps");
     assert.equal(heirs[2].sent,     false,  "heir3 sent");
 
-    assert.equal(totalPercent.toString(10), web3.toBigNumber(1500 + 3000 + 5000).toString(10), 'total percent')
+    assert.equal(totalBPS.toString(10), web3.toBigNumber(1500 + 3000 + 5000).toString(10), 'total bps')
 
     await instance.setHeirs([user3], [1500], { from: owner });
 
     rawHeirs = await instance.getHeirs.call();
     heirs = parseHeirs(rawHeirs);
 
-    totalPercent = await instance.getTotalPercent.call();
+    totalBPS = await instance.getTotalBPS.call();
 
     assert.equal(heirs.length, 1, "num of heirs");
 
     assert.equal(heirs[0].wallet,   user3,  "heir1 wallet");
-    assert.equal(heirs[0].percent,  1500,     "heir1 percent");
+    assert.equal(heirs[0].bps,  1500,     "heir1 bps");
     assert.equal(heirs[0].sent,     false,  "heir1 sent");
 
-    assert.equal(totalPercent.toString(10), web3.toBigNumber(1500).toString(10), 'total percent')
+    assert.equal(totalBPS.toString(10), web3.toBigNumber(1500).toString(10), 'total bps')
 
     await instance.setHeirs([user2, user1], [2500, 3000], { from: owner });
 
     rawHeirs = await instance.getHeirs.call();
     heirs = parseHeirs(rawHeirs);
 
-    totalPercent = await instance.getTotalPercent.call();
+    totalBPS = await instance.getTotalBPS.call();
 
     assert.equal(heirs.length, 2, "num of heirs");
 
     assert.equal(heirs[0].wallet,   user2,  "heir1 wallet");
-    assert.equal(heirs[0].percent,  2500,     "heir1 percent");
+    assert.equal(heirs[0].bps,  2500,     "heir1 bps");
     assert.equal(heirs[0].sent,     false,  "heir1 sent");
 
     assert.equal(heirs[1].wallet,   user1,  "heir2 wallet");
-    assert.equal(heirs[1].percent,  3000,     "heir2 percent");
+    assert.equal(heirs[1].bps,  3000,     "heir2 bps");
     assert.equal(heirs[1].sent,     false,  "heir2 sent");
 
-    assert.equal(totalPercent.toString(10), web3.toBigNumber(2500 + 3000).toString(10), 'total percent')
+    assert.equal(totalBPS.toString(10), web3.toBigNumber(2500 + 3000).toString(10), 'total bps')
   });
 
-  it('should emit event "InheritanceHeirsChanged(owner, wallets[], percents[])" when heirs are set', async () => {
+  it('should emit event "InheritanceHeirsChanged(owner, wallets[], bps[])" when heirs are set', async () => {
     const logs = await new Promise((r, j) => instance.InheritanceHeirsChanged({}, {
         fromBlock: 'latest',
         toBlock: 'latest'
@@ -274,13 +273,13 @@ contract(contractName, async accounts => {
     assert.equal(args.owner, owner, '..(owner, ..)');
 
     assert.equal(args.wallets.length, 2, "num of wallets");
-    assert.equal(args.percents.length, 2, "num of percents");
+    assert.equal(args.bps.length, 2, "num of bpss");
 
     assert.equal(args.wallets[0], user2, "heir1 wallet");
-    assert.equal(args.percents[0], 2500, "heir1 percent");
+    assert.equal(args.bps[0], 2500, "heir1 bps");
 
     assert.equal(args.wallets[1], user1, "heir2 wallet");
-    assert.equal(args.percents[1], 3000, "heir2 percent");
+    assert.equal(args.bps[1], 3000, "heir2 bps");
   });
 
   it('should revert when trying to activate inheritance before timeout has reached', async () => {
@@ -312,8 +311,8 @@ contract(contractName, async accounts => {
 
     balance = await web3.eth.getBalance(instance.address);
 
-    let totalPercent = await instance.getTotalPercent.call();
-    assert.equal(totalPercent.toString(10), web3.toBigNumber(2500 + 3000).toString(10), 'total percent')
+    let totalBPS = await instance.getTotalBPS.call();
+    assert.equal(totalBPS.toString(10), web3.toBigNumber(2500 + 3000).toString(10), 'total bps')
 
     const valueLeft = (value * 45) / 100;
     assert.equal(balance.toString(10), web3.toBigNumber(valueLeft).toString(10));
@@ -321,19 +320,19 @@ contract(contractName, async accounts => {
     const rawHeirs = await instance.getHeirs.call();
     const heirs = parseHeirs(rawHeirs);
 
-    totalPercent = await instance.getTotalPercent.call();
+    totalBPS = await instance.getTotalBPS.call();
 
     assert.equal(heirs.length, 2, "num of heirs");
 
     assert.equal(heirs[0].wallet, user2, "heir1 wallet");
-    assert.equal(heirs[0].percent, 2500, "heir1 percent");
+    assert.equal(heirs[0].bps, 2500, "heir1 bps");
     //assert.equal(heirs[0].sent, true, "heir1 sent");
 
     assert.equal(heirs[1].wallet, user1, "heir2 wallet");
-    assert.equal(heirs[1].percent, 3000, "heir2 percent");
+    assert.equal(heirs[1].bps, 3000, "heir2 bps");
     assert.equal(heirs[1].sent, true, "heir2 sent");
 
-    assert.equal(totalPercent.toString(10), web3.toBigNumber(2500 + 3000).toString(10), 'total percent')
+    assert.equal(totalBPS.toString(10), web3.toBigNumber(2500 + 3000).toString(10), 'total bps')
   });
 
   it('should revert when trying to activate inheritance after been activated', async () => {
@@ -359,19 +358,19 @@ contract(contractName, async accounts => {
     const rawHeirs = await instance.getHeirs.call();
     const heirs = parseHeirs(rawHeirs);
 
-    const totalPercent = await instance.getTotalPercent.call();
+    const totalBPS = await instance.getTotalBPS.call();
 
     assert.equal(heirs.length, 2, "num of heirs");
 
     assert.equal(heirs[0].wallet, user2, "heir1 wallet");
-    assert.equal(heirs[0].percent, 2500, "heir1 percent");
+    assert.equal(heirs[0].bps, 2500, "heir1 bps");
     assert.equal(heirs[0].sent, false, "heir1 sent");
 
     assert.equal(heirs[1].wallet, user1, "heir1 wallet");
-    assert.equal(heirs[1].percent, 3000, "heir1 percent");
+    assert.equal(heirs[1].bps, 3000, "heir1 bps");
     assert.equal(heirs[1].sent, false, "heir1 sent");
 
-    assert.equal(totalPercent.toString(10), web3.toBigNumber(2500 + 3000).toString(10), 'total percent')
+    assert.equal(totalBPS.toString(10), web3.toBigNumber(2500 + 3000).toString(10), 'total bps')
   });
 
 });

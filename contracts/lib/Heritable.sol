@@ -9,7 +9,7 @@ contract Heritable is Backupable {
     event InheritanceActivated    (address indexed creator, address indexed activator, address[] wallets);
     event InheritanceChanged      (address indexed creator, address indexed owner, uint40 timeout, uint40 timestamp);
     event InheritanceRemoved      (address indexed creator, address indexed owner);
-    event InheritanceHeirsChanged (address indexed creator, address indexed owner, address[] wallets, uint16[] percents);
+    event InheritanceHeirsChanged (address indexed creator, address indexed owner, address[] wallets, uint16[] bps);
 
     function setInheritance (uint32 _timeout) public onlyActiveOwner() {
         require (inheritance.activated == false, "inheritance.activated==false");
@@ -40,23 +40,23 @@ contract Heritable is Backupable {
         }
     }
 
-    function setHeirs (address[] _wallets, uint16[] _percents) public onlyActiveOwner() {
+    function setHeirs (address[] _wallets, uint16[] _bps) public onlyActiveOwner() {
         require (inheritance.activated == false, "inheritance.activated==false");
         require (_wallets.length <= MAX_HEIRS, "_wallets.length<=MAX_HEIRS");
-        require (_wallets.length == _percents.length, "_wallets.length==_percents.length");
+        require (_wallets.length == _bps.length, "_wallets.length==_bps.length");
 
-        uint256 totalPercent = 0;
+        uint256 totalBPS = 0;
         for (uint256 i = 0; i < _wallets.length; ++i) {
-            totalPercent += _percents[i];
+            totalBPS += _bps[i];
             require(_wallets[i] != address(0), "_wallets[i]!=address(0)");
             require(_wallets[i] != address(this), "_wallets[i]!=address(this)");
         }
-        require(totalPercent <= 10000, "totalPercent<=10000");
+        require(totalBPS <= 10000, "totalBPS<=10000");
 
         for (i = 0; i < _wallets.length; ++i) {
             Heir storage heir = inheritance.heirs[i];
             if (heir.wallet != _wallets[i])     heir.wallet = _wallets[i];
-            if (heir.percent != _percents[i])   heir.percent = _percents[i];
+            if (heir.bps != _bps[i])   heir.bps = _bps[i];
             if (heir.sent != false)             heir.sent = false;
         }
         if (i < MAX_HEIRS - 1) {
@@ -66,21 +66,21 @@ contract Heritable is Backupable {
 
         // event related code starts here
         address[] memory wallets = new address[](i);
-        uint16[] memory percents = new uint16[](i);
+        uint16[] memory bps = new uint16[](i);
         for (uint256 inx = 0; inx < i; inx++) {
             heir = inheritance.heirs [inx];
             wallets[inx] = heir.wallet;
-            percents[inx] = heir.percent;
+            bps[inx] = heir.bps;
         }
-        emit InheritanceHeirsChanged(this.creator(), msg.sender, wallets, percents);
+        emit InheritanceHeirsChanged(this.creator(), msg.sender, wallets, bps);
     }
 
-    function getTotalPercent () public view returns (uint256 total) {
+    function getTotalBPS () public view returns (uint256 total) {
         for (uint256 i = 0; i < inheritance.heirs.length; i++) {
             if (inheritance.heirs[i].wallet == address(0)) {
                 break;
             }
-            total += inheritance.heirs[i].percent;
+            total += inheritance.heirs[i].bps;
         }
         return total;
     }
@@ -95,7 +95,7 @@ contract Heritable is Backupable {
             if (heir.wallet == address(0)) {
                 break;
             }
-            heirs[i] = bytes32 ((uint256(heir.wallet) << 96) + (heir.sent ? uint256(1) << 88 : 0) + (uint256(heir.percent) << 72));
+            heirs[i] = bytes32 ((uint256(heir.wallet) << 96) + (heir.sent ? uint256(1) << 88 : 0) + (uint256(heir.bps) << 72));
         }
     }
 
@@ -136,9 +136,9 @@ contract Heritable is Backupable {
             if (heir.wallet == address(0)){
                 break;
             }
-            if (heir.percent > 0) {
+            if (heir.bps > 0) {
                 // solium-disable-next-line security/no-send
-                heir.sent = heir.wallet.send((currentBalance * heir.percent)/10000);
+                heir.sent = heir.wallet.send((currentBalance * heir.bps)/10000);
             }
         }
         totalTransfered = currentBalance.sub(address(this).balance);

@@ -27,7 +27,7 @@ contract Storage is IStorage {
     struct Heir {
         address wallet;
         bool    sent;
-        uint16  percent;
+        uint16  bps;
         uint72  filler;
     }
 
