@@ -1,11 +1,7 @@
 'use strict';
 
-const sleep = async (milliseconds) => {
-  const timestamp = await new Promise(
-    (r, j) => setTimeout(() => {
-      r()
-    }, milliseconds));
-  return timestamp;
+const sleep = (milliseconds) => {
+  return new Promise((r, j) => setTimeout(() => { r() }, milliseconds));
 };
 
 const getLatestBlockTimestamp = async (timeUnitInSeconds=1) => {
