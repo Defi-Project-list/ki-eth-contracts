@@ -4,7 +4,7 @@ import "./StorageBase.sol";
 
 contract Proxy is StorageBase {
 
-    function () payable public {
+    function () public payable {
         // solium-disable-next-line security/no-inline-assembly
         assembly {
                 calldatacopy(0x00, 0x00, calldatasize)

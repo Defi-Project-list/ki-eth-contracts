@@ -30,20 +30,18 @@ contract FactoryStorage {
     // storage end
 
     modifier onlyProxy () {
-        require (msg.sender == proxy);
+        require (msg.sender == proxy, "not proxy");
         _;
     }
 
-     modifier onlyOwner () {
-        require (msg.sender == owner);
+    modifier onlyOwner () {
+        require (msg.sender == owner, "not owner");
         _;
     }
 
     constructor() public {
         owner = msg.sender;
-        swProxy = new Proxy();
-        swProxyLatest = new ProxyLatest();
-        versions_code[LATEST] = swProxyLatest;
+        proxy = msg.sender; //in case we are using Factory directly 
     }
 
     function migrate() public onlyProxy() {

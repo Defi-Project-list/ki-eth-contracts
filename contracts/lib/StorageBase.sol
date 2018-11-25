@@ -10,46 +10,46 @@ interface ICreator {
 
 interface IProxy {
     function init(address _owner, address _target) external;
-    function owner() view external returns (address);
-    function target() view external returns (address);
+    function owner() external view returns (address);
+    function target() external view returns (address);
 }
 
 interface IStorage {
     function migrate() external;
-    function version() pure external returns (bytes8);
+    function version() external pure returns (bytes8);
 }
 
 interface IStorageBase {
-    function owner() view external returns (address);
+    function owner() external view returns (address);
 }
 
 contract StorageBase is IProxy {
     address public owner;
     address public target;
 
-    function owner() view external returns (address) {
+    function owner() external view returns (address) {
         return owner;
     }
 
-    function target() view external returns (address) {
+    function target() external view returns (address) {
         return target;
     }
 
-    function creator() view external returns (address) {
+    function creator() external view returns (address) {
         return address(this);
     }
 
     modifier onlyCreator () {
-        require (msg.sender == this.creator());
+        require (msg.sender == this.creator(), "not creator");
         _;
     }
 
     modifier onlyOwner () {
-        require (msg.sender == owner);
+        require (msg.sender == owner, "not owner");
         _;
     }
 
-    function init(address _owner, address _target) onlyCreator() external {
+    function init(address _owner, address _target) external onlyCreator() {
         if (_owner != owner && _owner != address(0)) owner = _owner;
         if (_target != target && _target != address(0)) target = _target;
     }
@@ -58,7 +58,7 @@ contract StorageBase is IProxy {
         owner = msg.sender;
     }
 
-    function upgrade(bytes8 _version) onlyOwner() public {
+    function upgrade(bytes8 _version) public onlyOwner() {
         ICreator(this.creator()).upgradeWallet(_version);
     }
 

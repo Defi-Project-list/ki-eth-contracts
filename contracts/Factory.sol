@@ -16,7 +16,7 @@ contract Factory is FactoryStorage {
     }
 
     modifier onlyWalletOwner () {
-        require (msg.sender == owner);
+        require (msg.sender == owner, "not owner");
         _;
     }
 
@@ -38,9 +38,11 @@ contract Factory is FactoryStorage {
     function transferWalletOwnership(address _newOwner) external {
         address _curOwner = IProxy(msg.sender).owner();
         Wallet storage _sw = accounts_wallet[_curOwner];
-        require(msg.sender == _sw.addr && _sw.owner == true);
+        require(msg.sender == _sw.addr, "from: no wallet");
+        require(_sw.owner == true, "from: not wallet owner");
         Wallet storage _sw2 = accounts_wallet[_newOwner];
-        require(msg.sender == _sw2.addr && _sw2.owner == false);
+        require(msg.sender == _sw2.addr, "to: not same wallet as from");
+        require(_sw2.owner == false, "to: wallet owner");
         _sw2.owner = true;
         _sw.owner = false;
         _sw.addr = address(0);
@@ -49,26 +51,29 @@ contract Factory is FactoryStorage {
 
     function addWalletBackup(address _backup) external {
         Wallet storage _sw = accounts_wallet[_backup];
-        require(_sw.addr == address(0) && _sw.owner == false);
+        require(_sw.addr == address(0), "backup has no wallet");
+        require(_sw.owner == false, "backup is wallet owner"); //
         address _owner = IProxy(msg.sender).owner();
         Wallet storage _sw_owner = accounts_wallet[_owner];
-        require(msg.sender == _sw_owner.addr && _sw_owner.owner == true);
-        _sw.addr = msg.sender;  
+        require(msg.sender == _sw_owner.addr, "not wallet");
+        require(_sw_owner.owner == true, "no wallet owner");
+        _sw.addr = msg.sender;
     }
 
     function removeWalletBackup(address _backup) external {
-        require(_backup != address(0));
+        require(_backup != address(0), "no backup");
         Wallet storage _sw = accounts_wallet[_backup];
-        require(_sw.addr == msg.sender && _sw.owner == false);
+        require(_sw.addr == msg.sender, "not wallet");
+        require(_sw.owner == false, "wallet backup not exist");
         _sw.addr = address(0);
     }
 
     function upgradeWallet(bytes8 _version) external {
         address _code = versions_code[_version];
-        require(_code != address(0));
+        require(_code != address(0), "no version code");
         address _owner = IProxy(msg.sender).owner();
         Wallet storage _sw = accounts_wallet[_owner];
-        require(msg.sender == _sw.addr && _sw.owner == true);
+        require(msg.sender == _sw.addr && _sw.owner == true, "sender is not wallet owner");
         wallets_version[_sw.addr] = _version;
         IProxy(msg.sender).init(_owner, _code);
         IStorage(msg.sender).migrate();
@@ -76,19 +81,19 @@ contract Factory is FactoryStorage {
     }
 
     function addVersion(address _target) onlyOwner() public {
-        require(_target != address(0));
+        require(_target != address(0), "no version");
         address _owner = IStorageBase(_target).owner();
-        require(msg.sender == _owner);
+        require(msg.sender == _owner, "not version owner");
         bytes8 _version = IStorage(_target).version();
         address _code = versions_code[_version];
-        require(_code == address(0));
+        require(_code == address(0), "version exists");
         versions_code[_version] = _target;
         emit VersionAdded(_version, _code);
     }
 
     function deployVersion(bytes8 _version) onlyOwner() public {
         address _code = versions_code[_version];
-        require(_code != address(0));
+        require(_code != address(0), "version not exist");
         production_version = _version;
         production_version_code = _code;
         emit VersionDeployed(_version, _code);
@@ -96,33 +101,38 @@ contract Factory is FactoryStorage {
 
     function restoreWalletConfiguration() public {
         Wallet storage _sw = accounts_wallet[msg.sender];
-        require(_sw.addr != address(0) && _sw.owner == true);
+        require(_sw.addr != address(0), "no wallet");
+        require(_sw.owner == true, "not wallet owner");
         bytes8 _version = wallets_version[_sw.addr];
         if (_version == LATEST) {
             _version = production_version;
         }
         address _code = versions_code[_version];
-        require(_code != address(0));
+        require(_code != address(0), "version not exist");
         IProxy(_sw.addr).init(msg.sender, _code);
         emit WalletConfigurationRestored(_sw.addr, _version, msg.sender);
     }
 
     function restoreWalletOwnership() public {
         Wallet storage _sw = accounts_wallet[msg.sender];
-        require(_sw.addr != address(0) && _sw.owner == true);
+        require(_sw.addr != address(0), "no wallet");
+        require(_sw.owner == true, "not wallet owner");
+
         IProxy(_sw.addr).init(msg.sender, address(0));
         emit WalletOwnershipRestored(_sw.addr, msg.sender);
     }
 
     function restoreWalletVersion() public {
         Wallet storage _sw = accounts_wallet[msg.sender];
-        require(_sw.addr != address(0) && _sw.owner == true);
+        require(_sw.addr != address(0), "no wallet");
+        require(_sw.owner == true, "not wallet owner");
+
         bytes8 _version = wallets_version[_sw.addr];
         if (_version == LATEST) {
             _version = production_version;
         }
         address _code = versions_code[_version];
-        require(_code != address(0));
+        require(_code != address(0), "no version");
         IProxy(_sw.addr).init(address(0), _code);
         emit WalletVersionRestored(_sw.addr, _version, msg.sender);
     }
@@ -136,16 +146,16 @@ contract Factory is FactoryStorage {
     }
 
     function createWallet(bool _auto) public returns (address) {
-        require(swProxy != address(0));
-        require(production_version_code != address(0)); //Must be here - ProxyLatest also needs it.
+        require(swProxy != address(0), "no proxy");
+        require(production_version_code != address(0), "no prod version"); //Must be here - ProxyLatest also needs it.
         Wallet storage _sw = accounts_wallet[msg.sender];
         if (_sw.addr == address(0)) {
             _sw.addr = _createWallet(address(this), address(swProxy));
-            require(_sw.addr != address(0));
+            require(_sw.addr != address(0), "wallet not created");
             _sw.owner = true;
             if (_auto) {
-                require(swProxyLatest != address(0));
-                require(versions_code[LATEST] == address(swProxyLatest));
+                require(swProxyLatest != address(0), "no auto version");
+                require(versions_code[LATEST] == address(swProxyLatest), "incorrect auto version");
                 wallets_version[_sw.addr] = LATEST;
                 IProxy(_sw.addr).init(msg.sender, address(swProxyLatest));
                 IStorage(_sw.addr).migrate();

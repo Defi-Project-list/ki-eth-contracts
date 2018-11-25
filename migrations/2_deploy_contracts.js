@@ -11,7 +11,7 @@ var Root = artifacts.require("./Root.sol");
 
 const liveNetworks = { rinkeby: true, kovan: true };
 const gasPrice =  web3.toWei(3, 'gwei');
-const gas = 5912388;
+const gas = 6552388;
 
 module.exports = function(deployer, network) {
   deployer.then(async () => {
@@ -19,7 +19,7 @@ module.exports = function(deployer, network) {
   	  const factory = await deployer.deploy(Factory, { gas, gasPrice });
 	  await factoryProxy.setTarget(factory.address, { gas, gasPrice });
   	  const sw = await deployer.deploy(Wallet, { gas, gasPrice });
-	  try { 
+	  try {
 	  	await Factory.at(factoryProxy.address).addVersion(sw.address, { gas, gasPrice });
 	  	await Factory.at(factoryProxy.address).deployVersion(await sw.version(), { gas, gasPrice });
 	  }

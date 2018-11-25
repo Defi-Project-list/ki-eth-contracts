@@ -4,7 +4,7 @@ import "./StorageBase.sol";
 
 contract ProxyLatest is StorageBase {
 
-    function () payable public {
+    function () public payable {
         address latest = ICreator(this.creator()).getLatestVersion();
         // solium-disable-next-line security/no-inline-assembly
         assembly {

@@ -10,12 +10,12 @@ contract FactoryProxy is FactoryClaimable {
     }
 
     function setTarget(address _target) onlyOwner() public {
-        require(_target != address(0));
+        require(_target != address(0), "no target");
         target = _target;
         FactoryStorage(this).migrate();
     }
 
-    function () payable public {
+    function () public payable {
         // solium-disable-next-line security/no-inline-assembly
         assembly {
                 calldatacopy(0x00, 0x00, calldatasize)

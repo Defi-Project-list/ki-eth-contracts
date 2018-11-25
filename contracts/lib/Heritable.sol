@@ -12,14 +12,14 @@ contract Heritable is Backupable {
     event InheritanceHeirsChanged (address indexed creator, address indexed owner, address[] wallets, uint16[] bps);
 
     function setInheritance (uint32 _timeout) public onlyActiveOwner() {
-        require (inheritance.activated == false, "inheritance.activated==false");
+        require (inheritance.activated == false, "inheritance activated");
 
         uint40 timestamp = getBlockTimestamp();
 
         if (inheritance.timeout != _timeout)  inheritance.timeout = _timeout;
         if (inheritance.enabled != true)      inheritance.enabled = true;
-        inheritance.timestamp = timestamp;        
-        
+        inheritance.timestamp = timestamp;
+
         emit InheritanceChanged(this.creator(), msg.sender, _timeout, timestamp);
     }
 
@@ -41,17 +41,17 @@ contract Heritable is Backupable {
     }
 
     function setHeirs (address[] _wallets, uint16[] _bps) public onlyActiveOwner() {
-        require (inheritance.activated == false, "inheritance.activated==false");
-        require (_wallets.length <= MAX_HEIRS, "_wallets.length<=MAX_HEIRS");
-        require (_wallets.length == _bps.length, "_wallets.length==_bps.length");
+        require (inheritance.activated == false, "inheritance activated");
+        require (_wallets.length <= MAX_HEIRS, "too many heirs");
+        require (_wallets.length == _bps.length, "heirs and bps don't match");
 
         uint256 totalBPS = 0;
         for (uint256 i = 0; i < _wallets.length; ++i) {
             totalBPS += _bps[i];
-            require(_wallets[i] != address(0), "_wallets[i]!=address(0)");
-            require(_wallets[i] != address(this), "_wallets[i]!=address(this)");
+            require(_wallets[i] != address(0), "no heir");
+            require(_wallets[i] != address(this), "current contract is heir");
         }
-        require(totalBPS <= 10000, "totalBPS<=10000");
+        require(totalBPS <= 10000, "total>100%");
 
         for (i = 0; i < _wallets.length; ++i) {
             Heir storage heir = inheritance.heirs[i];
@@ -124,9 +124,9 @@ contract Heritable is Backupable {
     }
 
     function activateInheritance () public {
-        require (inheritance.enabled == true, "inheritance.enabled==true");
-        require (inheritance.activated == false, "inheritance.activated==false");
-        require (getInheritanceTimeLeft() == 0, "getInheritanceTimeLeft()==0");
+        require (inheritance.enabled == true, "inheritance is not enabled");
+        require (inheritance.activated == false, "inheritance is activated");
+        require (getInheritanceTimeLeft() == 0, "too early");
 
         inheritance.activated = true;
 
