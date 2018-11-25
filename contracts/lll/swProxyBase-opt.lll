@@ -1,0 +1,55 @@
+(seq
+  ; (sstore 0x00 0xbebebebebebebebebebebebebebebebebebebebe)
+  ; (sstore 0x01 0xacacacacacacacacacacacacacacacacacacacac)
+(returnlll
+(seq
+    (unless (calldatasize)
+        (seq
+            (when (callvalue)
+              (seq
+                  ;(mstore 0x00 (caller))
+                  ;(mstore 0x20 (callvalue))
+                  ;(log0 0x00 64)
+                  ;(log1 0x00 64 0x01)
+                  (mstore 0x00 (callvalue))
+                  (log2 0x00 32 0x01 (caller))
+                  ;(log1 0x00 32 (caller))
+   		  ;(log2 0x00 32 0xC105BC3E1F2504FD54E7E6356AF5F26FD670EFC4A667B823E75F65D63C6BAB66  (caller))
+              )
+            )
+            (stop)
+        )
+     )
+
+     [0x00]: 0
+     (calldatacopy 0x1c 0x00 4)
+     (when (eq @0x00 0x02d05d3f)
+         (seq
+     	      [0x00]: 0xdadadadadadadadadadadadadadadadadadadada 
+              (return 0x00 32)
+         )
+     )
+     (calldatacopy 0x00 0x00 (calldatasize))
+     ;[0x00]: (delegatecall (gas) (sload 0x00) 0x00 (calldatasize) 0 0)
+     [0x00]: (delegatecall (gas) 0xbebebebebebebebebebebebebebebebebebebebe 0x00 (calldatasize) 0 0)
+     (returndatacopy 0x20 0x00 (returndatasize))
+     (if (iszero @0x00)
+        (revert 0x20 (returndatasize))
+        (seq
+           (when (callvalue)
+             (seq
+               ;(mstore 0x00 (caller))
+               ;(mstore 0x20 (callvalue))
+               ;(log0 0x00 64)
+               ;(log1 0x00 64 0x02)
+               (mstore 0x00 (callvalue))
+               (log2 0x00 32 0x02 (caller))
+               ;(log1 0x00 32 (caller))
+   	       ;(log2 0x00 32 0xC105BC3E1F2504FD54E7E6356AF5F26FD670EFC4A667B823E75F65D63C6BAB66  (caller))
+             )
+           )           
+           (return 0x20 (returndatasize))
+        )
+     ) 
+))
+)
