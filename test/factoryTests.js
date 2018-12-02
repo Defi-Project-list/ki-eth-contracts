@@ -257,8 +257,5 @@ contract (contractName, async accounts => {
 
   });
 
-  it ('', async () => {      
-  });
-
 });
 };
