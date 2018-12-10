@@ -6,6 +6,7 @@ var Wallet = artifacts.require("./Wallet.sol");
 var Factory = artifacts.require("./Factory.sol");
 var FactoryProxy = artifacts.require("./FactoryProxy.sol");
 var Wallet = artifacts.require("./Wallet.sol");
+var Oracle = artifacts.require("./Oracle.sol");
 var SmartWallet2 = artifacts.require("./test/Wallet2.sol");
 var Root = artifacts.require("./Root.sol");
 
@@ -16,11 +17,12 @@ const gas = 6552388;
 module.exports = function(deployer, network) {
   deployer.then(async () => {
 	  const factoryProxy = await deployer.deploy(FactoryProxy, { gas, gasPrice, overwrite: !liveNetworks[network] });
-  	  const factory = await deployer.deploy(Factory, { gas, gasPrice });
+  	const factory = await deployer.deploy(Factory, { gas, gasPrice });
 	  await factoryProxy.setTarget(factory.address, { gas, gasPrice });
-  	  const sw = await deployer.deploy(Wallet, { gas, gasPrice });
+  	const sw = await deployer.deploy(Wallet, { gas, gasPrice });
+		const oracle = await deployer.deploy(Oracle, { gas, gasPrice });
 	  try {
-	  	await Factory.at(factoryProxy.address).addVersion(sw.address, { gas, gasPrice });
+	  	await Factory.at(factoryProxy.address).addVersion(sw.address, oracle.address, { gas, gasPrice });
 	  	await Factory.at(factoryProxy.address).deployVersion(await sw.version(), { gas, gasPrice });
 	  }
 	  catch(err) {

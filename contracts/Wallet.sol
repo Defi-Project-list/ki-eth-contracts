@@ -1,7 +1,9 @@
 pragma solidity 0.4.24;
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
 
+import "./lib/IOracle.sol";
 import "./lib/Heritable.sol";
 import "./Trust.sol";
 
@@ -9,6 +11,7 @@ contract Wallet is IStorage, Heritable {
     using SafeMath for uint256;
 
     event SentEther  (address indexed creator, address indexed owner, address indexed to, uint256 value);
+    event SentToken  (address indexed creator, address indexed owner, address indexed to, uint256 value);
 
     function sendEther (address _to, uint256 _value) public onlyActiveOwner() {
         require (_value > 0, "value == 0");
@@ -17,8 +20,22 @@ contract Wallet is IStorage, Heritable {
         _to.transfer (_value);
     }
 
+    function sendToken (address _token, address _to, uint256 _value) public onlyActiveOwner() {
+        require(_token != address(0), "_token is 0x0");
+        emit SentToken (this.creator(), owner, _to, _value);
+        IERC20(_token).transfer(_to, _value);
+    }
+
     function getBalance () public view returns (uint256) {
         return address(this).balance;
+    }
+
+    function getTokenBalance (address _token) public view returns (uint256) {
+        return IERC20(_token).balanceOf(address(this));
+    }
+
+    function isTokenSafe (address _token) public view returns (bool) {
+        return IOracle(this.creator()).isTokenSafe(_token);
     }
 
     /*
@@ -43,7 +60,7 @@ contract Wallet is IStorage, Heritable {
     }
 
     function version() public pure returns (bytes8){
-        return bytes8("1.1.10");
+        return bytes8("1.1.12");
     }
 
 }

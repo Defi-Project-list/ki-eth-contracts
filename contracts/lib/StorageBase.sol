@@ -36,7 +36,7 @@ contract StorageBase is IProxy {
     }
 
     function creator() external view returns (address) {
-        return address(this);
+        return address(0);
     }
 
     modifier onlyCreator () {
