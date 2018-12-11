@@ -1,10 +1,10 @@
 'use strict';
 
 const Wallet = artifacts.require("Wallet");
+const Oracle = artifacts.require("Oracle");
 const Factory = artifacts.require("Factory");
 const FactoryProxy = artifacts.require("FactoryProxy");
 const ERC20Token = artifacts.require("ERC20Token");
-const Oracle = artifacts.require("Oracle");
 const mlog = require('mocha-logger');
 const {
   assertRevert,
@@ -17,6 +17,7 @@ contract('Wallet', async accounts => {
   let instance;
   let factory;
   let token20;
+  let token20notSafe;
   let oracle;
   const creator = accounts[9];
   const owner   = accounts[0];
@@ -44,10 +45,10 @@ contract('Wallet', async accounts => {
     const sw_factory_proxy = await FactoryProxy.new({ from: creator });
     await sw_factory_proxy.setTarget(sw_factory.address, { from: creator });
     factory = await Factory.at(sw_factory_proxy.address, { from: creator });
-    oracle = await Oracle.new({from: owner});
 
     //const factory = await FactoryProxy.new({ from: creator });
     const version = await Wallet.new({ from: creator });
+    oracle = await Oracle.new({from: owner});
     //await factory.addVersion(web3.fromAscii("1.1", 8), version.address, { from: creator });
     await factory.addVersion(version.address, oracle.address, { from: creator });
     await factory.deployVersion(await version.version(), { from: creator });
@@ -55,7 +56,8 @@ contract('Wallet', async accounts => {
     instance = await Wallet.at( await factory.getWallet(owner) );
 
     token20 = await ERC20Token.new('Kirobo ERC20 Token', 'KDB20', 18, {from: owner}); 
-    
+    await oracle.updateToken(token20.address, true, {from: owner});
+    token20notSafe = await ERC20Token.new('Kirobo ERC20 Not Safe Token', 'KDB20NS', 18, {from: owner}); 
     mlog.log('web3    ', web3.version.api);
     mlog.log('token20 ', token20.address);
     mlog.log('factory ', factory.address);
@@ -195,9 +197,13 @@ contract('Wallet', async accounts => {
   });
 
   it ('token20 should be safe to use', async () => {
-    const isToken20Safe = await instance.isTokenSafe(token20.address, { from: owner});
-    assert.equal (isToken20Safe, true, "token20 is safe");
+    const isTokenSafe = await instance.isTokenSafe(token20.address, { from: owner});
+    assert.equal (isTokenSafe, true, "is token20 safe");
   });
 
+  it ('token20notSafe should not be safe to use', async () => {
+    const isTokenSafe = await instance.isTokenSafe(token20notSafe.address, { from: owner});
+    assert.equal (isTokenSafe, false, "is token20notSafe safe");
+  });
 
 });

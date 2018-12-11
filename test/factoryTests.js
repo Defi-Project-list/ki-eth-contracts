@@ -1,7 +1,9 @@
 'use strict';
 
 const Wallet = artifacts.require("Wallet");
+const Oracle = artifacts.require("Oracle");
 const Wallet2 = artifacts.require("Wallet2");
+const Oracle2 = artifacts.require("Oracle2");
 const Proxy = artifacts.require("Proxy");
 const Factory = artifacts.require("Factory");
 const FactoryProxy = artifacts.require("FactoryProxy");
@@ -86,26 +88,30 @@ contract (contractName, async accounts => {
 
   it ('only owner can add wallet versions that also must be owned by the owner', async () => {
     const wallet_owner = await Wallet.new({from : owner});
+    const oracle_owner = await Oracle.new({from: owner});
+
     const wallet_user = await Wallet.new({from : user1});
+    const oracle_user = await Oracle.new({from: user1});
+
     try {
-      await instance.addVersion(wallet_user.address, {from: user1});
+      await instance.addVersion(wallet_user.address, oracle_user.address, {from: user1});
       assert(false);
     } catch (err) {
       assertRevert(err);
     }
     try {
-      await instance.addVersion(wallet_owner.address, {from: user1});
+      await instance.addVersion(wallet_owner.address, oracle_owner.address, {from: user1});
       assert(false);
     } catch (err) {
       assertRevert(err);
     }
     try {
-       await instance.addVersion (wallet_user.address, { from: owner });
+       await instance.addVersion (wallet_user.address, oracle_user.address, { from: owner });
        assert(false);
      } catch (err) {
        assertRevert(err);
      }
-    await instance.addVersion (wallet_owner.address, { from: owner });
+    await instance.addVersion (wallet_owner.address, oracle_owner.address, { from: owner });
     await instance.deployVersion(await wallet_owner.version(), { from: owner }); 
 
     const version = await instance.getLatestVersion ({ from: owner });
@@ -143,8 +149,9 @@ contract (contractName, async accounts => {
     assert.equal (version, latestVersion);
     
     const wallet2 = await Wallet2.new({from : owner});
+    const oracle2 = await Oracle2.new({from: owner});
 
-    await instance.addVersion (wallet2.address, { from: owner });
+    await instance.addVersion (wallet2.address, oracle2.address, { from: owner });
     await instance.deployVersion (await wallet2.version(), { from: owner });
 
     latestVersionAddress = await instance.getLatestVersion ({ from: owner });

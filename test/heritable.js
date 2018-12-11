@@ -5,6 +5,7 @@ const Heritable = artifacts.require("Heritable");
 const Factory = artifacts.require("Factory");
 const FactoryProxy = artifacts.require("FactoryProxy");
 const Wallet = artifacts.require("Wallet");
+const Oracle = artifacts.require("Oracle");
 
 const backupableTests = require('./backupableTests');
 backupableTests(async (factoryOwner, walletOwner) => {
@@ -12,8 +13,9 @@ backupableTests(async (factoryOwner, walletOwner) => {
     const sw_factory_proxy = await FactoryProxy.new({ from: factoryOwner });
     await sw_factory_proxy.setTarget(sw_factory.address, { from: factoryOwner });
     const factory = await Factory.at(sw_factory_proxy.address, { from: factoryOwner });
-    const swver = await Wallet.new();
-    await factory.addVersion(swver.address, { from: factoryOwner });
+    const swver = await Wallet.new({from: factoryOwner});
+    const oracle = await Oracle.new({from: factoryOwner});
+    await factory.addVersion(swver.address, oracle.address, { from: factoryOwner });
     await factory.deployVersion(await swver.version(), { from: factoryOwner });
     await factory.createWallet(true, { from: walletOwner });
     const sw = await factory.getWallet(walletOwner);
@@ -27,8 +29,9 @@ heritableTests(async (owner) => {
     const sw_factory_proxy = await FactoryProxy.new({ from: owner });
     await sw_factory_proxy.setTarget(sw_factory.address, { from: owner });
     const factory = await Factory.at(sw_factory_proxy.address, { from: owner });
-    const swver = await Wallet.new();
-    await factory.addVersion(swver.address, { from: owner });
+    const swver = await Wallet.new({from: owner});
+    const oracle = await Oracle.new({from: owner});
+    await factory.addVersion(swver.address, oracle.address, { from: owner });
     await factory.deployVersion(await swver.version(), { from: owner });
     await factory.createWallet(true, { from: owner });
     const sw = await factory.getWallet(owner);
