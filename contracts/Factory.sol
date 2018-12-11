@@ -176,10 +176,13 @@ contract Factory is FactoryStorage {
         return _sw.addr;
     }
 
-    function isTokenSafe(address _token) public payable returns (bool) {
-        return true;
+    function oracle() public view returns (address _oracle) {
+        bytes8 _version = wallets_version[msg.sender];
+        if (_version == LATEST) {
+            _version = production_version;
+        }
+        _oracle = versions_oracle[_version];
     }
-
 
     function () public payable {
       /*

@@ -35,7 +35,7 @@ contract Wallet is IStorage, Heritable {
     }
 
     function isTokenSafe (address _token) public view returns (bool) {
-        return IOracle(this.creator()).isTokenSafe(_token);
+        return IOracle(ICreator(this.creator()).oracle()).isTokenSafe(_token);
     }
 
     /*

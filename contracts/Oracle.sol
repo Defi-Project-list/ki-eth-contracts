@@ -4,10 +4,14 @@ import "./lib/IOracle.sol";
 
 contract Oracle is IOracle {
 
-    mapping (address=>bool) private whitelist;
+    mapping (address=>bool) private tokens;
+
+    function updateToken(address _token, bool _safe) public {
+        tokens[_token] = _safe;
+    }
 
     function isTokenSafe(address _token) public view returns (bool) {
-        return whitelist[_token];
+        return tokens[_token];
     }
 
 }
