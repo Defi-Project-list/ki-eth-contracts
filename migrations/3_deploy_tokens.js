@@ -3,7 +3,7 @@ const ERC721Token = artifacts.require("./test/ERC721Token");
 
 const liveNetworks = { rinkeby: true, kovan: true };
 const gasPrice =  web3.toWei(3, 'gwei');
-const gas = 7000000;
+const gas = 6200000;
 
 module.exports = function(deployer, network) {
   deployer.then(async () => {

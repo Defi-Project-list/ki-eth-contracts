@@ -3,13 +3,14 @@ const HDWalletProvider = require("truffle-hdwallet-provider");
 // let mnemonic = "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat";
 //let mnemonic = "pelican bench orchard wisdom honey deputy donate suspect airport sail quick decade";
 let mnemonic = "front assume robust donkey senior economy maple enhance click bright game alcohol";
+const gas = 6200000;
 
 // const ganache = require('ganache-cli');
 const devNetwork = {
   host: "127.0.0.1",	
   port: 8545,
   network_id: "*",
-  gas: 7000000
+  gas
 };
 
 module.exports = {
@@ -23,7 +24,7 @@ module.exports = {
         );
       },
       network_id: "4",
-      gas: 7000000
+      gas
     },
     kovan: {
       provider: function() {
@@ -34,7 +35,7 @@ module.exports = {
         );
       },
       network_id: "42",
-      gas: 7000000
+      gas
     },
     ropsten: {
       provider: function() {
@@ -45,14 +46,14 @@ module.exports = {
         );
       },
       network_id: "3",        
-      gas: 7000000
+      gas
     },
     ganache: {
       provider: function() {
         return new HDWalletProvider(mnemonic, "http://127.0.0.1:8545/");
       },
       network_id: "1337",
-      gas: 7000000
+      gas
     },
     development: devNetwork,
     dev: devNetwork
