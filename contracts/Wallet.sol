@@ -1,17 +1,20 @@
 pragma solidity 0.4.24;
 
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+//import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
+import "openzeppelin-solidity/contracts/token/ERC721/IERC721.sol";
+import "openzeppelin-solidity/contracts/token/ERC721/IERC721Receiver.sol";
 
 import "./lib/IOracle.sol";
 import "./lib/Heritable.sol";
-import "./Trust.sol";
+//import "./Trust.sol";
 
 contract Wallet is IStorage, Heritable {
-    using SafeMath for uint256;
+    //using SafeMath for uint256;
 
-    event SentEther  (address indexed creator, address indexed owner, address indexed to, uint256 value);
-    event SentToken  (address indexed creator, address indexed owner, address indexed to, uint256 value);
+    event SentEther     (address indexed creator, address indexed owner, address indexed to, uint256 value);
+    event Transfer20    (address indexed creator, address indexed owner, address indexed to, uint256 value);
+    event Transfer721   (address indexed creator, address indexed owner, address indexed to, uint256 id);
 
     function sendEther (address _to, uint256 _value) public onlyActiveOwner() {
         require (_value > 0, "value == 0");
@@ -20,24 +23,35 @@ contract Wallet is IStorage, Heritable {
         _to.transfer (_value);
     }
 
-    function sendToken (address _token, address _to, uint256 _value) public onlyActiveOwner() {
+    function transfer20 (address _token, address _to, uint256 _value) public onlyActiveOwner() {
         require(_token != address(0), "_token is 0x0");
-        emit SentToken (this.creator(), owner, _to, _value);
+        emit Transfer20 (this.creator(), owner, _to, _value);
         IERC20(_token).transfer(_to, _value);
+    }
+
+    function transfer721 (address _token, address _to, uint256 _id) public onlyActiveOwner() {
+        require(_token != address(0), "_token is 0x0");
+        emit Transfer721 (this.creator(), owner, _to, _id);
+        IERC721(_token).transferFrom(address(this), _to, _id);
     }
 
     function getBalance () public view returns (uint256) {
         return address(this).balance;
     }
 
-    function getTokenBalance (address _token) public view returns (uint256) {
+    function get20Balance (address _token) public view returns (uint256) {
         return IERC20(_token).balanceOf(address(this));
     }
 
-    function isTokenSafe (address _token) public view returns (bool) {
+    function is20Safe (address _token) public view returns (bool) {
         return IOracle(ICreator(this.creator()).oracle()).isTokenSafe(_token);
     }
 
+    //function onERC721Received(address operator, address from, uint256 tokenId, bytes data) public returns (bytes4) {
+    function onERC721Received (address, address, uint256, bytes) public pure returns (bytes4) {
+        return this.onERC721Received.selector;
+    }
+    
     /*
     function createTrust(address _wallet, uint40 _start, uint32 _period, uint16 _times, uint256 _amount, bool _cancelable) payable public {
         require(trust == Trust(0));

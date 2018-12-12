@@ -1,8 +1,6 @@
 var Sanity = artifacts.require("./test/Sanity.sol");
 var Sender = artifacts.require("./test/Sender.sol");
 
-var Wallet = artifacts.require("./Wallet.sol");
-
 var Factory = artifacts.require("./Factory.sol");
 var FactoryProxy = artifacts.require("./FactoryProxy.sol");
 var Wallet = artifacts.require("./Wallet.sol");
@@ -11,8 +9,8 @@ var SmartWallet2 = artifacts.require("./test/Wallet2.sol");
 var Root = artifacts.require("./Root.sol");
 
 const liveNetworks = { rinkeby: true, kovan: true };
-const gasPrice =  web3.toWei(3, 'gwei');
-const gas = 6552388;
+const gasPrice =  web3.toWei(2, 'gwei');
+const gas = 7000000;
 
 module.exports = function(deployer, network) {
   deployer.then(async () => {
