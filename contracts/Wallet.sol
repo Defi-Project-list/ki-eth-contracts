@@ -13,38 +13,68 @@ contract Wallet is IStorage, Heritable {
     //using SafeMath for uint256;
 
     event SentEther     (address indexed creator, address indexed owner, address indexed to, uint256 value);
-    event Transfer20    (address indexed creator, address indexed owner, address indexed to, uint256 value);
-    event Transfer721   (address indexed creator, address indexed owner, address indexed to, uint256 id);
+    event Transfer20    (address indexed creator, address indexed token, address from, address indexed to, uint256 value);
+    event Transfer721   (address indexed creator, address indexed token, address from, address indexed to, uint256 id, bytes data);
 
     function sendEther (address _to, uint256 _value) public onlyActiveOwner() {
         require (_value > 0, "value == 0");
         require (_value <= address(this).balance, "value > balance");
-        emit SentEther (this.creator(), owner, _to, _value);
+        emit SentEther (this.creator(), address(this), _to, _value);
         _to.transfer (_value);
     }
 
     function transfer20 (address _token, address _to, uint256 _value) public onlyActiveOwner() {
         require(_token != address(0), "_token is 0x0");
-        emit Transfer20 (this.creator(), owner, _to, _value);
+        emit Transfer20 (this.creator(), _token, address(this), _to, _value);
         IERC20(_token).transfer(_to, _value);
     }
 
-    function transfer721 (address _token, address _to, uint256 _id) public onlyActiveOwner() {
+    function transferFrom20 (address _token, address _from, address _to, uint256 _value) public onlyActiveOwner() {
         require(_token != address(0), "_token is 0x0");
-        emit Transfer721 (this.creator(), owner, _to, _id);
+        if (_from == address(0)) { _from = address(this); }
+        emit Transfer20 (this.creator(), _token, _from, _to, _value);
+        IERC20(_token).transferFrom(_from, _to, _value);
+    }
+
+    function transferFrom721 (address _token, address _from, address _to, uint256 _id) public onlyActiveOwner() {
+        require(_token != address(0), "_token is 0x0");
+        if (_from == address(0)) { _from = address(this); }
+        emit Transfer721 (this.creator(), _token, _from, _to, _id, "");
         IERC721(_token).transferFrom(address(this), _to, _id);
+    }
+
+    function safeTransferFrom721 (address _token, address _from, address _to, uint256 _id) public onlyActiveOwner() {
+        require(_token != address(0), "_token is 0x0");
+        if (_from == address(0)) { _from = address(this); }
+        emit Transfer721 (this.creator(), _token, _from, _to, _id, "");
+        IERC721(_token).safeTransferFrom(address(this), _to, _id);
+    }
+
+    function safeTransferFrom721$Data (address _token, address _from, address _to, uint256 _id, bytes _data) public onlyActiveOwner() {
+        require(_token != address(0), "_token is 0x0");
+        if (_from == address(0)) { _from = address(this); }
+        emit Transfer721 (this.creator(), _token, _from, _to, _id, _data);
+        IERC721(_token).safeTransferFrom(address(this), _to, _id, _data);
     }
 
     function getBalance () public view returns (uint256) {
         return address(this).balance;
     }
 
-    function get20Balance (address _token) public view returns (uint256) {
+    function balanceOf20 (address _token) public view returns (uint256) {
         return IERC20(_token).balanceOf(address(this));
     }
 
+    function balanceOf721 (address _token) public view returns (uint256) {
+        return IERC721(_token).balanceOf(address(this));
+    }
+
     function is20Safe (address _token) public view returns (bool) {
-        return IOracle(ICreator(this.creator()).oracle()).isTokenSafe(_token);
+        return IOracle(ICreator(this.creator()).oracle()).is20Safe(_token);
+    }
+
+    function is721Safe (address _token) public view returns (bool) {
+        return IOracle(ICreator(this.creator()).oracle()).is721Safe(_token);
     }
 
     //function onERC721Received(address operator, address from, uint256 tokenId, bytes data) public returns (bytes4) {
