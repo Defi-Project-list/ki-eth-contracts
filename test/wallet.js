@@ -57,10 +57,10 @@ contract('Wallet', async accounts => {
     await factory.createWallet(false, { from: owner });
     instance = await Wallet.at( await factory.getWallet(owner) );
 
-    token20 = await ERC20Token.new('Kirobo ERC20 Token', 'KDB20', 18, {from: owner}); 
-    await oracle.updateToken(token20.address, true, {from: owner});
-    token20notSafe = await ERC20Token.new('Kirobo ERC20 Not Safe Token', 'KDB20NS', 18, {from: owner}); 
-    token721 = await ERC721Token.new('Kirobo ERC721 Token', 'KBF', {from: owner}); 
+    token20 = await ERC20Token.new('Kirobo ERC20 Token', 'KDB20', 18, {from: owner});
+    await oracle.update20(token20.address, true, {from: owner});
+    token20notSafe = await ERC20Token.new('Kirobo ERC20 Not Safe Token', 'KDB20NS', 18, {from: owner});
+    token721 = await ERC721Token.new('Kirobo ERC721 Token', 'KBF', {from: owner});
     mlog.log('web3      ', web3.version.api);
     mlog.log('token20   ', token20.address);
     mlog.log('token20ns ', token20.address);
@@ -186,17 +186,17 @@ contract('Wallet', async accounts => {
 
     let balance = await token20.balanceOf(user1, {from: user1});
     assert.equal (balance.toNumber(), 950, 'user1 balance');
-    balance = await instance.get20Balance(token20.address);
+    balance = await instance.balanceOf20(token20.address);
     assert.equal (balance.toNumber(), 50, 'wallet balance');
   });
 
   it ('should be able to send erc20 tokens from wallet', async () => {
     await instance.transfer20(token20.address, user2, 20, { from: owner});
-  
+
     let balance = await token20.balanceOf(instance.address, {from: owner});
     assert.equal (balance.toNumber(), 30, 'wallet balance (native)');
-    balance = await instance.get20Balance(token20.address, {from: owner});
-    assert.equal (balance.toNumber(), 30, 'wallet balance');    
+    balance = await instance.balanceOf20(token20.address, {from: owner});
+    assert.equal (balance.toNumber(), 30, 'wallet balance');
     balance = await token20.balanceOf(user2, {from: user2});
     assert.equal (balance.toNumber(), 20, 'wallet balance');
   });

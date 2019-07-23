@@ -36,6 +36,10 @@ contract Wallet is IStorage, Heritable {
         IERC20(_token).transferFrom(_from, _to, _value);
     }
 
+    function transfer721 (address _token, address _to, uint256 _value) public onlyActiveOwner() {
+        transferFrom721 (_token, address(0), _to, _value);
+    }
+
     function transferFrom721 (address _token, address _from, address _to, uint256 _id) public onlyActiveOwner() {
         require(_token != address(0), "_token is 0x0");
         if (_from == address(0)) { _from = address(this); }
@@ -81,7 +85,7 @@ contract Wallet is IStorage, Heritable {
     function onERC721Received (address, address, uint256, bytes) public pure returns (bytes4) {
         return this.onERC721Received.selector;
     }
-    
+
     /*
     function createTrust(address _wallet, uint40 _start, uint32 _period, uint16 _times, uint256 _amount, bool _cancelable) payable public {
         require(trust == Trust(0));
