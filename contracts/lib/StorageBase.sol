@@ -6,6 +6,7 @@ interface ICreator {
     function addWalletBackup(address _wallet) external;
     function removeWalletBackup(address _wallet) external;
     function getLatestVersion() external view returns (address);
+    function oracle() external view returns (address);
 }
 
 interface IProxy {
@@ -36,7 +37,7 @@ contract StorageBase is IProxy {
     }
 
     function creator() external view returns (address) {
-        return address(this);
+        return address(0);
     }
 
     modifier onlyCreator () {

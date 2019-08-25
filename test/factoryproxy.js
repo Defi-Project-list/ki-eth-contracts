@@ -4,7 +4,9 @@ const Proxy = artifacts.require("Proxy");
 const Factory = artifacts.require("Factory");
 const FactoryProxy = artifacts.require("FactoryProxy");
 const Wallet = artifacts.require("Wallet");
+const Oracle = artifacts.require("Oracle");
 const Wallet2 = artifacts.require("Wallet2");
+const Oracle2 = artifacts.require("Oracle2");
 const Sender = artifacts.require("Sender");
 const mlog = require('mocha-logger');
 const {
@@ -59,10 +61,12 @@ contract('FactoryProxy', async accounts => {
 
   it.skip ('should be able to create  wallet', async () => {
     const swver = await Wallet.new({ from: owner });
+    const oracle = await Oracle.new({from: owner});
+
     mlog.log('version:', swver.address);
 
     //await instance.addVersion(web3.fromAscii("1.1", 8), swver.address, { from: owner });
-    await instance.addVersion(swver.address, { from: owner });
+    await instance.addVersion(swver.address, oracle.address, { from: owner });
     await instance.deployVersion(await swver.version(), { from: owner });
 
     await instance.createWallet(false, { from: owner });
@@ -101,7 +105,8 @@ contract('FactoryProxy', async accounts => {
     const vervalue = await swver.getValue();
     mlog.log('value(direct)', vervalue);
     */
-    const swver2 = await Wallet2.new();
+    const swver2 = await Wallet2.new({from: owner});
+    const oracle2 = await Oracle2.new({from: owner});
     mlog.log('version2:', swver2.address);
 
     //await instance.addVersion(web3.fromAscii("1.2", 8), swver2.address, { from: owner });
@@ -117,10 +122,11 @@ contract('FactoryProxy', async accounts => {
 
   it ('should be able to create a wallet', async () => {
     const swver = await Wallet.new({ from: owner });
+    const oracle = await Oracle.new({from: owner});
     mlog.log('version:', swver.address);
 
     //await instance.addVersion(web3.fromAscii("2.1", 8), swver.address, { from: owner });
-    await instance.addVersion(swver.address, { from: owner });
+    await instance.addVersion(swver.address, oracle.address, { from: owner });
     await instance.deployVersion(await swver.version(), { from: owner });
 
     await instance.createWallet(true, { from: user1 });
@@ -157,6 +163,8 @@ contract('FactoryProxy', async accounts => {
     mlog.log('balance(proxy)', swvalue);
 
     const swver2 = await Wallet2.new({ from: owner });
+    const oracle2 = await Oracle2.new({from: owner});
+    
     mlog.log('version2:', swver2.address);
 
 
@@ -176,7 +184,7 @@ contract('FactoryProxy', async accounts => {
     isUser1Owner = await Wallet.at(sw_user2).isOwner({from : user1});
     mlog.log('user1 is owner of sw_user2:', isUser1Owner);
     //await instance.addVersion(web3.fromAscii("2.2", 8), swver2.address, { from: owner });
-    await instance.addVersion(swver2.address, { from: owner });
+    await instance.addVersion(swver2.address, oracle2.address, { from: owner });
     await instance.deployVersion(await swver2.version(), { from: owner });
 
     /*await Wallet2.at(sw).setValue(235, 10, {from:user1});

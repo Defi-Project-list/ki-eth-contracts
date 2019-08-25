@@ -25,7 +25,9 @@ contract FactoryStorage {
 
     bytes8 internal production_version;
     address internal production_version_code;
-
+    
+    address internal production_version_oracle;
+    mapping(bytes8 => address) internal versions_oracle;
 
     // storage end
 

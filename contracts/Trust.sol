@@ -62,11 +62,11 @@ contract Trust {
         _;
     }
 
-    function isOwner () view public returns (bool) {
+    function isOwner () public view returns (bool) {
         return msg.sender == self.owner;
     }
 
-    function getPaymentValue() view public returns (uint256) {
+    function getPaymentValue() public view returns (uint256) {
         // solium-disable-next-line security/no-block-members
         if (block.timestamp < fund.start) {
             return 0;
@@ -79,7 +79,7 @@ contract Trust {
         return block.timestamp.sub(fund.start).div(fund.period).add(1).mul(amount).sub(payed);
     }
 
-    function getNextPaymentTimestamp() view public returns (uint256) {
+    function getNextPaymentTimestamp() public view returns (uint256) {
         // solium-disable-next-line security/no-block-members
         if (block.timestamp < fund.start) {
             return fund.start;
@@ -97,11 +97,11 @@ contract Trust {
         return fund.start.add(payed.div(amount).mul(fund.period));
     }
 
-    function getTotalPayed () view public returns (uint256) {
+    function getTotalPayed () public view returns (uint256) {
         return payed;
     }
 
-    function getPaymentAmount () view public returns (uint256) {
+    function getPaymentAmount () public view returns (uint256) {
         return amount;
     }
 
@@ -113,18 +113,18 @@ contract Trust {
         emit SentEther(fund.wallet, toPay);
     }
 
-    function getBalance () view public returns (uint256) {
+    function getBalance () public view returns (uint256) {
         return address(this).balance;
     }
 
-    function destroy() onlyOwner() public {
+    function destroy() public onlyOwner() {
         selfdestruct (self.owner);
     }
 
-    function () payable logPayment() public {
+    function () public logPayment() payable {
     }
 
-    function version() pure public returns (bytes8) {
+    function version() public pure returns (bytes8) {
         return bytes8("0.1");
     }
 }

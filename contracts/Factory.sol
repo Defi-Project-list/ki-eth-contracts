@@ -9,8 +9,8 @@ contract Factory is FactoryStorage {
     event WalletConfigurationRestored(address indexed wallet, bytes8 indexed version, address indexed owner);
     event WalletOwnershipRestored(address indexed wallet, address indexed owner);
     event WalletVersionRestored(address indexed wallet, bytes8 indexed version, address indexed owner);
-    event VersionAdded(bytes8 indexed version, address indexed code);
-    event VersionDeployed(bytes8 indexed version, address indexed code);
+    event VersionAdded(bytes8 indexed version, address indexed code, address indexed oracle);
+    event VersionDeployed(bytes8 indexed version, address indexed code, address indexed oracle);
 
     constructor() FactoryStorage() public {
     }
@@ -80,23 +80,28 @@ contract Factory is FactoryStorage {
         emit WalletUpgraded(_sw.addr, _version);
     }
 
-    function addVersion(address _target) onlyOwner() public {
+    function addVersion(address _target, address _oracle) onlyOwner() public {
         require(_target != address(0), "no version");
         address _owner = IStorageBase(_target).owner();
         require(msg.sender == _owner, "not version owner");
         bytes8 _version = IStorage(_target).version();
         address _code = versions_code[_version];
         require(_code == address(0), "version exists");
+        require(versions_oracle[_version] == address(0), "oracle exists");
         versions_code[_version] = _target;
-        emit VersionAdded(_version, _code);
+        versions_oracle[_version] = _oracle;
+        emit VersionAdded(_version, _code, _oracle);
     }
 
     function deployVersion(bytes8 _version) onlyOwner() public {
         address _code = versions_code[_version];
         require(_code != address(0), "version not exist");
+        address _oracle = versions_oracle[_version];
+        require(_oracle != address(0), "oracle not exist");
         production_version = _version;
         production_version_code = _code;
-        emit VersionDeployed(_version, _code);
+        production_version_oracle = _oracle;
+        emit VersionDeployed(_version, _code, _oracle);
     }
 
     function restoreWalletConfiguration() public {
@@ -169,6 +174,36 @@ contract Factory is FactoryStorage {
 
         }
         return _sw.addr;
+    }
+
+    function oracle() public view returns (address _oracle) {
+        bytes8 _version = wallets_version[msg.sender];
+        if (_version == LATEST) {
+            _version = production_version;
+        }
+        _oracle = versions_oracle[_version];
+    }
+
+    function () public payable {
+      /*
+        bytes8 _version = wallets_version[msg.sender];
+        if (_version == LATEST) {
+            _version = production_version;
+        }
+        address _oracle = versions_oracle[_version];
+       */
+        //require(_oracle != address(0), "no oracle code");
+        /*
+        // solium-disable-next-line security/no-inline-assembly
+        assembly {
+                calldatacopy(0x00, 0x00, calldatasize)
+                //let res := call(gas, sload(oracle_slot), callvalue, 0x00, calldatasize, 0, 0)
+                let res := staticcall(gas, sload(_oracle), 0x00, calldatasize, 0, 0)
+                returndatacopy(0x00, 0x00, returndatasize)
+                if res { return(0x00, returndatasize) }
+                revert(0x00, returndatasize)
+            }
+            */
     }
 }
 
