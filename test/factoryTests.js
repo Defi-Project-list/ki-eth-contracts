@@ -41,6 +41,7 @@ contract (contractName, async accounts => {
   before ('setup contract for the test', async () => {
     if (contractClass.new instanceof Function) {
   	   instance = await contractClass.new();
+       await instance.migrate();
  	} else {
   	   instance = await contractClass(owner);
     }
