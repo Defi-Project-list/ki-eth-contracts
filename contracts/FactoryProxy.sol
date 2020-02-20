@@ -1,4 +1,4 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.16;
 
 import "./lib/FactoryClaimable.sol";
 import "./Factory.sol";
@@ -9,13 +9,13 @@ contract FactoryProxy is FactoryClaimable {
         proxy = address(this);
     }
 
-    function setTarget(address _target) onlyOwner() public {
+    function setTarget(address _target) public onlyOwner() {
         require(_target != address(0), "no target");
         target = _target;
         FactoryStorage(this).migrate();
     }
 
-    function () public payable {
+    function () external payable {
         // solium-disable-next-line security/no-inline-assembly
         assembly {
                 calldatacopy(0x00, 0x00, calldatasize)

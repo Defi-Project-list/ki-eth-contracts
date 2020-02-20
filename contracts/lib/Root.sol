@@ -1,4 +1,4 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.16;
 
 contract Root {
 
@@ -17,8 +17,9 @@ contract Root {
         uint xNew = one;
 
         uint iter = 0;
+        uint x = 0;
         while (xNew != x && iter < _maxIts) {
-            uint x = xNew;
+            x = xNew;
             uint t0 = x ** (_n - 1);
             if (x * t0 > a0) {
                 xNew = x - (x - a0 / t0) / _n;

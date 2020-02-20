@@ -1,4 +1,4 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.16;
 
 contract Sanity {
 
@@ -32,7 +32,7 @@ contract Sanity {
         emit ValueChanged(value);
     }
 
-    function setName(string _name) public {
+    function setName(string memory _name) public {
         name = _name;
         emit NameChanged(msg.sender, name);
     }

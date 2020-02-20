@@ -1,10 +1,10 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.16;
 
 import "./StorageBase.sol";
 
 contract ProxyLatest is StorageBase {
 
-    function () public payable {
+    function () external payable {
         address latest = ICreator(this.creator()).getLatestVersion();
         // solium-disable-next-line security/no-inline-assembly
         assembly {

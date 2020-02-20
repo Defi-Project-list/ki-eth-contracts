@@ -1,4 +1,4 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.16;
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
@@ -9,7 +9,7 @@ contract Trust {
     using SafeMath for uint256;
 
     struct Fund {
-        address wallet;
+        address payable wallet;
         uint40  start;
         uint32  period;
         uint16  times;
@@ -17,7 +17,7 @@ contract Trust {
     }
 
     struct Self {
-        address owner;
+        address payable owner;
     }
 
     uint256 private amount;
@@ -28,7 +28,7 @@ contract Trust {
     event GotEther          (address indexed from, uint256 value);
     event SentEther         (address indexed to, uint256 value);
 
-    constructor (address  _wallet,
+    constructor (address  payable _wallet,
                  uint40   _start,
                  uint32   _period,
                  uint16   _times,
@@ -121,7 +121,7 @@ contract Trust {
         selfdestruct (self.owner);
     }
 
-    function () public logPayment() payable {
+    function () external logPayment() payable {
     }
 
     function version() public pure returns (bytes8) {

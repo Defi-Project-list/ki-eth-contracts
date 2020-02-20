@@ -1,4 +1,4 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.16;
 
 import "openzeppelin-solidity/contracts/token/ERC721/ERC721Full.sol";
 
@@ -6,15 +6,15 @@ contract ERC721Token is ERC721Full {
     uint256 private tokenId;
 
     constructor(
-        string name,
-        string symbol
+        string memory name,
+        string memory symbol
     )
         ERC721Full(name, symbol)
         public
     {}
 
     function createTimeframe (
-        string tokenURI
+        string memory tokenURI
     )
         public
         returns (bool)

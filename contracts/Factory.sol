@@ -1,4 +1,4 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.16;
 
 import "./FactoryStorage.sol";
 
@@ -22,7 +22,7 @@ contract Factory is FactoryStorage {
 
     function _createWallet(address _creator, address _target) private returns (address result) {
         bytes memory
-        _code   = hex"60998061000d6000396000f30036601657341560145734602052336001602080a25b005b6000805260046000601c376302d05d3f6000511415604b5773dadadadadadadadadadadadadadadadadadadada602052602080f35b366000803760008036600073bebebebebebebebebebebebebebebebebebebebe5af415608f57341560855734602052600051336002602080a35b3d6000803e3d6000f35b3d6000803e3d6000fd"; //log3-event-ids-address-funcid-opt (-2,-2) (min: 22440)
+        _code = hex"60998061000d6000396000f30036601657341560145734602052336001602080a25b005b6000805260046000601c376302d05d3f6000511415604b5773dadadadadadadadadadadadadadadadadadadada602052602080f35b366000803760008036600073bebebebebebebebebebebebebebebebebebebebe5af415608f57341560855734602052600051336002602080a35b3d6000803e3d6000f35b3d6000803e3d6000fd"; //log3-event-ids-address-funcid-opt (-2,-2) (min: 22440)
         bytes20 creatorBytes = bytes20(_creator);
         bytes20 targetBytes = bytes20(_target);
         for (uint i = 0; i < 20; i++) {
@@ -151,7 +151,7 @@ contract Factory is FactoryStorage {
     }
 
     function createWallet(bool _auto) public returns (address) {
-        require(swProxy != address(0), "no proxy");
+        require(address(swProxy) != address(0), "no proxy");
         require(production_version_code != address(0), "no prod version"); //Must be here - ProxyLatest also needs it.
         Wallet storage _sw = accounts_wallet[msg.sender];
         if (_sw.addr == address(0)) {
@@ -159,7 +159,7 @@ contract Factory is FactoryStorage {
             require(_sw.addr != address(0), "wallet not created");
             _sw.owner = true;
             if (_auto) {
-                require(swProxyLatest != address(0), "no auto version");
+                require(address(swProxyLatest) != address(0), "no auto version");
                 require(versions_code[LATEST] == address(swProxyLatest), "incorrect auto version");
                 wallets_version[_sw.addr] = LATEST;
                 IProxy(_sw.addr).init(msg.sender, address(swProxyLatest));
@@ -184,7 +184,7 @@ contract Factory is FactoryStorage {
         _oracle = versions_oracle[_version];
     }
 
-    function () public payable {
+    function () external payable {
       /*
         bytes8 _version = wallets_version[msg.sender];
         if (_version == LATEST) {

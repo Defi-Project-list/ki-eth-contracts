@@ -1,4 +1,4 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.16;
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "./Backupable.sol";
@@ -40,13 +40,14 @@ contract Heritable is Backupable {
         }
     }
 
-    function setHeirs (address[] _wallets, uint16[] _bps) public onlyActiveOwner() {
+    function setHeirs (address payable[] memory _wallets, uint16[] memory _bps) public onlyActiveOwner() {
         require (inheritance.activated == false, "inheritance activated");
         require (_wallets.length <= MAX_HEIRS, "too many heirs");
         require (_wallets.length == _bps.length, "heirs and bps don't match");
 
         uint256 totalBPS = 0;
-        for (uint256 i = 0; i < _wallets.length; ++i) {
+        uint256 i;
+        for (i = 0; i < _wallets.length; ++i) {
             totalBPS += _bps[i];
             require(_wallets[i] != address(0), "no heir");
             require(_wallets[i] != address(this), "current contract is heir");
@@ -60,7 +61,7 @@ contract Heritable is Backupable {
             if (heir.sent != false)             heir.sent = false;
         }
         if (i < MAX_HEIRS - 1) {
-            heir = inheritance.heirs[i];
+            Heir storage heir = inheritance.heirs[i];
             if (heir.wallet != address(0)) heir.wallet = address(0);
         }
 
@@ -68,7 +69,7 @@ contract Heritable is Backupable {
         address[] memory wallets = new address[](i);
         uint16[] memory bps = new uint16[](i);
         for (uint256 inx = 0; inx < i; inx++) {
-            heir = inheritance.heirs [inx];
+            Heir storage heir = inheritance.heirs [inx];
             wallets[inx] = heir.wallet;
             bps[inx] = heir.bps;
         }
@@ -89,7 +90,7 @@ contract Heritable is Backupable {
         return totalTransfered;
     }
 
-    function getHeirs () public view returns (bytes32[MAX_HEIRS] heirs) {
+    function getHeirs () public view returns (bytes32[MAX_HEIRS] memory heirs) {
         for (uint256 i = 0; i < inheritance.heirs.length; i++) {
             Heir storage heir = inheritance.heirs [i];
             if (heir.wallet == address(0)) {
@@ -131,7 +132,8 @@ contract Heritable is Backupable {
         inheritance.activated = true;
 
         uint256 currentBalance = address(this).balance;
-        for (uint256 i = 0; i < inheritance.heirs.length; i++) {
+        uint256 i;
+        for (i = 0; i < inheritance.heirs.length; i++) {
             Heir storage heir = inheritance.heirs [i];
             if (heir.wallet == address(0)){
                 break;
@@ -146,7 +148,7 @@ contract Heritable is Backupable {
         // event related code starts here
         address[] memory wallets = new address[](i);
         for (uint256 inx = 0; inx < i; inx++) {
-            heir = inheritance.heirs [inx];
+            Heir storage heir = inheritance.heirs [inx];
             wallets[inx] = heir.wallet;
         }
         emit InheritanceActivated(this.creator(), msg.sender, wallets);

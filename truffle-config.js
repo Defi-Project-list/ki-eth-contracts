@@ -1,5 +1,5 @@
 
-const HDWalletProvider = require("truffle-hdwallet-provider");
+const HDWalletProvider = require("@truffle/hdwallet-provider");
 // let mnemonic = "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat";
 let mnemonic = "pelican bench orchard wisdom honey deputy donate suspect airport sail quick decade";
 //let mnemonic = "front assume robust donkey senior economy maple enhance click bright game alcohol";
@@ -7,7 +7,7 @@ const gas = 8200000;
 
 // const ganache = require('ganache-cli');
 const devNetwork = {
-  host: "127.0.0.1",	
+  host: "127.0.0.1",
   port: 8545,
   network_id: "*",
   gas
@@ -45,7 +45,7 @@ module.exports = {
           mnemonic, "https://ropsten.infura.io/Mi3WQKlqLIU6IQtAvddB"
         );
       },
-      network_id: "3",        
+      network_id: "3",
       gas
     },
     ganache: {
@@ -62,12 +62,12 @@ module.exports = {
       settings: {
         optimizer: {
           enabled: true,
-          runs: 200   // Optimize for how many times you intend to run the code
+          runs: 400   // Optimize for how many times you intend to run the code
         },
       },
         optimizer: {
             enabled: true,
-            runs: 200
+            runs: 400
         }
     }
 };

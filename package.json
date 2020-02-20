@@ -12,6 +12,7 @@
     "test": "test"
   },
   "scripts": {
+    "compile": "truffle compile --all",
     "version": "truffle version",
     "test": "truffle test --network",
     "t": "truffle test test/sw_factory.js --network development",
@@ -35,20 +36,20 @@
   },
   "homepage": "https://github.com/talasa/kirobo#readme",
   "dependencies": {
+    "@truffle/hdwallet-provider": "^1.0.31",
     "bignumber": "^1.1.0",
-    "cors": "^2.8.4",
-    "node-hid": "^0.7.3",
-    "npm": "^6.12.0",
-    "openzeppelin-solidity": "^2.0.0",
-    "sha3": "^2.0.7",
-    "solc": "^0.4.24",
-    "truffle-assertions": "^0.2.0",
-    "truffle-hdwallet-provider": "0.0.3"
+    "cors": "^2.8.5",
+    "drizzle": "^1.4.0",
+    "node-hid": "^1.2.0",
+    "openzeppelin-solidity": "^2.5.0",
+    "sha3": "^2.1.1",
+    "solc": "^0.6.3",
+    "truffle-assertions": "^0.9.2"
   },
   "devDependencies": {
-    "ganache-cli": "^6.7.0",
+    "ganache-cli": "^6.9.1",
     "mocha-logger": "^1.0.6",
-    "run-script-os": "^1.0.3",
-    "truffle": "^4.1.11"
+    "run-script-os": "^1.0.7",
+    "truffle": "^5.1.13"
   }
 }

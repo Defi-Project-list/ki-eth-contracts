@@ -1,4 +1,4 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.16;
 
 import "./StorageBase.sol";
 //import "../Trust.sol";
@@ -25,7 +25,7 @@ contract Storage is IStorage {
     uint256 constant internal MAX_HEIRS = 8;
 
     struct Heir {
-        address wallet;
+        address payable wallet;
         bool    sent;
         uint16  bps;
         uint72  filler;

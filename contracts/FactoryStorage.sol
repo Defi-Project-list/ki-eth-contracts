@@ -1,4 +1,4 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.16;
 
 import "./lib/Proxy.sol";
 import "./lib/ProxyLatest.sol";
@@ -53,7 +53,7 @@ contract FactoryStorage {
 
         if (address(swProxyLatest) == address(0x00)){
             swProxyLatest = new ProxyLatest();
-            versions_code[LATEST] = swProxyLatest;
+            versions_code[LATEST] = address(swProxyLatest);
         }
     }
 

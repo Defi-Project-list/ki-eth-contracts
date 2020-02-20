@@ -1,4 +1,4 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.16;
 
 interface IOracle {
     function is20Safe(address _token) external view returns (bool);

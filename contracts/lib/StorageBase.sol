@@ -1,4 +1,4 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.16;
 
 interface ICreator {
     function upgradeWallet(bytes8 _id) external;

@@ -1,10 +1,10 @@
-pragma solidity 0.4.24;
+pragma solidity 0.5.16;
 
 import "./StorageBase.sol";
 
 contract Proxy is StorageBase {
 
-    function () public payable {
+    function () external payable {
         // solium-disable-next-line security/no-inline-assembly
         assembly {
                 calldatacopy(0x00, 0x00, calldatasize)
