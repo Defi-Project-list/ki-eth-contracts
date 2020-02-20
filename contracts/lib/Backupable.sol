@@ -25,13 +25,13 @@ contract Backupable is IStorage, StorageBase, Storage {
     }
 
     modifier eitherOwnerOrBackup () {
-        require (msg.sender == owner || msg.sender == backup.wallet, "neither owner nor backup");
+        require (msg.sender == _owner || msg.sender == backup.wallet, "neither owner nor backup");
         _;
     }
 
     function setBackup (address _wallet, uint32 _timeout) public onlyActiveOwner {
         require (_wallet != address(0), "no backup");
-        require (_wallet != owner, "backup is owner");
+        require (_wallet != _owner, "backup is owner");
 
         if (backup.wallet != _wallet) {
             if (backup.wallet != address(0)){
@@ -46,7 +46,7 @@ contract Backupable is IStorage, StorageBase, Storage {
         if (backup.state == BACKUP_STATE_ENABLED) {
             backup.timestamp = getBlockTimestamp();
         }
-        emit BackupChanged (this.creator(), owner, _wallet, _timeout, backup.timestamp, backup.state);
+        emit BackupChanged (this.creator(), _owner, _wallet, _timeout, backup.timestamp, backup.state);
     }
 
     function removeBackup () public onlyOwner {
@@ -63,7 +63,7 @@ contract Backupable is IStorage, StorageBase, Storage {
         if (backup.timeout != 0) backup.timeout = 0;
         if (backup.timestamp != 0) backup.timestamp = 0;
         if (backup.state != BACKUP_STATE_PENDING) backup.state = BACKUP_STATE_PENDING;
-        emit BackupRemoved (this.creator(), owner, _backup, backup.state);
+        emit BackupRemoved (this.creator(), _owner, _backup, backup.state);
     }
 
     function activateBackup () public {
@@ -80,7 +80,7 @@ contract Backupable is IStorage, StorageBase, Storage {
     }
 
     function getOwner () public view returns (address) {
-        return owner;
+        return _owner;
     }
 
     function getBackupWallet () public view returns (address) {
@@ -88,7 +88,7 @@ contract Backupable is IStorage, StorageBase, Storage {
     }
 
     function isOwner () external view returns (bool) {
-        return (owner == msg.sender);
+        return (_owner == msg.sender);
     }
 
     function isBackup () external view returns (bool) {
@@ -118,8 +118,8 @@ contract Backupable is IStorage, StorageBase, Storage {
     function claimOwnership () public onlyBackup {
         require (backup.state == BACKUP_STATE_ACTIVATED, "backup not activated");
         backup.state = BACKUP_STATE_PENDING;
-        emit OwnershipTransferred (this.creator(), owner, backup.wallet, backup.state);
-        if (owner != backup.wallet) ICreator(this.creator()).transferWalletOwnership(backup.wallet);
+        emit OwnershipTransferred (this.creator(), _owner, backup.wallet, backup.state);
+        if (_owner != backup.wallet) ICreator(this.creator()).transferWalletOwnership(backup.wallet);
         backup.wallet = address(0);
         if (backup.timeout != 0) backup.timeout = 0;
         if (backup.timestamp != 0) backup.timestamp = 0;
@@ -128,7 +128,7 @@ contract Backupable is IStorage, StorageBase, Storage {
     function reclaimOwnership () public onlyOwner {
         require (backup.state == BACKUP_STATE_ACTIVATED, "backup not activated");
         backup.state = BACKUP_STATE_REGISTERED;
-        emit OwnershipReclaimed (this.creator(), owner, backup.wallet, backup.state);
+        emit OwnershipReclaimed (this.creator(), _owner, backup.wallet, backup.state);
     }
 
     function enable () public eitherOwnerOrBackup {

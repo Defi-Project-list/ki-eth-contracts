@@ -28,11 +28,11 @@ contract Wallet2 is IStorage, StorageBase, Storage, Storage2 {
     }
 
     function removeOwner() public {
-        owner = address(0);
+        _owner = address(0);
     }
 
     function removeTarget() public {
-        target = address(0);
+        _target = address(0);
     }
 
 }

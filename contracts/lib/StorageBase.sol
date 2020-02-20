@@ -25,15 +25,15 @@ interface IStorageBase {
 }
 
 contract StorageBase is IProxy {
-    address public owner;
-    address public target;
+    address internal _owner;
+    address internal _target;
 
     function owner() external view returns (address) {
-        return owner;
+        return _owner;
     }
 
     function target() external view returns (address) {
-        return target;
+        return _target;
     }
 
     function creator() external view returns (address) {
@@ -46,17 +46,17 @@ contract StorageBase is IProxy {
     }
 
     modifier onlyOwner () {
-        require (msg.sender == owner, "not owner");
+        require (msg.sender == _owner, "not owner");
         _;
     }
 
-    function init(address _owner, address _target) external onlyCreator() {
-        if (_owner != owner && _owner != address(0)) owner = _owner;
-        if (_target != target && _target != address(0)) target = _target;
+    function init(address __owner, address __target) external onlyCreator() {
+        if (__owner != _owner && __owner != address(0)) _owner = __owner;
+        if (__target != _target && __target != address(0)) _target = __target;
     }
 
     constructor () public {
-        owner = msg.sender;
+        _owner = msg.sender;
     }
 
     function upgrade(bytes8 _version) public onlyOwner() {
