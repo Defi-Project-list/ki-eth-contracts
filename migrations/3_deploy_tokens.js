@@ -1,8 +1,9 @@
+
 const ERC20Token = artifacts.require("./test/ERC20Token");
 const ERC721Token = artifacts.require("./test/ERC721Token");
 
 const liveNetworks = { rinkeby: true, kovan: true };
-const gasPrice =  web3.toWei(3, 'gwei');
+const gasPrice =  web3.utils.toWei('3', 'gwei');
 const gas = 6200000;
 
 module.exports = function(deployer, network) {
@@ -12,4 +13,3 @@ module.exports = function(deployer, network) {
   });
 
 }
-

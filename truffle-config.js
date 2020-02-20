@@ -8,9 +8,9 @@ const gas = 8200000;
 // const ganache = require('ganache-cli');
 const devNetwork = {
   host: "127.0.0.1",
-  port: 8545,
+  port: 7545,
   network_id: "*",
-  gas
+  // gas
 };
 
 module.exports = {
