@@ -30,7 +30,7 @@ contract(contractName, async accounts => {
   const times          = 5;
   const amount         = 1000;
   const cancelable     = true;
-  const value          = web3.toBigNumber(10000000);
+  const value          = web3.utils.toBN('10000000');
   let   blockTimestamp = 0;
 
   before('checking constants', async () => {

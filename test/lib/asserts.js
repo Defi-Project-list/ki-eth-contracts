@@ -1,15 +1,16 @@
 'use strict';
 
 const assertRevert = (err) => {
-  if (web3.version.api.startsWith("1")) {
-    assert.equal('revert', Object.values(err.results)[0].error);
+  if (web3.version.startsWith("1")) {
+    // console.log(JSON.stringify(err))
+    assert.ok(err && err.hijackedStack && err.hijackedStack.includes('revert'))
   } else {
     assert.ok(err && err.message && err.message.includes('revert'));
   }
 };
 
 const assertInvalidOpcode = (err) => {
-  if (web3.version.api.startsWith("1")) {
+  if (web3.version.startsWith("1")) {
     assert.equal('invalid opcode', Object.values(err.results)[0].error);
   } else {
     assert.ok(err && err.message && err.message.includes('invalid opcode'));
@@ -17,7 +18,7 @@ const assertInvalidOpcode = (err) => {
 };
 
 const assertPayable = (err) => {
-  if (web3.version.api.startsWith("1")) {
+  if (web3.version.startsWith("1")) {
     assert.equal('revert', Object.values(err.results)[0].error);
   } else {
     assert.ok(err && err.message && err.message.includes('payable'));
@@ -25,7 +26,7 @@ const assertPayable = (err) => {
 };
 
 const assertFunction = (err) => {
-  if (web3.version.api.startsWith("1")) {
+  if (web3.version.startsWith("1")) {
     assert.equal('is not a function', Object.values(err.results)[0].error);
 
   } else {

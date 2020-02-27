@@ -48,7 +48,7 @@ contract (contractName, async accounts => {
   	   instance = await contractClass(owner);
     }
 
-    mlog.log('web3     ', web3.version.api);
+    mlog.log('web3     ', web3.version);
     mlog.log('contract ', instance.address);
     mlog.log('owner    ', owner);
     mlog.log('user1    ', user1);
@@ -73,13 +73,13 @@ contract (contractName, async accounts => {
 
   it ('user cannot create a wallet when there is no wallet version', async () => {
     try {
-      await instance.createWallet(true, {from : user1});
+      await instance.createWallet(true, {from: user1});
       assert(false);
     } catch (err) {
       assertRevert(err);
     }    
     try {
-      await instance.createWallet(false, {from : user1});
+      await instance.createWallet(false, {from: user1, nonce: await web3.eth.getTransactionCount(user1)});
       assert(false);
     } catch (err) {
       assertRevert(err);
@@ -87,10 +87,10 @@ contract (contractName, async accounts => {
   });
 
   it ('only owner can add wallet versions that also must be owned by the owner', async () => {
-    const wallet_owner = await Wallet.new({from : owner});
+    const wallet_owner = await Wallet.new({from: owner, nonce: await web3.eth.getTransactionCount(owner)});
     const oracle_owner = await Oracle.new({from: owner});
 
-    const wallet_user = await Wallet.new({from : user1});
+    const wallet_user = await Wallet.new({from : user1, nonce: await web3.eth.getTransactionCount(user1)});
     const oracle_user = await Oracle.new({from: user1});
 
     try {
@@ -100,7 +100,7 @@ contract (contractName, async accounts => {
       assertRevert(err);
     }
     try {
-      await instance.addVersion(wallet_owner.address, oracle_owner.address, {from: user1});
+      await instance.addVersion(wallet_owner.address, oracle_owner.address, {from: user1, nonce: await web3.eth.getTransactionCount(user1)});
       assert(false);
     } catch (err) {
       assertRevert(err);
@@ -111,7 +111,7 @@ contract (contractName, async accounts => {
      } catch (err) {
        assertRevert(err);
      }
-    await instance.addVersion (wallet_owner.address, oracle_owner.address, { from: owner });
+    await instance.addVersion (wallet_owner.address, oracle_owner.address, { from: owner, nonce: await web3.eth.getTransactionCount(owner)});
     await instance.deployVersion(await wallet_owner.version(), { from: owner }); 
 
     const version = await instance.getLatestVersion ({ from: owner });
@@ -120,8 +120,8 @@ contract (contractName, async accounts => {
   });
 
   it ('user can create a wallet in auto mode when version exists', async () => {
-    await instance.createWallet (true, { from : user1 });
-    const walletAddress = await instance.getWallet (user1, { from: user1 });
+    await instance.createWallet (true, { from : user1, nonce: await web3.eth.getTransactionCount(user1) });
+    const walletAddress = await instance.getWallet (user1, { from: user1, nonce: await web3.eth.getTransactionCount(user1) });
     mlog.log('wallet:', walletAddress);
     const wallet = await Wallet.at (walletAddress);
     const isUser1WalletOwner = await wallet.isOwner ({ from: user1 });
@@ -139,7 +139,7 @@ contract (contractName, async accounts => {
   it ('users wallet always points to the latest version when in auto mode', async () => {
     let latestVersionAddress = await instance.getLatestVersion ({ from: owner });
     const walletAddress = await instance.getWallet (user1, { from: user1 });
-    let version = await Wallet.at(walletAddress).version();
+    let version = await (await Wallet.at(walletAddress)).version();
     let latestVersion = await latestWallet.version();
     mlog.log ('latestVersion:', latestVersion);
     mlog.log ('version:', version);
@@ -156,7 +156,7 @@ contract (contractName, async accounts => {
 
     latestVersionAddress = await instance.getLatestVersion ({ from: owner });
 
-    version = await Wallet.at(walletAddress).version(); //should return Wallet2 version (not Wallet)
+    version = await (await Wallet.at(walletAddress)).version(); //should return Wallet2 version (not Wallet)
     latestVersion = await wallet2.version();
 
     mlog.log ('latestVersion:', latestVersion);
@@ -176,7 +176,7 @@ contract (contractName, async accounts => {
   it ('new user will get the latest version when creating a wallet in auto mode', async () => {
     await instance.createWallet (true, { from : user2 });
     const walletAddress = await instance.getWallet (user1, { from: user2 });
-    const walletVersion = await Wallet.at(walletAddress).version();
+    const walletVersion = await (await Wallet.at(walletAddress)).version();
     const latestVersionAddress = await instance.getLatestVersion ({ from: owner });
     const latestVersion = await latestWallet.version();
     assert.equal (walletVersion, latestVersion);
@@ -202,9 +202,10 @@ contract (contractName, async accounts => {
       assertRevert(err);
     }
 
-    await wallet.removeTarget ({ from: user2 });
+    await wallet.removeTarget ({ from: user2, nonce: await web3.eth.getTransactionCount(user2) });
 
     value = await wallet.getValue.call({ from: user2 });
+
     assert.equal (value.toString(10), 0);
 
     await instance.restoreWalletConfiguration({ from: user2 });
@@ -226,14 +227,14 @@ contract (contractName, async accounts => {
       assertRevert(err);
     }
     try {
-      await instance.removeWalletBackup (user3, { from: owner });
+      await instance.removeWalletBackup (user3, { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
       assert(false);
     } catch (err) {
       assertRevert(err);
     }
 
     try {
-      await instance.transferWalletOwnership (user3, { from: owner });
+      await instance.transferWalletOwnership (user3, { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
       assert(false);
     } catch (err) {
       assertRevert(err);
@@ -249,14 +250,14 @@ contract (contractName, async accounts => {
       assertRevert(err);
     }
     try {
-      await instance.removeWalletBackup (user3, { from: user1 });
+      await instance.removeWalletBackup (user3, { from: user1, nonce: await web3.eth.getTransactionCount(user1) });
       assert(false);
     } catch (err) {
       assertRevert(err);
     }
 
     try {
-      await instance.transferWalletOwnership (user3, { from: user1 });
+      await instance.transferWalletOwnership (user3, { from: user1, nonce: await web3.eth.getTransactionCount(user1) });
       assert(false);
     } catch (err) {
       assertRevert(err);

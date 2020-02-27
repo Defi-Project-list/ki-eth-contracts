@@ -8,22 +8,21 @@ contract Wallet2 is IStorage, StorageBase, Storage, Storage2 {
 
     event ValueChanged(uint256 newValue);
 
-
     function setValue(uint256 _value, uint256 _mul) public onlyOwner payable {
         value = _value * _mul;
         emit ValueChanged(value);
     }
 
-    function getValue() view public returns (uint256) {
+    function getValue() public view returns (uint256) {
         return value;
     }
 
     // IStorage Implementation
 
-    function migrate () external onlyCreator()  {
+    function migrate () external onlyCreator() {
     }
 
-    function version() pure public returns (bytes8){
+    function version() public pure returns (bytes8) {
         return bytes8("0.1");
     }
 

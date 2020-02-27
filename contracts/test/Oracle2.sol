@@ -14,4 +14,12 @@ contract Oracle2 is IOracle {
         return tokens[_token];
     }
 
+    function is20Safe(address _token) public view returns (bool) {
+        return tokens[_token];
+    }
+
+    function is721Safe(address _token) public view returns (bool) {
+        return tokens[_token];
+    }
+
 }

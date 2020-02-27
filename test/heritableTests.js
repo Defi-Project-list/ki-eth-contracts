@@ -108,7 +108,7 @@ contract(contractName, async accounts => {
     assert.equal(heirs[1].bps, 3000, "heir2 bps");
     assert.equal(heirs[1].sent,     false,  "heir2 sent");
 
-    assert.equal(totalBPS.toString(10), web3.toBigNumber(2000 + 3000).toString(10), 'total bps')
+    assert.equal(totalBPS.toString(10), web3.utils.toBN(2000 + 3000).toString(10), 'total bps')
   });
 
 
@@ -140,7 +140,7 @@ contract(contractName, async accounts => {
     const inheritanceEnabled = await instance.isInheritanceEnabled.call();
     const inheritanceActivated = await instance.isInheritanceActivated.call();
 
-    assert.equal(inheritanceTimeout.toString(10), web3.toBigNumber(120).toString(10), "inheritanceTimeout");
+    assert.equal(inheritanceTimeout.toString(10), web3.utils.toBN(120).toString(10), "inheritanceTimeout");
     assert.equal(inheritanceEnabled, true, "inheritanceEnabled");
     assert.equal(inheritanceActivated, false, "inheritanceActivated");
   });
@@ -222,7 +222,7 @@ contract(contractName, async accounts => {
     assert.equal(heirs[2].bps,  5000,     "heir3 bps");
     assert.equal(heirs[2].sent,     false,  "heir3 sent");
 
-    assert.equal(totalBPS.toString(10), web3.toBigNumber(1500 + 3000 + 5000).toString(10), 'total bps')
+    assert.equal(totalBPS.toString(10), web3.utils.toBN(1500 + 3000 + 5000).toString(10), 'total bps')
 
     await instance.setHeirs([user3], [1500], { from: owner });
 
@@ -237,7 +237,7 @@ contract(contractName, async accounts => {
     assert.equal(heirs[0].bps,  1500,     "heir1 bps");
     assert.equal(heirs[0].sent,     false,  "heir1 sent");
 
-    assert.equal(totalBPS.toString(10), web3.toBigNumber(1500).toString(10), 'total bps')
+    assert.equal(totalBPS.toString(10), web3.utils.toBN(1500).toString(10), 'total bps')
 
     await instance.setHeirs([user2, user1], [2500, 3000], { from: owner });
 
@@ -256,7 +256,7 @@ contract(contractName, async accounts => {
     assert.equal(heirs[1].bps,  3000,     "heir2 bps");
     assert.equal(heirs[1].sent,     false,  "heir2 sent");
 
-    assert.equal(totalBPS.toString(10), web3.toBigNumber(2500 + 3000).toString(10), 'total bps')
+    assert.equal(totalBPS.toString(10), web3.utils.toBN(2500 + 3000).toString(10), 'total bps')
   });
 
   it('should emit event "InheritanceHeirsChanged(owner, wallets[], bps[])" when heirs are set', async () => {
@@ -301,10 +301,10 @@ contract(contractName, async accounts => {
   });
 
   it('should transfer funds when activating inheritance', async () => {
-    const value = web3.toWei(100, 'gwei');
+    const value = web3.utils.toWei(100, 'gwei');
     await web3.eth.sendTransaction({ from: owner, value: value, to: instance.address });
     let balance = await web3.eth.getBalance(instance.address);
-    assert.equal(balance.toString(10), web3.toBigNumber(value).toString(10));
+    assert.equal(balance.toString(10), web3.utils.toBN(value).toString(10));
 
     await utils.sleep(2000);
     await instance.activateInheritance({ from: user3 });
@@ -312,10 +312,10 @@ contract(contractName, async accounts => {
     balance = await web3.eth.getBalance(instance.address);
 
     let totalBPS = await instance.getTotalBPS.call();
-    assert.equal(totalBPS.toString(10), web3.toBigNumber(2500 + 3000).toString(10), 'total bps')
+    assert.equal(totalBPS.toString(10), web3.utils.toBN(2500 + 3000).toString(10), 'total bps')
 
     const valueLeft = (value * 45) / 100;
-    assert.equal(balance.toString(10), web3.toBigNumber(valueLeft).toString(10));
+    assert.equal(balance.toString(10), web3.utils.toBN(valueLeft).toString(10));
 
     const rawHeirs = await instance.getHeirs.call();
     const heirs = parseHeirs(rawHeirs);
@@ -332,7 +332,7 @@ contract(contractName, async accounts => {
     assert.equal(heirs[1].bps, 3000, "heir2 bps");
     assert.equal(heirs[1].sent, true, "heir2 sent");
 
-    assert.equal(totalBPS.toString(10), web3.toBigNumber(2500 + 3000).toString(10), 'total bps')
+    assert.equal(totalBPS.toString(10), web3.utils.toBN(2500 + 3000).toString(10), 'total bps')
   });
 
   it('should revert when trying to activate inheritance after been activated', async () => {
@@ -370,7 +370,7 @@ contract(contractName, async accounts => {
     assert.equal(heirs[1].bps, 3000, "heir1 bps");
     assert.equal(heirs[1].sent, false, "heir1 sent");
 
-    assert.equal(totalBPS.toString(10), web3.toBigNumber(2500 + 3000).toString(10), 'total bps')
+    assert.equal(totalBPS.toString(10), web3.utils.toBN(2500 + 3000).toString(10), 'total bps')
   });
 
 });

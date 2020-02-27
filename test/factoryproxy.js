@@ -23,10 +23,10 @@ contract('FactoryProxy', async accounts => {
   const user1 = accounts[1];
   const user2 = accounts[2];
 
-  const val1  = web3.toWei(0.5, 'gwei');
-  const val2  = web3.toWei(0.4, 'gwei');
-  const val3  = web3.toWei(0.6, 'gwei');
-  const valBN = web3.toBigNumber(val1).add(web3.toBigNumber(val2)).add(web3.toBigNumber(val3));
+  const val1  = web3.utils.toWei(0.5, 'gwei');
+  const val2  = web3.utils.toWei(0.4, 'gwei');
+  const val3  = web3.utils.toWei(0.6, 'gwei');
+  const valBN = web3.utils.toBN(val1).add(web3.utils.toBN(val2)).add(web3.utils.toBN(val3));
 
   before('checking constants', async () => {
       assert(typeof owner == 'string', 'owner should be string');
@@ -35,7 +35,7 @@ contract('FactoryProxy', async accounts => {
       assert(typeof val1  == 'string', 'val1  should be string');
       assert(typeof val2  == 'string', 'val2  should be string');
       assert(typeof val3  == 'string', 'val2  should be string');
-      assert(valBN instanceof web3.BigNumber, 'valBN should be big number');
+      assert(valBN instanceof web3.utils.BN, 'valBN should be big number');
   });
 
   before('setup contract for the test', async () => {
@@ -56,7 +56,7 @@ contract('FactoryProxy', async accounts => {
 
   it('should create empty factory', async () => {
     const balance = await web3.eth.getBalance(instance.address);
-    assert.equal(balance.toString(10), web3.toBigNumber(0).toString(10));
+    assert.equal(balance.toString(10), web3.utils.toBN('0').toString(10));
   });
 
   it.skip ('should be able to create  wallet', async () => {
@@ -92,11 +92,11 @@ contract('FactoryProxy', async accounts => {
     logs = await new Promise((r,j) => sw_proxy.allEvents({}, { fromBlock: 'latest', toBlock: 'latest' }).get((err, logs) => { r(logs) }));
     mlog.log('logs', JSON.stringify(logs[0]));
 
-    let swvalue = await Wallet.at(sw).getBalance();
+    let swvalue = await (await Wallet.at(sw)).getBalance();
     mlog.log('balance(proxy)', swvalue);
     //await Wallet.at(sw).setValue(12);
-    await Wallet.at(sw).sendEther(user2, val2, {from: owner});
-    swvalue = await Wallet.at(sw).getBalance();
+    await (await Wallet.at(sw)).sendEther(user2, val2, {from: owner});
+    swvalue = await (await Wallet.at(sw)).getBalance();
     mlog.log('balance(proxy)', swvalue);
 
     /*
@@ -113,10 +113,10 @@ contract('FactoryProxy', async accounts => {
     await instance.addVersion(swver2.address, { from: owner });
     await instance.deployVersion(await swver2.version(), { from: owner });
 
-    await Wallet.at(sw).upgrade(web3.fromAscii("1.2", 8), {from: owner});
+    await (await Wallet.at(sw)).upgrade(web3.fromAscii("1.2", 8), {from: owner});
 
-    await Wallet2.at(sw).setValue(235, 10, {from: owner});
-    const swvalue2 = await Wallet2.at(sw).getValue();
+    await (await Wallet2.at(sw)).setValue(235, 10, {from: owner});
+    const swvalue2 = await (await Wallet2.at(sw)).getValue();
     mlog.log('value(proxy)', swvalue2);
   });
 
@@ -155,11 +155,11 @@ contract('FactoryProxy', async accounts => {
     logs = await new Promise((r,j) => sw_proxy.allEvents({}, { fromBlock: 'latest', toBlock: 'latest' }).get((err, logs) => { r(logs) }));
     mlog.log('logs', JSON.stringify(logs[0]));
 
-    let swvalue = await Wallet.at(sw_user1).getBalance();
+    let swvalue = await (await Wallet.at(sw_user1)).getBalance();
     mlog.log('balance(proxy)', swvalue);
     //await Wallet.at(sw).setValue(12);
-    await Wallet.at(sw_user1).sendEther(user2, val2, {from: user1});
-    swvalue = await Wallet.at(sw_user1).getBalance();
+    await (await Wallet.at(sw_user1)).sendEther(user2, val2, {from: user1});
+    swvalue = await (await Wallet.at(sw_user1)).getBalance();
     mlog.log('balance(proxy)', swvalue);
 
     const swver2 = await Wallet2.new({ from: owner });
@@ -174,14 +174,14 @@ contract('FactoryProxy', async accounts => {
 
     let sw_user2 = await instance.getWallet(user2);
     mlog.log('sw_user2:', sw_user2);
-    let isUser2Owner = await Wallet.at(sw_user1).isOwner({from : user2});
+    let isUser2Owner = await (await Wallet.at(sw_user1)).isOwner({from : user2});
     mlog.log('user2 is owner of sw_user1:', isUser2Owner);
-    isUser2Owner = await Wallet.at(sw_user2).isOwner({from : user2});
+    isUser2Owner = await (await Wallet.at(sw_user2)).isOwner({from : user2});
     mlog.log('user2 is owner of sw_user2:', isUser2Owner);
 
-    let isUser1Owner = await Wallet.at(sw_user1).isOwner({from : user1});
+    let isUser1Owner = await (await Wallet.at(sw_user1)).isOwner({from : user1});
     mlog.log('user1 is owner of sw_user1:', isUser1Owner);
-    isUser1Owner = await Wallet.at(sw_user2).isOwner({from : user1});
+    isUser1Owner = await (await Wallet.at(sw_user2)).isOwner({from : user1});
     mlog.log('user1 is owner of sw_user2:', isUser1Owner);
     //await instance.addVersion(web3.fromAscii("2.2", 8), swver2.address, { from: owner });
     await instance.addVersion(swver2.address, oracle2.address, { from: owner });
@@ -194,8 +194,8 @@ contract('FactoryProxy', async accounts => {
 
     //await Wallet.at(sw).upgrade(web3.fromAscii("2.2", 8), {from: user1});
 
-    await Wallet2.at(sw_user1).setValue(235, 10, {from:user1, value:10000});
-    let swvalue2 = await Wallet2.at(sw_user1).getValue();
+    await (await Wallet2.at(sw_user1)).setValue(235, 10, {from:user1, value:10000});
+    let swvalue2 = await (await Wallet2.at(sw_user1)).getValue();
     mlog.log('value(proxy)', swvalue2);
 
     //logs = await new Promise((r,j) => sw_proxy.allEvents({ fromBlock: 'latest', toBlock: 'latest' }).get((err, logs) => { r(logs) }));
@@ -217,7 +217,7 @@ contract('FactoryProxy', async accounts => {
     mlog.log('sw balance before: ', bal.toString(10));
 
     const sender = await Sender.new({from: user2});
-    await web3.eth.sendTransaction({ from: user2, value: web3.toWei(50, 'gwei'), to: sender.address });
+    await web3.eth.sendTransaction({ from: user2, value: web3.utils.toWei(50, 'gwei'), to: sender.address });
 
     bal = await web3.eth.getBalance(sender.address);
     mlog.log('sender balance before: ', bal.toString(10));
