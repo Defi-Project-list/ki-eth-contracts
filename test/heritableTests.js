@@ -282,6 +282,12 @@ contract(contractName, async accounts => {
     let balance = await web3.eth.getBalance(instance.address);
     assert.equal(balance.toString(10), web3.utils.toBN(value).toString(10));
     
+    const bps = await instance.getTotalBPS()
+    console.log('total bps:', bps)
+    
+    const bl = await web3.eth.getBalance(instance.address)
+    console.log('balance:', bl)
+
     let tl = await instance.getInheritanceTimeLeft()
     console.log('inheritance timeleft: ', tl)
     await utils.advanceTimeAndBlock(2)

@@ -12,7 +12,7 @@ const devNetwork = {
   network_id: "*",
   provider: function() {
     const mnemonic = 'awesome grain neither pond excess garage tackle table piece assist venture escape'
-    return new HDWalletProvider(mnemonic, "http://127.0.0.1:7545/");
+    return new HDWalletProvider(mnemonic, "http://127.0.0.1:8545/");
   },
   // gas
 };
