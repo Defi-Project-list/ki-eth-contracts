@@ -28,7 +28,7 @@ const parseHeirs = (heirs) => {
 }
 
 module.exports = (contractClass, contractName) => {
-
+let tx
 contract(contractName, async accounts => {
   let instance;
 
@@ -53,7 +53,7 @@ contract(contractName, async accounts => {
   	    instance = await contractClass(owner);
  	  }
 
-    mlog.log('web3     ', web3.version.api);
+    mlog.log('web3     ', web3.version);
     mlog.log('contract ', instance.address);
     mlog.log('owner    ', owner);
     mlog.log('user1    ', user1);
@@ -86,12 +86,12 @@ contract(contractName, async accounts => {
 
   it('only owner can set heirs', async () => {
     try {
-      await instance.setHeirs([user1, user2], [2000, 3000], { from: user3 });
+      await instance.setHeirs([user1, user2], [2000, 3000], { from: user3, nonce: await web3.eth.getTransactionCount(user3) });
       assert(false);
     } catch (err) {
       assertRevert(err);
     }
-    await instance.setHeirs([user1, user2], [2000, 3000], { from: owner });
+    await instance.setHeirs([user1, user2], [2000, 3000], { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
 
     const rawHeirs = await instance.getHeirs.call();
     const heirs = parseHeirs(rawHeirs);
@@ -100,11 +100,11 @@ contract(contractName, async accounts => {
 
     assert.equal(heirs.length, 2, "num of heirs");
 
-    assert.equal(heirs[0].wallet,   user1,  "heir1 wallet");
+    assert.equal(heirs[0].wallet,   user1.toLowerCase(),  "heir1 wallet"); // TODO: check if it hides a bug in addresses
     assert.equal(heirs[0].bps, 2000, "heir1 bps");
     assert.equal(heirs[0].sent,     false,  "heir1 sent");
 
-    assert.equal(heirs[1].wallet,   user2,  "heir2 wallet");
+    assert.equal(heirs[1].wallet,   user2.toLowerCase(),  "heir2 wallet"); // TODO: check if it hides a bug in addresses
     assert.equal(heirs[1].bps, 3000, "heir2 bps");
     assert.equal(heirs[1].sent,     false,  "heir2 sent");
 
@@ -114,12 +114,12 @@ contract(contractName, async accounts => {
 
   it('only owner can remove all heirs', async () => {
     try {
-      await instance.setHeirs([], [], { from: user3 });
+      await instance.setHeirs([], [], { from: user3, nonce: await web3.eth.getTransactionCount(user3) });
       assert(false);
     } catch (err) {
       assertRevert(err);
     }
-    await instance.setHeirs([], [], { from: owner });
+    await instance.setHeirs([], [], { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
     const rawHeirs = await instance.getHeirs.call();
     const heirs = parseHeirs(rawHeirs);
     const totalBPS = await instance.getTotalBPS.call();
@@ -130,12 +130,12 @@ contract(contractName, async accounts => {
 
   it('only owner can set inheritance', async () => {
     try {
-      await instance.setInheritance(120, { from: user3 });
+      await instance.setInheritance(120, { from: user3, nonce: await web3.eth.getTransactionCount(user3) });
       assert(false);
     } catch (err) {
       assertRevert(err);
     }
-    await instance.setInheritance(120, { from: owner });
+    tx = await instance.setInheritance(120, { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
     const inheritanceTimeout = await instance.getInheritanceTimeout.call();
     const inheritanceEnabled = await instance.isInheritanceEnabled.call();
     const inheritanceActivated = await instance.isInheritanceActivated.call();
@@ -146,27 +146,19 @@ contract(contractName, async accounts => {
   });
 
   it('should emit event "InheritanceChanged(owner, timeout)" when inheritance is set', async () => {
-    const logs = await new Promise((r, j) => instance.InheritanceChanged({}, {
-        fromBlock: 'latest',
-        toBlock: 'latest'
-      })
-      .get((err, logs) => {
-        r(logs)
-      }));
-
-    const args = assetEvent_getArgs(logs, 'InheritanceChanged');
+    const args = assetEvent_getArgs(tx.logs, 'InheritanceChanged');
     assert.equal(args.owner, owner, '..(owner, ..)');
     assert.equal(args.timeout, 120, '..(.., timeout)');
   });
 
   it('only owner can clear inheritance', async () => {
     try {
-      await instance.clearInheritance({ from: user3 });
+      await instance.clearInheritance({ from: user3, nonce: await web3.eth.getTransactionCount(user3) });
       assert(false);
     } catch (err) {
       assertRevert(err);
     }
-    await instance.clearInheritance({ from: owner });
+    tx = await instance.clearInheritance({ from: owner, nonce: await web3.eth.getTransactionCount(owner) });
     const inheritanceTimeout = await instance.getInheritanceTimeout.call();
     const inheritanceEnabled = await instance.isInheritanceEnabled.call();
     const inheritanceActivated = await instance.isInheritanceActivated.call();
@@ -177,15 +169,7 @@ contract(contractName, async accounts => {
   });
 
   it('should emit event "InheritanceRemoved(owner)" when inheritance is cleared', async () => {
-    const logs = await new Promise((r, j) => instance.InheritanceRemoved({}, {
-        fromBlock: 'latest',
-        toBlock: 'latest'
-      })
-      .get((err, logs) => {
-        r(logs)
-      }));
-
-    const args = assetEvent_getArgs(logs, 'InheritanceRemoved');
+    const args = assetEvent_getArgs(tx.logs, 'InheritanceRemoved');
     assert.equal(args.owner, owner, '..(owner, ..)');
   });
 
@@ -200,7 +184,7 @@ contract(contractName, async accounts => {
   });
 
   it('set heirs overrides previous settings', async () => {
-    await instance.setHeirs([user2, user1, user3], [2000, 3000, 5000], { from: owner });
+    await instance.setHeirs([user2, user1, user3], [2000, 3000, 5000], { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
     await instance.setHeirs([user2, user3, user1], [1500, 3000, 5000], { from: owner });
 
     let rawHeirs = await instance.getHeirs.call();
@@ -210,15 +194,15 @@ contract(contractName, async accounts => {
 
     assert.equal(heirs.length, 3, "num of heirs");
 
-    assert.equal(heirs[0].wallet,   user2,  "heir1 wallet");
+    assert.equal(heirs[0].wallet,   user2.toLowerCase(),  "heir1 wallet"); // TODO: check if it hides a bug in addresses
     assert.equal(heirs[0].bps,  1500,     "heir1 bps");
     assert.equal(heirs[0].sent,     false,  "heir1 sent");
 
-    assert.equal(heirs[1].wallet,   user3,  "heir2 wallet");
+    assert.equal(heirs[1].wallet,   user3.toLowerCase(),  "heir2 wallet"); // TODO: check if it hides a bug in addresses
     assert.equal(heirs[1].bps,  3000,     "heir2 bps");
     assert.equal(heirs[1].sent,     false,  "heir2 sent");
 
-    assert.equal(heirs[2].wallet,   user1,  "heir3 wallet");
+    assert.equal(heirs[2].wallet,   user1.toLowerCase(),  "heir3 wallet"); // TODO: check if it hides a bug in addresses
     assert.equal(heirs[2].bps,  5000,     "heir3 bps");
     assert.equal(heirs[2].sent,     false,  "heir3 sent");
 
@@ -233,13 +217,13 @@ contract(contractName, async accounts => {
 
     assert.equal(heirs.length, 1, "num of heirs");
 
-    assert.equal(heirs[0].wallet,   user3,  "heir1 wallet");
+    assert.equal(heirs[0].wallet,   user3.toLowerCase(),  "heir1 wallet");
     assert.equal(heirs[0].bps,  1500,     "heir1 bps");
     assert.equal(heirs[0].sent,     false,  "heir1 sent");
 
-    assert.equal(totalBPS.toString(10), web3.utils.toBN(1500).toString(10), 'total bps')
+    assert.equal(totalBPS.toString(10), web3.utils.toBN('1500').toString(10), 'total bps')
 
-    await instance.setHeirs([user2, user1], [2500, 3000], { from: owner });
+    tx = await instance.setHeirs([user2, user1], [2500, 3000], { from: owner });
 
     rawHeirs = await instance.getHeirs.call();
     heirs = parseHeirs(rawHeirs);
@@ -248,27 +232,19 @@ contract(contractName, async accounts => {
 
     assert.equal(heirs.length, 2, "num of heirs");
 
-    assert.equal(heirs[0].wallet,   user2,  "heir1 wallet");
+    assert.equal(heirs[0].wallet,   user2.toLowerCase(),  "heir1 wallet");
     assert.equal(heirs[0].bps,  2500,     "heir1 bps");
     assert.equal(heirs[0].sent,     false,  "heir1 sent");
 
-    assert.equal(heirs[1].wallet,   user1,  "heir2 wallet");
+    assert.equal(heirs[1].wallet,   user1.toLowerCase(),  "heir2 wallet");
     assert.equal(heirs[1].bps,  3000,     "heir2 bps");
     assert.equal(heirs[1].sent,     false,  "heir2 sent");
 
-    assert.equal(totalBPS.toString(10), web3.utils.toBN(2500 + 3000).toString(10), 'total bps')
+    assert.equal(totalBPS.toString(10), web3.utils.toBN(2500 + 3000+ '').toString(10), 'total bps')
   });
 
   it('should emit event "InheritanceHeirsChanged(owner, wallets[], bps[])" when heirs are set', async () => {
-    const logs = await new Promise((r, j) => instance.InheritanceHeirsChanged({}, {
-        fromBlock: 'latest',
-        toBlock: 'latest'
-      })
-      .get((err, logs) => {
-        r(logs)
-      }));
-
-    const args = assetEvent_getArgs(logs, 'InheritanceHeirsChanged');
+    const args = assetEvent_getArgs(tx.logs, 'InheritanceHeirsChanged');
 
     assert.equal(args.owner, owner, '..(owner, ..)');
 
@@ -284,15 +260,15 @@ contract(contractName, async accounts => {
 
   it('should revert when trying to activate inheritance before timeout has reached', async () => {
     try {
-      await instance.activateInheritance({ from: user3 });
+      await instance.activateInheritance({ from: user3, nonce: await web3.eth.getTransactionCount(user3) });
       assert(false);
     } catch (err) {
       assertRevert(err);
     }
-    await instance.setInheritance(2, { from: owner });
+    await instance.setInheritance(2, { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
 
     try {
-      await instance.activateInheritance({ from: user3 });
+      await instance.activateInheritance({ from: user3, nonce: await web3.eth.getTransactionCount(user3) });
       assert(false);
     } catch (err) {
       assertRevert(err);
@@ -301,21 +277,26 @@ contract(contractName, async accounts => {
   });
 
   it('should transfer funds when activating inheritance', async () => {
-    const value = web3.utils.toWei(100, 'gwei');
+    const value = web3.utils.toWei('100', 'gwei');
     await web3.eth.sendTransaction({ from: owner, value: value, to: instance.address });
     let balance = await web3.eth.getBalance(instance.address);
     assert.equal(balance.toString(10), web3.utils.toBN(value).toString(10));
+    
+    let tl = await instance.getInheritanceTimeLeft()
+    console.log('inheritance timeleft: ', tl)
+    await utils.advanceTimeAndBlock(2)
+    tl = await instance.getInheritanceTimeLeft()
+    console.log('inheritance timeleft: ', tl)
 
-    await utils.sleep(2000);
-    await instance.activateInheritance({ from: user3 });
-
+    await instance.activateInheritance({ from: user3, nonce: await web3.eth.getTransactionCount(user3) });
+    
     balance = await web3.eth.getBalance(instance.address);
-
+    
     let totalBPS = await instance.getTotalBPS.call();
-    assert.equal(totalBPS.toString(10), web3.utils.toBN(2500 + 3000).toString(10), 'total bps')
+    assert.equal(totalBPS.toString(10), web3.utils.toBN(2500 + 3000 + '').toString(10), 'total bps')
 
     const valueLeft = (value * 45) / 100;
-    assert.equal(balance.toString(10), web3.utils.toBN(valueLeft).toString(10));
+    assert.equal(balance.toString(10), web3.utils.toBN(valueLeft.toString(10)).toString(10));
 
     const rawHeirs = await instance.getHeirs.call();
     const heirs = parseHeirs(rawHeirs);
@@ -324,20 +305,20 @@ contract(contractName, async accounts => {
 
     assert.equal(heirs.length, 2, "num of heirs");
 
-    assert.equal(heirs[0].wallet, user2, "heir1 wallet");
+    assert.equal(heirs[0].wallet, user2.toLowerCase(), "heir1 wallet");
     assert.equal(heirs[0].bps, 2500, "heir1 bps");
     //assert.equal(heirs[0].sent, true, "heir1 sent");
 
-    assert.equal(heirs[1].wallet, user1, "heir2 wallet");
+    assert.equal(heirs[1].wallet, user1.toLowerCase(), "heir2 wallet");
     assert.equal(heirs[1].bps, 3000, "heir2 bps");
     assert.equal(heirs[1].sent, true, "heir2 sent");
 
-    assert.equal(totalBPS.toString(10), web3.utils.toBN(2500 + 3000).toString(10), 'total bps')
+    assert.equal(totalBPS.toString(10), web3.utils.toBN(2500 + 3000 + '').toString(10), 'total bps')
   });
 
   it('should revert when trying to activate inheritance after been activated', async () => {
     try {
-      await instance.activateInheritance({ from: user3 });
+      await instance.activateInheritance({ from: user3, nonce: await web3.eth.getTransactionCount(user3) });
       assert(false);
     } catch (err) {
       assertRevert(err);
@@ -362,15 +343,15 @@ contract(contractName, async accounts => {
 
     assert.equal(heirs.length, 2, "num of heirs");
 
-    assert.equal(heirs[0].wallet, user2, "heir1 wallet");
+    assert.equal(heirs[0].wallet, user2.toLowerCase(), "heir1 wallet");
     assert.equal(heirs[0].bps, 2500, "heir1 bps");
     assert.equal(heirs[0].sent, false, "heir1 sent");
 
-    assert.equal(heirs[1].wallet, user1, "heir1 wallet");
+    assert.equal(heirs[1].wallet, user1.toLowerCase(), "heir1 wallet");
     assert.equal(heirs[1].bps, 3000, "heir1 bps");
     assert.equal(heirs[1].sent, false, "heir1 sent");
 
-    assert.equal(totalBPS.toString(10), web3.utils.toBN(2500 + 3000).toString(10), 'total bps')
+    assert.equal(totalBPS.toString(10), web3.utils.toBN(2500 + 3000 + '').toString(10), 'total bps')
   });
 
 });

@@ -25,7 +25,7 @@ backupableTests(async (factoryOwner, walletOwner) => {
 
 const heritableTests = require('./heritableTests');
 heritableTests(async (owner) => {
-    const sw_factory = await Factory.new({ from: owner });
+    const sw_factory = await Factory.new({ from: owner, nonce: await web3.eth.getTransactionCount(owner) });
     const sw_factory_proxy = await FactoryProxy.new({ from: owner });
     await sw_factory_proxy.setTarget(sw_factory.address, { from: owner });
     const factory = await Factory.at(sw_factory_proxy.address, { from: owner });

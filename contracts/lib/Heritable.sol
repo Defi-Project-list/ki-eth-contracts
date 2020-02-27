@@ -57,7 +57,7 @@ contract Heritable is Backupable {
         for (i = 0; i < _wallets.length; ++i) {
             Heir storage heir = inheritance.heirs[i];
             if (heir.wallet != _wallets[i])     heir.wallet = _wallets[i];
-            if (heir.bps != _bps[i])   heir.bps = _bps[i];
+            if (heir.bps != _bps[i])            heir.bps = _bps[i];
             if (heir.sent != false)             heir.sent = false;
         }
         if (i < MAX_HEIRS - 1) {
