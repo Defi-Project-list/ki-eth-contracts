@@ -1,6 +1,5 @@
 
 const HDWalletProvider = require("@truffle/hdwallet-provider");
-const ganache = require("ganache-core");
 // let mnemonic = "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat";
 let mnemonic = "pelican bench orchard wisdom honey deputy donate suspect airport sail quick decade";
 //let mnemonic = "front assume robust donkey senior economy maple enhance click bright game alcohol";
@@ -14,7 +13,6 @@ const devNetwork = {
   provider: function() {
     const mnemonic = 'awesome grain neither pond excess garage tackle table piece assist venture escape'
     return new HDWalletProvider(mnemonic, "http://127.0.0.1:7545/");
-    // return ganache.provider({ mnemonic });
   },
   // gas
 };
