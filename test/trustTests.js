@@ -45,10 +45,9 @@ contract(contractName, async accounts => {
     await utils.advanceBlock()
     blockTimestamp = await utils.getLatestBlockTimestamp();
     start = blockTimestamp + startDelay;
-    await web3.eth.getTransactionCount(owner)
 
  	  if (contractClass.new instanceof Function) {
-      instance = await contractClass.new(wallet, start, period, times, amount, cancelable, { from: owner, value });
+      instance = await contractClass.new(wallet, start, period, times, amount, cancelable, { from: owner, value, nonce: await web3.eth.getTransactionCount(owner) });
  	  } else {
  	    instance = await contractClass(owner, wallet, start, period, times, amount, cancelable);
  	  }

@@ -25,7 +25,7 @@ contract(contractName, async accounts => {
   const user1 = accounts[2];
   const user2 = accounts[3];
 
-  let blockTimestamp = 0;
+  let blockTimestamp = '0';
 
   before('checking constants', async () => {
       assert(typeof owner == 'string', 'owner should be string');
@@ -35,7 +35,7 @@ contract(contractName, async accounts => {
 
   before('setup contract for the test', async () => {
 	  if (contractClass.new instanceof Function) {
-      instance = await contractClass.new();
+      instance = await contractClass.new({ from: owner, nonce: await web3.eth.getTransactionCount(owner)});
 	  }
 	  else {
       instance = await contractClass(factoryOwner, owner);
@@ -69,7 +69,7 @@ contract(contractName, async accounts => {
 
   it('only owner can set backup', async () => {
     try {
-      await instance.setBackup(user2, 60, { from: user1 });
+      await instance.setBackup(user2, 60, { from: user1, nonce: await web3.eth.getTransactionCount(user1) });
       assert(false);
     } catch (err) {
       assertRevert(err);
@@ -85,7 +85,7 @@ contract(contractName, async accounts => {
     assert.equal(backupTimestamp.toString(10), ZERO_BN.toString(10), 'backupTimestamp');
     assert.equal(backupActivated, false, 'backupActivated');
 
-    await instance.setBackup(user1, 120, { from: owner });
+    await instance.setBackup(user1, 120, { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
     blockTimestamp = await utils.getLatestBlockTimestamp(timeUnitInSeconds);
 
     backupWallet = await instance.getBackupWallet();
@@ -295,7 +295,7 @@ contract(contractName, async accounts => {
 
     assert.equal(backupWallet, user1, "backupWallet");
     assert.equal(backupTimeout.toString(10), ZERO_BN.toString(10), 'backupTimeout');
-    assert.equal(backupTimestamp.toString(10), web3.utils.toBN(blockTimestamp).toString(10), 'backupTimestamp');
+    assert.equal(backupTimestamp.toString(10), web3.utils.toBN(blockTimestamp.toString()).toString(10), 'backupTimestamp');
     assert.equal(backupActivated, true, 'backupActivated');
 
     await utils.sleep(2000);
@@ -313,7 +313,7 @@ contract(contractName, async accounts => {
 
     assert.equal(backupWallet, user1, "backupWallet");
     assert.equal(backupTimeout.toString(10), ZERO_BN.toString(10), 'backupTimeout');
-    assert.equal(backupTimestamp.toString(10), web3.utils.toBN(blockTimestamp).toString(10), 'backupTimestamp');
+    assert.equal(backupTimestamp.toString(10), web3.utils.toBN(blockTimestamp.toString()).toString(10), 'backupTimestamp');
     assert.equal(backupActivated, false, 'backupActivated');
   });
 

@@ -42,14 +42,14 @@ contract('Wallet', async accounts => {
   });
   
   before('setup contract for the test', async () => {
-    const sw_factory = await Factory.new({ from: creator });
+    const sw_factory = await Factory.new({ from: creator, nonce: await web3.eth.getTransactionCount(creator) });
     const sw_factory_proxy = await FactoryProxy.new({ from: creator });
     await sw_factory_proxy.setTarget(sw_factory.address, { from: creator });
     factory = await Factory.at(sw_factory_proxy.address, { from: creator });
     
     //const factory = await FactoryProxy.new({ from: creator });
     const version = await Wallet.new({ from: creator });
-    oracle = await Oracle.new({from: owner});
+    oracle = await Oracle.new({from: owner, nonce: await web3.eth.getTransactionCount(owner)});
     //await factory.addVersion(web3.fromAscii("1.1", 8), version.address, { from: creator });
     await factory.addVersion(version.address, oracle.address, { from: creator });
     await factory.deployVersion(await version.version(), { from: creator });
@@ -82,9 +82,9 @@ contract('Wallet', async accounts => {
   });
 
   it('should accept ether from everyone', async () => {
-    await web3.eth.sendTransaction({ from: owner, value: val1, to: instance.address });
-    await web3.eth.sendTransaction({ from: user1, value: val2, to: instance.address });
-    await web3.eth.sendTransaction({ from: user2, value: val3, to: instance.address });
+    await web3.eth.sendTransaction({ from: owner, value: val1, to: instance.address, nonce: await web3.eth.getTransactionCount(owner) });
+    await web3.eth.sendTransaction({ from: user1, value: val2, to: instance.address, nonce: await web3.eth.getTransactionCount(user1) });
+    await web3.eth.sendTransaction({ from: user2, value: val3, to: instance.address, nonce: await web3.eth.getTransactionCount(user2) });
     
     const balance = await web3.eth.getBalance(instance.address);
     assert.equal(balance.toString(10), valBN.toString(10));
@@ -155,7 +155,7 @@ contract('Wallet', async accounts => {
   
 
   it ('should emit event "GotEther(from, value)" when getting ether', async () => {
-    const tx = await web3.eth.sendTransaction({ from: user2, value: val3, to: instance.address });
+    const tx = await web3.eth.sendTransaction({ from: user2, value: val3, to: instance.address, nonce: await web3.eth.getTransactionCount(user2) });
     mlog.log('logs', JSON.stringify(tx.logs)); // TODO: parse low level log and add assets
     //assert.equal(args.owner, owner, '..(owner, ..)');
     
@@ -175,7 +175,7 @@ contract('Wallet', async accounts => {
   });
       
   it ('should emit event "SentEther(to, value)" when calling sendEther', async () => {
-    const tx = await instance.sendEther(user1, val2, { from: owner });
+    const tx = await instance.sendEther(user1, val2, { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
     const args = assetEvent_getArgs(tx.logs, 'SentEther');
     assert.equal (args.to, user1, '..(to, ..)');
     assert.equal (args.value, val2, '..(.. ,value)');

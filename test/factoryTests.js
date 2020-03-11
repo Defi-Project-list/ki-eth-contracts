@@ -42,7 +42,7 @@ contract (contractName, async accounts => {
 
   before ('setup contract for the test', async () => {
     if (contractClass.new instanceof Function) {
-  	   instance = await contractClass.new();
+  	   instance = await contractClass.new({ from: owner, nonce: await web3.eth.getTransactionCount(owner)});
        await instance.migrate();
  	} else {
   	   instance = await contractClass(owner);
@@ -73,13 +73,13 @@ contract (contractName, async accounts => {
 
   it ('user cannot create a wallet when there is no wallet version', async () => {
     try {
-      await instance.createWallet(true, {from: user1});
+      await instance.createWallet(true, {from: user1, nonce: await web3.eth.getTransactionCount(user1) });
       assert(false);
     } catch (err) {
       assertRevert(err);
     }    
     try {
-      await instance.createWallet(false, {from: user1, nonce: await web3.eth.getTransactionCount(user1)});
+      await instance.createWallet(false, {from: user1, nonce: await web3.eth.getTransactionCount(user1) });
       assert(false);
     } catch (err) {
       assertRevert(err);
@@ -174,10 +174,10 @@ contract (contractName, async accounts => {
   });
 
   it ('new user will get the latest version when creating a wallet in auto mode', async () => {
-    await instance.createWallet (true, { from : user2 });
+    await instance.createWallet (true, { from : user2, nonce: await web3.eth.getTransactionCount(user2) });
     const walletAddress = await instance.getWallet (user1, { from: user2 });
     const walletVersion = await (await Wallet.at(walletAddress)).version();
-    const latestVersionAddress = await instance.getLatestVersion ({ from: owner });
+    const latestVersionAddress = await instance.getLatestVersion ({ from: owner, nonce: await web3.eth.getTransactionCount(owner) });
     const latestVersion = await latestWallet.version();
     assert.equal (walletVersion, latestVersion);
   });
