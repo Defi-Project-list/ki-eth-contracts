@@ -106,7 +106,7 @@ contract (contractName, async accounts => {
       assertRevert(err);
     }
     try {
-       await instance.addVersion (wallet_user.address, oracle_user.address, { from: owner });
+       await instance.addVersion (wallet_user.address, oracle_user.address, { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
        assert(false);
      } catch (err) {
        assertRevert(err);
@@ -189,14 +189,14 @@ contract (contractName, async accounts => {
     let value = await wallet.getValue.call({ from :user2 });
     assert.equal (value.toString(10), 0);
       
-    await wallet.setValue (2, 4, { from: user2 });
+    await wallet.setValue (2, 4, { from: user2, nonce: await web3.eth.getTransactionCount(user2) });
     value = await wallet.getValue.call({ from :user2 });
     assert.equal (value.toString(10), 8);
 
-    await wallet.removeOwner ({ from: user2 });
+    await wallet.removeOwner ({ from: user2, nonce: await web3.eth.getTransactionCount(user2) });
 
     try {
-      await wallet.setValue (2, 4, { from: user2 });
+      await wallet.setValue (2, 4, { from: user2, nonce: await web3.eth.getTransactionCount(user2) });
       assert(false);
     } catch (err) {
       assertRevert(err);
@@ -204,16 +204,19 @@ contract (contractName, async accounts => {
 
     await wallet.removeTarget ({ from: user2, nonce: await web3.eth.getTransactionCount(user2) });
 
-    value = await wallet.getValue.call({ from: user2 });
+    try {
+      value = await wallet.getValue.call ({ from: user2 });
+      assert(false);
+    } catch (err) {
+    }
+    // assert.equal (value.toString(10), 0);
 
-    assert.equal (value.toString(10), 0);
-
-    await instance.restoreWalletConfiguration({ from: user2 });
+    await instance.restoreWalletConfiguration({ from: user2, nonce: await web3.eth.getTransactionCount(user2) });
 
     value = await wallet.getValue.call({ from: user2 });
     assert.equal (value.toString(10), 8);
 
-    await wallet.setValue (3, 5, { from: user2 });
+    await wallet.setValue (3, 5, { from: user2, nonce: await web3.eth.getTransactionCount(user2) });
     value = await wallet.getValue.call({ from :user2 });
     assert.equal (value.toString(10), 15);
 
@@ -221,7 +224,7 @@ contract (contractName, async accounts => {
 
   it ('factory owner cannot call to addWalletBackup/removeWalletBackup/transferWalletOwnership', async () => {
     try {
-      await instance.addWalletBackup (user3, { from: owner });
+      await instance.addWalletBackup (user3, { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
       assert(false);
     } catch (err) {
       assertRevert(err);
@@ -244,7 +247,7 @@ contract (contractName, async accounts => {
 
   it ('wallet owner cannot call directly to factory methods addWalletBackup/removeWalletBackup/transferWalletOwnership', async () => {      
     try {
-      await instance.addWalletBackup (user3, { from: user1 });
+      await instance.addWalletBackup (user3, { from: user1, nonce: await web3.eth.getTransactionCount(user1) });
       assert(false);
     } catch (err) {
       assertRevert(err);

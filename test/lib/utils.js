@@ -11,7 +11,7 @@ const getLatestBlockTimestamp = async (timeUnitInSeconds=1) => {
 };
 
 const mine = async (account) => {
-  web3.eth.sendTransaction({ value: 0, from: account, to: account});
+  web3.eth.sendTransaction({ value: 0, from: account, to: account, nonce: await web3.eth.getTransactionCount(account) });
 };
 
 const isBackupActivated = async (wallet) => {

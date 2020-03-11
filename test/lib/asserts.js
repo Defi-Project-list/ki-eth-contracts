@@ -19,7 +19,7 @@ const assertInvalidOpcode = (err) => {
 
 const assertPayable = (err) => {
   if (web3.version.startsWith("1")) {
-    assert.equal('revert', Object.values(err.results)[0].error);
+    assert.ok(err && err.hijackedStack && err.hijackedStack.includes('revert'))
   } else {
     assert.ok(err && err.message && err.message.includes('payable'));
   }

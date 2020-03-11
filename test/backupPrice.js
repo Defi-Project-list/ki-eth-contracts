@@ -41,9 +41,9 @@ contract('Backup', async accounts => {
   let instance = null;
   let owner = accounts[0];
   let user1 = accounts[1];
-  let ownerBalance = new web3.utils.BN(0);
-  let ownerPrevBalance = new web3.utils.BN(0);
-  let user1Balance = new web3.utils.BN(0);
+  let ownerBalance = new web3.utils.BN('0');
+  let ownerPrevBalance = new web3.utils.BN('0');
+  let user1Balance = new web3.utils.BN('0');
   let gasPrice;
 
   const sendOptions = (account) => ({ from: account, gasPrice: gasPrice });
