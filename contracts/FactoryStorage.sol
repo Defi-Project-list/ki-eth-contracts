@@ -1,4 +1,6 @@
-pragma solidity 0.5.16;
+// SPDX-License-Identifier: UNLICENSED
+
+pragma solidity 0.6.11;
 
 import "./lib/Proxy.sol";
 import "./lib/ProxyLatest.sol";
@@ -25,7 +27,7 @@ contract FactoryStorage {
 
     bytes8 internal production_version;
     address internal production_version_code;
-    
+
     address internal production_version_oracle;
     mapping(bytes8 => address) internal versions_oracle;
 
@@ -43,7 +45,7 @@ contract FactoryStorage {
 
     constructor() public {
         owner = msg.sender;
-        proxy = msg.sender; //in case we are using Factory directly 
+        proxy = msg.sender; //in case we are using Factory directly
     }
 
     function migrate() public onlyProxy() {

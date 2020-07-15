@@ -1,9 +1,11 @@
-pragma solidity 0.5.16;
+// SPDX-License-Identifier: UNLICENSED
+
+pragma solidity 0.6.11;
 
 //import "openzeppelin-solidity/contracts/math/SafeMath.sol";
-import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
-import "openzeppelin-solidity/contracts/token/ERC721/IERC721.sol";
-import "openzeppelin-solidity/contracts/token/ERC721/IERC721Receiver.sol";
+import "../node_modules/openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
+import "../node_modules/openzeppelin-solidity/contracts/token/ERC721/IERC721.sol";
+import "../node_modules/openzeppelin-solidity/contracts/token/ERC721/IERC721Receiver.sol";
 
 import "./lib/IOracle.sol";
 import "./lib/Heritable.sol";
@@ -31,8 +33,8 @@ contract Wallet is IStorage, Heritable {
 
     function transferFrom20 (address _token, address _from, address _to, uint256 _value) public onlyActiveOwner() {
         require(_token != address(0), "_token is 0x0");
-        if (_from == address(0)) {_from = address(this);}
-        emit Transfer20 (this.creator(), _token, _from, _to, _value);
+        address from = _from == address(0) ? address(this): address(_from);
+        emit Transfer20 (this.creator(), _token, from, _to, _value);
         IERC20(_token).transferFrom(_from, _to, _value);
     }
 
@@ -42,22 +44,22 @@ contract Wallet is IStorage, Heritable {
 
     function transferFrom721 (address _token, address _from, address _to, uint256 _id) public onlyActiveOwner() {
         require(_token != address(0), "_token is 0x0");
-        if (_from == address(0)) {_from = address(this);}
-        emit Transfer721 (this.creator(), _token, _from, _to, _id, "");
+        address from = _from == address(0) ? address(this): address(_from);
+        emit Transfer721 (this.creator(), _token, from, _to, _id, "");
         IERC721(_token).transferFrom(address(this), _to, _id);
     }
 
     function safeTransferFrom721 (address _token, address _from, address _to, uint256 _id) public onlyActiveOwner() {
         require(_token != address(0), "_token is 0x0");
-        if (_from == address(0)) {_from = address(this);}
-        emit Transfer721 (this.creator(), _token, _from, _to, _id, "");
+        address from = _from == address(0) ? address(this): address(_from);
+        emit Transfer721 (this.creator(), _token, from, _to, _id, "");
         IERC721(_token).safeTransferFrom(address(this), _to, _id);
     }
 
     function safeTransferFrom721$Data (address _token, address _from, address _to, uint256 _id, bytes memory _data) public onlyActiveOwner() {
         require(_token != address(0), "_token is 0x0");
-        if (_from == address(0)) { _from = address(this); }
-        emit Transfer721 (this.creator(), _token, _from, _to, _id, _data);
+        address from = _from == address(0) ? address(this): address(_from);
+        emit Transfer721 (this.creator(), _token, from, _to, _id, _data);
         IERC721(_token).safeTransferFrom(address(this), _to, _id, _data);
     }
 
@@ -104,9 +106,9 @@ contract Wallet is IStorage, Heritable {
     */
 
     // IStorage Implementation
-    function migrate () external onlyCreator() {}
+    function migrate () external onlyCreator() override {}
 
-    function version() public pure returns (bytes8){
+    function version() public pure override returns (bytes8){
         return bytes8("1.1.12");
     }
 

@@ -1,4 +1,6 @@
-pragma solidity 0.5.16;
+// SPDX-License-Identifier: UNLICENSED
+
+pragma solidity 0.6.11;
 
 import "./FactoryStorage.sol";
 
@@ -11,6 +13,7 @@ contract Factory is FactoryStorage {
     event WalletVersionRestored(address indexed wallet, bytes8 indexed version, address indexed owner);
     event VersionAdded(bytes8 indexed version, address indexed code, address indexed oracle);
     event VersionDeployed(bytes8 indexed version, address indexed code, address indexed oracle);
+    event GotEther(address indexed from, uint256 value);
 
     constructor() FactoryStorage() public {
     }
@@ -184,7 +187,15 @@ contract Factory is FactoryStorage {
         _oracle = versions_oracle[_version];
     }
 
-    function () external payable {
+    /*
+    receive () external payable {
+      if (msg.value > 0) {
+        emit GotEther(msg.sender, msg.value);
+      }
+    }
+    */
+
+    fallback () external payable {
       /*
         bytes8 _version = wallets_version[msg.sender];
         if (_version == LATEST) {

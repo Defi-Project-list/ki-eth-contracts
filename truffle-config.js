@@ -62,7 +62,12 @@ module.exports = {
     development: devNetwork,
     dev: devNetwork
   },
-  solc: {
+compilers: {
+     solc: {
+       version: "0.6.11"  // ex:  "0.4.20". (Default: Truffle's installed solc)
+     }
+  },
+solc: {
       settings: {
         optimizer: {
           enabled: true,

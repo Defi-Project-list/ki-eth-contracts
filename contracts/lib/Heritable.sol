@@ -1,9 +1,11 @@
-pragma solidity 0.5.16;
+// SPDX-License-Identifier: UNLICENSED
 
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+pragma solidity 0.6.11;
+
+import "../../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "./Backupable.sol";
 
-contract Heritable is Backupable {
+abstract contract Heritable is Backupable {
     using SafeMath for uint256;
 
     event InheritanceActivated    (address indexed creator, address indexed activator, address[] wallets);

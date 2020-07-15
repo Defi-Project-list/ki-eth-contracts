@@ -1,9 +1,11 @@
-pragma solidity 0.5.16;
+// SPDX-License-Identifier: UNLICENSED
+
+pragma solidity 0.6.11;
 
 import "./StorageBase.sol";
 //import "../Trust.sol";
 
-contract Storage is IStorage {
+abstract contract Storage is IStorage {
 
     uint8 constant public BACKUP_STATE_PENDING    = 0;
     uint8 constant public BACKUP_STATE_REGISTERED = 1;
@@ -14,7 +16,7 @@ contract Storage is IStorage {
     struct Backup {
         address wallet;
         uint40  timestamp;
-        uint32  timeout;        
+        uint32  timeout;
         uint8   state;
         uint16  filler;
     }

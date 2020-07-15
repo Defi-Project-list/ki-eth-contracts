@@ -1,4 +1,6 @@
-pragma solidity 0.5.16;
+// SPDX-License-Identifier: UNLICENSED
+
+pragma solidity 0.6.11;
 
 interface ICreator {
     function upgradeWallet(bytes8 _id) external;
@@ -28,15 +30,15 @@ contract StorageBase is IProxy {
     address internal _owner;
     address internal _target;
 
-    function owner() external view returns (address) {
+    function owner() external view override returns (address) {
         return _owner;
     }
 
-    function target() external view returns (address) {
+    function target() external view override returns (address) {
         return _target;
     }
 
-    function creator() external view returns (address) {
+    function creator() external pure returns (address) {
         return address(0);
     }
 
@@ -50,7 +52,7 @@ contract StorageBase is IProxy {
         _;
     }
 
-    function init(address __owner, address __target) external onlyCreator() {
+    function init(address __owner, address __target) external onlyCreator() override {
         if (__owner != _owner && __owner != address(0)) _owner = __owner;
         if (__target != _target && __target != address(0)) _target = __target;
     }

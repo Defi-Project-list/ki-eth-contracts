@@ -1,4 +1,6 @@
-pragma solidity 0.5.16;
+// SPDX-License-Identifier: UNLICENSED
+
+pragma solidity 0.6.11;
 
 import "../lib/IOracle.sol";
 
@@ -14,11 +16,11 @@ contract Oracle2 is IOracle {
         return tokens[_token];
     }
 
-    function is20Safe(address _token) public view returns (bool) {
+    function is20Safe(address _token) public view override returns (bool) {
         return tokens[_token];
     }
 
-    function is721Safe(address _token) public view returns (bool) {
+    function is721Safe(address _token) public view override returns (bool) {
         return tokens[_token];
     }
 

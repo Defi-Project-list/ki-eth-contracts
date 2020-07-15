@@ -1,4 +1,6 @@
-pragma solidity 0.5.16;
+// SPDX-License-Identifier: UNLICENSED
+
+pragma solidity 0.6.11;
 
 import "../lib/StorageBase.sol";
 import "../lib/Storage.sol";
@@ -19,10 +21,10 @@ contract Wallet2 is IStorage, StorageBase, Storage, Storage2 {
 
     // IStorage Implementation
 
-    function migrate () external onlyCreator() {
+    function migrate () external override onlyCreator() {
     }
 
-    function version() public pure returns (bytes8) {
+    function version() public pure override returns (bytes8) {
         return bytes8("0.1");
     }
 

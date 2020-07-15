@@ -56,9 +56,9 @@ contract('Wallet', async accounts => {
     await factory.createWallet(false, { from: owner });
     instance = await Wallet.at( await factory.getWallet(owner) );
 
-    token20 = await ERC20Token.new('Kirobo ERC20 Token', 'KDB20', 18, {from: owner});
+    token20 = await ERC20Token.new('Kirobo ERC20 Token', 'KDB20', {from: owner});
     await oracle.update20(token20.address, true, {from: owner});
-    token20notSafe = await ERC20Token.new('Kirobo ERC20 Not Safe Token', 'KDB20NS', 18, {from: owner});
+    token20notSafe = await ERC20Token.new('Kirobo ERC20 Not Safe Token', 'KDB20NS', {from: owner});
     token721 = await ERC721Token.new('Kirobo ERC721 Token', 'KBF', {from: owner});
     mlog.log('web3      ', web3.version);
     mlog.log('token20   ', token20.address);

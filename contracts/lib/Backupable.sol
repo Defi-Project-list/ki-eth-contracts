@@ -1,9 +1,11 @@
-pragma solidity 0.5.16;
+// SPDX-License-Identifier: UNLICENSED
+
+pragma solidity 0.6.11;
 
 import "./StorageBase.sol";
 import "./Storage.sol";
 
-contract Backupable is IStorage, StorageBase, Storage {
+abstract contract Backupable is IStorage, StorageBase, Storage {
 
     event BackupChanged         (address indexed creator, address indexed owner, address indexed wallet,
     uint32 timeout, uint40 timestamp, uint8 state);

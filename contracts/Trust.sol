@@ -1,6 +1,8 @@
-pragma solidity 0.5.16;
+// SPDX-License-Identifier: UNLICENSED
 
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+pragma solidity 0.6.11;
+
+import "../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 contract Trust {
 
@@ -121,7 +123,7 @@ contract Trust {
         selfdestruct (self.owner);
     }
 
-    function () external logPayment() payable {
+    receive () external logPayment() payable {
     }
 
     function version() public pure returns (bytes8) {

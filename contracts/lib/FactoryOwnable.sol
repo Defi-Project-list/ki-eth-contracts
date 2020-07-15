@@ -1,4 +1,6 @@
-pragma solidity 0.5.16;
+// SPDX-License-Identifier: UNLICENSED
+
+pragma solidity 0.6.11;
 
 import "../FactoryStorage.sol";
 
@@ -49,7 +51,7 @@ contract FactoryOwnable is FactoryStorage {
     * @dev Allows the current owner to transfer control of the contract to a newOwner.
     * @param _newOwner The address to transfer ownership to.
     */
-    function transferOwnership(address _newOwner) public onlyOwner {
+    function transferOwnership(address _newOwner) public onlyOwner virtual {
         _transferOwnership(_newOwner);
     }
 
