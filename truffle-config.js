@@ -2,7 +2,7 @@
 const HDWalletProvider = require("@truffle/hdwallet-provider");
 // let mnemonic = "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat";
 let mnemonic = "pelican bench orchard wisdom honey deputy donate suspect airport sail quick decade";
-//let mnemonic = "front assume robust donkey senior economy maple enhance click bright game alcohol";
+// let mnemonic = "front assume robust donkey senior economy maple enhance click bright game alcohol";
 const gas = 8200000;
 
 // const ganache = require('ganache-cli');
@@ -24,7 +24,7 @@ module.exports = {
         mnemonic =
           "front assume robust donkey senior economy maple enhance click bright game alcohol";
         return new HDWalletProvider(
-          mnemonic, "https://rinkeby.infura.io/Mi3WQKlqLIU6IQtAvddB"
+          mnemonic, "https://rinkeby.infura.io/v3/adb23ed195ef4a499b698007beb437ca"
         );
       },
       network_id: "4",
