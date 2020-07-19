@@ -62,6 +62,8 @@ contract('FactoryProxy', async accounts => {
   it.skip ('should be able to create a wallet', async () => {
     const swver = await Wallet.new({ from: owner, nonce: await web3.eth.getTransactionCount(owner) });
     const oracle = await Oracle.new(owner, user1, user2, {from: owner});
+    await oracle.setPaymentAddress(user1, { from: owner });
+    await oracle.setPaymentAddress(user1, { from: user1 });
 
     mlog.log('version:', swver.address);
 
@@ -107,6 +109,7 @@ contract('FactoryProxy', async accounts => {
     */
     const swver2 = await Wallet2.new({from: owner});
     const oracle2 = await Oracle2.new({from: owner});
+    await oracle2.setPaymentAddress(owner, { from:owner })
     mlog.log('version2:', swver2.address);
 
     //await instance.addVersion(web3.fromAscii("1.2", 8), swver2.address, { from: owner });
@@ -124,6 +127,9 @@ contract('FactoryProxy', async accounts => {
     
     const swver = await Wallet.new({ from: owner, nonce: await web3.eth.getTransactionCount(owner) });
     const oracle = await Oracle.new(owner, user1, user2, {from: owner});
+    await oracle.setPaymentAddress(user1, { from: owner });
+    await oracle.setPaymentAddress(user1, { from: user1 });
+
     mlog.log('version:', swver.address);
 
     //await instance.addVersion(web3.fromAscii("2.1", 8), swver.address, { from: owner });
@@ -167,9 +173,9 @@ contract('FactoryProxy', async accounts => {
 
     const swver2 = await Wallet2.new({ from: owner });
     const oracle2 = await Oracle2.new({from: owner});
-    
-    mlog.log('version2:', swver2.address);
+    await oracle2.setPaymentAddress(owner, { from:owner });
 
+    mlog.log('version2:', swver2.address);
 
     tx = await instance.createWallet(true, { from: user2 });
     //logs = await new Promise((r,j) => instance.allEvents({}, { fromBlock: 'latest', toBlock: 'latest' }).get((err, logs) => { r(logs) }));

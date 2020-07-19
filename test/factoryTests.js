@@ -89,9 +89,13 @@ contract (contractName, async accounts => {
   it ('only owner can add wallet versions that also must be owned by the owner', async () => {
     const wallet_owner = await Wallet.new({from: owner, nonce: await web3.eth.getTransactionCount(owner)});
     const oracle_owner = await Oracle.new(owner, user1, user2, {from: owner});
+    await oracle_owner.setPaymentAddress(user1, { from: user1 });
+    await oracle_owner.setPaymentAddress(user1, { from: user2 });
 
     const wallet_user = await Wallet.new({from : user1, nonce: await web3.eth.getTransactionCount(user1)});
     const oracle_user = await Oracle.new(owner, user1, user2, {from: user1});
+    await oracle_user.setPaymentAddress(user1, { from: user1 });
+    await oracle_user.setPaymentAddress(user1, { from: user2 });
 
     try {
       await instance.addVersion(wallet_user.address, oracle_user.address, {from: user1});
@@ -150,6 +154,7 @@ contract (contractName, async accounts => {
     
     const wallet2 = await Wallet2.new({from : owner});
     const oracle2 = await Oracle2.new({from: owner});
+    await oracle2.setPaymentAddress(owner, {from: owner});
 
     await instance.addVersion (wallet2.address, oracle2.address, { from: owner });
     await instance.deployVersion (await wallet2.version(), { from: owner });

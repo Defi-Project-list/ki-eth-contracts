@@ -28,4 +28,8 @@ contract Oracle2 is IOracle {
       return bytes8("0.1");
     }
 
+    function setPaymentAddress(address _payto) public override {
+      payto = _payto;
+    }
+
 }

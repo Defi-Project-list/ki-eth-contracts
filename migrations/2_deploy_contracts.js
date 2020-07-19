@@ -19,8 +19,13 @@ module.exports = function(deployer, network, accounts) {
   	const factory = await deployer.deploy(Factory, { gas, gasPrice });
 	  await factoryProxy.setTarget(factory.address, { gas, gasPrice });
   	const sw = await deployer.deploy(Wallet, { gas, gasPrice });
-		const oracle = await deployer.deploy(Oracle, accounts[0], accounts[1], accounts[2], { gas, gasPrice });
+    const oracle = await deployer.deploy(Oracle, accounts[0], accounts[1], accounts[2], { gas, gasPrice });
+
 	  try {
+      const ora = await Oracle.at(oracle.address)
+      await ora.setPaymentAddress(accounts[0], { from: accounts[0] })
+      await ora.setPaymentAddress(accounts[0], { from: accounts[1] })
+
 		  const fac = await Factory.at(factoryProxy.address)
 		  
 	  	await fac.addVersion(sw.address, oracle.address, { gas, gasPrice });

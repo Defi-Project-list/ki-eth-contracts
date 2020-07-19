@@ -14,6 +14,8 @@ backupableTests(async (factoryOwner, walletOwner, user1, user2) => {
     const factory = await Factory.at(sw_factory_proxy.address, { from: factoryOwner });
     const swver = await Wallet.new({from: factoryOwner});
     const oracle = await Oracle.new(factoryOwner, user1, user2, {from: factoryOwner});
+    await oracle.setPaymentAddress(user1, { from: factoryOwner });
+    await oracle.setPaymentAddress(user1, { from: user1 });
     await factory.addVersion(swver.address, oracle.address, { from: factoryOwner });
     await factory.deployVersion(await swver.version(), { from: factoryOwner });
     await factory.createWallet(true, { from: walletOwner });

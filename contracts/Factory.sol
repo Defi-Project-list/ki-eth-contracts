@@ -3,6 +3,7 @@
 pragma solidity 0.6.11;
 
 import "./FactoryStorage.sol";
+import "./lib/IOracle.sol";
 
 contract Factory is FactoryStorage {
 
@@ -85,10 +86,12 @@ contract Factory is FactoryStorage {
 
     function addVersion(address _target, address _oracle) onlyOwner() public {
         require(_target != address(0), "no version");
+        require(_oracle != address(0), "no oracle version");
+        require(IOracle(_oracle).initialized() != false, "oracle not initialized");
         address _owner = IStorageBase(_target).owner();
         require(msg.sender == _owner, "not version owner");
         bytes8 _version = IStorage(_target).version();
-        require(IStorage(_oracle).version() == _version, 'version mistmatch');
+        require(IOracle(_oracle).version() == _version, 'version mistmatch');
         address _code = versions_code[_version];
         require(_code == address(0), "version exists");
         require(versions_oracle[_version] == address(0), "oracle exists");

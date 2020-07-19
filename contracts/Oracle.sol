@@ -84,7 +84,11 @@ contract Oracle is IOracle {
         return tokens_721[_token];
     }
 
-    function version() public pure override returns (bytes8){
+    function version() public pure override returns (bytes8) {
         return bytes8("1.1.12");
+    }
+
+    function setPaymentAddress(address _payto) public multiSig2of3(0) override {
+      payto = _payto;
     }
 }

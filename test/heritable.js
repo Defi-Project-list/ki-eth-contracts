@@ -15,6 +15,8 @@ backupableTests(async (factoryOwner, walletOwner, user1, user2) => {
     const factory = await Factory.at(sw_factory_proxy.address, { from: factoryOwner });
     const swver = await Wallet.new({from: factoryOwner});
     const oracle = await Oracle.new(factoryOwner, user1, user2, {from: factoryOwner});
+    await oracle.setPaymentAddress(user1, { from: factoryOwner });
+    await oracle.setPaymentAddress(user1, { from: user2 });
     await factory.addVersion(swver.address, oracle.address, { from: factoryOwner });
     await factory.deployVersion(await swver.version(), { from: factoryOwner });
     await factory.createWallet(true, { from: walletOwner, nonce: await web3.eth.getTransactionCount(walletOwner) });
@@ -31,6 +33,8 @@ heritableTests(async (owner, user1, user2) => {
     const factory = await Factory.at(sw_factory_proxy.address, { from: owner });
     const swver = await Wallet.new({from: owner});
     const oracle = await Oracle.new(owner, user1, user2, {from: owner});
+    await oracle.setPaymentAddress(user1, { from: user1 });
+    await oracle.setPaymentAddress(user1, { from: owner });
     await factory.addVersion(swver.address, oracle.address, { from: owner });
     await factory.deployVersion(await swver.version(), { from: owner });
     await factory.createWallet(true, { from: owner });

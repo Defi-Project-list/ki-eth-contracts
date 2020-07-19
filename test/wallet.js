@@ -51,6 +51,8 @@ contract('Wallet', async accounts => {
     //const factory = await FactoryProxy.new({ from: creator });
     const version = await Wallet.new({ from: creator });
     oracle = await Oracle.new(owner, user1, user2, {from: owner, nonce: await web3.eth.getTransactionCount(owner)});
+    await oracle.setPaymentAddress(user1, { from: owner });
+    await oracle.setPaymentAddress(user1, { from: user1 });
     //await factory.addVersion(web3.fromAscii("1.1", 8), version.address, { from: creator });
     await factory.addVersion(version.address, oracle.address, { from: creator });
     await factory.deployVersion(await version.version(), { from: creator });
