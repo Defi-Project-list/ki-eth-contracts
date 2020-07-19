@@ -52,6 +52,10 @@ contract Oracle is IOracle {
       _;
     }
 
+    function isOwner() public view returns (bool) {
+      return owners[msg.sender];
+    }
+
     function cancel() public {
       require(owners[msg.sender], 'only owners');
       action.owner = address(0);
@@ -78,5 +82,9 @@ contract Oracle is IOracle {
 
     function is721Safe(address _token) public view override returns (bool) {
         return tokens_721[_token];
+    }
+
+    function version() public pure override returns (bytes8){
+        return bytes8("1.1.12");
     }
 }

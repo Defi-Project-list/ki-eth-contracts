@@ -24,4 +24,8 @@ contract Oracle2 is IOracle {
         return tokens[_token];
     }
 
+    function version() external pure override returns (bytes8) {
+      return bytes8("0.1");
+    }
+
 }

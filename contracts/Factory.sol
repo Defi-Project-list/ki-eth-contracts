@@ -88,6 +88,7 @@ contract Factory is FactoryStorage {
         address _owner = IStorageBase(_target).owner();
         require(msg.sender == _owner, "not version owner");
         bytes8 _version = IStorage(_target).version();
+        require(IStorage(_oracle).version() == _version, 'version mistmatch');
         address _code = versions_code[_version];
         require(_code == address(0), "version exists");
         require(versions_oracle[_version] == address(0), "oracle exists");
