@@ -50,7 +50,7 @@ contract(contractName, async accounts => {
  	  if (contractClass.new instanceof Function) {
   	    instance = await contractClass.new({ from: owner, nonce: await web3.eth.getTransactionCount(owner) });
  	  } else {
-  	    instance = await contractClass(owner);
+  	    instance = await contractClass(owner, user1, user2);
  	  }
 
     mlog.log('web3     ', web3.version);

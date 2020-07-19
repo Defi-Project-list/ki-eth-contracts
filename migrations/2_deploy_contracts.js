@@ -13,13 +13,13 @@ const liveNetworks = { rinkeby: true, kovan: true };
 const gasPrice =  web3.utils.toWei('3', 'gwei');
 const gas = 6000000;
 
-module.exports = function(deployer, network) {
+module.exports = function(deployer, network, accounts) {
   deployer.then(async () => {
 	  const factoryProxy = await deployer.deploy(FactoryProxy, { gas, gasPrice, overwrite: !liveNetworks[network] });
   	const factory = await deployer.deploy(Factory, { gas, gasPrice });
 	  await factoryProxy.setTarget(factory.address, { gas, gasPrice });
   	const sw = await deployer.deploy(Wallet, { gas, gasPrice });
-		const oracle = await deployer.deploy(Oracle, { gas, gasPrice });
+		const oracle = await deployer.deploy(Oracle, accounts[0], accounts[1], accounts[2], { gas, gasPrice });
 	  try {
 		  const fac = await Factory.at(factoryProxy.address)
 		  

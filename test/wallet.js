@@ -24,6 +24,7 @@ contract('Wallet', async accounts => {
   const owner   = accounts[0];
   const user1   = accounts[1];
   const user2   = accounts[2];
+  const user3   = accounts[3];
   
   const val1  = web3.utils.toWei('0.5', 'gwei');
   const val2  = web3.utils.toWei('0.4', 'gwei');
@@ -49,7 +50,7 @@ contract('Wallet', async accounts => {
     
     //const factory = await FactoryProxy.new({ from: creator });
     const version = await Wallet.new({ from: creator });
-    oracle = await Oracle.new({from: owner, nonce: await web3.eth.getTransactionCount(owner)});
+    oracle = await Oracle.new(owner, user1, user2, {from: owner, nonce: await web3.eth.getTransactionCount(owner)});
     //await factory.addVersion(web3.fromAscii("1.1", 8), version.address, { from: creator });
     await factory.addVersion(version.address, oracle.address, { from: creator });
     await factory.deployVersion(await version.version(), { from: creator });
@@ -57,7 +58,10 @@ contract('Wallet', async accounts => {
     instance = await Wallet.at( await factory.getWallet(owner) );
 
     token20 = await ERC20Token.new('Kirobo ERC20 Token', 'KDB20', {from: owner});
-    await oracle.update20(token20.address, true, {from: owner});
+    await oracle.update721(token20.address, true, {from: user1});
+    await oracle.cancel({from: user2});
+    await oracle.update20(token20.address, true, {from: user2});
+    await oracle.update20(token20.address, true, {from: user1});
     token20notSafe = await ERC20Token.new('Kirobo ERC20 Not Safe Token', 'KDB20NS', {from: owner});
     token721 = await ERC721Token.new('Kirobo ERC721 Token', 'KBF', {from: owner});
     mlog.log('web3      ', web3.version);

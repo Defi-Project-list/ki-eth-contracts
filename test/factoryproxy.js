@@ -61,7 +61,7 @@ contract('FactoryProxy', async accounts => {
 
   it.skip ('should be able to create a wallet', async () => {
     const swver = await Wallet.new({ from: owner, nonce: await web3.eth.getTransactionCount(owner) });
-    const oracle = await Oracle.new({from: owner});
+    const oracle = await Oracle.new(owner, user1, user2, {from: owner});
 
     mlog.log('version:', swver.address);
 
@@ -123,7 +123,7 @@ contract('FactoryProxy', async accounts => {
   it ('should be able to create a wallet', async () => {
     
     const swver = await Wallet.new({ from: owner, nonce: await web3.eth.getTransactionCount(owner) });
-    const oracle = await Oracle.new({from: owner});
+    const oracle = await Oracle.new(owner, user1, user2, {from: owner});
     mlog.log('version:', swver.address);
 
     //await instance.addVersion(web3.fromAscii("2.1", 8), swver.address, { from: owner });
