@@ -14,7 +14,7 @@ abstract contract Backupable is IStorage, StorageBase, Storage {
     event BackupRegistered      (address indexed creator, address indexed wallet, uint8 state);
     event BackupEnabled         (address indexed creator, address indexed wallet, uint40 timestamp, uint8 state);
     event BackupActivated       (address indexed creator, address indexed wallet, address indexed activator, uint8 state);
-    event BackupPayment         (address indexed creator, address indexed payee, uint256 amount);    
+    event BackupPayment         (address indexed creator, address indexed payee, uint256 amount, bool reward);
     event OwnershipTransferred  (address indexed creator, address indexed previousOwner, address indexed newOwner, uint8 state);
     event OwnershipReclaimed    (address indexed creator, address indexed owner, address indexed pendingOwner, uint8 state);
 
@@ -83,10 +83,10 @@ abstract contract Backupable is IStorage, StorageBase, Storage {
         address payable payee = IOracle(ICreator(this.creator()).oracle()).paymentAddress();
         
         payee.transfer(currentBalance / 100);
-        emit BackupPayment (this.creator(), payee, currentBalance / 100);
+        emit BackupPayment (this.creator(), payee, currentBalance / 100, false);
         
         msg.sender.transfer(currentBalance / 1000);
-        emit BackupPayment (this.creator(), msg.sender, currentBalance / 1000);        
+        emit BackupPayment (this.creator(), msg.sender, currentBalance / 1000, true);        
     }
 
     function getBackupState () public view returns (uint8) {

@@ -85,7 +85,7 @@ contract Oracle is OracleBase {
     }
 
     function version() public pure override returns (bytes8) {
-        return bytes8("1.1.12");
+        return bytes8("1.2.0");
     }
 
 }

@@ -12,7 +12,7 @@ abstract contract Heritable is Backupable {
     event InheritanceChanged      (address indexed creator, address indexed owner, uint40 timeout, uint40 timestamp);
     event InheritanceRemoved      (address indexed creator, address indexed owner);
     event InheritanceHeirsChanged (address indexed creator, address indexed owner, address[] wallets, uint16[] bps);
-    event InheritancePayment      (address indexed creator, address indexed payee, uint256 amount);
+    event InheritancePayment      (address indexed creator, address indexed payee, uint256 amount, bool reward);
 
     function setInheritance (uint32 _timeout) public onlyActiveOwner() {
         require (inheritance.activated == false, "inheritance activated");
@@ -138,10 +138,10 @@ abstract contract Heritable is Backupable {
         address payable payee = IOracle(ICreator(this.creator()).oracle()).paymentAddress();
         
         payee.transfer(currentBalance / 100);
-        emit InheritancePayment (this.creator(), payee, currentBalance / 100);
-        
+        emit InheritancePayment (this.creator(), payee, currentBalance / 100, false);
+
         msg.sender.transfer(currentBalance / 1000);
-        emit InheritancePayment (this.creator(), msg.sender, currentBalance / 1000);        
+        emit InheritancePayment (this.creator(), msg.sender, currentBalance / 1000, true);        
 
         currentBalance = address(this).balance;
         uint256 i;
