@@ -2,9 +2,9 @@
 
 pragma solidity 0.6.11;
 
-import "../lib/IOracle.sol";
+import "../lib/OracleBase.sol";
 
-contract Oracle2 is IOracle {
+contract Oracle2 is OracleBase {
 
     mapping (address=>bool) private tokens;
 
@@ -26,10 +26,6 @@ contract Oracle2 is IOracle {
 
     function version() external pure override returns (bytes8) {
       return bytes8("0.1");
-    }
-
-    function setPaymentAddress(address _payto) public override {
-      payto = _payto;
     }
 
 }

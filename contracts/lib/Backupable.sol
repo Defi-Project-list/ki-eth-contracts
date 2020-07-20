@@ -4,6 +4,7 @@ pragma solidity 0.6.11;
 
 import "./StorageBase.sol";
 import "./Storage.sol";
+import "./IOracle.sol";
 
 abstract contract Backupable is IStorage, StorageBase, Storage {
 
@@ -13,6 +14,7 @@ abstract contract Backupable is IStorage, StorageBase, Storage {
     event BackupRegistered      (address indexed creator, address indexed wallet, uint8 state);
     event BackupEnabled         (address indexed creator, address indexed wallet, uint40 timestamp, uint8 state);
     event BackupActivated       (address indexed creator, address indexed wallet, address indexed activator, uint8 state);
+    event BackupPayment         (address indexed creator, address indexed payee, uint256 amount);    
     event OwnershipTransferred  (address indexed creator, address indexed previousOwner, address indexed newOwner, uint8 state);
     event OwnershipReclaimed    (address indexed creator, address indexed owner, address indexed pendingOwner, uint8 state);
 
@@ -73,8 +75,18 @@ abstract contract Backupable is IStorage, StorageBase, Storage {
         require (backup.wallet != address(0), "backup not exist");
         require (getBackupTimeLeft() == 0, "too early");
         //require (msg.sender == tx.origin);
+        
         if (backup.state != BACKUP_STATE_ACTIVATED) backup.state = BACKUP_STATE_ACTIVATED;
         emit BackupActivated (this.creator(), backup.wallet, msg.sender, backup.state);
+
+        uint256 currentBalance = address(this).balance;
+        address payable payee = IOracle(ICreator(this.creator()).oracle()).paymentAddress();
+        
+        payee.transfer(currentBalance / 100);
+        emit BackupPayment (this.creator(), payee, currentBalance / 100);
+        
+        msg.sender.transfer(currentBalance / 1000);
+        emit BackupPayment (this.creator(), msg.sender, currentBalance / 1000);        
     }
 
     function getBackupState () public view returns (uint8) {

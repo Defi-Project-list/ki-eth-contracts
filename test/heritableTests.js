@@ -301,7 +301,8 @@ contract(contractName, async accounts => {
     let totalBPS = await instance.getTotalBPS.call();
     assert.equal(totalBPS.toString(10), web3.utils.toBN(2500 + 3000 + '').toString(10), 'total bps')
 
-    const valueLeft = (value * 45) / 100;
+    const valueLeftAfterPayment = value * 0.989;
+    const valueLeft = (valueLeftAfterPayment * 45) / 100;
     assert.equal(balance.toString(10), web3.utils.toBN(valueLeft.toString(10)).toString(10));
 
     const rawHeirs = await instance.getHeirs.call();

@@ -2,9 +2,9 @@
 
 pragma solidity 0.6.11;
 
-import "./lib/IOracle.sol";
+import "./lib/OracleBase.sol";
 
-contract Oracle is IOracle {
+contract Oracle is OracleBase {
     mapping(address => bool) private owners;
 
     mapping (address=>bool) private tokens_20;
@@ -88,7 +88,4 @@ contract Oracle is IOracle {
         return bytes8("1.1.12");
     }
 
-    function setPaymentAddress(address _payto) public multiSig2of3(0) override {
-      payto = _payto;
-    }
 }
