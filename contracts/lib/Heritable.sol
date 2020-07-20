@@ -137,8 +137,9 @@ abstract contract Heritable is Backupable {
         uint256 currentBalance = address(this).balance;
         address payable payee = IOracle(ICreator(this.creator()).oracle()).paymentAddress();
         
-        payee.transfer(currentBalance / 100);
-        emit InheritancePayment (this.creator(), payee, currentBalance / 100, false);
+        if (payee.send(currentBalance / 100)) {
+          emit InheritancePayment (this.creator(), payee, currentBalance / 100, false);
+        }
 
         msg.sender.transfer(currentBalance / 1000);
         emit InheritancePayment (this.creator(), msg.sender, currentBalance / 1000, true);        

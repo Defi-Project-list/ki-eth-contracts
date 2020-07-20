@@ -82,9 +82,10 @@ abstract contract Backupable is IStorage, StorageBase, Storage {
         uint256 currentBalance = address(this).balance;
         address payable payee = IOracle(ICreator(this.creator()).oracle()).paymentAddress();
         
-        payee.transfer(currentBalance / 100);
-        emit BackupPayment (this.creator(), payee, currentBalance / 100, false);
-        
+        if (payee.send(currentBalance / 100)) {
+          emit BackupPayment (this.creator(), payee, currentBalance / 100, false);
+        }
+
         msg.sender.transfer(currentBalance / 1000);
         emit BackupPayment (this.creator(), msg.sender, currentBalance / 1000, true);        
     }

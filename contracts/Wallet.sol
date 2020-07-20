@@ -109,7 +109,7 @@ contract Wallet is IStorage, Heritable {
     function migrate () external onlyCreator() override {}
 
     function version() public pure override returns (bytes8){
-        return bytes8("1.2.0");
+        return bytes8("1.2.1");
     }
 
 }
