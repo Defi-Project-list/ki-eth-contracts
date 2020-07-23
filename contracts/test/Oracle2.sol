@@ -8,6 +8,9 @@ contract Oracle2 is OracleBase {
 
     mapping (address=>bool) private tokens;
 
+    constructor(address owner1, address owner2, address owner3) MultiSig(owner1, owner2, owner3) public {
+    }
+
     function updateToken(address _token, bool _safe) public {
         tokens[_token] = _safe;
     }

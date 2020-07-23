@@ -3,8 +3,9 @@
 pragma solidity 0.6.11;
 
 import "./IOracle.sol";
+import "./MultiSig.sol";
 
-abstract contract OracleBase is IOracle {
+abstract contract OracleBase is IOracle, MultiSig {
 
     address payable internal payto;
 
@@ -17,7 +18,7 @@ abstract contract OracleBase is IOracle {
       return true;
     }
 
-    function setPaymentAddress(address payable _payto) public override {
+    function setPaymentAddress(address payable _payto) public multiSig2of3(0) override {
       require(_payto != address(0), "payment address cannot be 0");
       payto = _payto;
     }

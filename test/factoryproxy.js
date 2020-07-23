@@ -172,8 +172,9 @@ contract('FactoryProxy', async accounts => {
     mlog.log('balance(proxy)', swvalue);
 
     const swver2 = await Wallet2.new({ from: owner });
-    const oracle2 = await Oracle2.new({from: owner});
-    await oracle2.setPaymentAddress(owner, { from:owner });
+    const oracle2 = await Oracle2.new(owner, user1, user2, {from: owner});
+    await oracle2.setPaymentAddress(owner, {from: owner});
+    await oracle2.setPaymentAddress(owner, {from: user1});
 
     mlog.log('version2:', swver2.address);
 

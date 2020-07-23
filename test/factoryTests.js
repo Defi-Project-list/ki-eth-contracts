@@ -153,8 +153,9 @@ contract (contractName, async accounts => {
     assert.equal (version, latestVersion);
     
     const wallet2 = await Wallet2.new({from : owner});
-    const oracle2 = await Oracle2.new({from: owner});
+    const oracle2 = await Oracle2.new(owner, user1, user2, {from: owner});
     await oracle2.setPaymentAddress(owner, {from: owner});
+    await oracle2.setPaymentAddress(owner, {from: user1});
 
     await instance.addVersion (wallet2.address, oracle2.address, { from: owner });
     await instance.deployVersion (await wallet2.version(), { from: owner });
