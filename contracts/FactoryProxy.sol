@@ -2,19 +2,18 @@
 
 pragma solidity 0.6.11;
 
-import "./lib/FactoryClaimable.sol";
+import "./FactoryStorage.sol";
 import "./Factory.sol";
 
-contract FactoryProxy is FactoryClaimable {
+contract FactoryProxy is FactoryStorage {
 
-    constructor() FactoryClaimable() public {
-        proxy = address(this);
+    constructor(address owner1, address owner2, address owner3) FactoryStorage(owner1, owner2, owner3) public {
+        // proxy = address(this);
     }
 
-    function setTarget(address _target) public onlyOwner() {
+    function setTarget(address _target) public multiSig2of3(0) {
         require(_target != address(0), "no target");
         target = _target;
-        FactoryStorage(this).migrate();
     }
 
     fallback () external payable {

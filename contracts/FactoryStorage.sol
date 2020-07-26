@@ -2,14 +2,13 @@
 
 pragma solidity 0.6.11;
 
+import "./lib/MultiSig.sol";
 import "./lib/Proxy.sol";
 import "./lib/ProxyLatest.sol";
 
-contract FactoryStorage {
-    address public owner;
-    address public pendingOwner;
+abstract contract FactoryStorage is MultiSig {
     address public target;
-    address public proxy;
+//    address public proxy;
 
     Proxy public swProxy;
     ProxyLatest public swProxyLatest;
@@ -33,30 +32,27 @@ contract FactoryStorage {
 
     // storage end
 
-    modifier onlyProxy () {
-        require (msg.sender == proxy, "not proxy");
-        _;
+    // modifier onlyProxy () {
+    //     require (msg.sender == proxy, "not proxy");
+    //     _;
+    // }
+
+    constructor(address owner1, address owner2, address owner3) MultiSig(owner1, owner2, owner3) public {
+        // proxy = msg.sender; //in case we are using Factory directly
+        swProxy = new Proxy();
+        swProxyLatest = new ProxyLatest();
+        versions_code[LATEST] = address(swProxyLatest);
     }
 
-    modifier onlyOwner () {
-        require (msg.sender == owner, "not owner");
-        _;
-    }
+    // function migrate() public onlyProxy() {
+    //     if (address(swProxy) == address(0x00)){
+    //         swProxy = new Proxy();
+    //     }
 
-    constructor() public {
-        owner = msg.sender;
-        proxy = msg.sender; //in case we are using Factory directly
-    }
-
-    function migrate() public onlyProxy() {
-        if (address(swProxy) == address(0x00)){
-            swProxy = new Proxy();
-        }
-
-        if (address(swProxyLatest) == address(0x00)){
-            swProxyLatest = new ProxyLatest();
-            versions_code[LATEST] = address(swProxyLatest);
-        }
-    }
+    //     if (address(swProxyLatest) == address(0x00)){
+    //         swProxyLatest = new ProxyLatest();
+    //         versions_code[LATEST] = address(swProxyLatest);
+    //     }
+    // }
 
 }

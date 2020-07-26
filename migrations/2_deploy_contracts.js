@@ -15,9 +15,10 @@ const gas = 6000000;
 
 module.exports = function(deployer, network, accounts) {
   deployer.then(async () => {
-	  const factoryProxy = await deployer.deploy(FactoryProxy, { gas, gasPrice, overwrite: !liveNetworks[network] });
-  	const factory = await deployer.deploy(Factory, { gas, gasPrice });
-	  await factoryProxy.setTarget(factory.address, { gas, gasPrice });
+	  const factoryProxy = await deployer.deploy(FactoryProxy, accounts[0], accounts[1], accounts[2], { gas, gasPrice, overwrite: !liveNetworks[network] });
+  	const factory = await deployer.deploy(Factory, accounts[0], accounts[1], accounts[2], { gas, gasPrice });
+	  await factoryProxy.setTarget(factory.address, { gas, gasPrice, from:accounts[0] });
+	  await factoryProxy.setTarget(factory.address, { gas, gasPrice, from:accounts[1] });
   	const sw = await deployer.deploy(Wallet, { gas, gasPrice });
     const oracle = await deployer.deploy(Oracle, accounts[0], accounts[1], accounts[2], { gas, gasPrice });
 
@@ -28,8 +29,10 @@ module.exports = function(deployer, network, accounts) {
 
 		  const fac = await Factory.at(factoryProxy.address)
 		  
-	  	await fac.addVersion(sw.address, oracle.address, { gas, gasPrice });
-	  	await fac.deployVersion(await sw.version(), { gas, gasPrice });
+	  	await fac.addVersion(sw.address, oracle.address, { from: accounts[0], gas, gasPrice });
+	  	await fac.addVersion(sw.address, oracle.address, { from: accounts[1], gas, gasPrice });
+	  	await fac.deployVersion(await sw.version(), { from: accounts[0], gas, gasPrice });
+	  	await fac.deployVersion(await sw.version(), { from: accounts[1], gas, gasPrice });
 	  }
 	  catch(err) {
 		console.error('addVersion failed. Please check version number.', err);

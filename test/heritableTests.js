@@ -32,14 +32,20 @@ let tx
 contract(contractName, async accounts => {
   let instance;
 
-  const owner = accounts[0];
-  const user1 = accounts[1];
-  const user2 = accounts[2];
-  const user3 = accounts[3];
+  const factoryOwner1 = accounts[0];
+  const factoryOwner2 = accounts[1];
+  const factoryOwner3 = accounts[2];
+  const owner = accounts[3];
+  const user1 = accounts[4];
+  const user2 = accounts[5];
+  const user3 = accounts[6];
 
   let blockTimestamp = 0;
 
   before('checking constants', async () => {
+      assert(typeof factoryOwner1 == 'string', 'factoryOwner1 should be string');
+      assert(typeof factoryOwner2 == 'string', 'factoryOwner2 should be string');
+      assert(typeof factoryOwner3 == 'string', 'factoryOwner3 should be string');
       assert(typeof owner == 'string', 'owner should be string');
       assert(typeof user1 == 'string', 'user1 should be string');
       assert(typeof user2 == 'string', 'user2 should be string');
@@ -50,15 +56,18 @@ contract(contractName, async accounts => {
  	  if (contractClass.new instanceof Function) {
   	    instance = await contractClass.new({ from: owner, nonce: await web3.eth.getTransactionCount(owner) });
  	  } else {
-  	    instance = await contractClass(owner, user1, user2);
+  	    instance = await contractClass(factoryOwner1, factoryOwner2, factoryOwner3, owner);
  	  }
 
-    mlog.log('web3     ', web3.version);
-    mlog.log('contract ', instance.address);
-    mlog.log('owner    ', owner);
-    mlog.log('user1    ', user1);
-    mlog.log('user2    ', user2);
-    mlog.log('user3    ', user3);
+    mlog.log('web3          ', web3.version);
+    mlog.log('contract      ', instance.address);
+    mlog.log('factoryOwner1 ', factoryOwner1);
+    mlog.log('factoryOwner2 ', factoryOwner2);
+    mlog.log('factoryOwner3 ', factoryOwner3);
+    mlog.log('owner         ', owner);
+    mlog.log('user1         ', user1);
+    mlog.log('user2         ', user2);
+    mlog.log('user3         ', user3);
   });
 
   it('constructor: owner should be the contract creator', async () => {
