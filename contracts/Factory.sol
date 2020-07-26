@@ -14,7 +14,6 @@ contract Factory is FactoryStorage {
     event WalletVersionRestored(address indexed wallet, bytes8 indexed version, address indexed owner);
     event VersionAdded(bytes8 indexed version, address indexed code, address indexed oracle);
     event VersionDeployed(bytes8 indexed version, address indexed code, address indexed oracle);
-    event GotEther(address indexed from, uint256 value);
 
     constructor (address owner1, address owner2, address owner3) FactoryStorage(owner1, owner2, owner3) public {
     }
@@ -192,7 +191,7 @@ contract Factory is FactoryStorage {
     }
     */
 
-    fallback () external payable {
+    fallback () external {
       /*
         bytes8 _version = wallets_version[msg.sender];
         if (_version == LATEST) {

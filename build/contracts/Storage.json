@@ -85,15 +85,15 @@
     "absolutePath": "/home/tal/code/kirobo/ki-eth-contracts/contracts/lib/Storage.sol",
     "exportedSymbols": {
       "Storage": [
-        5112
+        5150
       ]
     },
-    "id": 5113,
+    "id": 5151,
     "license": "UNLICENSED",
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 5052,
+        "id": 5090,
         "literals": [
           "solidity",
           "0.6",
@@ -105,10 +105,10 @@
       {
         "absolutePath": "/home/tal/code/kirobo/ki-eth-contracts/contracts/lib/StorageBase.sol",
         "file": "./StorageBase.sol",
-        "id": 5053,
+        "id": 5091,
         "nodeType": "ImportDirective",
-        "scope": 5113,
-        "sourceUnit": 5308,
+        "scope": 5151,
+        "sourceUnit": 5346,
         "src": "65:27:18",
         "symbolAliases": [],
         "unitAlias": ""
@@ -120,31 +120,31 @@
             "arguments": null,
             "baseName": {
               "contractScope": null,
-              "id": 5054,
+              "id": 5092,
               "name": "IStorage",
               "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 5172,
+              "referencedDeclaration": 5210,
               "src": "148:8:18",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_IStorage_$5172",
+                "typeIdentifier": "t_contract$_IStorage_$5210",
                 "typeString": "contract IStorage"
               }
             },
-            "id": 5055,
+            "id": 5093,
             "nodeType": "InheritanceSpecifier",
             "src": "148:8:18"
           }
         ],
         "contractDependencies": [
-          5172
+          5210
         ],
         "contractKind": "contract",
         "documentation": null,
         "fullyImplemented": false,
-        "id": 5112,
+        "id": 5150,
         "linearizedBaseContracts": [
-          5112,
-          5172
+          5150,
+          5210
         ],
         "name": "Storage",
         "nodeType": "ContractDefinition",
@@ -152,12 +152,12 @@
           {
             "constant": true,
             "functionSelector": "f99ff3e8",
-            "id": 5058,
+            "id": 5096,
             "mutability": "constant",
             "name": "BACKUP_STATE_PENDING",
             "nodeType": "VariableDeclaration",
             "overrides": null,
-            "scope": 5112,
+            "scope": 5150,
             "src": "164:49:18",
             "stateVariable": true,
             "storageLocation": "default",
@@ -166,7 +166,7 @@
               "typeString": "uint8"
             },
             "typeName": {
-              "id": 5056,
+              "id": 5094,
               "name": "uint8",
               "nodeType": "ElementaryTypeName",
               "src": "164:5:18",
@@ -178,7 +178,7 @@
             "value": {
               "argumentTypes": null,
               "hexValue": "30",
-              "id": 5057,
+              "id": 5095,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
@@ -198,12 +198,12 @@
           {
             "constant": true,
             "functionSelector": "3d562561",
-            "id": 5061,
+            "id": 5099,
             "mutability": "constant",
             "name": "BACKUP_STATE_REGISTERED",
             "nodeType": "VariableDeclaration",
             "overrides": null,
-            "scope": 5112,
+            "scope": 5150,
             "src": "219:49:18",
             "stateVariable": true,
             "storageLocation": "default",
@@ -212,7 +212,7 @@
               "typeString": "uint8"
             },
             "typeName": {
-              "id": 5059,
+              "id": 5097,
               "name": "uint8",
               "nodeType": "ElementaryTypeName",
               "src": "219:5:18",
@@ -224,7 +224,7 @@
             "value": {
               "argumentTypes": null,
               "hexValue": "31",
-              "id": 5060,
+              "id": 5098,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
@@ -244,12 +244,12 @@
           {
             "constant": true,
             "functionSelector": "e1bc35ab",
-            "id": 5064,
+            "id": 5102,
             "mutability": "constant",
             "name": "BACKUP_STATE_ENABLED",
             "nodeType": "VariableDeclaration",
             "overrides": null,
-            "scope": 5112,
+            "scope": 5150,
             "src": "274:49:18",
             "stateVariable": true,
             "storageLocation": "default",
@@ -258,7 +258,7 @@
               "typeString": "uint8"
             },
             "typeName": {
-              "id": 5062,
+              "id": 5100,
               "name": "uint8",
               "nodeType": "ElementaryTypeName",
               "src": "274:5:18",
@@ -270,7 +270,7 @@
             "value": {
               "argumentTypes": null,
               "hexValue": "32",
-              "id": 5063,
+              "id": 5101,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
@@ -290,12 +290,12 @@
           {
             "constant": true,
             "functionSelector": "3e95e62c",
-            "id": 5067,
+            "id": 5105,
             "mutability": "constant",
             "name": "BACKUP_STATE_ACTIVATED",
             "nodeType": "VariableDeclaration",
             "overrides": null,
-            "scope": 5112,
+            "scope": 5150,
             "src": "329:49:18",
             "stateVariable": true,
             "storageLocation": "default",
@@ -304,7 +304,7 @@
               "typeString": "uint8"
             },
             "typeName": {
-              "id": 5065,
+              "id": 5103,
               "name": "uint8",
               "nodeType": "ElementaryTypeName",
               "src": "329:5:18",
@@ -316,7 +316,7 @@
             "value": {
               "argumentTypes": null,
               "hexValue": "33",
-              "id": 5066,
+              "id": 5104,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
@@ -335,16 +335,16 @@
           },
           {
             "canonicalName": "Storage.Backup",
-            "id": 5078,
+            "id": 5116,
             "members": [
               {
                 "constant": false,
-                "id": 5069,
+                "id": 5107,
                 "mutability": "mutable",
                 "name": "wallet",
                 "nodeType": "VariableDeclaration",
                 "overrides": null,
-                "scope": 5078,
+                "scope": 5116,
                 "src": "451:14:18",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -353,7 +353,7 @@
                   "typeString": "address"
                 },
                 "typeName": {
-                  "id": 5068,
+                  "id": 5106,
                   "name": "address",
                   "nodeType": "ElementaryTypeName",
                   "src": "451:7:18",
@@ -368,12 +368,12 @@
               },
               {
                 "constant": false,
-                "id": 5071,
+                "id": 5109,
                 "mutability": "mutable",
                 "name": "timestamp",
                 "nodeType": "VariableDeclaration",
                 "overrides": null,
-                "scope": 5078,
+                "scope": 5116,
                 "src": "475:17:18",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -382,7 +382,7 @@
                   "typeString": "uint40"
                 },
                 "typeName": {
-                  "id": 5070,
+                  "id": 5108,
                   "name": "uint40",
                   "nodeType": "ElementaryTypeName",
                   "src": "475:6:18",
@@ -396,12 +396,12 @@
               },
               {
                 "constant": false,
-                "id": 5073,
+                "id": 5111,
                 "mutability": "mutable",
                 "name": "timeout",
                 "nodeType": "VariableDeclaration",
                 "overrides": null,
-                "scope": 5078,
+                "scope": 5116,
                 "src": "502:15:18",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -410,7 +410,7 @@
                   "typeString": "uint32"
                 },
                 "typeName": {
-                  "id": 5072,
+                  "id": 5110,
                   "name": "uint32",
                   "nodeType": "ElementaryTypeName",
                   "src": "502:6:18",
@@ -424,12 +424,12 @@
               },
               {
                 "constant": false,
-                "id": 5075,
+                "id": 5113,
                 "mutability": "mutable",
                 "name": "state",
                 "nodeType": "VariableDeclaration",
                 "overrides": null,
-                "scope": 5078,
+                "scope": 5116,
                 "src": "527:13:18",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -438,7 +438,7 @@
                   "typeString": "uint8"
                 },
                 "typeName": {
-                  "id": 5074,
+                  "id": 5112,
                   "name": "uint8",
                   "nodeType": "ElementaryTypeName",
                   "src": "527:5:18",
@@ -452,12 +452,12 @@
               },
               {
                 "constant": false,
-                "id": 5077,
+                "id": 5115,
                 "mutability": "mutable",
                 "name": "filler",
                 "nodeType": "VariableDeclaration",
                 "overrides": null,
-                "scope": 5078,
+                "scope": 5116,
                 "src": "550:14:18",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -466,7 +466,7 @@
                   "typeString": "uint16"
                 },
                 "typeName": {
-                  "id": 5076,
+                  "id": 5114,
                   "name": "uint16",
                   "nodeType": "ElementaryTypeName",
                   "src": "550:6:18",
@@ -481,34 +481,34 @@
             ],
             "name": "Backup",
             "nodeType": "StructDefinition",
-            "scope": 5112,
+            "scope": 5150,
             "src": "427:144:18",
             "visibility": "public"
           },
           {
             "constant": false,
-            "id": 5080,
+            "id": 5118,
             "mutability": "mutable",
             "name": "backup",
             "nodeType": "VariableDeclaration",
             "overrides": null,
-            "scope": 5112,
+            "scope": 5150,
             "src": "577:22:18",
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
-              "typeIdentifier": "t_struct$_Backup_$5078_storage",
+              "typeIdentifier": "t_struct$_Backup_$5116_storage",
               "typeString": "struct Storage.Backup"
             },
             "typeName": {
               "contractScope": null,
-              "id": 5079,
+              "id": 5117,
               "name": "Backup",
               "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 5078,
+              "referencedDeclaration": 5116,
               "src": "577:6:18",
               "typeDescriptions": {
-                "typeIdentifier": "t_struct$_Backup_$5078_storage_ptr",
+                "typeIdentifier": "t_struct$_Backup_$5116_storage_ptr",
                 "typeString": "struct Storage.Backup"
               }
             },
@@ -517,12 +517,12 @@
           },
           {
             "constant": true,
-            "id": 5083,
+            "id": 5121,
             "mutability": "constant",
             "name": "MAX_HEIRS",
             "nodeType": "VariableDeclaration",
             "overrides": null,
-            "scope": 5112,
+            "scope": 5150,
             "src": "647:39:18",
             "stateVariable": true,
             "storageLocation": "default",
@@ -531,7 +531,7 @@
               "typeString": "uint256"
             },
             "typeName": {
-              "id": 5081,
+              "id": 5119,
               "name": "uint256",
               "nodeType": "ElementaryTypeName",
               "src": "647:7:18",
@@ -543,7 +543,7 @@
             "value": {
               "argumentTypes": null,
               "hexValue": "38",
-              "id": 5082,
+              "id": 5120,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
@@ -562,16 +562,16 @@
           },
           {
             "canonicalName": "Storage.Heir",
-            "id": 5092,
+            "id": 5130,
             "members": [
               {
                 "constant": false,
-                "id": 5085,
+                "id": 5123,
                 "mutability": "mutable",
                 "name": "wallet",
                 "nodeType": "VariableDeclaration",
                 "overrides": null,
-                "scope": 5092,
+                "scope": 5130,
                 "src": "715:22:18",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -580,7 +580,7 @@
                   "typeString": "address payable"
                 },
                 "typeName": {
-                  "id": 5084,
+                  "id": 5122,
                   "name": "address",
                   "nodeType": "ElementaryTypeName",
                   "src": "715:15:18",
@@ -595,12 +595,12 @@
               },
               {
                 "constant": false,
-                "id": 5087,
+                "id": 5125,
                 "mutability": "mutable",
                 "name": "sent",
                 "nodeType": "VariableDeclaration",
                 "overrides": null,
-                "scope": 5092,
+                "scope": 5130,
                 "src": "747:12:18",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -609,7 +609,7 @@
                   "typeString": "bool"
                 },
                 "typeName": {
-                  "id": 5086,
+                  "id": 5124,
                   "name": "bool",
                   "nodeType": "ElementaryTypeName",
                   "src": "747:4:18",
@@ -623,12 +623,12 @@
               },
               {
                 "constant": false,
-                "id": 5089,
+                "id": 5127,
                 "mutability": "mutable",
                 "name": "bps",
                 "nodeType": "VariableDeclaration",
                 "overrides": null,
-                "scope": 5092,
+                "scope": 5130,
                 "src": "769:11:18",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -637,7 +637,7 @@
                   "typeString": "uint16"
                 },
                 "typeName": {
-                  "id": 5088,
+                  "id": 5126,
                   "name": "uint16",
                   "nodeType": "ElementaryTypeName",
                   "src": "769:6:18",
@@ -651,12 +651,12 @@
               },
               {
                 "constant": false,
-                "id": 5091,
+                "id": 5129,
                 "mutability": "mutable",
                 "name": "filler",
                 "nodeType": "VariableDeclaration",
                 "overrides": null,
-                "scope": 5092,
+                "scope": 5130,
                 "src": "790:14:18",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -665,7 +665,7 @@
                   "typeString": "uint72"
                 },
                 "typeName": {
-                  "id": 5090,
+                  "id": 5128,
                   "name": "uint72",
                   "nodeType": "ElementaryTypeName",
                   "src": "790:6:18",
@@ -680,50 +680,50 @@
             ],
             "name": "Heir",
             "nodeType": "StructDefinition",
-            "scope": 5112,
+            "scope": 5150,
             "src": "693:118:18",
             "visibility": "public"
           },
           {
             "canonicalName": "Storage.Inheritance",
-            "id": 5107,
+            "id": 5145,
             "members": [
               {
                 "constant": false,
-                "id": 5096,
+                "id": 5134,
                 "mutability": "mutable",
                 "name": "heirs",
                 "nodeType": "VariableDeclaration",
                 "overrides": null,
-                "scope": 5107,
+                "scope": 5145,
                 "src": "846:21:18",
                 "stateVariable": false,
                 "storageLocation": "default",
                 "typeDescriptions": {
-                  "typeIdentifier": "t_array$_t_struct$_Heir_$5092_storage_$8_storage_ptr",
+                  "typeIdentifier": "t_array$_t_struct$_Heir_$5130_storage_$8_storage_ptr",
                   "typeString": "struct Storage.Heir[8]"
                 },
                 "typeName": {
                   "baseType": {
                     "contractScope": null,
-                    "id": 5093,
+                    "id": 5131,
                     "name": "Heir",
                     "nodeType": "UserDefinedTypeName",
-                    "referencedDeclaration": 5092,
+                    "referencedDeclaration": 5130,
                     "src": "846:4:18",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_struct$_Heir_$5092_storage_ptr",
+                      "typeIdentifier": "t_struct$_Heir_$5130_storage_ptr",
                       "typeString": "struct Storage.Heir"
                     }
                   },
-                  "id": 5095,
+                  "id": 5133,
                   "length": {
                     "argumentTypes": null,
-                    "id": 5094,
+                    "id": 5132,
                     "name": "MAX_HEIRS",
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
-                    "referencedDeclaration": 5083,
+                    "referencedDeclaration": 5121,
                     "src": "851:9:18",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
@@ -733,7 +733,7 @@
                   "nodeType": "ArrayTypeName",
                   "src": "846:15:18",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_array$_t_struct$_Heir_$5092_storage_$8_storage_ptr",
+                    "typeIdentifier": "t_array$_t_struct$_Heir_$5130_storage_$8_storage_ptr",
                     "typeString": "struct Storage.Heir[8]"
                   }
                 },
@@ -742,12 +742,12 @@
               },
               {
                 "constant": false,
-                "id": 5098,
+                "id": 5136,
                 "mutability": "mutable",
                 "name": "timeout",
                 "nodeType": "VariableDeclaration",
                 "overrides": null,
-                "scope": 5107,
+                "scope": 5145,
                 "src": "877:15:18",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -756,7 +756,7 @@
                   "typeString": "uint40"
                 },
                 "typeName": {
-                  "id": 5097,
+                  "id": 5135,
                   "name": "uint40",
                   "nodeType": "ElementaryTypeName",
                   "src": "877:6:18",
@@ -770,12 +770,12 @@
               },
               {
                 "constant": false,
-                "id": 5100,
+                "id": 5138,
                 "mutability": "mutable",
                 "name": "enabled",
                 "nodeType": "VariableDeclaration",
                 "overrides": null,
-                "scope": 5107,
+                "scope": 5145,
                 "src": "902:15:18",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -784,7 +784,7 @@
                   "typeString": "bool"
                 },
                 "typeName": {
-                  "id": 5099,
+                  "id": 5137,
                   "name": "bool",
                   "nodeType": "ElementaryTypeName",
                   "src": "902:4:18",
@@ -798,12 +798,12 @@
               },
               {
                 "constant": false,
-                "id": 5102,
+                "id": 5140,
                 "mutability": "mutable",
                 "name": "activated",
                 "nodeType": "VariableDeclaration",
                 "overrides": null,
-                "scope": 5107,
+                "scope": 5145,
                 "src": "927:17:18",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -812,7 +812,7 @@
                   "typeString": "bool"
                 },
                 "typeName": {
-                  "id": 5101,
+                  "id": 5139,
                   "name": "bool",
                   "nodeType": "ElementaryTypeName",
                   "src": "927:4:18",
@@ -826,12 +826,12 @@
               },
               {
                 "constant": false,
-                "id": 5104,
+                "id": 5142,
                 "mutability": "mutable",
                 "name": "timestamp",
                 "nodeType": "VariableDeclaration",
                 "overrides": null,
-                "scope": 5107,
+                "scope": 5145,
                 "src": "954:17:18",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -840,7 +840,7 @@
                   "typeString": "uint40"
                 },
                 "typeName": {
-                  "id": 5103,
+                  "id": 5141,
                   "name": "uint40",
                   "nodeType": "ElementaryTypeName",
                   "src": "954:6:18",
@@ -854,12 +854,12 @@
               },
               {
                 "constant": false,
-                "id": 5106,
+                "id": 5144,
                 "mutability": "mutable",
                 "name": "filler",
                 "nodeType": "VariableDeclaration",
                 "overrides": null,
-                "scope": 5107,
+                "scope": 5145,
                 "src": "981:14:18",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -868,7 +868,7 @@
                   "typeString": "uint16"
                 },
                 "typeName": {
-                  "id": 5105,
+                  "id": 5143,
                   "name": "uint16",
                   "nodeType": "ElementaryTypeName",
                   "src": "981:6:18",
@@ -883,18 +883,18 @@
             ],
             "name": "Inheritance",
             "nodeType": "StructDefinition",
-            "scope": 5112,
+            "scope": 5150,
             "src": "817:185:18",
             "visibility": "public"
           },
           {
             "constant": false,
-            "id": 5109,
+            "id": 5147,
             "mutability": "mutable",
             "name": "totalTransfered",
             "nodeType": "VariableDeclaration",
             "overrides": null,
-            "scope": 5112,
+            "scope": 5150,
             "src": "1008:32:18",
             "stateVariable": true,
             "storageLocation": "default",
@@ -903,7 +903,7 @@
               "typeString": "uint256"
             },
             "typeName": {
-              "id": 5108,
+              "id": 5146,
               "name": "uint256",
               "nodeType": "ElementaryTypeName",
               "src": "1008:7:18",
@@ -917,28 +917,28 @@
           },
           {
             "constant": false,
-            "id": 5111,
+            "id": 5149,
             "mutability": "mutable",
             "name": "inheritance",
             "nodeType": "VariableDeclaration",
             "overrides": null,
-            "scope": 5112,
+            "scope": 5150,
             "src": "1046:32:18",
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
-              "typeIdentifier": "t_struct$_Inheritance_$5107_storage",
+              "typeIdentifier": "t_struct$_Inheritance_$5145_storage",
               "typeString": "struct Storage.Inheritance"
             },
             "typeName": {
               "contractScope": null,
-              "id": 5110,
+              "id": 5148,
               "name": "Inheritance",
               "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 5107,
+              "referencedDeclaration": 5145,
               "src": "1046:11:18",
               "typeDescriptions": {
-                "typeIdentifier": "t_struct$_Inheritance_$5107_storage_ptr",
+                "typeIdentifier": "t_struct$_Inheritance_$5145_storage_ptr",
                 "typeString": "struct Storage.Inheritance"
               }
             },
@@ -946,7 +946,7 @@
             "visibility": "internal"
           }
         ],
-        "scope": 5113,
+        "scope": 5151,
         "src": "119:1029:18"
       }
     ],
@@ -956,15 +956,15 @@
     "absolutePath": "/home/tal/code/kirobo/ki-eth-contracts/contracts/lib/Storage.sol",
     "exportedSymbols": {
       "Storage": [
-        5112
+        5150
       ]
     },
-    "id": 5113,
+    "id": 5151,
     "license": "UNLICENSED",
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 5052,
+        "id": 5090,
         "literals": [
           "solidity",
           "0.6",
@@ -976,10 +976,10 @@
       {
         "absolutePath": "/home/tal/code/kirobo/ki-eth-contracts/contracts/lib/StorageBase.sol",
         "file": "./StorageBase.sol",
-        "id": 5053,
+        "id": 5091,
         "nodeType": "ImportDirective",
-        "scope": 5113,
-        "sourceUnit": 5308,
+        "scope": 5151,
+        "sourceUnit": 5346,
         "src": "65:27:18",
         "symbolAliases": [],
         "unitAlias": ""
@@ -991,31 +991,31 @@
             "arguments": null,
             "baseName": {
               "contractScope": null,
-              "id": 5054,
+              "id": 5092,
               "name": "IStorage",
               "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 5172,
+              "referencedDeclaration": 5210,
               "src": "148:8:18",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_IStorage_$5172",
+                "typeIdentifier": "t_contract$_IStorage_$5210",
                 "typeString": "contract IStorage"
               }
             },
-            "id": 5055,
+            "id": 5093,
             "nodeType": "InheritanceSpecifier",
             "src": "148:8:18"
           }
         ],
         "contractDependencies": [
-          5172
+          5210
         ],
         "contractKind": "contract",
         "documentation": null,
         "fullyImplemented": false,
-        "id": 5112,
+        "id": 5150,
         "linearizedBaseContracts": [
-          5112,
-          5172
+          5150,
+          5210
         ],
         "name": "Storage",
         "nodeType": "ContractDefinition",
@@ -1023,12 +1023,12 @@
           {
             "constant": true,
             "functionSelector": "f99ff3e8",
-            "id": 5058,
+            "id": 5096,
             "mutability": "constant",
             "name": "BACKUP_STATE_PENDING",
             "nodeType": "VariableDeclaration",
             "overrides": null,
-            "scope": 5112,
+            "scope": 5150,
             "src": "164:49:18",
             "stateVariable": true,
             "storageLocation": "default",
@@ -1037,7 +1037,7 @@
               "typeString": "uint8"
             },
             "typeName": {
-              "id": 5056,
+              "id": 5094,
               "name": "uint8",
               "nodeType": "ElementaryTypeName",
               "src": "164:5:18",
@@ -1049,7 +1049,7 @@
             "value": {
               "argumentTypes": null,
               "hexValue": "30",
-              "id": 5057,
+              "id": 5095,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
@@ -1069,12 +1069,12 @@
           {
             "constant": true,
             "functionSelector": "3d562561",
-            "id": 5061,
+            "id": 5099,
             "mutability": "constant",
             "name": "BACKUP_STATE_REGISTERED",
             "nodeType": "VariableDeclaration",
             "overrides": null,
-            "scope": 5112,
+            "scope": 5150,
             "src": "219:49:18",
             "stateVariable": true,
             "storageLocation": "default",
@@ -1083,7 +1083,7 @@
               "typeString": "uint8"
             },
             "typeName": {
-              "id": 5059,
+              "id": 5097,
               "name": "uint8",
               "nodeType": "ElementaryTypeName",
               "src": "219:5:18",
@@ -1095,7 +1095,7 @@
             "value": {
               "argumentTypes": null,
               "hexValue": "31",
-              "id": 5060,
+              "id": 5098,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
@@ -1115,12 +1115,12 @@
           {
             "constant": true,
             "functionSelector": "e1bc35ab",
-            "id": 5064,
+            "id": 5102,
             "mutability": "constant",
             "name": "BACKUP_STATE_ENABLED",
             "nodeType": "VariableDeclaration",
             "overrides": null,
-            "scope": 5112,
+            "scope": 5150,
             "src": "274:49:18",
             "stateVariable": true,
             "storageLocation": "default",
@@ -1129,7 +1129,7 @@
               "typeString": "uint8"
             },
             "typeName": {
-              "id": 5062,
+              "id": 5100,
               "name": "uint8",
               "nodeType": "ElementaryTypeName",
               "src": "274:5:18",
@@ -1141,7 +1141,7 @@
             "value": {
               "argumentTypes": null,
               "hexValue": "32",
-              "id": 5063,
+              "id": 5101,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
@@ -1161,12 +1161,12 @@
           {
             "constant": true,
             "functionSelector": "3e95e62c",
-            "id": 5067,
+            "id": 5105,
             "mutability": "constant",
             "name": "BACKUP_STATE_ACTIVATED",
             "nodeType": "VariableDeclaration",
             "overrides": null,
-            "scope": 5112,
+            "scope": 5150,
             "src": "329:49:18",
             "stateVariable": true,
             "storageLocation": "default",
@@ -1175,7 +1175,7 @@
               "typeString": "uint8"
             },
             "typeName": {
-              "id": 5065,
+              "id": 5103,
               "name": "uint8",
               "nodeType": "ElementaryTypeName",
               "src": "329:5:18",
@@ -1187,7 +1187,7 @@
             "value": {
               "argumentTypes": null,
               "hexValue": "33",
-              "id": 5066,
+              "id": 5104,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
@@ -1206,16 +1206,16 @@
           },
           {
             "canonicalName": "Storage.Backup",
-            "id": 5078,
+            "id": 5116,
             "members": [
               {
                 "constant": false,
-                "id": 5069,
+                "id": 5107,
                 "mutability": "mutable",
                 "name": "wallet",
                 "nodeType": "VariableDeclaration",
                 "overrides": null,
-                "scope": 5078,
+                "scope": 5116,
                 "src": "451:14:18",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -1224,7 +1224,7 @@
                   "typeString": "address"
                 },
                 "typeName": {
-                  "id": 5068,
+                  "id": 5106,
                   "name": "address",
                   "nodeType": "ElementaryTypeName",
                   "src": "451:7:18",
@@ -1239,12 +1239,12 @@
               },
               {
                 "constant": false,
-                "id": 5071,
+                "id": 5109,
                 "mutability": "mutable",
                 "name": "timestamp",
                 "nodeType": "VariableDeclaration",
                 "overrides": null,
-                "scope": 5078,
+                "scope": 5116,
                 "src": "475:17:18",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -1253,7 +1253,7 @@
                   "typeString": "uint40"
                 },
                 "typeName": {
-                  "id": 5070,
+                  "id": 5108,
                   "name": "uint40",
                   "nodeType": "ElementaryTypeName",
                   "src": "475:6:18",
@@ -1267,12 +1267,12 @@
               },
               {
                 "constant": false,
-                "id": 5073,
+                "id": 5111,
                 "mutability": "mutable",
                 "name": "timeout",
                 "nodeType": "VariableDeclaration",
                 "overrides": null,
-                "scope": 5078,
+                "scope": 5116,
                 "src": "502:15:18",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -1281,7 +1281,7 @@
                   "typeString": "uint32"
                 },
                 "typeName": {
-                  "id": 5072,
+                  "id": 5110,
                   "name": "uint32",
                   "nodeType": "ElementaryTypeName",
                   "src": "502:6:18",
@@ -1295,12 +1295,12 @@
               },
               {
                 "constant": false,
-                "id": 5075,
+                "id": 5113,
                 "mutability": "mutable",
                 "name": "state",
                 "nodeType": "VariableDeclaration",
                 "overrides": null,
-                "scope": 5078,
+                "scope": 5116,
                 "src": "527:13:18",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -1309,7 +1309,7 @@
                   "typeString": "uint8"
                 },
                 "typeName": {
-                  "id": 5074,
+                  "id": 5112,
                   "name": "uint8",
                   "nodeType": "ElementaryTypeName",
                   "src": "527:5:18",
@@ -1323,12 +1323,12 @@
               },
               {
                 "constant": false,
-                "id": 5077,
+                "id": 5115,
                 "mutability": "mutable",
                 "name": "filler",
                 "nodeType": "VariableDeclaration",
                 "overrides": null,
-                "scope": 5078,
+                "scope": 5116,
                 "src": "550:14:18",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -1337,7 +1337,7 @@
                   "typeString": "uint16"
                 },
                 "typeName": {
-                  "id": 5076,
+                  "id": 5114,
                   "name": "uint16",
                   "nodeType": "ElementaryTypeName",
                   "src": "550:6:18",
@@ -1352,34 +1352,34 @@
             ],
             "name": "Backup",
             "nodeType": "StructDefinition",
-            "scope": 5112,
+            "scope": 5150,
             "src": "427:144:18",
             "visibility": "public"
           },
           {
             "constant": false,
-            "id": 5080,
+            "id": 5118,
             "mutability": "mutable",
             "name": "backup",
             "nodeType": "VariableDeclaration",
             "overrides": null,
-            "scope": 5112,
+            "scope": 5150,
             "src": "577:22:18",
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
-              "typeIdentifier": "t_struct$_Backup_$5078_storage",
+              "typeIdentifier": "t_struct$_Backup_$5116_storage",
               "typeString": "struct Storage.Backup"
             },
             "typeName": {
               "contractScope": null,
-              "id": 5079,
+              "id": 5117,
               "name": "Backup",
               "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 5078,
+              "referencedDeclaration": 5116,
               "src": "577:6:18",
               "typeDescriptions": {
-                "typeIdentifier": "t_struct$_Backup_$5078_storage_ptr",
+                "typeIdentifier": "t_struct$_Backup_$5116_storage_ptr",
                 "typeString": "struct Storage.Backup"
               }
             },
@@ -1388,12 +1388,12 @@
           },
           {
             "constant": true,
-            "id": 5083,
+            "id": 5121,
             "mutability": "constant",
             "name": "MAX_HEIRS",
             "nodeType": "VariableDeclaration",
             "overrides": null,
-            "scope": 5112,
+            "scope": 5150,
             "src": "647:39:18",
             "stateVariable": true,
             "storageLocation": "default",
@@ -1402,7 +1402,7 @@
               "typeString": "uint256"
             },
             "typeName": {
-              "id": 5081,
+              "id": 5119,
               "name": "uint256",
               "nodeType": "ElementaryTypeName",
               "src": "647:7:18",
@@ -1414,7 +1414,7 @@
             "value": {
               "argumentTypes": null,
               "hexValue": "38",
-              "id": 5082,
+              "id": 5120,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
@@ -1433,16 +1433,16 @@
           },
           {
             "canonicalName": "Storage.Heir",
-            "id": 5092,
+            "id": 5130,
             "members": [
               {
                 "constant": false,
-                "id": 5085,
+                "id": 5123,
                 "mutability": "mutable",
                 "name": "wallet",
                 "nodeType": "VariableDeclaration",
                 "overrides": null,
-                "scope": 5092,
+                "scope": 5130,
                 "src": "715:22:18",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -1451,7 +1451,7 @@
                   "typeString": "address payable"
                 },
                 "typeName": {
-                  "id": 5084,
+                  "id": 5122,
                   "name": "address",
                   "nodeType": "ElementaryTypeName",
                   "src": "715:15:18",
@@ -1466,12 +1466,12 @@
               },
               {
                 "constant": false,
-                "id": 5087,
+                "id": 5125,
                 "mutability": "mutable",
                 "name": "sent",
                 "nodeType": "VariableDeclaration",
                 "overrides": null,
-                "scope": 5092,
+                "scope": 5130,
                 "src": "747:12:18",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -1480,7 +1480,7 @@
                   "typeString": "bool"
                 },
                 "typeName": {
-                  "id": 5086,
+                  "id": 5124,
                   "name": "bool",
                   "nodeType": "ElementaryTypeName",
                   "src": "747:4:18",
@@ -1494,12 +1494,12 @@
               },
               {
                 "constant": false,
-                "id": 5089,
+                "id": 5127,
                 "mutability": "mutable",
                 "name": "bps",
                 "nodeType": "VariableDeclaration",
                 "overrides": null,
-                "scope": 5092,
+                "scope": 5130,
                 "src": "769:11:18",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -1508,7 +1508,7 @@
                   "typeString": "uint16"
                 },
                 "typeName": {
-                  "id": 5088,
+                  "id": 5126,
                   "name": "uint16",
                   "nodeType": "ElementaryTypeName",
                   "src": "769:6:18",
@@ -1522,12 +1522,12 @@
               },
               {
                 "constant": false,
-                "id": 5091,
+                "id": 5129,
                 "mutability": "mutable",
                 "name": "filler",
                 "nodeType": "VariableDeclaration",
                 "overrides": null,
-                "scope": 5092,
+                "scope": 5130,
                 "src": "790:14:18",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -1536,7 +1536,7 @@
                   "typeString": "uint72"
                 },
                 "typeName": {
-                  "id": 5090,
+                  "id": 5128,
                   "name": "uint72",
                   "nodeType": "ElementaryTypeName",
                   "src": "790:6:18",
@@ -1551,50 +1551,50 @@
             ],
             "name": "Heir",
             "nodeType": "StructDefinition",
-            "scope": 5112,
+            "scope": 5150,
             "src": "693:118:18",
             "visibility": "public"
           },
           {
             "canonicalName": "Storage.Inheritance",
-            "id": 5107,
+            "id": 5145,
             "members": [
               {
                 "constant": false,
-                "id": 5096,
+                "id": 5134,
                 "mutability": "mutable",
                 "name": "heirs",
                 "nodeType": "VariableDeclaration",
                 "overrides": null,
-                "scope": 5107,
+                "scope": 5145,
                 "src": "846:21:18",
                 "stateVariable": false,
                 "storageLocation": "default",
                 "typeDescriptions": {
-                  "typeIdentifier": "t_array$_t_struct$_Heir_$5092_storage_$8_storage_ptr",
+                  "typeIdentifier": "t_array$_t_struct$_Heir_$5130_storage_$8_storage_ptr",
                   "typeString": "struct Storage.Heir[8]"
                 },
                 "typeName": {
                   "baseType": {
                     "contractScope": null,
-                    "id": 5093,
+                    "id": 5131,
                     "name": "Heir",
                     "nodeType": "UserDefinedTypeName",
-                    "referencedDeclaration": 5092,
+                    "referencedDeclaration": 5130,
                     "src": "846:4:18",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_struct$_Heir_$5092_storage_ptr",
+                      "typeIdentifier": "t_struct$_Heir_$5130_storage_ptr",
                       "typeString": "struct Storage.Heir"
                     }
                   },
-                  "id": 5095,
+                  "id": 5133,
                   "length": {
                     "argumentTypes": null,
-                    "id": 5094,
+                    "id": 5132,
                     "name": "MAX_HEIRS",
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
-                    "referencedDeclaration": 5083,
+                    "referencedDeclaration": 5121,
                     "src": "851:9:18",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
@@ -1604,7 +1604,7 @@
                   "nodeType": "ArrayTypeName",
                   "src": "846:15:18",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_array$_t_struct$_Heir_$5092_storage_$8_storage_ptr",
+                    "typeIdentifier": "t_array$_t_struct$_Heir_$5130_storage_$8_storage_ptr",
                     "typeString": "struct Storage.Heir[8]"
                   }
                 },
@@ -1613,12 +1613,12 @@
               },
               {
                 "constant": false,
-                "id": 5098,
+                "id": 5136,
                 "mutability": "mutable",
                 "name": "timeout",
                 "nodeType": "VariableDeclaration",
                 "overrides": null,
-                "scope": 5107,
+                "scope": 5145,
                 "src": "877:15:18",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -1627,7 +1627,7 @@
                   "typeString": "uint40"
                 },
                 "typeName": {
-                  "id": 5097,
+                  "id": 5135,
                   "name": "uint40",
                   "nodeType": "ElementaryTypeName",
                   "src": "877:6:18",
@@ -1641,12 +1641,12 @@
               },
               {
                 "constant": false,
-                "id": 5100,
+                "id": 5138,
                 "mutability": "mutable",
                 "name": "enabled",
                 "nodeType": "VariableDeclaration",
                 "overrides": null,
-                "scope": 5107,
+                "scope": 5145,
                 "src": "902:15:18",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -1655,7 +1655,7 @@
                   "typeString": "bool"
                 },
                 "typeName": {
-                  "id": 5099,
+                  "id": 5137,
                   "name": "bool",
                   "nodeType": "ElementaryTypeName",
                   "src": "902:4:18",
@@ -1669,12 +1669,12 @@
               },
               {
                 "constant": false,
-                "id": 5102,
+                "id": 5140,
                 "mutability": "mutable",
                 "name": "activated",
                 "nodeType": "VariableDeclaration",
                 "overrides": null,
-                "scope": 5107,
+                "scope": 5145,
                 "src": "927:17:18",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -1683,7 +1683,7 @@
                   "typeString": "bool"
                 },
                 "typeName": {
-                  "id": 5101,
+                  "id": 5139,
                   "name": "bool",
                   "nodeType": "ElementaryTypeName",
                   "src": "927:4:18",
@@ -1697,12 +1697,12 @@
               },
               {
                 "constant": false,
-                "id": 5104,
+                "id": 5142,
                 "mutability": "mutable",
                 "name": "timestamp",
                 "nodeType": "VariableDeclaration",
                 "overrides": null,
-                "scope": 5107,
+                "scope": 5145,
                 "src": "954:17:18",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -1711,7 +1711,7 @@
                   "typeString": "uint40"
                 },
                 "typeName": {
-                  "id": 5103,
+                  "id": 5141,
                   "name": "uint40",
                   "nodeType": "ElementaryTypeName",
                   "src": "954:6:18",
@@ -1725,12 +1725,12 @@
               },
               {
                 "constant": false,
-                "id": 5106,
+                "id": 5144,
                 "mutability": "mutable",
                 "name": "filler",
                 "nodeType": "VariableDeclaration",
                 "overrides": null,
-                "scope": 5107,
+                "scope": 5145,
                 "src": "981:14:18",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -1739,7 +1739,7 @@
                   "typeString": "uint16"
                 },
                 "typeName": {
-                  "id": 5105,
+                  "id": 5143,
                   "name": "uint16",
                   "nodeType": "ElementaryTypeName",
                   "src": "981:6:18",
@@ -1754,18 +1754,18 @@
             ],
             "name": "Inheritance",
             "nodeType": "StructDefinition",
-            "scope": 5112,
+            "scope": 5150,
             "src": "817:185:18",
             "visibility": "public"
           },
           {
             "constant": false,
-            "id": 5109,
+            "id": 5147,
             "mutability": "mutable",
             "name": "totalTransfered",
             "nodeType": "VariableDeclaration",
             "overrides": null,
-            "scope": 5112,
+            "scope": 5150,
             "src": "1008:32:18",
             "stateVariable": true,
             "storageLocation": "default",
@@ -1774,7 +1774,7 @@
               "typeString": "uint256"
             },
             "typeName": {
-              "id": 5108,
+              "id": 5146,
               "name": "uint256",
               "nodeType": "ElementaryTypeName",
               "src": "1008:7:18",
@@ -1788,28 +1788,28 @@
           },
           {
             "constant": false,
-            "id": 5111,
+            "id": 5149,
             "mutability": "mutable",
             "name": "inheritance",
             "nodeType": "VariableDeclaration",
             "overrides": null,
-            "scope": 5112,
+            "scope": 5150,
             "src": "1046:32:18",
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
-              "typeIdentifier": "t_struct$_Inheritance_$5107_storage",
+              "typeIdentifier": "t_struct$_Inheritance_$5145_storage",
               "typeString": "struct Storage.Inheritance"
             },
             "typeName": {
               "contractScope": null,
-              "id": 5110,
+              "id": 5148,
               "name": "Inheritance",
               "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 5107,
+              "referencedDeclaration": 5145,
               "src": "1046:11:18",
               "typeDescriptions": {
-                "typeIdentifier": "t_struct$_Inheritance_$5107_storage_ptr",
+                "typeIdentifier": "t_struct$_Inheritance_$5145_storage_ptr",
                 "typeString": "struct Storage.Inheritance"
               }
             },
@@ -1817,7 +1817,7 @@
             "visibility": "internal"
           }
         ],
-        "scope": 5113,
+        "scope": 5151,
         "src": "119:1029:18"
       }
     ],
@@ -1829,7 +1829,7 @@
   },
   "networks": {},
   "schemaVersion": "3.0.23",
-  "updatedAt": "2020-07-26T12:19:35.406Z",
+  "updatedAt": "2020-07-26T17:30:29.230Z",
   "devdoc": {
     "kind": "dev",
     "methods": {},

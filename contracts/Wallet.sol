@@ -112,4 +112,6 @@ contract Wallet is IStorage, Heritable {
         return bytes8("1.2.1");
     }
 
+    fallback () external { }
+
 }

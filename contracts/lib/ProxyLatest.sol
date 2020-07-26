@@ -6,6 +6,10 @@ import "./StorageBase.sol";
 
 contract ProxyLatest is StorageBase {
 
+    receive () external payable {
+        revert('should not accept ether directly');
+    }
+
     fallback () external payable {
         address latest = ICreator(this.creator()).getLatestVersion();
         // solium-disable-next-line security/no-inline-assembly

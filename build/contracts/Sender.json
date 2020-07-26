@@ -39,15 +39,15 @@
     "absolutePath": "/home/tal/code/kirobo/ki-eth-contracts/contracts/test/Sender.sol",
     "exportedSymbols": {
       "Sender": [
-        5622
+        5660
       ]
     },
-    "id": 5623,
+    "id": 5661,
     "license": "UNLICENSED",
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 5599,
+        "id": 5637,
         "literals": [
           "solidity",
           "0.6",
@@ -63,16 +63,16 @@
         "contractKind": "contract",
         "documentation": null,
         "fullyImplemented": true,
-        "id": 5622,
+        "id": 5660,
         "linearizedBaseContracts": [
-          5622
+          5660
         ],
         "name": "Sender",
         "nodeType": "ContractDefinition",
         "nodes": [
           {
             "body": {
-              "id": 5612,
+              "id": 5650,
               "nodeType": "Block",
               "src": "150:37:24",
               "statements": [
@@ -82,11 +82,11 @@
                     "arguments": [
                       {
                         "argumentTypes": null,
-                        "id": 5609,
+                        "id": 5647,
                         "name": "_value",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 5603,
+                        "referencedDeclaration": 5641,
                         "src": "173:6:24",
                         "typeDescriptions": {
                           "typeIdentifier": "t_uint256",
@@ -103,18 +103,18 @@
                       ],
                       "expression": {
                         "argumentTypes": null,
-                        "id": 5606,
+                        "id": 5644,
                         "name": "_to",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 5601,
+                        "referencedDeclaration": 5639,
                         "src": "160:3:24",
                         "typeDescriptions": {
                           "typeIdentifier": "t_address_payable",
                           "typeString": "address payable"
                         }
                       },
-                      "id": 5608,
+                      "id": 5646,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
@@ -128,7 +128,7 @@
                         "typeString": "function (uint256)"
                       }
                     },
-                    "id": 5610,
+                    "id": 5648,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -143,7 +143,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 5611,
+                  "id": 5649,
                   "nodeType": "ExpressionStatement",
                   "src": "160:20:24"
                 }
@@ -151,7 +151,7 @@
             },
             "documentation": null,
             "functionSelector": "c1756a2c",
-            "id": 5613,
+            "id": 5651,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
@@ -159,17 +159,17 @@
             "nodeType": "FunctionDefinition",
             "overrides": null,
             "parameters": {
-              "id": 5604,
+              "id": 5642,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 5601,
+                  "id": 5639,
                   "mutability": "mutable",
                   "name": "_to",
                   "nodeType": "VariableDeclaration",
                   "overrides": null,
-                  "scope": 5613,
+                  "scope": 5651,
                   "src": "106:19:24",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -178,7 +178,7 @@
                     "typeString": "address payable"
                   },
                   "typeName": {
-                    "id": 5600,
+                    "id": 5638,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "106:15:24",
@@ -193,12 +193,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 5603,
+                  "id": 5641,
                   "mutability": "mutable",
                   "name": "_value",
                   "nodeType": "VariableDeclaration",
                   "overrides": null,
-                  "scope": 5613,
+                  "scope": 5651,
                   "src": "127:14:24",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -207,7 +207,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 5602,
+                    "id": 5640,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "127:7:24",
@@ -223,12 +223,12 @@
               "src": "105:37:24"
             },
             "returnParameters": {
-              "id": 5605,
+              "id": 5643,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "150:0:24"
             },
-            "scope": 5622,
+            "scope": 5660,
             "src": "87:100:24",
             "stateMutability": "nonpayable",
             "virtual": false,
@@ -236,13 +236,13 @@
           },
           {
             "body": {
-              "id": 5616,
+              "id": 5654,
               "nodeType": "Block",
               "src": "221:2:24",
               "statements": []
             },
             "documentation": null,
-            "id": 5617,
+            "id": 5655,
             "implemented": true,
             "kind": "fallback",
             "modifiers": [],
@@ -250,18 +250,18 @@
             "nodeType": "FunctionDefinition",
             "overrides": null,
             "parameters": {
-              "id": 5614,
+              "id": 5652,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "201:2:24"
             },
             "returnParameters": {
-              "id": 5615,
+              "id": 5653,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "221:0:24"
             },
-            "scope": 5622,
+            "scope": 5660,
             "src": "192:31:24",
             "stateMutability": "payable",
             "virtual": false,
@@ -269,13 +269,13 @@
           },
           {
             "body": {
-              "id": 5620,
+              "id": 5658,
               "nodeType": "Block",
               "src": "256:2:24",
               "statements": []
             },
             "documentation": null,
-            "id": 5621,
+            "id": 5659,
             "implemented": true,
             "kind": "receive",
             "modifiers": [],
@@ -283,25 +283,25 @@
             "nodeType": "FunctionDefinition",
             "overrides": null,
             "parameters": {
-              "id": 5618,
+              "id": 5656,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "236:2:24"
             },
             "returnParameters": {
-              "id": 5619,
+              "id": 5657,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "256:0:24"
             },
-            "scope": 5622,
+            "scope": 5660,
             "src": "228:30:24",
             "stateMutability": "payable",
             "virtual": false,
             "visibility": "external"
           }
         ],
-        "scope": 5623,
+        "scope": 5661,
         "src": "65:195:24"
       }
     ],
@@ -311,15 +311,15 @@
     "absolutePath": "/home/tal/code/kirobo/ki-eth-contracts/contracts/test/Sender.sol",
     "exportedSymbols": {
       "Sender": [
-        5622
+        5660
       ]
     },
-    "id": 5623,
+    "id": 5661,
     "license": "UNLICENSED",
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 5599,
+        "id": 5637,
         "literals": [
           "solidity",
           "0.6",
@@ -335,16 +335,16 @@
         "contractKind": "contract",
         "documentation": null,
         "fullyImplemented": true,
-        "id": 5622,
+        "id": 5660,
         "linearizedBaseContracts": [
-          5622
+          5660
         ],
         "name": "Sender",
         "nodeType": "ContractDefinition",
         "nodes": [
           {
             "body": {
-              "id": 5612,
+              "id": 5650,
               "nodeType": "Block",
               "src": "150:37:24",
               "statements": [
@@ -354,11 +354,11 @@
                     "arguments": [
                       {
                         "argumentTypes": null,
-                        "id": 5609,
+                        "id": 5647,
                         "name": "_value",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 5603,
+                        "referencedDeclaration": 5641,
                         "src": "173:6:24",
                         "typeDescriptions": {
                           "typeIdentifier": "t_uint256",
@@ -375,18 +375,18 @@
                       ],
                       "expression": {
                         "argumentTypes": null,
-                        "id": 5606,
+                        "id": 5644,
                         "name": "_to",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 5601,
+                        "referencedDeclaration": 5639,
                         "src": "160:3:24",
                         "typeDescriptions": {
                           "typeIdentifier": "t_address_payable",
                           "typeString": "address payable"
                         }
                       },
-                      "id": 5608,
+                      "id": 5646,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
@@ -400,7 +400,7 @@
                         "typeString": "function (uint256)"
                       }
                     },
-                    "id": 5610,
+                    "id": 5648,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -415,7 +415,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 5611,
+                  "id": 5649,
                   "nodeType": "ExpressionStatement",
                   "src": "160:20:24"
                 }
@@ -423,7 +423,7 @@
             },
             "documentation": null,
             "functionSelector": "c1756a2c",
-            "id": 5613,
+            "id": 5651,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
@@ -431,17 +431,17 @@
             "nodeType": "FunctionDefinition",
             "overrides": null,
             "parameters": {
-              "id": 5604,
+              "id": 5642,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 5601,
+                  "id": 5639,
                   "mutability": "mutable",
                   "name": "_to",
                   "nodeType": "VariableDeclaration",
                   "overrides": null,
-                  "scope": 5613,
+                  "scope": 5651,
                   "src": "106:19:24",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -450,7 +450,7 @@
                     "typeString": "address payable"
                   },
                   "typeName": {
-                    "id": 5600,
+                    "id": 5638,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "106:15:24",
@@ -465,12 +465,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 5603,
+                  "id": 5641,
                   "mutability": "mutable",
                   "name": "_value",
                   "nodeType": "VariableDeclaration",
                   "overrides": null,
-                  "scope": 5613,
+                  "scope": 5651,
                   "src": "127:14:24",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -479,7 +479,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 5602,
+                    "id": 5640,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "127:7:24",
@@ -495,12 +495,12 @@
               "src": "105:37:24"
             },
             "returnParameters": {
-              "id": 5605,
+              "id": 5643,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "150:0:24"
             },
-            "scope": 5622,
+            "scope": 5660,
             "src": "87:100:24",
             "stateMutability": "nonpayable",
             "virtual": false,
@@ -508,13 +508,13 @@
           },
           {
             "body": {
-              "id": 5616,
+              "id": 5654,
               "nodeType": "Block",
               "src": "221:2:24",
               "statements": []
             },
             "documentation": null,
-            "id": 5617,
+            "id": 5655,
             "implemented": true,
             "kind": "fallback",
             "modifiers": [],
@@ -522,18 +522,18 @@
             "nodeType": "FunctionDefinition",
             "overrides": null,
             "parameters": {
-              "id": 5614,
+              "id": 5652,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "201:2:24"
             },
             "returnParameters": {
-              "id": 5615,
+              "id": 5653,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "221:0:24"
             },
-            "scope": 5622,
+            "scope": 5660,
             "src": "192:31:24",
             "stateMutability": "payable",
             "virtual": false,
@@ -541,13 +541,13 @@
           },
           {
             "body": {
-              "id": 5620,
+              "id": 5658,
               "nodeType": "Block",
               "src": "256:2:24",
               "statements": []
             },
             "documentation": null,
-            "id": 5621,
+            "id": 5659,
             "implemented": true,
             "kind": "receive",
             "modifiers": [],
@@ -555,25 +555,25 @@
             "nodeType": "FunctionDefinition",
             "overrides": null,
             "parameters": {
-              "id": 5618,
+              "id": 5656,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "236:2:24"
             },
             "returnParameters": {
-              "id": 5619,
+              "id": 5657,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "256:0:24"
             },
-            "scope": 5622,
+            "scope": 5660,
             "src": "228:30:24",
             "stateMutability": "payable",
             "virtual": false,
             "visibility": "external"
           }
         ],
-        "scope": 5623,
+        "scope": 5661,
         "src": "65:195:24"
       }
     ],
@@ -585,8 +585,7 @@
   },
   "networks": {},
   "schemaVersion": "3.0.23",
-  "updatedAt": "2020-07-26T12:53:29.436Z",
-  "networkType": "ethereum",
+  "updatedAt": "2020-07-26T17:30:29.261Z",
   "devdoc": {
     "kind": "dev",
     "methods": {},

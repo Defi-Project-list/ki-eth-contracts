@@ -6,11 +6,9 @@ import "./StorageBase.sol";
 
 contract Proxy is StorageBase {
 
-   // receive () external payable {
-   //     if (msg.value > 0) {
-   //         emit GotEther(msg.sender, msg.value);
-   //     }
-   // }
+   receive () external payable {
+     revert('should not accept ether directly');
+   }
 
    fallback () external payable {
         // solium-disable-next-line security/no-inline-assembly
