@@ -15,7 +15,7 @@ const gas = 6000000;
 
 module.exports = function(deployer, network, accounts) {
   deployer.then(async () => {
-	  const factoryProxy = await deployer.deploy(FactoryProxy, accounts[0], accounts[1], accounts[2], { gas, gasPrice}); // , overwrite: !liveNetworks[network] });
+	  const factoryProxy = await deployer.deploy(FactoryProxy, accounts[0], accounts[1], accounts[2], { gas, gasPrice, overwrite: !liveNetworks[network] });
   	const factory = await deployer.deploy(Factory, accounts[0], accounts[1], accounts[2], { gas, gasPrice });
 	  await factoryProxy.setTarget(factory.address, { gas, gasPrice, from:accounts[0] });
 	  await factoryProxy.setTarget(factory.address, { gas, gasPrice, from:accounts[1] });
