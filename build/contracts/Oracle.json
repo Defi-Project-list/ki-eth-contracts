@@ -40,7 +40,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [],
@@ -53,7 +54,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [],
@@ -66,7 +68,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -115,7 +118,8 @@
       "name": "update20",
       "outputs": [],
       "stateMutability": "payable",
-      "type": "function"
+      "type": "function",
+      "payable": true
     },
     {
       "inputs": [
@@ -152,7 +156,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -171,7 +176,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [],
@@ -184,7 +190,8 @@
         }
       ],
       "stateMutability": "pure",
-      "type": "function"
+      "type": "function",
+      "constant": true
     }
   ],
   "metadata": "{\"compiler\":{\"version\":\"0.6.11+commit.5ef660b1\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner1\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner2\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner3\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"cancel\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"initialized\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_token\",\"type\":\"address\"}],\"name\":\"is20Safe\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_token\",\"type\":\"address\"}],\"name\":\"is721Safe\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"isOwner\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"paymentAddress\",\"outputs\":[{\"internalType\":\"address payable\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_newOwner\",\"type\":\"address\"}],\"name\":\"replaceOwner\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address payable\",\"name\":\"_payto\",\"type\":\"address\"}],\"name\":\"setPaymentAddress\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_token\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"_safe\",\"type\":\"bool\"}],\"name\":\"update20\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_token\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"_safe\",\"type\":\"bool\"}],\"name\":\"update721\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"version\",\"outputs\":[{\"internalType\":\"bytes8\",\"name\":\"\",\"type\":\"bytes8\"}],\"stateMutability\":\"pure\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"/home/tal/code/kirobo/ki-eth-contracts/contracts/Oracle.sol\":\"Oracle\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":400},\"remappings\":[]},\"sources\":{\"/home/tal/code/kirobo/ki-eth-contracts/contracts/Oracle.sol\":{\"keccak256\":\"0x634a1463871ee0806f2149a021263d9e99c396d5db74bdf8981ede88fa6a8dce\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://285031271a32438df8c089ea22e6efa330822281ece307f7292cd98df1231597\",\"dweb:/ipfs/QmdFXHp6gdWkBwbrYkncrhibiGYHJ3H29vEBUVBbx7PXKy\"]},\"/home/tal/code/kirobo/ki-eth-contracts/contracts/lib/IOracle.sol\":{\"keccak256\":\"0xdc22243b2a2a7cda11c6c141c247701960eb816e2528b6813c6302507665a385\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://d312a57fecc557e89d3002e03ad9fcb689db0b1b2cc603d5c1e2a40bb2b609ba\",\"dweb:/ipfs/QmbSdq7yea6mpGxwKTRok8HAjjbwfSNLqPG49gfMRG3uWB\"]},\"/home/tal/code/kirobo/ki-eth-contracts/contracts/lib/MultiSig.sol\":{\"keccak256\":\"0x2512aa24492e313be2373def1aa7f048b8290bf7d7ca2fcdde9bfbf055e5ab29\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://41f78dc5f9c07263d4c57bdc70f8d2f74d34de753221a963ec801521ff5a5d98\",\"dweb:/ipfs/QmW5VZ95M6EKaKgUXuwqRtbBib4HR1VxMnRT4XhjUww3E9\"]},\"/home/tal/code/kirobo/ki-eth-contracts/contracts/lib/OracleBase.sol\":{\"keccak256\":\"0xbdc5993af947136ce69e2f7fc6a85adaae2aee9f2392d5d64c044d0b43673345\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://984bdd6e841bb2423223465c2add22451516990ce18991ef43feb87b26422ce4\",\"dweb:/ipfs/QmXScdiQx99XUbUWsuGrBSCQ56hcnwcgWSi8WMV9tRdqJW\"]}},\"version\":1}",
@@ -2632,8 +2639,8 @@
     "4": {
       "events": {},
       "links": {},
-      "address": "0xb7a0cA0aD29C6de09DdA8dae9E1B2C2c5F16104d",
-      "transactionHash": "0x5dac0952cf281ab7feaee61479a3fb76a043ea8cc6efffc56cc4444166fc8194"
+      "address": "0x7f7c13CED690746F8A4fa24FC140D9cFD51AE46D",
+      "transactionHash": "0xea320ec841a41a23ada9458f3b3a3b69a83e5dccedf34d9858a556f381f4fea5"
     },
     "1594833854103": {
       "events": {},
@@ -2646,10 +2653,17 @@
       "links": {},
       "address": "0x4a7FAF8A2e591618252ced18800D532A91B3Ddaf",
       "transactionHash": "0x128832e1fc9bbdc5bdce23bbafcef98015d5681faa572021eab6da5a86a4096a"
+    },
+    "1595765064288": {
+      "events": {},
+      "links": {},
+      "address": "0xC2c9a9372cC0d261dB9B3C11CA8F235C23983510",
+      "transactionHash": "0xf762ab55a7d09daffcd6119f6e3da38e2d1001f91a2dd4d6cb17cd7ed59df2f8"
     }
   },
   "schemaVersion": "3.0.23",
-  "updatedAt": "2020-07-26T10:40:25.271Z",
+  "updatedAt": "2020-07-26T12:53:29.477Z",
+  "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",
     "methods": {},

@@ -206,7 +206,8 @@
     },
     {
       "stateMutability": "payable",
-      "type": "fallback"
+      "type": "fallback",
+      "payable": true
     },
     {
       "inputs": [],
@@ -219,7 +220,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [],
@@ -239,7 +241,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -270,7 +273,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [],
@@ -283,7 +287,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [],
@@ -296,7 +301,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -413,7 +419,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -432,7 +439,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -464,7 +472,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     }
   ],
   "metadata": "{\"compiler\":{\"version\":\"0.6.11+commit.5ef660b1\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner1\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner2\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner3\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"GotEther\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes8\",\"name\":\"version\",\"type\":\"bytes8\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"code\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"oracle\",\"type\":\"address\"}],\"name\":\"VersionAdded\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes8\",\"name\":\"version\",\"type\":\"bytes8\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"code\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"oracle\",\"type\":\"address\"}],\"name\":\"VersionDeployed\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"wallet\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"bytes8\",\"name\":\"version\",\"type\":\"bytes8\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"}],\"name\":\"WalletConfigurationRestored\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"wallet\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"bytes8\",\"name\":\"version\",\"type\":\"bytes8\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"}],\"name\":\"WalletCreated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"wallet\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"}],\"name\":\"WalletOwnershipRestored\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"wallet\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"bytes8\",\"name\":\"version\",\"type\":\"bytes8\"}],\"name\":\"WalletUpgraded\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"wallet\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"bytes8\",\"name\":\"version\",\"type\":\"bytes8\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"}],\"name\":\"WalletVersionRestored\",\"type\":\"event\"},{\"stateMutability\":\"payable\",\"type\":\"fallback\"},{\"inputs\":[],\"name\":\"LATEST\",\"outputs\":[{\"internalType\":\"bytes8\",\"name\":\"\",\"type\":\"bytes8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_target\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_oracle\",\"type\":\"address\"}],\"name\":\"addVersion\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_backup\",\"type\":\"address\"}],\"name\":\"addWalletBackup\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"cancel\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bool\",\"name\":\"_auto\",\"type\":\"bool\"}],\"name\":\"createWallet\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes8\",\"name\":\"_version\",\"type\":\"bytes8\"}],\"name\":\"deployVersion\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getLatestVersion\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_account\",\"type\":\"address\"}],\"name\":\"getWallet\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"isOwner\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"oracle\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"_oracle\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_backup\",\"type\":\"address\"}],\"name\":\"removeWalletBackup\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_newOwner\",\"type\":\"address\"}],\"name\":\"replaceOwner\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"restoreWalletConfiguration\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"restoreWalletOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"restoreWalletVersion\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"swProxy\",\"outputs\":[{\"internalType\":\"contract Proxy\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"swProxyLatest\",\"outputs\":[{\"internalType\":\"contract ProxyLatest\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"target\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_newOwner\",\"type\":\"address\"}],\"name\":\"transferWalletOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes8\",\"name\":\"_version\",\"type\":\"bytes8\"}],\"name\":\"upgradeWallet\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"/home/tal/code/kirobo/ki-eth-contracts/contracts/Factory.sol\":\"Factory\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":400},\"remappings\":[]},\"sources\":{\"/home/tal/code/kirobo/ki-eth-contracts/contracts/Factory.sol\":{\"keccak256\":\"0x18fd6d5e1ab5f0b71b3a1ae85a32e8d3e52af518f2849b3e8a9431cf56bf9d1c\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://e5b69490b94fa762836f4ee3709f88e1589ee871f3a33c8dd0fc118636ee6586\",\"dweb:/ipfs/QmRH6EAn6yR95EU74jRB1MzEGHTR2VhGonph2EgEeexKJk\"]},\"/home/tal/code/kirobo/ki-eth-contracts/contracts/FactoryStorage.sol\":{\"keccak256\":\"0x66c2fb9ea9819b4ebff4e6301fbc05492785dbcac88b20415e9baf9642c353e0\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://b21acd6aef760341a66ad1a74962696d5b2d0f34a73002cf190f861933a486a9\",\"dweb:/ipfs/QmTX4z5iBrPWXr4S4dG1VxqZuv8UHMKboocLUAbpEyEvKp\"]},\"/home/tal/code/kirobo/ki-eth-contracts/contracts/lib/IOracle.sol\":{\"keccak256\":\"0xdc22243b2a2a7cda11c6c141c247701960eb816e2528b6813c6302507665a385\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://d312a57fecc557e89d3002e03ad9fcb689db0b1b2cc603d5c1e2a40bb2b609ba\",\"dweb:/ipfs/QmbSdq7yea6mpGxwKTRok8HAjjbwfSNLqPG49gfMRG3uWB\"]},\"/home/tal/code/kirobo/ki-eth-contracts/contracts/lib/MultiSig.sol\":{\"keccak256\":\"0x2512aa24492e313be2373def1aa7f048b8290bf7d7ca2fcdde9bfbf055e5ab29\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://41f78dc5f9c07263d4c57bdc70f8d2f74d34de753221a963ec801521ff5a5d98\",\"dweb:/ipfs/QmW5VZ95M6EKaKgUXuwqRtbBib4HR1VxMnRT4XhjUww3E9\"]},\"/home/tal/code/kirobo/ki-eth-contracts/contracts/lib/Proxy.sol\":{\"keccak256\":\"0x7cf813ae3513e0ee8097792e5d13355e6c4af7cb1cc902548e28f349e09e6298\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://cf0b045ad86da718ef3b0cae466ff17f2fdd77366078df5037669e3d50a9220a\",\"dweb:/ipfs/QmQX2XSyHULSawa3e5a41rebCst74ottTErwifisUq9bT1\"]},\"/home/tal/code/kirobo/ki-eth-contracts/contracts/lib/ProxyLatest.sol\":{\"keccak256\":\"0x313f425773a72b03c2ea1e4f0ed358e970567ae3b6fc4b5fbf81e9311313286b\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://494e2fb516f0f764fc3dfae1504d4d5e635e60f6c537ea35bb12fe009438fffd\",\"dweb:/ipfs/QmQySh6qDnZjAdaJKs2fRqPkmsoyYR3DxhFx6U3mg89R1G\"]},\"/home/tal/code/kirobo/ki-eth-contracts/contracts/lib/StorageBase.sol\":{\"keccak256\":\"0x7b94431294a38e983340d28efc098aa34662e0fb1eb3a0df8bef47db33f2f667\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://10e3eb128cc024fa58a7c1d43da1d66a24137c64e60725ba2165d77b15ab28ad\",\"dweb:/ipfs/QmP7jD8S3wDtBUwfv6uskrpyFkiCaYP2mu2pDBqc8hnabw\"]}},\"version\":1}",
@@ -30641,8 +30650,8 @@
         }
       },
       "links": {},
-      "address": "0x03DaaB70252e5dCA1D1473F849c568516F1ECDa5",
-      "transactionHash": "0xc090f91771c37562579d2d345cc01dfa4a45344ce2437d67a42d25ec624a1704"
+      "address": "0xf082026eE4Bee35c89Ea2252C80D282DC5f52194",
+      "transactionHash": "0xe43f9c807008e489b9b318f899a201f70d44c546a1790d29ab1b2bd7e5f43cb8"
     },
     "1594833854103": {
       "events": {
@@ -31021,10 +31030,200 @@
       "links": {},
       "address": "0xaA7380527b861bC17B669620Fb8C47e859eBC1C6",
       "transactionHash": "0x61ef67d5c90580957334aef5126b0624d22cddc76119b52aa018c6954366ece6"
+    },
+    "1595765064288": {
+      "events": {
+        "0xc105bc3e1f2504fd54e7e6356af5f26fd670efc4a667b823e75f65d63c6bab66": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "from",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "value",
+              "type": "uint256"
+            }
+          ],
+          "name": "GotEther",
+          "type": "event"
+        },
+        "0xf3c8e7c782d00f601a9d70107849e3f4894c000271e60377966bcfa99ca3ead2": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "bytes8",
+              "name": "version",
+              "type": "bytes8"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "code",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "oracle",
+              "type": "address"
+            }
+          ],
+          "name": "VersionAdded",
+          "type": "event"
+        },
+        "0xb4d04ce57b22f1de0bfbaebe42d34d0616a77b6de95fde396bbd054851d22f58": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "bytes8",
+              "name": "version",
+              "type": "bytes8"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "code",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "oracle",
+              "type": "address"
+            }
+          ],
+          "name": "VersionDeployed",
+          "type": "event"
+        },
+        "0x9dff4715dcc255fd0abdc515933401366bac62424c60e57d607dfe9003f2dc17": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "wallet",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "bytes8",
+              "name": "version",
+              "type": "bytes8"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            }
+          ],
+          "name": "WalletConfigurationRestored",
+          "type": "event"
+        },
+        "0x689c6b1155ee0314d789d2c8968b47cb04b9c8592446c127023fc6399b17310c": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "wallet",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "bytes8",
+              "name": "version",
+              "type": "bytes8"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            }
+          ],
+          "name": "WalletCreated",
+          "type": "event"
+        },
+        "0x5818d755b157239746017f59fc87c7100652290409a15a7d4fba19ff98efcb5f": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "wallet",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            }
+          ],
+          "name": "WalletOwnershipRestored",
+          "type": "event"
+        },
+        "0xeafb3b932d1424e32ec924eb9695430fd852ce33327c076abb1699b72ec58f16": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "wallet",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "bytes8",
+              "name": "version",
+              "type": "bytes8"
+            }
+          ],
+          "name": "WalletUpgraded",
+          "type": "event"
+        },
+        "0x674e126c2ea08c63dbe99eca56b1e9bd3b8d412a467e57060a5953f6e3c20600": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "wallet",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "bytes8",
+              "name": "version",
+              "type": "bytes8"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            }
+          ],
+          "name": "WalletVersionRestored",
+          "type": "event"
+        }
+      },
+      "links": {},
+      "address": "0xd8157eEbeC9eD3484034B60785e17B086c2ad474",
+      "transactionHash": "0xf81ea674361e0384c5a754b44553a30137bef51aabb78c65f686dc5907744f8a"
     }
   },
   "schemaVersion": "3.0.23",
-  "updatedAt": "2020-07-26T10:40:25.247Z",
+  "updatedAt": "2020-07-26T12:53:29.452Z",
+  "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",
     "methods": {},
