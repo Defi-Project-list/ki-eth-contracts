@@ -5,9 +5,6 @@ pragma solidity 0.6.11;
 abstract contract MultiSig {
     mapping(address => bool) private owners;
 
-    mapping (address=>bool) private tokens_20;
-    mapping (address=>bool) private tokens_721;
-
     struct Action {
         address owner;
         uint256 value;
