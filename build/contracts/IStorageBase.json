@@ -15,15 +15,16 @@
       "type": "function"
     }
   ],
-  "metadata": "{\"compiler\":{\"version\":\"0.6.11+commit.5ef660b1\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"/home/tal/code/kirobo/ki-eth-contracts/contracts/lib/StorageBase.sol\":\"IStorageBase\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":400},\"remappings\":[]},\"sources\":{\"/home/tal/code/kirobo/ki-eth-contracts/contracts/lib/StorageBase.sol\":{\"keccak256\":\"0x7b94431294a38e983340d28efc098aa34662e0fb1eb3a0df8bef47db33f2f667\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://10e3eb128cc024fa58a7c1d43da1d66a24137c64e60725ba2165d77b15ab28ad\",\"dweb:/ipfs/QmP7jD8S3wDtBUwfv6uskrpyFkiCaYP2mu2pDBqc8hnabw\"]}},\"version\":1}",
+  "metadata": "{\"compiler\":{\"version\":\"0.6.11+commit.5ef660b1\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"/Users/Tal/code/kirobo/ki-eth-contracts/contracts/lib/StorageBase.sol\":\"IStorageBase\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":400},\"remappings\":[]},\"sources\":{\"/Users/Tal/code/kirobo/ki-eth-contracts/contracts/lib/StorageBase.sol\":{\"keccak256\":\"0x7b94431294a38e983340d28efc098aa34662e0fb1eb3a0df8bef47db33f2f667\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://10e3eb128cc024fa58a7c1d43da1d66a24137c64e60725ba2165d77b15ab28ad\",\"dweb:/ipfs/QmP7jD8S3wDtBUwfv6uskrpyFkiCaYP2mu2pDBqc8hnabw\"]}},\"version\":1}",
   "bytecode": "0x",
   "deployedBytecode": "0x",
+  "immutableReferences": {},
   "sourceMap": "",
   "deployedSourceMap": "",
   "source": "// SPDX-License-Identifier: UNLICENSED\n\npragma solidity 0.6.11;\n\ninterface ICreator {\n    function upgradeWallet(bytes8 _id) external;\n    function transferWalletOwnership(address _newOwner) external;\n    function addWalletBackup(address _wallet) external;\n    function removeWalletBackup(address _wallet) external;\n    function getLatestVersion() external view returns (address);\n    function oracle() external view returns (address);\n}\n\ninterface IProxy {\n    function init(address _owner, address _target) external;\n    function owner() external view returns (address);\n    function target() external view returns (address);\n}\n\ninterface IStorage {\n    function migrate() external;\n    function version() external pure returns (bytes8);\n}\n\ninterface IStorageBase {\n    function owner() external view returns (address);\n}\n\ncontract StorageBase is IProxy {\n    address internal _owner;\n    address internal _target;\n\n    function owner() external view override returns (address) {\n        return _owner;\n    }\n\n    function target() external view override returns (address) {\n        return _target;\n    }\n\n    function creator() external pure returns (address) {\n        return address(0);\n    }\n\n    modifier onlyCreator () {\n        require (msg.sender == this.creator(), \"not creator\");\n        _;\n    }\n\n    modifier onlyOwner () {\n        require (msg.sender == _owner, \"not owner\");\n        _;\n    }\n\n    function init(address __owner, address __target) external onlyCreator() override {\n        if (__owner != _owner && __owner != address(0)) _owner = __owner;\n        if (__target != _target && __target != address(0)) _target = __target;\n    }\n\n    constructor () public {\n        _owner = msg.sender;\n    }\n\n    function upgrade(bytes8 _version) public onlyOwner() {\n        ICreator(this.creator()).upgradeWallet(_version);\n    }\n\n}\n",
-  "sourcePath": "/home/tal/code/kirobo/ki-eth-contracts/contracts/lib/StorageBase.sol",
+  "sourcePath": "/Users/Tal/code/kirobo/ki-eth-contracts/contracts/lib/StorageBase.sol",
   "ast": {
-    "absolutePath": "/home/tal/code/kirobo/ki-eth-contracts/contracts/lib/StorageBase.sol",
+    "absolutePath": "/Users/Tal/code/kirobo/ki-eth-contracts/contracts/lib/StorageBase.sol",
     "exportedSymbols": {
       "ICreator": [
         5175
@@ -2473,7 +2474,7 @@
     "src": "40:1806:19"
   },
   "legacyAST": {
-    "absolutePath": "/home/tal/code/kirobo/ki-eth-contracts/contracts/lib/StorageBase.sol",
+    "absolutePath": "/Users/Tal/code/kirobo/ki-eth-contracts/contracts/lib/StorageBase.sol",
     "exportedSymbols": {
       "ICreator": [
         5175
@@ -4927,8 +4928,8 @@
     "version": "0.6.11+commit.5ef660b1.Emscripten.clang"
   },
   "networks": {},
-  "schemaVersion": "3.0.23",
-  "updatedAt": "2020-07-27T16:10:27.449Z",
+  "schemaVersion": "3.2.0",
+  "updatedAt": "2020-08-30T11:48:45.519Z",
   "devdoc": {
     "kind": "dev",
     "methods": {},

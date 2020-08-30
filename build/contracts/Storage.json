@@ -74,15 +74,16 @@
       "type": "function"
     }
   ],
-  "metadata": "{\"compiler\":{\"version\":\"0.6.11+commit.5ef660b1\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"BACKUP_STATE_ACTIVATED\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"BACKUP_STATE_ENABLED\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"BACKUP_STATE_PENDING\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"BACKUP_STATE_REGISTERED\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"migrate\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"version\",\"outputs\":[{\"internalType\":\"bytes8\",\"name\":\"\",\"type\":\"bytes8\"}],\"stateMutability\":\"pure\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"/home/tal/code/kirobo/ki-eth-contracts/contracts/lib/Storage.sol\":\"Storage\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":400},\"remappings\":[]},\"sources\":{\"/home/tal/code/kirobo/ki-eth-contracts/contracts/lib/Storage.sol\":{\"keccak256\":\"0x2e635aa55ca4f07129e0fdeac9542f24671cbb3957b49292eeb5bfbb3e1f01ac\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://22fa414a678e1f3f0e681e376ccbbbba2057709b095c48eb8e3232679768e992\",\"dweb:/ipfs/QmRfptZTHUk8jfmrtQ444MeT6wMs8J5f4afJVYE34GLQWz\"]},\"/home/tal/code/kirobo/ki-eth-contracts/contracts/lib/StorageBase.sol\":{\"keccak256\":\"0x7b94431294a38e983340d28efc098aa34662e0fb1eb3a0df8bef47db33f2f667\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://10e3eb128cc024fa58a7c1d43da1d66a24137c64e60725ba2165d77b15ab28ad\",\"dweb:/ipfs/QmP7jD8S3wDtBUwfv6uskrpyFkiCaYP2mu2pDBqc8hnabw\"]}},\"version\":1}",
+  "metadata": "{\"compiler\":{\"version\":\"0.6.11+commit.5ef660b1\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"BACKUP_STATE_ACTIVATED\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"BACKUP_STATE_ENABLED\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"BACKUP_STATE_PENDING\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"BACKUP_STATE_REGISTERED\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"migrate\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"version\",\"outputs\":[{\"internalType\":\"bytes8\",\"name\":\"\",\"type\":\"bytes8\"}],\"stateMutability\":\"pure\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"/Users/Tal/code/kirobo/ki-eth-contracts/contracts/lib/Storage.sol\":\"Storage\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":400},\"remappings\":[]},\"sources\":{\"/Users/Tal/code/kirobo/ki-eth-contracts/contracts/lib/Storage.sol\":{\"keccak256\":\"0x2e635aa55ca4f07129e0fdeac9542f24671cbb3957b49292eeb5bfbb3e1f01ac\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://22fa414a678e1f3f0e681e376ccbbbba2057709b095c48eb8e3232679768e992\",\"dweb:/ipfs/QmRfptZTHUk8jfmrtQ444MeT6wMs8J5f4afJVYE34GLQWz\"]},\"/Users/Tal/code/kirobo/ki-eth-contracts/contracts/lib/StorageBase.sol\":{\"keccak256\":\"0x7b94431294a38e983340d28efc098aa34662e0fb1eb3a0df8bef47db33f2f667\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://10e3eb128cc024fa58a7c1d43da1d66a24137c64e60725ba2165d77b15ab28ad\",\"dweb:/ipfs/QmP7jD8S3wDtBUwfv6uskrpyFkiCaYP2mu2pDBqc8hnabw\"]}},\"version\":1}",
   "bytecode": "0x",
   "deployedBytecode": "0x",
+  "immutableReferences": {},
   "sourceMap": "",
   "deployedSourceMap": "",
   "source": "// SPDX-License-Identifier: UNLICENSED\n\npragma solidity 0.6.11;\n\nimport \"./StorageBase.sol\";\n//import \"../Trust.sol\";\n\nabstract contract Storage is IStorage {\n\n    uint8 constant public BACKUP_STATE_PENDING    = 0;\n    uint8 constant public BACKUP_STATE_REGISTERED = 1;\n    uint8 constant public BACKUP_STATE_ENABLED    = 2;\n    uint8 constant public BACKUP_STATE_ACTIVATED  = 3;\n\n    // ------------- Backupable ---------\n    struct Backup {\n        address wallet;\n        uint40  timestamp;\n        uint32  timeout;\n        uint8   state;\n        uint16  filler;\n    }\n\n    Backup internal backup;\n\n    // ------------- Heritable ---------\n    uint256 constant internal MAX_HEIRS = 8;\n\n    struct Heir {\n        address payable wallet;\n        bool    sent;\n        uint16  bps;\n        uint72  filler;\n    }\n\n    struct Inheritance {\n        Heir[MAX_HEIRS] heirs;\n        uint40  timeout;\n        bool    enabled;\n        bool    activated;\n        uint40  timestamp;\n        uint16  filler;\n    }\n\n    uint256 internal totalTransfered;\n    Inheritance internal inheritance;\n\n    // ------------- Trust ---------\n    //Trust internal trust;\n\n}\n",
-  "sourcePath": "/home/tal/code/kirobo/ki-eth-contracts/contracts/lib/Storage.sol",
+  "sourcePath": "/Users/Tal/code/kirobo/ki-eth-contracts/contracts/lib/Storage.sol",
   "ast": {
-    "absolutePath": "/home/tal/code/kirobo/ki-eth-contracts/contracts/lib/Storage.sol",
+    "absolutePath": "/Users/Tal/code/kirobo/ki-eth-contracts/contracts/lib/Storage.sol",
     "exportedSymbols": {
       "Storage": [
         5142
@@ -103,7 +104,7 @@
         "src": "40:23:18"
       },
       {
-        "absolutePath": "/home/tal/code/kirobo/ki-eth-contracts/contracts/lib/StorageBase.sol",
+        "absolutePath": "/Users/Tal/code/kirobo/ki-eth-contracts/contracts/lib/StorageBase.sol",
         "file": "./StorageBase.sol",
         "id": 5083,
         "nodeType": "ImportDirective",
@@ -953,7 +954,7 @@
     "src": "40:1109:18"
   },
   "legacyAST": {
-    "absolutePath": "/home/tal/code/kirobo/ki-eth-contracts/contracts/lib/Storage.sol",
+    "absolutePath": "/Users/Tal/code/kirobo/ki-eth-contracts/contracts/lib/Storage.sol",
     "exportedSymbols": {
       "Storage": [
         5142
@@ -974,7 +975,7 @@
         "src": "40:23:18"
       },
       {
-        "absolutePath": "/home/tal/code/kirobo/ki-eth-contracts/contracts/lib/StorageBase.sol",
+        "absolutePath": "/Users/Tal/code/kirobo/ki-eth-contracts/contracts/lib/StorageBase.sol",
         "file": "./StorageBase.sol",
         "id": 5083,
         "nodeType": "ImportDirective",
@@ -1828,8 +1829,8 @@
     "version": "0.6.11+commit.5ef660b1.Emscripten.clang"
   },
   "networks": {},
-  "schemaVersion": "3.0.23",
-  "updatedAt": "2020-07-27T16:10:27.439Z",
+  "schemaVersion": "3.2.0",
+  "updatedAt": "2020-08-30T11:48:45.502Z",
   "devdoc": {
     "kind": "dev",
     "methods": {},

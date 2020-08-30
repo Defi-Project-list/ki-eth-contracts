@@ -92,15 +92,16 @@
       "type": "function"
     }
   ],
-  "metadata": "{\"compiler\":{\"version\":\"0.6.11+commit.5ef660b1\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"initialized\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_token\",\"type\":\"address\"}],\"name\":\"is20Safe\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_token\",\"type\":\"address\"}],\"name\":\"is721Safe\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"paymentAddress\",\"outputs\":[{\"internalType\":\"address payable\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address payable\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"setPaymentAddress\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"version\",\"outputs\":[{\"internalType\":\"bytes8\",\"name\":\"\",\"type\":\"bytes8\"}],\"stateMutability\":\"pure\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"/home/tal/code/kirobo/ki-eth-contracts/contracts/lib/IOracle.sol\":\"IOracle\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":400},\"remappings\":[]},\"sources\":{\"/home/tal/code/kirobo/ki-eth-contracts/contracts/lib/IOracle.sol\":{\"keccak256\":\"0xdc22243b2a2a7cda11c6c141c247701960eb816e2528b6813c6302507665a385\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://d312a57fecc557e89d3002e03ad9fcb689db0b1b2cc603d5c1e2a40bb2b609ba\",\"dweb:/ipfs/QmbSdq7yea6mpGxwKTRok8HAjjbwfSNLqPG49gfMRG3uWB\"]}},\"version\":1}",
+  "metadata": "{\"compiler\":{\"version\":\"0.6.11+commit.5ef660b1\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"initialized\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_token\",\"type\":\"address\"}],\"name\":\"is20Safe\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_token\",\"type\":\"address\"}],\"name\":\"is721Safe\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"paymentAddress\",\"outputs\":[{\"internalType\":\"address payable\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address payable\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"setPaymentAddress\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"version\",\"outputs\":[{\"internalType\":\"bytes8\",\"name\":\"\",\"type\":\"bytes8\"}],\"stateMutability\":\"pure\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"/Users/Tal/code/kirobo/ki-eth-contracts/contracts/lib/IOracle.sol\":\"IOracle\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":400},\"remappings\":[]},\"sources\":{\"/Users/Tal/code/kirobo/ki-eth-contracts/contracts/lib/IOracle.sol\":{\"keccak256\":\"0xdc22243b2a2a7cda11c6c141c247701960eb816e2528b6813c6302507665a385\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://d312a57fecc557e89d3002e03ad9fcb689db0b1b2cc603d5c1e2a40bb2b609ba\",\"dweb:/ipfs/QmbSdq7yea6mpGxwKTRok8HAjjbwfSNLqPG49gfMRG3uWB\"]}},\"version\":1}",
   "bytecode": "0x",
   "deployedBytecode": "0x",
+  "immutableReferences": {},
   "sourceMap": "",
   "deployedSourceMap": "",
   "source": "// SPDX-License-Identifier: UNLICENSED\n\npragma solidity 0.6.11;\n\ninterface IOracle {\n    function is20Safe(address _token) external view returns (bool);\n    function is721Safe(address _token) external view returns (bool);\n    function version() external pure returns (bytes8);\n    function setPaymentAddress(address payable) external;\n    function paymentAddress() external view returns (address payable);\n    function initialized() external view returns (bool);\n}\n",
-  "sourcePath": "/home/tal/code/kirobo/ki-eth-contracts/contracts/lib/IOracle.sol",
+  "sourcePath": "/Users/Tal/code/kirobo/ki-eth-contracts/contracts/lib/IOracle.sol",
   "ast": {
-    "absolutePath": "/home/tal/code/kirobo/ki-eth-contracts/contracts/lib/IOracle.sol",
+    "absolutePath": "/Users/Tal/code/kirobo/ki-eth-contracts/contracts/lib/IOracle.sol",
     "exportedSymbols": {
       "IOracle": [
         4600
@@ -552,7 +553,7 @@
     "src": "40:425:12"
   },
   "legacyAST": {
-    "absolutePath": "/home/tal/code/kirobo/ki-eth-contracts/contracts/lib/IOracle.sol",
+    "absolutePath": "/Users/Tal/code/kirobo/ki-eth-contracts/contracts/lib/IOracle.sol",
     "exportedSymbols": {
       "IOracle": [
         4600
@@ -1008,8 +1009,8 @@
     "version": "0.6.11+commit.5ef660b1.Emscripten.clang"
   },
   "networks": {},
-  "schemaVersion": "3.0.23",
-  "updatedAt": "2020-07-27T16:10:27.421Z",
+  "schemaVersion": "3.2.0",
+  "updatedAt": "2020-08-30T11:48:45.475Z",
   "devdoc": {
     "kind": "dev",
     "methods": {},
