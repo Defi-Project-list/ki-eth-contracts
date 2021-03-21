@@ -11,9 +11,10 @@ var Root = artifacts.require("./Root.sol");
 const liveNetworks = { rinkeby: true, kovan: true };
 
 const gasPrice =  web3.utils.toWei('3', 'gwei');
-const gas = 6000000;
+const gas = 6700000;
 
-module.exports = function(deployer, network, accounts) {
+module.exports = function (deployer, network, accounts) {
+  console.log('deploy_contracts')
   deployer.then(async () => {
 	  const factoryProxy = await deployer.deploy(FactoryProxy, accounts[0], accounts[1], accounts[2], { gas, gasPrice, overwrite: !liveNetworks[network] });
   	const factory = await deployer.deploy(Factory, accounts[0], accounts[1], accounts[2], { gas, gasPrice });

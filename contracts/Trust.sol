@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: UNLICENSED
 
-pragma solidity 0.6.11;
+pragma solidity ^0.8.0;
 
-import "../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol";
+// import "../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 contract Trust {
 
-    using SafeMath for uint32;
-    using SafeMath for uint40;
-    using SafeMath for uint256;
+    // using SafeMath for uint32;
+    // using SafeMath for uint40;
+    // using SafeMath for uint256;
 
     struct Fund {
         address payable wallet;
@@ -36,14 +36,14 @@ contract Trust {
                  uint16   _times,
                  uint256  _amount,
                  bool     _cancelable)
-                payable logPayment() public {
+                payable logPayment() {
 
         require(_wallet != address(0));
         require(_wallet != msg.sender);
         require((_start > 0) && (_period > 0) && (_times > 0) && (_amount > 0));
-        require(msg.value >= _amount.mul(_times));
+        require(msg.value >= _amount * _times);
 
-        self.owner = msg.sender;
+        self.owner = payable(msg.sender);
         fund.wallet = _wallet;
         fund.start = _start;
         fund.period = _period;
@@ -74,11 +74,11 @@ contract Trust {
             return 0;
         }
         // solium-disable-next-line security/no-block-members
-        if (block.timestamp >= fund.start.add(fund.period.mul(fund.times))) {
+        if (block.timestamp >= fund.start + (fund.period * fund.times)) {
             return address(this).balance;
         }
         // solium-disable-next-line security/no-block-members
-        return block.timestamp.sub(fund.start).div(fund.period).add(1).mul(amount).sub(payed);
+        return (((block.timestamp - fund.start) / fund.period) + 1) * amount / payed;
     }
 
     function getNextPaymentTimestamp() public view returns (uint256) {
@@ -86,7 +86,7 @@ contract Trust {
         if (block.timestamp < fund.start) {
             return fund.start;
         }
-        uint256 endTimestamp = fund.start.add(fund.period.mul(fund.times));
+        uint256 endTimestamp = fund.start + (fund.period*fund.times);
         // solium-disable-next-line security/no-block-members
         if (block.timestamp >= endTimestamp) {
             if (address(this).balance > 0) {
@@ -96,7 +96,7 @@ contract Trust {
             return uint40(0);
         }
         // solium-disable-next-line security/no-block-members
-        return fund.start.add(payed.div(amount).mul(fund.period));
+        return fund.start + ((payed / amount) * fund.period);
     }
 
     function getTotalPayed () public view returns (uint256) {

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 
-pragma solidity 0.6.11;
+pragma solidity ^0.8.0;
 
 import "./FactoryStorage.sol";
 import "./lib/IOracle.sol";
@@ -15,7 +15,7 @@ contract Factory is FactoryStorage {
     event VersionAdded(bytes8 indexed version, address indexed code, address indexed oracle);
     event VersionDeployed(bytes8 indexed version, address indexed code, address indexed oracle);
 
-    constructor (address owner1, address owner2, address owner3) FactoryStorage(owner1, owner2, owner3) public {
+    constructor (address owner1, address owner2, address owner3) FactoryStorage(owner1, owner2, owner3) {
     }
 
     function _createWallet(address _creator, address _target) private returns (address result) {

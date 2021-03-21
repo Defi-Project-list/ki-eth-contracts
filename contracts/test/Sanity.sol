@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 
-pragma solidity 0.6.11;
+pragma solidity ^0.8.0;
 
 contract Sanity {
 
@@ -19,7 +19,7 @@ contract Sanity {
     event NameChanged(address by, string to);
     event ValueChanged(uint256 value);
 
-    constructor() public {
+    constructor() {
         name = "Kirobo";
         owner = msg.sender;
         value = 100;

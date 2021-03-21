@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 
-pragma solidity 0.6.11;
+pragma solidity ^0.8.0;
 
 interface ICreator {
     function upgradeWallet(bytes8 _id) external;
@@ -57,7 +57,7 @@ contract StorageBase is IProxy {
         if (__target != _target && __target != address(0)) _target = __target;
     }
 
-    constructor () public {
+    constructor () {
         _owner = msg.sender;
     }
 

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 
-pragma solidity 0.6.11;
+pragma solidity ^0.8.0;
 
 abstract contract MultiSig {
     mapping(address => bool) private owners;
@@ -13,7 +13,7 @@ abstract contract MultiSig {
 
     Action private action;
 
-    constructor(address owner1, address owner2, address owner3) public {
+    constructor(address owner1, address owner2, address owner3) {
 
         require(owner1 != address(0), "owner1 cannot be 0");
         require(owner2 != address(0), "owner2 cannot be 0");

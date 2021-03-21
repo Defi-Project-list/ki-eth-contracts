@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 
-pragma solidity 0.6.11;
+pragma solidity ^0.8.0;
 
 import "../lib/OracleBase.sol";
 
@@ -8,7 +8,7 @@ contract Oracle2 is OracleBase {
 
     mapping (address=>bool) private tokens;
 
-    constructor(address owner1, address owner2, address owner3) MultiSig(owner1, owner2, owner3) public {
+    constructor(address owner1, address owner2, address owner3) MultiSig(owner1, owner2, owner3) {
     }
 
     function updateToken(address _token, bool _safe) public {

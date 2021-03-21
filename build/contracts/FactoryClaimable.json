@@ -151,43 +151,77 @@
       "type": "function"
     }
   ],
-  "metadata": "{\"compiler\":{\"version\":\"0.6.11+commit.5ef660b1\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"}],\"name\":\"OwnershipRenounced\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"LATEST\",\"outputs\":[{\"internalType\":\"bytes8\",\"name\":\"\",\"type\":\"bytes8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"cancel\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"claimOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"isOwner\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"renounceOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_newOwner\",\"type\":\"address\"}],\"name\":\"replaceOwner\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"swProxy\",\"outputs\":[{\"internalType\":\"contract Proxy\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"swProxyLatest\",\"outputs\":[{\"internalType\":\"contract ProxyLatest\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"target\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"pure\",\"type\":\"function\"}],\"devdoc\":{\"details\":\"Extension for the Ownable contract, where the ownership needs to be claimed. This allows the new owner to accept the transfer.\",\"kind\":\"dev\",\"methods\":{\"claimOwnership()\":{\"details\":\"Allows the pendingOwner address to finalize the transfer.\"},\"renounceOwnership()\":{\"details\":\"Allows the current owner to relinquish control of the contract.\"},\"transferOwnership(address)\":{\"details\":\"Allows the current owner to set the pendingOwner address.\",\"params\":{\"newOwner\":\"The address to transfer ownership to.\"}}},\"title\":\"Claimable\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"renounceOwnership()\":{\"notice\":\"Renouncing to ownership will leave the contract without an owner. It will not be possible to call the functions with the `onlyOwner` modifier anymore.\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"/Users/Tal/code/kirobo/ki-eth-contracts/contracts/lib/FactoryClaimable.sol\":\"FactoryClaimable\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":400},\"remappings\":[]},\"sources\":{\"/Users/Tal/code/kirobo/ki-eth-contracts/contracts/FactoryStorage.sol\":{\"keccak256\":\"0x66c2fb9ea9819b4ebff4e6301fbc05492785dbcac88b20415e9baf9642c353e0\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://b21acd6aef760341a66ad1a74962696d5b2d0f34a73002cf190f861933a486a9\",\"dweb:/ipfs/QmTX4z5iBrPWXr4S4dG1VxqZuv8UHMKboocLUAbpEyEvKp\"]},\"/Users/Tal/code/kirobo/ki-eth-contracts/contracts/lib/FactoryClaimable.sol\":{\"keccak256\":\"0x184d007ed174134bc423be2f0ff2acf5d82020c85d4b557fe3d2ca231fc5593f\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://cd800cb5ede842077ad3b4d190ad44fc0be384f80a5fbdfc4510da43972d644e\",\"dweb:/ipfs/QmRJJ5rJkCKNArZBSaGsPfLnHeip1DdXchJzCAi6FST6dy\"]},\"/Users/Tal/code/kirobo/ki-eth-contracts/contracts/lib/FactoryOwnable.sol\":{\"keccak256\":\"0x27c1fc846a3e54a3e9977d1846b40b3cdd840aeb7125181f3260e8fcb6346e58\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://713f532d7e513a4c719450632cd73b1a6d4cf7ce9eabf540b709367ac64ed587\",\"dweb:/ipfs/QmUZjaXv37Wpd3SqKHK6BezFiLR9zVzgXajLJmwupm6CM7\"]},\"/Users/Tal/code/kirobo/ki-eth-contracts/contracts/lib/MultiSig.sol\":{\"keccak256\":\"0x52394a94169011b8a5ec02b6c3c9803f8a67373953e7eda1a5c48e4a20e74072\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://b6b5a5c0b629c17790d78e895b6171808761c58882a39222c42d4fb1a86731ce\",\"dweb:/ipfs/QmXYdE8pdwctK4KVNag815QFFf3ZSraaak71sMSDdMWAZ9\"]},\"/Users/Tal/code/kirobo/ki-eth-contracts/contracts/lib/Proxy.sol\":{\"keccak256\":\"0x0b699927542abd04c4cbc4f914e036c7c70c18f9764f49e32704951f723b543b\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://9eb925d50948b6506980c41819a9b92b223023733bce0166c4079d953324efaf\",\"dweb:/ipfs/QmXGXMiRpZRDvgtd3egGKyCtAhhDo9yPavygSe4WK3wthe\"]},\"/Users/Tal/code/kirobo/ki-eth-contracts/contracts/lib/ProxyLatest.sol\":{\"keccak256\":\"0xfc97e887025251fbaf5d01b172f8f09c2af0d5f5ee614e3b836cb0ba5383d915\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://118d5814138793ce39aaf881f9272bec0898e0d35e7dd2f831c4c5e78277b75b\",\"dweb:/ipfs/QmVbqittvRsFiV9PPaU4nb7rcbgBuytzmf8hRhdBDnU3Q7\"]},\"/Users/Tal/code/kirobo/ki-eth-contracts/contracts/lib/StorageBase.sol\":{\"keccak256\":\"0x7b94431294a38e983340d28efc098aa34662e0fb1eb3a0df8bef47db33f2f667\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://10e3eb128cc024fa58a7c1d43da1d66a24137c64e60725ba2165d77b15ab28ad\",\"dweb:/ipfs/QmP7jD8S3wDtBUwfv6uskrpyFkiCaYP2mu2pDBqc8hnabw\"]}},\"version\":1}",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.2+commit.661d1103\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"}],\"name\":\"OwnershipRenounced\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"LATEST\",\"outputs\":[{\"internalType\":\"bytes8\",\"name\":\"\",\"type\":\"bytes8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"cancel\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"claimOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"isOwner\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"renounceOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_newOwner\",\"type\":\"address\"}],\"name\":\"replaceOwner\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"swProxy\",\"outputs\":[{\"internalType\":\"contract Proxy\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"swProxyLatest\",\"outputs\":[{\"internalType\":\"contract ProxyLatest\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"target\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"pure\",\"type\":\"function\"}],\"devdoc\":{\"details\":\"Extension for the Ownable contract, where the ownership needs to be claimed. This allows the new owner to accept the transfer.\",\"kind\":\"dev\",\"methods\":{\"claimOwnership()\":{\"details\":\"Allows the pendingOwner address to finalize the transfer.\"},\"renounceOwnership()\":{\"details\":\"Allows the current owner to relinquish control of the contract.\"},\"transferOwnership(address)\":{\"details\":\"Allows the current owner to set the pendingOwner address.\",\"params\":{\"newOwner\":\"The address to transfer ownership to.\"}}},\"title\":\"Claimable\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"renounceOwnership()\":{\"notice\":\"Renouncing to ownership will leave the contract without an owner. It will not be possible to call the functions with the `onlyOwner` modifier anymore.\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"/opt/storage/data1/code/kirobo/ki-eth-contracts/contracts/lib/FactoryClaimable.sol\":\"FactoryClaimable\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"/opt/storage/data1/code/kirobo/ki-eth-contracts/contracts/FactoryStorage.sol\":{\"keccak256\":\"0xe4e81a0f5e8018d65f4c35d52efe39680c346cf24a3a9936504a8cc6ac1c2b99\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://c4253936c58e5955be16c70b6300a6e8d5bbf8ead69592c64bdabf464a69744a\",\"dweb:/ipfs/QmdHje6WmBVCRjL3Fk4W8sxaeSJ1P2JGBfKqQwbZmUj2PK\"]},\"/opt/storage/data1/code/kirobo/ki-eth-contracts/contracts/lib/FactoryClaimable.sol\":{\"keccak256\":\"0x6c9f67273f11686a61fc21d565331f7e77638cf812cce085bad40833f39e03ef\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://6c8902c40d8ac0aee9d257ae6290d76339ed2132ed9c83643b90f752a9f097bd\",\"dweb:/ipfs/QmXHS7hQ5bki5wNuhDrVmxPETxVuZXv57NSJCUtM1BSkGb\"]},\"/opt/storage/data1/code/kirobo/ki-eth-contracts/contracts/lib/FactoryOwnable.sol\":{\"keccak256\":\"0xd3567b407c0263297c1fa46b1d9541250e9ada5b949cf868903852ad3b5480c6\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://5275efd8f3db72197ae49bef1e266ef412c66fdb947a520254b48928995b9801\",\"dweb:/ipfs/QmZFu4vL6u27RY2HxYiyYKDD613aK7psEpqm3Xv7ua1Au6\"]},\"/opt/storage/data1/code/kirobo/ki-eth-contracts/contracts/lib/MultiSig.sol\":{\"keccak256\":\"0xaa7ccc4ae937db7bf3394a91bd06d78261b88f51b620aad5ed6dbce0a992b032\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://77a9739b05dbcbd4d67d25268249ad7e4f4301994b035d5dd3c2e82d4c70151c\",\"dweb:/ipfs/QmWYs4XKRxqSgyCTEamiqgs41tgQr1APqs5HD2K9yBGjj1\"]},\"/opt/storage/data1/code/kirobo/ki-eth-contracts/contracts/lib/Proxy.sol\":{\"keccak256\":\"0x6acc9cbbabe2c50f8eb5a83ba28b1aca73d05b6dc76410dffd31eb3ee1f58e4f\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://c79da39191c92c118bbeffad631c626f38de86f2f8567b7f51af7370392f733e\",\"dweb:/ipfs/QmPCLNBbJVQLsF7oWfroca2gPx6sHsshcoKpVdnYcQea4k\"]},\"/opt/storage/data1/code/kirobo/ki-eth-contracts/contracts/lib/ProxyLatest.sol\":{\"keccak256\":\"0x9b26692ccfd0efcc778e0602432f8f22ce637907be6062a98ad785f310ac1ce1\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://57fec5bf7c65fc50b7c0f24462d2c27b25a3e590f6652161e4971bfd9bff8907\",\"dweb:/ipfs/QmY1q2DC4942WuLHqqiFHjxRjv9b84mkxzvdJAfGd4a53e\"]},\"/opt/storage/data1/code/kirobo/ki-eth-contracts/contracts/lib/StorageBase.sol\":{\"keccak256\":\"0x8ce901f4b48749ad127cd19e034a0a66693969951e2eda45fa22f35e43efd4d2\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://9d6fd8e024876804ff99165f733c1d43f20b87511739e169a0e2d15e3c103476\",\"dweb:/ipfs/QmVfdYK3idjT1qNtRhYbszmui9V7dmdWvGfRhC7eoNCjqd\"]}},\"version\":1}",
   "bytecode": "0x",
   "deployedBytecode": "0x",
   "immutableReferences": {},
+  "generatedSources": [],
+  "deployedGeneratedSources": [],
   "sourceMap": "",
   "deployedSourceMap": "",
-  "source": "// SPDX-License-Identifier: UNLICENSED\n\npragma solidity 0.6.11;\n\nimport \"./FactoryOwnable.sol\";\n\n/**\n * @title Claimable\n * @dev Extension for the Ownable contract, where the ownership needs to be claimed.\n * This allows the new owner to accept the transfer.\n */\nabstract contract FactoryClaimable is FactoryOwnable {\n    //address public pendingOwner; Moved to FactoryStorage\n\n    /**\n    * @dev Modifier throws if called by any account other than the pendingOwner.\n    */\n    modifier onlyPendingOwner() {\n        // require(msg.sender == pendingOwner, \"not pending owner\");\n        _;\n    }\n\n    /**\n    * @dev Allows the current owner to set the pendingOwner address.\n    * @param newOwner The address to transfer ownership to.\n    */\n    function transferOwnership(address newOwner) public /*onlyOwner*/ override pure{\n        // pendingOwner = newOwner;\n    }\n\n    /**\n    * @dev Allows the pendingOwner address to finalize the transfer.\n    */\n    function claimOwnership() public onlyPendingOwner {\n        // emit OwnershipTransferred(owner, pendingOwner);\n        // owner = pendingOwner;\n        // pendingOwner = address(0);\n    }\n}\n",
-  "sourcePath": "/Users/Tal/code/kirobo/ki-eth-contracts/contracts/lib/FactoryClaimable.sol",
+  "source": "// SPDX-License-Identifier: UNLICENSED\n\npragma solidity ^0.8.0;\n\nimport \"./FactoryOwnable.sol\";\n\n/**\n * @title Claimable\n * @dev Extension for the Ownable contract, where the ownership needs to be claimed.\n * This allows the new owner to accept the transfer.\n */\nabstract contract FactoryClaimable is FactoryOwnable {\n    //address public pendingOwner; Moved to FactoryStorage\n\n    /**\n    * @dev Modifier throws if called by any account other than the pendingOwner.\n    */\n    modifier onlyPendingOwner() {\n        // require(msg.sender == pendingOwner, \"not pending owner\");\n        _;\n    }\n\n    /**\n    * @dev Allows the current owner to set the pendingOwner address.\n    * @param newOwner The address to transfer ownership to.\n    */\n    function transferOwnership(address newOwner) public /*onlyOwner*/ override pure{\n        // pendingOwner = newOwner;\n    }\n\n    /**\n    * @dev Allows the pendingOwner address to finalize the transfer.\n    */\n    function claimOwnership() public onlyPendingOwner {\n        // emit OwnershipTransferred(owner, pendingOwner);\n        // owner = pendingOwner;\n        // pendingOwner = address(0);\n    }\n}\n",
+  "sourcePath": "/opt/storage/data1/code/kirobo/ki-eth-contracts/contracts/lib/FactoryClaimable.sol",
   "ast": {
-    "absolutePath": "/Users/Tal/code/kirobo/ki-eth-contracts/contracts/lib/FactoryClaimable.sol",
+    "absolutePath": "/opt/storage/data1/code/kirobo/ki-eth-contracts/contracts/lib/FactoryClaimable.sol",
     "exportedSymbols": {
       "FactoryClaimable": [
-        3617
+        3145
+      ],
+      "FactoryOwnable": [
+        3195
+      ],
+      "FactoryStorage": [
+        1203
+      ],
+      "ICreator": [
+        4716
+      ],
+      "IProxy": [
+        4734
+      ],
+      "IStorage": [
+        4743
+      ],
+      "IStorageBase": [
+        4749
+      ],
+      "MultiSig": [
+        4389
+      ],
+      "Proxy": [
+        4471
+      ],
+      "ProxyLatest": [
+        4500
+      ],
+      "StorageBase": [
+        4878
       ]
     },
-    "id": 3618,
+    "id": 3146,
     "license": "UNLICENSED",
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 3592,
+        "id": 3120,
         "literals": [
           "solidity",
-          "0.6",
-          ".11"
+          "^",
+          "0.8",
+          ".0"
         ],
         "nodeType": "PragmaDirective",
-        "src": "40:23:9"
+        "src": "40:23:8"
       },
       {
-        "absolutePath": "/Users/Tal/code/kirobo/ki-eth-contracts/contracts/lib/FactoryOwnable.sol",
+        "absolutePath": "/opt/storage/data1/code/kirobo/ki-eth-contracts/contracts/lib/FactoryOwnable.sol",
         "file": "./FactoryOwnable.sol",
-        "id": 3593,
+        "id": 3121,
+        "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
-        "scope": 3618,
-        "sourceUnit": 3668,
-        "src": "65:30:9",
+        "scope": 3146,
+        "sourceUnit": 3196,
+        "src": "65:30:8",
         "symbolAliases": [],
         "unitAlias": ""
       },
@@ -195,122 +229,118 @@
         "abstract": true,
         "baseContracts": [
           {
-            "arguments": null,
             "baseName": {
-              "contractScope": null,
-              "id": 3595,
+              "id": 3123,
               "name": "FactoryOwnable",
-              "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 3667,
-              "src": "301:14:9",
-              "typeDescriptions": {
-                "typeIdentifier": "t_contract$_FactoryOwnable_$3667",
-                "typeString": "contract FactoryOwnable"
-              }
+              "nodeType": "IdentifierPath",
+              "referencedDeclaration": 3195,
+              "src": "301:14:8"
             },
-            "id": 3596,
+            "id": 3124,
             "nodeType": "InheritanceSpecifier",
-            "src": "301:14:9"
+            "src": "301:14:8"
           }
         ],
         "contractDependencies": [
-          1188,
-          3667,
-          4851
+          1203,
+          3195,
+          4389
         ],
         "contractKind": "contract",
         "documentation": {
-          "id": 3594,
+          "id": 3122,
           "nodeType": "StructuredDocumentation",
-          "src": "97:165:9",
+          "src": "97:165:8",
           "text": " @title Claimable\n @dev Extension for the Ownable contract, where the ownership needs to be claimed.\n This allows the new owner to accept the transfer."
         },
         "fullyImplemented": false,
-        "id": 3617,
+        "id": 3145,
         "linearizedBaseContracts": [
-          3617,
-          3667,
-          1188,
-          4851
+          3145,
+          3195,
+          1203,
+          4389
         ],
         "name": "FactoryClaimable",
+        "nameLocation": "281:16:8",
         "nodeType": "ContractDefinition",
         "nodes": [
           {
             "body": {
-              "id": 3600,
+              "id": 3128,
               "nodeType": "Block",
-              "src": "506:87:9",
+              "src": "506:87:8",
               "statements": [
                 {
-                  "id": 3599,
+                  "id": 3127,
                   "nodeType": "PlaceholderStatement",
-                  "src": "585:1:9"
+                  "src": "585:1:8"
                 }
               ]
             },
             "documentation": {
-              "id": 3597,
+              "id": 3125,
               "nodeType": "StructuredDocumentation",
-              "src": "382:91:9",
+              "src": "382:91:8",
               "text": " @dev Modifier throws if called by any account other than the pendingOwner."
             },
-            "id": 3601,
+            "id": 3129,
             "name": "onlyPendingOwner",
+            "nameLocation": "487:16:8",
             "nodeType": "ModifierDefinition",
-            "overrides": null,
             "parameters": {
-              "id": 3598,
+              "id": 3126,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "503:2:9"
+              "src": "503:2:8"
             },
-            "src": "478:115:9",
+            "src": "478:115:8",
             "virtual": false,
             "visibility": "internal"
           },
           {
             "baseFunctions": [
-              3649
+              3177
             ],
             "body": {
-              "id": 3608,
+              "id": 3136,
               "nodeType": "Block",
-              "src": "822:43:9",
+              "src": "822:43:8",
               "statements": []
             },
             "documentation": {
-              "id": 3602,
+              "id": 3130,
               "nodeType": "StructuredDocumentation",
-              "src": "599:139:9",
+              "src": "599:139:8",
               "text": " @dev Allows the current owner to set the pendingOwner address.\n @param newOwner The address to transfer ownership to."
             },
             "functionSelector": "f2fde38b",
-            "id": 3609,
+            "id": 3137,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
             "name": "transferOwnership",
+            "nameLocation": "752:17:8",
             "nodeType": "FunctionDefinition",
             "overrides": {
-              "id": 3606,
+              "id": 3134,
               "nodeType": "OverrideSpecifier",
               "overrides": [],
-              "src": "809:8:9"
+              "src": "809:8:8"
             },
             "parameters": {
-              "id": 3605,
+              "id": 3133,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 3604,
+                  "id": 3132,
                   "mutability": "mutable",
                   "name": "newOwner",
+                  "nameLocation": "778:8:8",
                   "nodeType": "VariableDeclaration",
-                  "overrides": null,
-                  "scope": 3609,
-                  "src": "770:16:9",
+                  "scope": 3137,
+                  "src": "770:16:8",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -318,129 +348,153 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 3603,
+                    "id": 3131,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
-                    "src": "770:7:9",
+                    "src": "770:7:8",
                     "stateMutability": "nonpayable",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
                       "typeString": "address"
                     }
                   },
-                  "value": null,
                   "visibility": "internal"
                 }
               ],
-              "src": "769:18:9"
+              "src": "769:18:8"
             },
             "returnParameters": {
-              "id": 3607,
+              "id": 3135,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "822:0:9"
+              "src": "822:0:8"
             },
-            "scope": 3617,
-            "src": "743:122:9",
+            "scope": 3145,
+            "src": "743:122:8",
             "stateMutability": "pure",
             "virtual": false,
             "visibility": "public"
           },
           {
             "body": {
-              "id": 3615,
+              "id": 3143,
               "nodeType": "Block",
-              "src": "1005:137:9",
+              "src": "1005:137:8",
               "statements": []
             },
             "documentation": {
-              "id": 3610,
+              "id": 3138,
               "nodeType": "StructuredDocumentation",
-              "src": "871:79:9",
+              "src": "871:79:8",
               "text": " @dev Allows the pendingOwner address to finalize the transfer."
             },
             "functionSelector": "4e71e0c8",
-            "id": 3616,
+            "id": 3144,
             "implemented": true,
             "kind": "function",
             "modifiers": [
               {
-                "arguments": null,
-                "id": 3613,
+                "id": 3141,
                 "modifierName": {
-                  "argumentTypes": null,
-                  "id": 3612,
+                  "id": 3140,
                   "name": "onlyPendingOwner",
-                  "nodeType": "Identifier",
-                  "overloadedDeclarations": [],
-                  "referencedDeclaration": 3601,
-                  "src": "988:16:9",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_modifier$__$",
-                    "typeString": "modifier ()"
-                  }
+                  "nodeType": "IdentifierPath",
+                  "referencedDeclaration": 3129,
+                  "src": "988:16:8"
                 },
                 "nodeType": "ModifierInvocation",
-                "src": "988:16:9"
+                "src": "988:16:8"
               }
             ],
             "name": "claimOwnership",
+            "nameLocation": "964:14:8",
             "nodeType": "FunctionDefinition",
-            "overrides": null,
             "parameters": {
-              "id": 3611,
+              "id": 3139,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "978:2:9"
+              "src": "978:2:8"
             },
             "returnParameters": {
-              "id": 3614,
+              "id": 3142,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "1005:0:9"
+              "src": "1005:0:8"
             },
-            "scope": 3617,
-            "src": "955:187:9",
+            "scope": 3145,
+            "src": "955:187:8",
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "public"
           }
         ],
-        "scope": 3618,
-        "src": "263:881:9"
+        "scope": 3146,
+        "src": "263:881:8"
       }
     ],
-    "src": "40:1105:9"
+    "src": "40:1105:8"
   },
   "legacyAST": {
-    "absolutePath": "/Users/Tal/code/kirobo/ki-eth-contracts/contracts/lib/FactoryClaimable.sol",
+    "absolutePath": "/opt/storage/data1/code/kirobo/ki-eth-contracts/contracts/lib/FactoryClaimable.sol",
     "exportedSymbols": {
       "FactoryClaimable": [
-        3617
+        3145
+      ],
+      "FactoryOwnable": [
+        3195
+      ],
+      "FactoryStorage": [
+        1203
+      ],
+      "ICreator": [
+        4716
+      ],
+      "IProxy": [
+        4734
+      ],
+      "IStorage": [
+        4743
+      ],
+      "IStorageBase": [
+        4749
+      ],
+      "MultiSig": [
+        4389
+      ],
+      "Proxy": [
+        4471
+      ],
+      "ProxyLatest": [
+        4500
+      ],
+      "StorageBase": [
+        4878
       ]
     },
-    "id": 3618,
+    "id": 3146,
     "license": "UNLICENSED",
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 3592,
+        "id": 3120,
         "literals": [
           "solidity",
-          "0.6",
-          ".11"
+          "^",
+          "0.8",
+          ".0"
         ],
         "nodeType": "PragmaDirective",
-        "src": "40:23:9"
+        "src": "40:23:8"
       },
       {
-        "absolutePath": "/Users/Tal/code/kirobo/ki-eth-contracts/contracts/lib/FactoryOwnable.sol",
+        "absolutePath": "/opt/storage/data1/code/kirobo/ki-eth-contracts/contracts/lib/FactoryOwnable.sol",
         "file": "./FactoryOwnable.sol",
-        "id": 3593,
+        "id": 3121,
+        "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
-        "scope": 3618,
-        "sourceUnit": 3668,
-        "src": "65:30:9",
+        "scope": 3146,
+        "sourceUnit": 3196,
+        "src": "65:30:8",
         "symbolAliases": [],
         "unitAlias": ""
       },
@@ -448,122 +502,118 @@
         "abstract": true,
         "baseContracts": [
           {
-            "arguments": null,
             "baseName": {
-              "contractScope": null,
-              "id": 3595,
+              "id": 3123,
               "name": "FactoryOwnable",
-              "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 3667,
-              "src": "301:14:9",
-              "typeDescriptions": {
-                "typeIdentifier": "t_contract$_FactoryOwnable_$3667",
-                "typeString": "contract FactoryOwnable"
-              }
+              "nodeType": "IdentifierPath",
+              "referencedDeclaration": 3195,
+              "src": "301:14:8"
             },
-            "id": 3596,
+            "id": 3124,
             "nodeType": "InheritanceSpecifier",
-            "src": "301:14:9"
+            "src": "301:14:8"
           }
         ],
         "contractDependencies": [
-          1188,
-          3667,
-          4851
+          1203,
+          3195,
+          4389
         ],
         "contractKind": "contract",
         "documentation": {
-          "id": 3594,
+          "id": 3122,
           "nodeType": "StructuredDocumentation",
-          "src": "97:165:9",
+          "src": "97:165:8",
           "text": " @title Claimable\n @dev Extension for the Ownable contract, where the ownership needs to be claimed.\n This allows the new owner to accept the transfer."
         },
         "fullyImplemented": false,
-        "id": 3617,
+        "id": 3145,
         "linearizedBaseContracts": [
-          3617,
-          3667,
-          1188,
-          4851
+          3145,
+          3195,
+          1203,
+          4389
         ],
         "name": "FactoryClaimable",
+        "nameLocation": "281:16:8",
         "nodeType": "ContractDefinition",
         "nodes": [
           {
             "body": {
-              "id": 3600,
+              "id": 3128,
               "nodeType": "Block",
-              "src": "506:87:9",
+              "src": "506:87:8",
               "statements": [
                 {
-                  "id": 3599,
+                  "id": 3127,
                   "nodeType": "PlaceholderStatement",
-                  "src": "585:1:9"
+                  "src": "585:1:8"
                 }
               ]
             },
             "documentation": {
-              "id": 3597,
+              "id": 3125,
               "nodeType": "StructuredDocumentation",
-              "src": "382:91:9",
+              "src": "382:91:8",
               "text": " @dev Modifier throws if called by any account other than the pendingOwner."
             },
-            "id": 3601,
+            "id": 3129,
             "name": "onlyPendingOwner",
+            "nameLocation": "487:16:8",
             "nodeType": "ModifierDefinition",
-            "overrides": null,
             "parameters": {
-              "id": 3598,
+              "id": 3126,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "503:2:9"
+              "src": "503:2:8"
             },
-            "src": "478:115:9",
+            "src": "478:115:8",
             "virtual": false,
             "visibility": "internal"
           },
           {
             "baseFunctions": [
-              3649
+              3177
             ],
             "body": {
-              "id": 3608,
+              "id": 3136,
               "nodeType": "Block",
-              "src": "822:43:9",
+              "src": "822:43:8",
               "statements": []
             },
             "documentation": {
-              "id": 3602,
+              "id": 3130,
               "nodeType": "StructuredDocumentation",
-              "src": "599:139:9",
+              "src": "599:139:8",
               "text": " @dev Allows the current owner to set the pendingOwner address.\n @param newOwner The address to transfer ownership to."
             },
             "functionSelector": "f2fde38b",
-            "id": 3609,
+            "id": 3137,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
             "name": "transferOwnership",
+            "nameLocation": "752:17:8",
             "nodeType": "FunctionDefinition",
             "overrides": {
-              "id": 3606,
+              "id": 3134,
               "nodeType": "OverrideSpecifier",
               "overrides": [],
-              "src": "809:8:9"
+              "src": "809:8:8"
             },
             "parameters": {
-              "id": 3605,
+              "id": 3133,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 3604,
+                  "id": 3132,
                   "mutability": "mutable",
                   "name": "newOwner",
+                  "nameLocation": "778:8:8",
                   "nodeType": "VariableDeclaration",
-                  "overrides": null,
-                  "scope": 3609,
-                  "src": "770:16:9",
+                  "scope": 3137,
+                  "src": "770:16:8",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -571,107 +621,99 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 3603,
+                    "id": 3131,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
-                    "src": "770:7:9",
+                    "src": "770:7:8",
                     "stateMutability": "nonpayable",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
                       "typeString": "address"
                     }
                   },
-                  "value": null,
                   "visibility": "internal"
                 }
               ],
-              "src": "769:18:9"
+              "src": "769:18:8"
             },
             "returnParameters": {
-              "id": 3607,
+              "id": 3135,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "822:0:9"
+              "src": "822:0:8"
             },
-            "scope": 3617,
-            "src": "743:122:9",
+            "scope": 3145,
+            "src": "743:122:8",
             "stateMutability": "pure",
             "virtual": false,
             "visibility": "public"
           },
           {
             "body": {
-              "id": 3615,
+              "id": 3143,
               "nodeType": "Block",
-              "src": "1005:137:9",
+              "src": "1005:137:8",
               "statements": []
             },
             "documentation": {
-              "id": 3610,
+              "id": 3138,
               "nodeType": "StructuredDocumentation",
-              "src": "871:79:9",
+              "src": "871:79:8",
               "text": " @dev Allows the pendingOwner address to finalize the transfer."
             },
             "functionSelector": "4e71e0c8",
-            "id": 3616,
+            "id": 3144,
             "implemented": true,
             "kind": "function",
             "modifiers": [
               {
-                "arguments": null,
-                "id": 3613,
+                "id": 3141,
                 "modifierName": {
-                  "argumentTypes": null,
-                  "id": 3612,
+                  "id": 3140,
                   "name": "onlyPendingOwner",
-                  "nodeType": "Identifier",
-                  "overloadedDeclarations": [],
-                  "referencedDeclaration": 3601,
-                  "src": "988:16:9",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_modifier$__$",
-                    "typeString": "modifier ()"
-                  }
+                  "nodeType": "IdentifierPath",
+                  "referencedDeclaration": 3129,
+                  "src": "988:16:8"
                 },
                 "nodeType": "ModifierInvocation",
-                "src": "988:16:9"
+                "src": "988:16:8"
               }
             ],
             "name": "claimOwnership",
+            "nameLocation": "964:14:8",
             "nodeType": "FunctionDefinition",
-            "overrides": null,
             "parameters": {
-              "id": 3611,
+              "id": 3139,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "978:2:9"
+              "src": "978:2:8"
             },
             "returnParameters": {
-              "id": 3614,
+              "id": 3142,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "1005:0:9"
+              "src": "1005:0:8"
             },
-            "scope": 3617,
-            "src": "955:187:9",
+            "scope": 3145,
+            "src": "955:187:8",
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "public"
           }
         ],
-        "scope": 3618,
-        "src": "263:881:9"
+        "scope": 3146,
+        "src": "263:881:8"
       }
     ],
-    "src": "40:1105:9"
+    "src": "40:1105:8"
   },
   "compiler": {
     "name": "solc",
-    "version": "0.6.11+commit.5ef660b1.Emscripten.clang"
+    "version": "0.8.2+commit.661d1103.Emscripten.clang"
   },
   "networks": {},
-  "schemaVersion": "3.2.0",
-  "updatedAt": "2020-08-30T11:48:45.451Z",
+  "schemaVersion": "3.3.4",
+  "updatedAt": "2021-03-21T20:16:32.930Z",
   "devdoc": {
     "details": "Extension for the Ownable contract, where the ownership needs to be claimed. This allows the new owner to accept the transfer.",
     "kind": "dev",

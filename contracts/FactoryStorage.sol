@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 
-pragma solidity 0.6.11;
+pragma solidity ^0.8.0;
 
 import "./lib/MultiSig.sol";
 import "./lib/Proxy.sol";
@@ -37,7 +37,7 @@ abstract contract FactoryStorage is MultiSig {
     //     _;
     // }
 
-    constructor(address owner1, address owner2, address owner3) MultiSig(owner1, owner2, owner3) public {
+    constructor(address owner1, address owner2, address owner3) MultiSig(owner1, owner2, owner3) {
         // proxy = msg.sender; //in case we are using Factory directly
         swProxy = new Proxy();
         swProxyLatest = new ProxyLatest();

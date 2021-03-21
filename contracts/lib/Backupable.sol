@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 
-pragma solidity 0.6.11;
+pragma solidity ^0.8.0;
 
 import "./StorageBase.sol";
 import "./Storage.sol";
@@ -86,7 +86,7 @@ abstract contract Backupable is IStorage, StorageBase, Storage {
           emit BackupPayment (this.creator(), payee, currentBalance / 100, false);
         }
 
-        msg.sender.transfer(currentBalance / 1000);
+        payable(msg.sender).transfer(currentBalance / 1000);
         emit BackupPayment (this.creator(), msg.sender, currentBalance / 1000, true);        
     }
 

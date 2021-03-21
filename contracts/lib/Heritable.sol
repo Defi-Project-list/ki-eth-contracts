@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
 
-pragma solidity 0.6.11;
+pragma solidity ^0.8.0;
 
-import "../../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol";
+// import "../../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "./Backupable.sol";
 
 abstract contract Heritable is Backupable {
-    using SafeMath for uint256;
+    // using SafeMath for uint256;
 
     event InheritanceActivated    (address indexed creator, address indexed activator, address[] wallets);
     event InheritanceChanged      (address indexed creator, address indexed owner, uint40 timeout, uint40 timestamp);
@@ -36,7 +36,7 @@ abstract contract Heritable is Backupable {
 
         for (uint256 i = 0; i < MAX_HEIRS; ++i) {
             Heir storage heir = inheritance.heirs [i];
-            if (heir.wallet == address(0)) {
+            if (heir.wallet == payable(0)) {
                 break;
             }
             if (heir.sent != false) heir.sent = false;
@@ -65,7 +65,7 @@ abstract contract Heritable is Backupable {
         }
         if (i < MAX_HEIRS - 1) {
             Heir storage heir = inheritance.heirs[i];
-            if (heir.wallet != address(0)) heir.wallet = address(0);
+            if (heir.wallet != payable(0)) heir.wallet = payable(0);
         }
 
         // event related code starts here
@@ -99,7 +99,7 @@ abstract contract Heritable is Backupable {
             if (heir.wallet == address(0)) {
                 break;
             }
-            heirs[i] = bytes32 ((uint256(heir.wallet) << 96) + (heir.sent ? uint256(1) << 88 : 0) + (uint256(heir.bps) << 72));
+            heirs[i] = bytes32 ((uint256(uint160(address(heir.wallet))) << 96) + (heir.sent ? uint256(1) << 88 : 0) + (uint256(heir.bps) << 72));
         }
     }
 
@@ -141,7 +141,7 @@ abstract contract Heritable is Backupable {
           emit InheritancePayment (this.creator(), payee, currentBalance / 100, false);
         }
 
-        msg.sender.transfer(currentBalance / 1000);
+        payable(msg.sender).transfer(currentBalance / 1000);
         emit InheritancePayment (this.creator(), msg.sender, currentBalance / 1000, true);        
 
         currentBalance = address(this).balance;
@@ -156,7 +156,7 @@ abstract contract Heritable is Backupable {
                 heir.sent = heir.wallet.send((currentBalance * heir.bps)/10000);
             }
         }
-        totalTransfered = currentBalance.sub(address(this).balance);
+        totalTransfered = currentBalance - address(this).balance;
 
         // event related code starts here
         address[] memory wallets = new address[](i);

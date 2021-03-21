@@ -3,7 +3,7 @@ const HDWalletProvider = require("@truffle/hdwallet-provider");
 // let mnemonic = "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat";
 let mnemonic = "pelican bench orchard wisdom honey deputy donate suspect airport sail quick decade";
 // let mnemonic = "front assume robust donkey senior economy maple enhance click bright game alcohol";
-const gas = 8200000;
+const gas = 6700000;
 
 // const ganache = require('ganache-cli');
 const devNetwork = {
@@ -64,19 +64,20 @@ module.exports = {
   },
 compilers: {
      solc: {
-       version: "0.6.11"  // ex:  "0.4.20". (Default: Truffle's installed solc)
+       // version: "0.6.11"  // ex:  "0.4.20". (Default: Truffle's installed solc)
+       version: "0.8.2"  // ex:  "0.4.20". (Default: Truffle's installed solc)
      }
   },
 solc: {
       settings: {
         optimizer: {
           enabled: true,
-          runs: 400   // Optimize for how many times you intend to run the code
+          runs: 200   // Optimize for how many times you intend to run the code
         },
       },
         optimizer: {
             enabled: true,
-            runs: 400
+            runs: 200
         }
     }
 };

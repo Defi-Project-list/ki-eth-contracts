@@ -1,7 +1,7 @@
 'use strict';
 
 const Factory = artifacts.require("Factory");
-const truffleAssert = require('truffle-assertions');
+// const truffleAssert = require('truffle-assertions');
 
 const mlog = require('mocha-logger');
 const { ZERO_ADDRESS, ZERO_BYTES32, ZERO_BN } = require('./lib/consts');
