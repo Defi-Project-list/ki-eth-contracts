@@ -73,7 +73,7 @@ contract('FactoryProxy', async accounts => {
     await instance.deployVersion(await swver.version(), { from: owner });
 
     await instance.createWallet(false, { from: owner });
-    let logs = await instance.allEvents({ fromBlock: 'latest', toBlock: 'latest' })
+    let logs = await instance.getPastEvents({ fromBlock: 'latest' })
     mlog.log('logs', JSON.stringify(logs[0]));
 
     const sw = await instance.getWallet(owner);
@@ -92,7 +92,7 @@ contract('FactoryProxy', async accounts => {
 
     await web3.eth.sendTransaction({ from: user2, value: val2, to: sw, nonce: await web3.eth.getTransactionCount(user2) });
 
-    logs = await sw_proxy.allEvents({ fromBlock: 'latest', toBlock: 'latest' })
+    logs = await sw_proxy.getPastEvents({ fromBlock: 'latest' })
     mlog.log('logs', JSON.stringify(logs[0]));
 
     let swvalue = await (await Wallet.at(sw)).getBalance();
@@ -141,7 +141,7 @@ contract('FactoryProxy', async accounts => {
 
     let tx = await instance.createWallet(true, { from: user1, nonce: await web3.eth.getTransactionCount(user1) });
     // let logs = await new Promise((r,j) => instance.allEvents({}, { fromBlock: 'latest', toBlock: 'latest' }).get((err, logs) => { r(logs) }));
-    let logs = await instance.allEvents({ fromBlock: 'latest', toBlock: 'latest' })
+    let logs = await instance.getPastEvents({ fromBlock: 'latest' })
     mlog.log('logs', JSON.stringify(tx.logs[0]));
 
 
@@ -164,7 +164,7 @@ contract('FactoryProxy', async accounts => {
     tx = await web3.eth.sendTransaction({ from: user2, value: val2, to: sw_user1, nonce: await web3.eth.getTransactionCount(user2) });
 
     //logs = await new Promise((r,j) => sw_proxy.allEvents({}, { fromBlock: 'latest', toBlock: 'latest' }).get((err, logs) => { r(logs) }));
-    logs = await sw_proxy.allEvents({ fromBlock: 'latest', toBlock: 'latest' })
+    logs = await sw_proxy.getPastEvents({ fromBlock: 'latest' })
     mlog.log('logs', JSON.stringify(tx.logs[0]));
 
     let swvalue = await (await Wallet.at(sw_user1)).getBalance();
@@ -183,7 +183,7 @@ contract('FactoryProxy', async accounts => {
 
     tx = await instance.createWallet(true, { from: user2 });
     //logs = await new Promise((r,j) => instance.allEvents({}, { fromBlock: 'latest', toBlock: 'latest' }).get((err, logs) => { r(logs) }));
-    logs = await instance.allEvents({ fromBlock: 'latest', toBlock: 'latest' })
+    logs = await instance.getPastEvents({ fromBlock: 'latest' })
     mlog.log('logs', JSON.stringify(tx.logs[0]));
 
     let sw_user2 = await instance.getWallet(user2);
@@ -215,7 +215,7 @@ contract('FactoryProxy', async accounts => {
     mlog.log('value(proxy)', swvalue2);
 
     //logs = await new Promise((r,j) => sw_proxy.allEvents({ fromBlock: 'latest', toBlock: 'latest' }).get((err, logs) => { r(logs) }));
-    logs = await sw_proxy.allEvents({ fromBlock: 'latest', toBlock: 'latest',
+    logs = await sw_proxy.getPastEvents({ fromBlock: 'latest',
           topics: ['0x0000000000000000000000000000000000000000000000000000000000000002']})
     //logs = await new Promise((r, j) => web3.eth.filter({ address: sw_proxy.address, fromBlock: 'latest', toBlock: 'latest',
     //      topics: [null, null,'0x7b8d56e300000000000000000000000000000000000000000000000000000000']}).get((err, logs) => { r(logs) }));
@@ -226,7 +226,7 @@ contract('FactoryProxy', async accounts => {
     swvalue2 = await swver2.getValue();
     mlog.log('value', swvalue2);
 
-    logs = await sw_proxy.allEvents({ fromBlock: '0', toBlock: 'latest' })
+    logs = await sw_proxy.getPastEvents({ fromBlock: '0' })
     mlog.log('logs', JSON.stringify(logs));
 
     let bal = await web3.eth.getBalance(sw_user1);

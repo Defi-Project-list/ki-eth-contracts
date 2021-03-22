@@ -78,7 +78,7 @@ contract Trust {
             return address(this).balance;
         }
         // solium-disable-next-line security/no-block-members
-        return (((block.timestamp - fund.start) / fund.period) + 1) * amount / payed;
+        return ((((block.timestamp - fund.start) / fund.period) + 1) * amount) - payed;
     }
 
     function getNextPaymentTimestamp() public view returns (uint256) {

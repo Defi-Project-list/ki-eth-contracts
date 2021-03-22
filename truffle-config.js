@@ -7,12 +7,19 @@ const gas = 6700000;
 
 // const ganache = require('ganache-cli');
 const devNetwork = {
-  host: "127.0.0.1",
-  port: 8545,
+  // host: "127.0.0.1",
+  // port: 8545,
   network_id: "*",
   provider: function() {
-    const mnemonic = 'awesome grain neither pond excess garage tackle table piece assist venture escape'
-    return new HDWalletProvider(mnemonic, "http://127.0.0.1:8545/");
+     const mnemonic = 'awesome grain neither pond excess garage tackle table piece assist venture escape'
+    return new HDWalletProvider(mnemonic, 'ws://localhost:8545')
+//     {
+//       mnemonic: {
+//         phrase: mnemonic
+//       },
+//       providerOrUrl: "http://localhost:8545",
+//       numberOfAddresses: 10,
+// });
   },
   // gas
 };
@@ -53,10 +60,12 @@ module.exports = {
       gas
     },
     ganache: {
-      provider: function() {
-        return new HDWalletProvider(mnemonic, "http://127.0.0.1:8545/");
-      },
-      network_id: "1337",
+	host: "127.0.0.1",
+      	port: 8545,
+      // provider: function() {
+      //   return new HDWalletProvider(mnemonic, "http://127.0.0.1:8545/");
+      // },
+      network_id: "*",
       gas
     },
     development: devNetwork,
