@@ -88,30 +88,30 @@
     "absolutePath": "/opt/storage/data1/code/kirobo/ki-eth-contracts/contracts/lib/Storage.sol",
     "exportedSymbols": {
       "ICreator": [
-        4716
+        4717
       ],
       "IProxy": [
-        4734
+        4735
       ],
       "IStorage": [
-        4743
+        4744
       ],
       "IStorageBase": [
-        4749
+        4750
       ],
       "Storage": [
-        4683
+        4684
       ],
       "StorageBase": [
-        4878
+        4879
       ]
     },
-    "id": 4684,
+    "id": 4685,
     "license": "UNLICENSED",
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 4620,
+        "id": 4621,
         "literals": [
           "solidity",
           "^",
@@ -124,11 +124,11 @@
       {
         "absolutePath": "/opt/storage/data1/code/kirobo/ki-eth-contracts/contracts/lib/StorageBase.sol",
         "file": "./StorageBase.sol",
-        "id": 4621,
+        "id": 4622,
         "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
-        "scope": 4684,
-        "sourceUnit": 4879,
+        "scope": 4685,
+        "sourceUnit": 4880,
         "src": "65:27:17",
         "symbolAliases": [],
         "unitAlias": ""
@@ -138,26 +138,26 @@
         "baseContracts": [
           {
             "baseName": {
-              "id": 4622,
+              "id": 4623,
               "name": "IStorage",
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 4743,
+              "referencedDeclaration": 4744,
               "src": "148:8:17"
             },
-            "id": 4623,
+            "id": 4624,
             "nodeType": "InheritanceSpecifier",
             "src": "148:8:17"
           }
         ],
         "contractDependencies": [
-          4743
+          4744
         ],
         "contractKind": "contract",
         "fullyImplemented": false,
-        "id": 4683,
+        "id": 4684,
         "linearizedBaseContracts": [
-          4683,
-          4743
+          4684,
+          4744
         ],
         "name": "Storage",
         "nameLocation": "137:7:17",
@@ -166,12 +166,12 @@
           {
             "constant": true,
             "functionSelector": "f99ff3e8",
-            "id": 4626,
+            "id": 4627,
             "mutability": "constant",
             "name": "BACKUP_STATE_PENDING",
             "nameLocation": "186:20:17",
             "nodeType": "VariableDeclaration",
-            "scope": 4683,
+            "scope": 4684,
             "src": "164:49:17",
             "stateVariable": true,
             "storageLocation": "default",
@@ -180,7 +180,7 @@
               "typeString": "uint8"
             },
             "typeName": {
-              "id": 4624,
+              "id": 4625,
               "name": "uint8",
               "nodeType": "ElementaryTypeName",
               "src": "164:5:17",
@@ -191,7 +191,7 @@
             },
             "value": {
               "hexValue": "30",
-              "id": 4625,
+              "id": 4626,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
@@ -210,12 +210,12 @@
           {
             "constant": true,
             "functionSelector": "3d562561",
-            "id": 4629,
+            "id": 4630,
             "mutability": "constant",
             "name": "BACKUP_STATE_REGISTERED",
             "nameLocation": "241:23:17",
             "nodeType": "VariableDeclaration",
-            "scope": 4683,
+            "scope": 4684,
             "src": "219:49:17",
             "stateVariable": true,
             "storageLocation": "default",
@@ -224,7 +224,7 @@
               "typeString": "uint8"
             },
             "typeName": {
-              "id": 4627,
+              "id": 4628,
               "name": "uint8",
               "nodeType": "ElementaryTypeName",
               "src": "219:5:17",
@@ -235,7 +235,7 @@
             },
             "value": {
               "hexValue": "31",
-              "id": 4628,
+              "id": 4629,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
@@ -254,12 +254,12 @@
           {
             "constant": true,
             "functionSelector": "e1bc35ab",
-            "id": 4632,
+            "id": 4633,
             "mutability": "constant",
             "name": "BACKUP_STATE_ENABLED",
             "nameLocation": "296:20:17",
             "nodeType": "VariableDeclaration",
-            "scope": 4683,
+            "scope": 4684,
             "src": "274:49:17",
             "stateVariable": true,
             "storageLocation": "default",
@@ -268,7 +268,7 @@
               "typeString": "uint8"
             },
             "typeName": {
-              "id": 4630,
+              "id": 4631,
               "name": "uint8",
               "nodeType": "ElementaryTypeName",
               "src": "274:5:17",
@@ -279,7 +279,7 @@
             },
             "value": {
               "hexValue": "32",
-              "id": 4631,
+              "id": 4632,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
@@ -298,12 +298,12 @@
           {
             "constant": true,
             "functionSelector": "3e95e62c",
-            "id": 4635,
+            "id": 4636,
             "mutability": "constant",
             "name": "BACKUP_STATE_ACTIVATED",
             "nameLocation": "351:22:17",
             "nodeType": "VariableDeclaration",
-            "scope": 4683,
+            "scope": 4684,
             "src": "329:49:17",
             "stateVariable": true,
             "storageLocation": "default",
@@ -312,7 +312,7 @@
               "typeString": "uint8"
             },
             "typeName": {
-              "id": 4633,
+              "id": 4634,
               "name": "uint8",
               "nodeType": "ElementaryTypeName",
               "src": "329:5:17",
@@ -323,7 +323,7 @@
             },
             "value": {
               "hexValue": "33",
-              "id": 4634,
+              "id": 4635,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
@@ -341,16 +341,16 @@
           },
           {
             "canonicalName": "Storage.Backup",
-            "id": 4646,
+            "id": 4647,
             "members": [
               {
                 "constant": false,
-                "id": 4637,
+                "id": 4638,
                 "mutability": "mutable",
                 "name": "wallet",
                 "nameLocation": "459:6:17",
                 "nodeType": "VariableDeclaration",
-                "scope": 4646,
+                "scope": 4647,
                 "src": "451:14:17",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -359,7 +359,7 @@
                   "typeString": "address"
                 },
                 "typeName": {
-                  "id": 4636,
+                  "id": 4637,
                   "name": "address",
                   "nodeType": "ElementaryTypeName",
                   "src": "451:7:17",
@@ -373,12 +373,12 @@
               },
               {
                 "constant": false,
-                "id": 4639,
+                "id": 4640,
                 "mutability": "mutable",
                 "name": "timestamp",
                 "nameLocation": "483:9:17",
                 "nodeType": "VariableDeclaration",
-                "scope": 4646,
+                "scope": 4647,
                 "src": "475:17:17",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -387,7 +387,7 @@
                   "typeString": "uint40"
                 },
                 "typeName": {
-                  "id": 4638,
+                  "id": 4639,
                   "name": "uint40",
                   "nodeType": "ElementaryTypeName",
                   "src": "475:6:17",
@@ -400,12 +400,12 @@
               },
               {
                 "constant": false,
-                "id": 4641,
+                "id": 4642,
                 "mutability": "mutable",
                 "name": "timeout",
                 "nameLocation": "510:7:17",
                 "nodeType": "VariableDeclaration",
-                "scope": 4646,
+                "scope": 4647,
                 "src": "502:15:17",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -414,7 +414,7 @@
                   "typeString": "uint32"
                 },
                 "typeName": {
-                  "id": 4640,
+                  "id": 4641,
                   "name": "uint32",
                   "nodeType": "ElementaryTypeName",
                   "src": "502:6:17",
@@ -427,12 +427,12 @@
               },
               {
                 "constant": false,
-                "id": 4643,
+                "id": 4644,
                 "mutability": "mutable",
                 "name": "state",
                 "nameLocation": "535:5:17",
                 "nodeType": "VariableDeclaration",
-                "scope": 4646,
+                "scope": 4647,
                 "src": "527:13:17",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -441,7 +441,7 @@
                   "typeString": "uint8"
                 },
                 "typeName": {
-                  "id": 4642,
+                  "id": 4643,
                   "name": "uint8",
                   "nodeType": "ElementaryTypeName",
                   "src": "527:5:17",
@@ -454,12 +454,12 @@
               },
               {
                 "constant": false,
-                "id": 4645,
+                "id": 4646,
                 "mutability": "mutable",
                 "name": "filler",
                 "nameLocation": "558:6:17",
                 "nodeType": "VariableDeclaration",
-                "scope": 4646,
+                "scope": 4647,
                 "src": "550:14:17",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -468,7 +468,7 @@
                   "typeString": "uint16"
                 },
                 "typeName": {
-                  "id": 4644,
+                  "id": 4645,
                   "name": "uint16",
                   "nodeType": "ElementaryTypeName",
                   "src": "550:6:17",
@@ -483,39 +483,39 @@
             "name": "Backup",
             "nameLocation": "434:6:17",
             "nodeType": "StructDefinition",
-            "scope": 4683,
+            "scope": 4684,
             "src": "427:144:17",
             "visibility": "public"
           },
           {
             "constant": false,
-            "id": 4649,
+            "id": 4650,
             "mutability": "mutable",
             "name": "backup",
             "nameLocation": "593:6:17",
             "nodeType": "VariableDeclaration",
-            "scope": 4683,
+            "scope": 4684,
             "src": "577:22:17",
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
-              "typeIdentifier": "t_struct$_Backup_$4646_storage",
+              "typeIdentifier": "t_struct$_Backup_$4647_storage",
               "typeString": "struct Storage.Backup"
             },
             "typeName": {
-              "id": 4648,
+              "id": 4649,
               "nodeType": "UserDefinedTypeName",
               "pathNode": {
-                "id": 4647,
+                "id": 4648,
                 "name": "Backup",
                 "nodeType": "IdentifierPath",
-                "referencedDeclaration": 4646,
+                "referencedDeclaration": 4647,
                 "src": "577:6:17"
               },
-              "referencedDeclaration": 4646,
+              "referencedDeclaration": 4647,
               "src": "577:6:17",
               "typeDescriptions": {
-                "typeIdentifier": "t_struct$_Backup_$4646_storage_ptr",
+                "typeIdentifier": "t_struct$_Backup_$4647_storage_ptr",
                 "typeString": "struct Storage.Backup"
               }
             },
@@ -523,12 +523,12 @@
           },
           {
             "constant": true,
-            "id": 4652,
+            "id": 4653,
             "mutability": "constant",
             "name": "MAX_HEIRS",
             "nameLocation": "673:9:17",
             "nodeType": "VariableDeclaration",
-            "scope": 4683,
+            "scope": 4684,
             "src": "647:39:17",
             "stateVariable": true,
             "storageLocation": "default",
@@ -537,7 +537,7 @@
               "typeString": "uint256"
             },
             "typeName": {
-              "id": 4650,
+              "id": 4651,
               "name": "uint256",
               "nodeType": "ElementaryTypeName",
               "src": "647:7:17",
@@ -548,7 +548,7 @@
             },
             "value": {
               "hexValue": "38",
-              "id": 4651,
+              "id": 4652,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
@@ -566,16 +566,16 @@
           },
           {
             "canonicalName": "Storage.Heir",
-            "id": 4661,
+            "id": 4662,
             "members": [
               {
                 "constant": false,
-                "id": 4654,
+                "id": 4655,
                 "mutability": "mutable",
                 "name": "wallet",
                 "nameLocation": "731:6:17",
                 "nodeType": "VariableDeclaration",
-                "scope": 4661,
+                "scope": 4662,
                 "src": "715:22:17",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -584,7 +584,7 @@
                   "typeString": "address payable"
                 },
                 "typeName": {
-                  "id": 4653,
+                  "id": 4654,
                   "name": "address",
                   "nodeType": "ElementaryTypeName",
                   "src": "715:15:17",
@@ -598,12 +598,12 @@
               },
               {
                 "constant": false,
-                "id": 4656,
+                "id": 4657,
                 "mutability": "mutable",
                 "name": "sent",
                 "nameLocation": "755:4:17",
                 "nodeType": "VariableDeclaration",
-                "scope": 4661,
+                "scope": 4662,
                 "src": "747:12:17",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -612,7 +612,7 @@
                   "typeString": "bool"
                 },
                 "typeName": {
-                  "id": 4655,
+                  "id": 4656,
                   "name": "bool",
                   "nodeType": "ElementaryTypeName",
                   "src": "747:4:17",
@@ -625,12 +625,12 @@
               },
               {
                 "constant": false,
-                "id": 4658,
+                "id": 4659,
                 "mutability": "mutable",
                 "name": "bps",
                 "nameLocation": "777:3:17",
                 "nodeType": "VariableDeclaration",
-                "scope": 4661,
+                "scope": 4662,
                 "src": "769:11:17",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -639,7 +639,7 @@
                   "typeString": "uint16"
                 },
                 "typeName": {
-                  "id": 4657,
+                  "id": 4658,
                   "name": "uint16",
                   "nodeType": "ElementaryTypeName",
                   "src": "769:6:17",
@@ -652,12 +652,12 @@
               },
               {
                 "constant": false,
-                "id": 4660,
+                "id": 4661,
                 "mutability": "mutable",
                 "name": "filler",
                 "nameLocation": "798:6:17",
                 "nodeType": "VariableDeclaration",
-                "scope": 4661,
+                "scope": 4662,
                 "src": "790:14:17",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -666,7 +666,7 @@
                   "typeString": "uint72"
                 },
                 "typeName": {
-                  "id": 4659,
+                  "id": 4660,
                   "name": "uint72",
                   "nodeType": "ElementaryTypeName",
                   "src": "790:6:17",
@@ -681,54 +681,54 @@
             "name": "Heir",
             "nameLocation": "700:4:17",
             "nodeType": "StructDefinition",
-            "scope": 4683,
+            "scope": 4684,
             "src": "693:118:17",
             "visibility": "public"
           },
           {
             "canonicalName": "Storage.Inheritance",
-            "id": 4677,
+            "id": 4678,
             "members": [
               {
                 "constant": false,
-                "id": 4666,
+                "id": 4667,
                 "mutability": "mutable",
                 "name": "heirs",
                 "nameLocation": "862:5:17",
                 "nodeType": "VariableDeclaration",
-                "scope": 4677,
+                "scope": 4678,
                 "src": "846:21:17",
                 "stateVariable": false,
                 "storageLocation": "default",
                 "typeDescriptions": {
-                  "typeIdentifier": "t_array$_t_struct$_Heir_$4661_storage_$8_storage_ptr",
+                  "typeIdentifier": "t_array$_t_struct$_Heir_$4662_storage_$8_storage_ptr",
                   "typeString": "struct Storage.Heir[8]"
                 },
                 "typeName": {
                   "baseType": {
-                    "id": 4663,
+                    "id": 4664,
                     "nodeType": "UserDefinedTypeName",
                     "pathNode": {
-                      "id": 4662,
+                      "id": 4663,
                       "name": "Heir",
                       "nodeType": "IdentifierPath",
-                      "referencedDeclaration": 4661,
+                      "referencedDeclaration": 4662,
                       "src": "846:4:17"
                     },
-                    "referencedDeclaration": 4661,
+                    "referencedDeclaration": 4662,
                     "src": "846:4:17",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_struct$_Heir_$4661_storage_ptr",
+                      "typeIdentifier": "t_struct$_Heir_$4662_storage_ptr",
                       "typeString": "struct Storage.Heir"
                     }
                   },
-                  "id": 4665,
+                  "id": 4666,
                   "length": {
-                    "id": 4664,
+                    "id": 4665,
                     "name": "MAX_HEIRS",
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
-                    "referencedDeclaration": 4652,
+                    "referencedDeclaration": 4653,
                     "src": "851:9:17",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
@@ -738,7 +738,7 @@
                   "nodeType": "ArrayTypeName",
                   "src": "846:15:17",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_array$_t_struct$_Heir_$4661_storage_$8_storage_ptr",
+                    "typeIdentifier": "t_array$_t_struct$_Heir_$4662_storage_$8_storage_ptr",
                     "typeString": "struct Storage.Heir[8]"
                   }
                 },
@@ -746,12 +746,12 @@
               },
               {
                 "constant": false,
-                "id": 4668,
+                "id": 4669,
                 "mutability": "mutable",
                 "name": "timeout",
                 "nameLocation": "885:7:17",
                 "nodeType": "VariableDeclaration",
-                "scope": 4677,
+                "scope": 4678,
                 "src": "877:15:17",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -760,7 +760,7 @@
                   "typeString": "uint40"
                 },
                 "typeName": {
-                  "id": 4667,
+                  "id": 4668,
                   "name": "uint40",
                   "nodeType": "ElementaryTypeName",
                   "src": "877:6:17",
@@ -773,12 +773,12 @@
               },
               {
                 "constant": false,
-                "id": 4670,
+                "id": 4671,
                 "mutability": "mutable",
                 "name": "enabled",
                 "nameLocation": "910:7:17",
                 "nodeType": "VariableDeclaration",
-                "scope": 4677,
+                "scope": 4678,
                 "src": "902:15:17",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -787,7 +787,7 @@
                   "typeString": "bool"
                 },
                 "typeName": {
-                  "id": 4669,
+                  "id": 4670,
                   "name": "bool",
                   "nodeType": "ElementaryTypeName",
                   "src": "902:4:17",
@@ -800,12 +800,12 @@
               },
               {
                 "constant": false,
-                "id": 4672,
+                "id": 4673,
                 "mutability": "mutable",
                 "name": "activated",
                 "nameLocation": "935:9:17",
                 "nodeType": "VariableDeclaration",
-                "scope": 4677,
+                "scope": 4678,
                 "src": "927:17:17",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -814,7 +814,7 @@
                   "typeString": "bool"
                 },
                 "typeName": {
-                  "id": 4671,
+                  "id": 4672,
                   "name": "bool",
                   "nodeType": "ElementaryTypeName",
                   "src": "927:4:17",
@@ -827,12 +827,12 @@
               },
               {
                 "constant": false,
-                "id": 4674,
+                "id": 4675,
                 "mutability": "mutable",
                 "name": "timestamp",
                 "nameLocation": "962:9:17",
                 "nodeType": "VariableDeclaration",
-                "scope": 4677,
+                "scope": 4678,
                 "src": "954:17:17",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -841,7 +841,7 @@
                   "typeString": "uint40"
                 },
                 "typeName": {
-                  "id": 4673,
+                  "id": 4674,
                   "name": "uint40",
                   "nodeType": "ElementaryTypeName",
                   "src": "954:6:17",
@@ -854,12 +854,12 @@
               },
               {
                 "constant": false,
-                "id": 4676,
+                "id": 4677,
                 "mutability": "mutable",
                 "name": "filler",
                 "nameLocation": "989:6:17",
                 "nodeType": "VariableDeclaration",
-                "scope": 4677,
+                "scope": 4678,
                 "src": "981:14:17",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -868,7 +868,7 @@
                   "typeString": "uint16"
                 },
                 "typeName": {
-                  "id": 4675,
+                  "id": 4676,
                   "name": "uint16",
                   "nodeType": "ElementaryTypeName",
                   "src": "981:6:17",
@@ -883,18 +883,18 @@
             "name": "Inheritance",
             "nameLocation": "824:11:17",
             "nodeType": "StructDefinition",
-            "scope": 4683,
+            "scope": 4684,
             "src": "817:185:17",
             "visibility": "public"
           },
           {
             "constant": false,
-            "id": 4679,
+            "id": 4680,
             "mutability": "mutable",
             "name": "totalTransfered",
             "nameLocation": "1025:15:17",
             "nodeType": "VariableDeclaration",
-            "scope": 4683,
+            "scope": 4684,
             "src": "1008:32:17",
             "stateVariable": true,
             "storageLocation": "default",
@@ -903,7 +903,7 @@
               "typeString": "uint256"
             },
             "typeName": {
-              "id": 4678,
+              "id": 4679,
               "name": "uint256",
               "nodeType": "ElementaryTypeName",
               "src": "1008:7:17",
@@ -916,40 +916,40 @@
           },
           {
             "constant": false,
-            "id": 4682,
+            "id": 4683,
             "mutability": "mutable",
             "name": "inheritance",
             "nameLocation": "1067:11:17",
             "nodeType": "VariableDeclaration",
-            "scope": 4683,
+            "scope": 4684,
             "src": "1046:32:17",
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
-              "typeIdentifier": "t_struct$_Inheritance_$4677_storage",
+              "typeIdentifier": "t_struct$_Inheritance_$4678_storage",
               "typeString": "struct Storage.Inheritance"
             },
             "typeName": {
-              "id": 4681,
+              "id": 4682,
               "nodeType": "UserDefinedTypeName",
               "pathNode": {
-                "id": 4680,
+                "id": 4681,
                 "name": "Inheritance",
                 "nodeType": "IdentifierPath",
-                "referencedDeclaration": 4677,
+                "referencedDeclaration": 4678,
                 "src": "1046:11:17"
               },
-              "referencedDeclaration": 4677,
+              "referencedDeclaration": 4678,
               "src": "1046:11:17",
               "typeDescriptions": {
-                "typeIdentifier": "t_struct$_Inheritance_$4677_storage_ptr",
+                "typeIdentifier": "t_struct$_Inheritance_$4678_storage_ptr",
                 "typeString": "struct Storage.Inheritance"
               }
             },
             "visibility": "internal"
           }
         ],
-        "scope": 4684,
+        "scope": 4685,
         "src": "119:1029:17"
       }
     ],
@@ -959,30 +959,30 @@
     "absolutePath": "/opt/storage/data1/code/kirobo/ki-eth-contracts/contracts/lib/Storage.sol",
     "exportedSymbols": {
       "ICreator": [
-        4716
+        4717
       ],
       "IProxy": [
-        4734
+        4735
       ],
       "IStorage": [
-        4743
+        4744
       ],
       "IStorageBase": [
-        4749
+        4750
       ],
       "Storage": [
-        4683
+        4684
       ],
       "StorageBase": [
-        4878
+        4879
       ]
     },
-    "id": 4684,
+    "id": 4685,
     "license": "UNLICENSED",
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 4620,
+        "id": 4621,
         "literals": [
           "solidity",
           "^",
@@ -995,11 +995,11 @@
       {
         "absolutePath": "/opt/storage/data1/code/kirobo/ki-eth-contracts/contracts/lib/StorageBase.sol",
         "file": "./StorageBase.sol",
-        "id": 4621,
+        "id": 4622,
         "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
-        "scope": 4684,
-        "sourceUnit": 4879,
+        "scope": 4685,
+        "sourceUnit": 4880,
         "src": "65:27:17",
         "symbolAliases": [],
         "unitAlias": ""
@@ -1009,26 +1009,26 @@
         "baseContracts": [
           {
             "baseName": {
-              "id": 4622,
+              "id": 4623,
               "name": "IStorage",
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 4743,
+              "referencedDeclaration": 4744,
               "src": "148:8:17"
             },
-            "id": 4623,
+            "id": 4624,
             "nodeType": "InheritanceSpecifier",
             "src": "148:8:17"
           }
         ],
         "contractDependencies": [
-          4743
+          4744
         ],
         "contractKind": "contract",
         "fullyImplemented": false,
-        "id": 4683,
+        "id": 4684,
         "linearizedBaseContracts": [
-          4683,
-          4743
+          4684,
+          4744
         ],
         "name": "Storage",
         "nameLocation": "137:7:17",
@@ -1037,12 +1037,12 @@
           {
             "constant": true,
             "functionSelector": "f99ff3e8",
-            "id": 4626,
+            "id": 4627,
             "mutability": "constant",
             "name": "BACKUP_STATE_PENDING",
             "nameLocation": "186:20:17",
             "nodeType": "VariableDeclaration",
-            "scope": 4683,
+            "scope": 4684,
             "src": "164:49:17",
             "stateVariable": true,
             "storageLocation": "default",
@@ -1051,7 +1051,7 @@
               "typeString": "uint8"
             },
             "typeName": {
-              "id": 4624,
+              "id": 4625,
               "name": "uint8",
               "nodeType": "ElementaryTypeName",
               "src": "164:5:17",
@@ -1062,7 +1062,7 @@
             },
             "value": {
               "hexValue": "30",
-              "id": 4625,
+              "id": 4626,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
@@ -1081,12 +1081,12 @@
           {
             "constant": true,
             "functionSelector": "3d562561",
-            "id": 4629,
+            "id": 4630,
             "mutability": "constant",
             "name": "BACKUP_STATE_REGISTERED",
             "nameLocation": "241:23:17",
             "nodeType": "VariableDeclaration",
-            "scope": 4683,
+            "scope": 4684,
             "src": "219:49:17",
             "stateVariable": true,
             "storageLocation": "default",
@@ -1095,7 +1095,7 @@
               "typeString": "uint8"
             },
             "typeName": {
-              "id": 4627,
+              "id": 4628,
               "name": "uint8",
               "nodeType": "ElementaryTypeName",
               "src": "219:5:17",
@@ -1106,7 +1106,7 @@
             },
             "value": {
               "hexValue": "31",
-              "id": 4628,
+              "id": 4629,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
@@ -1125,12 +1125,12 @@
           {
             "constant": true,
             "functionSelector": "e1bc35ab",
-            "id": 4632,
+            "id": 4633,
             "mutability": "constant",
             "name": "BACKUP_STATE_ENABLED",
             "nameLocation": "296:20:17",
             "nodeType": "VariableDeclaration",
-            "scope": 4683,
+            "scope": 4684,
             "src": "274:49:17",
             "stateVariable": true,
             "storageLocation": "default",
@@ -1139,7 +1139,7 @@
               "typeString": "uint8"
             },
             "typeName": {
-              "id": 4630,
+              "id": 4631,
               "name": "uint8",
               "nodeType": "ElementaryTypeName",
               "src": "274:5:17",
@@ -1150,7 +1150,7 @@
             },
             "value": {
               "hexValue": "32",
-              "id": 4631,
+              "id": 4632,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
@@ -1169,12 +1169,12 @@
           {
             "constant": true,
             "functionSelector": "3e95e62c",
-            "id": 4635,
+            "id": 4636,
             "mutability": "constant",
             "name": "BACKUP_STATE_ACTIVATED",
             "nameLocation": "351:22:17",
             "nodeType": "VariableDeclaration",
-            "scope": 4683,
+            "scope": 4684,
             "src": "329:49:17",
             "stateVariable": true,
             "storageLocation": "default",
@@ -1183,7 +1183,7 @@
               "typeString": "uint8"
             },
             "typeName": {
-              "id": 4633,
+              "id": 4634,
               "name": "uint8",
               "nodeType": "ElementaryTypeName",
               "src": "329:5:17",
@@ -1194,7 +1194,7 @@
             },
             "value": {
               "hexValue": "33",
-              "id": 4634,
+              "id": 4635,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
@@ -1212,16 +1212,16 @@
           },
           {
             "canonicalName": "Storage.Backup",
-            "id": 4646,
+            "id": 4647,
             "members": [
               {
                 "constant": false,
-                "id": 4637,
+                "id": 4638,
                 "mutability": "mutable",
                 "name": "wallet",
                 "nameLocation": "459:6:17",
                 "nodeType": "VariableDeclaration",
-                "scope": 4646,
+                "scope": 4647,
                 "src": "451:14:17",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -1230,7 +1230,7 @@
                   "typeString": "address"
                 },
                 "typeName": {
-                  "id": 4636,
+                  "id": 4637,
                   "name": "address",
                   "nodeType": "ElementaryTypeName",
                   "src": "451:7:17",
@@ -1244,12 +1244,12 @@
               },
               {
                 "constant": false,
-                "id": 4639,
+                "id": 4640,
                 "mutability": "mutable",
                 "name": "timestamp",
                 "nameLocation": "483:9:17",
                 "nodeType": "VariableDeclaration",
-                "scope": 4646,
+                "scope": 4647,
                 "src": "475:17:17",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -1258,7 +1258,7 @@
                   "typeString": "uint40"
                 },
                 "typeName": {
-                  "id": 4638,
+                  "id": 4639,
                   "name": "uint40",
                   "nodeType": "ElementaryTypeName",
                   "src": "475:6:17",
@@ -1271,12 +1271,12 @@
               },
               {
                 "constant": false,
-                "id": 4641,
+                "id": 4642,
                 "mutability": "mutable",
                 "name": "timeout",
                 "nameLocation": "510:7:17",
                 "nodeType": "VariableDeclaration",
-                "scope": 4646,
+                "scope": 4647,
                 "src": "502:15:17",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -1285,7 +1285,7 @@
                   "typeString": "uint32"
                 },
                 "typeName": {
-                  "id": 4640,
+                  "id": 4641,
                   "name": "uint32",
                   "nodeType": "ElementaryTypeName",
                   "src": "502:6:17",
@@ -1298,12 +1298,12 @@
               },
               {
                 "constant": false,
-                "id": 4643,
+                "id": 4644,
                 "mutability": "mutable",
                 "name": "state",
                 "nameLocation": "535:5:17",
                 "nodeType": "VariableDeclaration",
-                "scope": 4646,
+                "scope": 4647,
                 "src": "527:13:17",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -1312,7 +1312,7 @@
                   "typeString": "uint8"
                 },
                 "typeName": {
-                  "id": 4642,
+                  "id": 4643,
                   "name": "uint8",
                   "nodeType": "ElementaryTypeName",
                   "src": "527:5:17",
@@ -1325,12 +1325,12 @@
               },
               {
                 "constant": false,
-                "id": 4645,
+                "id": 4646,
                 "mutability": "mutable",
                 "name": "filler",
                 "nameLocation": "558:6:17",
                 "nodeType": "VariableDeclaration",
-                "scope": 4646,
+                "scope": 4647,
                 "src": "550:14:17",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -1339,7 +1339,7 @@
                   "typeString": "uint16"
                 },
                 "typeName": {
-                  "id": 4644,
+                  "id": 4645,
                   "name": "uint16",
                   "nodeType": "ElementaryTypeName",
                   "src": "550:6:17",
@@ -1354,39 +1354,39 @@
             "name": "Backup",
             "nameLocation": "434:6:17",
             "nodeType": "StructDefinition",
-            "scope": 4683,
+            "scope": 4684,
             "src": "427:144:17",
             "visibility": "public"
           },
           {
             "constant": false,
-            "id": 4649,
+            "id": 4650,
             "mutability": "mutable",
             "name": "backup",
             "nameLocation": "593:6:17",
             "nodeType": "VariableDeclaration",
-            "scope": 4683,
+            "scope": 4684,
             "src": "577:22:17",
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
-              "typeIdentifier": "t_struct$_Backup_$4646_storage",
+              "typeIdentifier": "t_struct$_Backup_$4647_storage",
               "typeString": "struct Storage.Backup"
             },
             "typeName": {
-              "id": 4648,
+              "id": 4649,
               "nodeType": "UserDefinedTypeName",
               "pathNode": {
-                "id": 4647,
+                "id": 4648,
                 "name": "Backup",
                 "nodeType": "IdentifierPath",
-                "referencedDeclaration": 4646,
+                "referencedDeclaration": 4647,
                 "src": "577:6:17"
               },
-              "referencedDeclaration": 4646,
+              "referencedDeclaration": 4647,
               "src": "577:6:17",
               "typeDescriptions": {
-                "typeIdentifier": "t_struct$_Backup_$4646_storage_ptr",
+                "typeIdentifier": "t_struct$_Backup_$4647_storage_ptr",
                 "typeString": "struct Storage.Backup"
               }
             },
@@ -1394,12 +1394,12 @@
           },
           {
             "constant": true,
-            "id": 4652,
+            "id": 4653,
             "mutability": "constant",
             "name": "MAX_HEIRS",
             "nameLocation": "673:9:17",
             "nodeType": "VariableDeclaration",
-            "scope": 4683,
+            "scope": 4684,
             "src": "647:39:17",
             "stateVariable": true,
             "storageLocation": "default",
@@ -1408,7 +1408,7 @@
               "typeString": "uint256"
             },
             "typeName": {
-              "id": 4650,
+              "id": 4651,
               "name": "uint256",
               "nodeType": "ElementaryTypeName",
               "src": "647:7:17",
@@ -1419,7 +1419,7 @@
             },
             "value": {
               "hexValue": "38",
-              "id": 4651,
+              "id": 4652,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
@@ -1437,16 +1437,16 @@
           },
           {
             "canonicalName": "Storage.Heir",
-            "id": 4661,
+            "id": 4662,
             "members": [
               {
                 "constant": false,
-                "id": 4654,
+                "id": 4655,
                 "mutability": "mutable",
                 "name": "wallet",
                 "nameLocation": "731:6:17",
                 "nodeType": "VariableDeclaration",
-                "scope": 4661,
+                "scope": 4662,
                 "src": "715:22:17",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -1455,7 +1455,7 @@
                   "typeString": "address payable"
                 },
                 "typeName": {
-                  "id": 4653,
+                  "id": 4654,
                   "name": "address",
                   "nodeType": "ElementaryTypeName",
                   "src": "715:15:17",
@@ -1469,12 +1469,12 @@
               },
               {
                 "constant": false,
-                "id": 4656,
+                "id": 4657,
                 "mutability": "mutable",
                 "name": "sent",
                 "nameLocation": "755:4:17",
                 "nodeType": "VariableDeclaration",
-                "scope": 4661,
+                "scope": 4662,
                 "src": "747:12:17",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -1483,7 +1483,7 @@
                   "typeString": "bool"
                 },
                 "typeName": {
-                  "id": 4655,
+                  "id": 4656,
                   "name": "bool",
                   "nodeType": "ElementaryTypeName",
                   "src": "747:4:17",
@@ -1496,12 +1496,12 @@
               },
               {
                 "constant": false,
-                "id": 4658,
+                "id": 4659,
                 "mutability": "mutable",
                 "name": "bps",
                 "nameLocation": "777:3:17",
                 "nodeType": "VariableDeclaration",
-                "scope": 4661,
+                "scope": 4662,
                 "src": "769:11:17",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -1510,7 +1510,7 @@
                   "typeString": "uint16"
                 },
                 "typeName": {
-                  "id": 4657,
+                  "id": 4658,
                   "name": "uint16",
                   "nodeType": "ElementaryTypeName",
                   "src": "769:6:17",
@@ -1523,12 +1523,12 @@
               },
               {
                 "constant": false,
-                "id": 4660,
+                "id": 4661,
                 "mutability": "mutable",
                 "name": "filler",
                 "nameLocation": "798:6:17",
                 "nodeType": "VariableDeclaration",
-                "scope": 4661,
+                "scope": 4662,
                 "src": "790:14:17",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -1537,7 +1537,7 @@
                   "typeString": "uint72"
                 },
                 "typeName": {
-                  "id": 4659,
+                  "id": 4660,
                   "name": "uint72",
                   "nodeType": "ElementaryTypeName",
                   "src": "790:6:17",
@@ -1552,54 +1552,54 @@
             "name": "Heir",
             "nameLocation": "700:4:17",
             "nodeType": "StructDefinition",
-            "scope": 4683,
+            "scope": 4684,
             "src": "693:118:17",
             "visibility": "public"
           },
           {
             "canonicalName": "Storage.Inheritance",
-            "id": 4677,
+            "id": 4678,
             "members": [
               {
                 "constant": false,
-                "id": 4666,
+                "id": 4667,
                 "mutability": "mutable",
                 "name": "heirs",
                 "nameLocation": "862:5:17",
                 "nodeType": "VariableDeclaration",
-                "scope": 4677,
+                "scope": 4678,
                 "src": "846:21:17",
                 "stateVariable": false,
                 "storageLocation": "default",
                 "typeDescriptions": {
-                  "typeIdentifier": "t_array$_t_struct$_Heir_$4661_storage_$8_storage_ptr",
+                  "typeIdentifier": "t_array$_t_struct$_Heir_$4662_storage_$8_storage_ptr",
                   "typeString": "struct Storage.Heir[8]"
                 },
                 "typeName": {
                   "baseType": {
-                    "id": 4663,
+                    "id": 4664,
                     "nodeType": "UserDefinedTypeName",
                     "pathNode": {
-                      "id": 4662,
+                      "id": 4663,
                       "name": "Heir",
                       "nodeType": "IdentifierPath",
-                      "referencedDeclaration": 4661,
+                      "referencedDeclaration": 4662,
                       "src": "846:4:17"
                     },
-                    "referencedDeclaration": 4661,
+                    "referencedDeclaration": 4662,
                     "src": "846:4:17",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_struct$_Heir_$4661_storage_ptr",
+                      "typeIdentifier": "t_struct$_Heir_$4662_storage_ptr",
                       "typeString": "struct Storage.Heir"
                     }
                   },
-                  "id": 4665,
+                  "id": 4666,
                   "length": {
-                    "id": 4664,
+                    "id": 4665,
                     "name": "MAX_HEIRS",
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
-                    "referencedDeclaration": 4652,
+                    "referencedDeclaration": 4653,
                     "src": "851:9:17",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
@@ -1609,7 +1609,7 @@
                   "nodeType": "ArrayTypeName",
                   "src": "846:15:17",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_array$_t_struct$_Heir_$4661_storage_$8_storage_ptr",
+                    "typeIdentifier": "t_array$_t_struct$_Heir_$4662_storage_$8_storage_ptr",
                     "typeString": "struct Storage.Heir[8]"
                   }
                 },
@@ -1617,12 +1617,12 @@
               },
               {
                 "constant": false,
-                "id": 4668,
+                "id": 4669,
                 "mutability": "mutable",
                 "name": "timeout",
                 "nameLocation": "885:7:17",
                 "nodeType": "VariableDeclaration",
-                "scope": 4677,
+                "scope": 4678,
                 "src": "877:15:17",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -1631,7 +1631,7 @@
                   "typeString": "uint40"
                 },
                 "typeName": {
-                  "id": 4667,
+                  "id": 4668,
                   "name": "uint40",
                   "nodeType": "ElementaryTypeName",
                   "src": "877:6:17",
@@ -1644,12 +1644,12 @@
               },
               {
                 "constant": false,
-                "id": 4670,
+                "id": 4671,
                 "mutability": "mutable",
                 "name": "enabled",
                 "nameLocation": "910:7:17",
                 "nodeType": "VariableDeclaration",
-                "scope": 4677,
+                "scope": 4678,
                 "src": "902:15:17",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -1658,7 +1658,7 @@
                   "typeString": "bool"
                 },
                 "typeName": {
-                  "id": 4669,
+                  "id": 4670,
                   "name": "bool",
                   "nodeType": "ElementaryTypeName",
                   "src": "902:4:17",
@@ -1671,12 +1671,12 @@
               },
               {
                 "constant": false,
-                "id": 4672,
+                "id": 4673,
                 "mutability": "mutable",
                 "name": "activated",
                 "nameLocation": "935:9:17",
                 "nodeType": "VariableDeclaration",
-                "scope": 4677,
+                "scope": 4678,
                 "src": "927:17:17",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -1685,7 +1685,7 @@
                   "typeString": "bool"
                 },
                 "typeName": {
-                  "id": 4671,
+                  "id": 4672,
                   "name": "bool",
                   "nodeType": "ElementaryTypeName",
                   "src": "927:4:17",
@@ -1698,12 +1698,12 @@
               },
               {
                 "constant": false,
-                "id": 4674,
+                "id": 4675,
                 "mutability": "mutable",
                 "name": "timestamp",
                 "nameLocation": "962:9:17",
                 "nodeType": "VariableDeclaration",
-                "scope": 4677,
+                "scope": 4678,
                 "src": "954:17:17",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -1712,7 +1712,7 @@
                   "typeString": "uint40"
                 },
                 "typeName": {
-                  "id": 4673,
+                  "id": 4674,
                   "name": "uint40",
                   "nodeType": "ElementaryTypeName",
                   "src": "954:6:17",
@@ -1725,12 +1725,12 @@
               },
               {
                 "constant": false,
-                "id": 4676,
+                "id": 4677,
                 "mutability": "mutable",
                 "name": "filler",
                 "nameLocation": "989:6:17",
                 "nodeType": "VariableDeclaration",
-                "scope": 4677,
+                "scope": 4678,
                 "src": "981:14:17",
                 "stateVariable": false,
                 "storageLocation": "default",
@@ -1739,7 +1739,7 @@
                   "typeString": "uint16"
                 },
                 "typeName": {
-                  "id": 4675,
+                  "id": 4676,
                   "name": "uint16",
                   "nodeType": "ElementaryTypeName",
                   "src": "981:6:17",
@@ -1754,18 +1754,18 @@
             "name": "Inheritance",
             "nameLocation": "824:11:17",
             "nodeType": "StructDefinition",
-            "scope": 4683,
+            "scope": 4684,
             "src": "817:185:17",
             "visibility": "public"
           },
           {
             "constant": false,
-            "id": 4679,
+            "id": 4680,
             "mutability": "mutable",
             "name": "totalTransfered",
             "nameLocation": "1025:15:17",
             "nodeType": "VariableDeclaration",
-            "scope": 4683,
+            "scope": 4684,
             "src": "1008:32:17",
             "stateVariable": true,
             "storageLocation": "default",
@@ -1774,7 +1774,7 @@
               "typeString": "uint256"
             },
             "typeName": {
-              "id": 4678,
+              "id": 4679,
               "name": "uint256",
               "nodeType": "ElementaryTypeName",
               "src": "1008:7:17",
@@ -1787,40 +1787,40 @@
           },
           {
             "constant": false,
-            "id": 4682,
+            "id": 4683,
             "mutability": "mutable",
             "name": "inheritance",
             "nameLocation": "1067:11:17",
             "nodeType": "VariableDeclaration",
-            "scope": 4683,
+            "scope": 4684,
             "src": "1046:32:17",
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
-              "typeIdentifier": "t_struct$_Inheritance_$4677_storage",
+              "typeIdentifier": "t_struct$_Inheritance_$4678_storage",
               "typeString": "struct Storage.Inheritance"
             },
             "typeName": {
-              "id": 4681,
+              "id": 4682,
               "nodeType": "UserDefinedTypeName",
               "pathNode": {
-                "id": 4680,
+                "id": 4681,
                 "name": "Inheritance",
                 "nodeType": "IdentifierPath",
-                "referencedDeclaration": 4677,
+                "referencedDeclaration": 4678,
                 "src": "1046:11:17"
               },
-              "referencedDeclaration": 4677,
+              "referencedDeclaration": 4678,
               "src": "1046:11:17",
               "typeDescriptions": {
-                "typeIdentifier": "t_struct$_Inheritance_$4677_storage_ptr",
+                "typeIdentifier": "t_struct$_Inheritance_$4678_storage_ptr",
                 "typeString": "struct Storage.Inheritance"
               }
             },
             "visibility": "internal"
           }
         ],
-        "scope": 4684,
+        "scope": 4685,
         "src": "119:1029:17"
       }
     ],
@@ -1832,7 +1832,7 @@
   },
   "networks": {},
   "schemaVersion": "3.3.4",
-  "updatedAt": "2021-03-21T20:16:32.957Z",
+  "updatedAt": "2021-03-22T14:20:41.913Z",
   "devdoc": {
     "kind": "dev",
     "methods": {},

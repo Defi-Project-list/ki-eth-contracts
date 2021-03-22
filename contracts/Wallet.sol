@@ -3,13 +3,13 @@
 pragma solidity ^0.8.0;
 
 //import "openzeppelin-solidity/contracts/math/SafeMath.sol";
-import "../node_modules/openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
-import "../node_modules/openzeppelin-solidity/contracts/token/ERC721/IERC721.sol";
-import "../node_modules/openzeppelin-solidity/contracts/token/ERC721/IERC721Receiver.sol";
+import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
+import "openzeppelin-solidity/contracts/token/ERC721/IERC721.sol";
+import "openzeppelin-solidity/contracts/token/ERC721/IERC721Receiver.sol";
 
 import "./lib/IOracle.sol";
 import "./lib/Heritable.sol";
-//import "./Trust.sol";
+import "./Trust.sol";
 
 contract Wallet is IStorage, Heritable {
     //using SafeMath for uint256;
@@ -39,7 +39,7 @@ contract Wallet is IStorage, Heritable {
     }
 
     function transfer721 (address _token, address _to, uint256 _value) public onlyActiveOwner() {
-        transferFrom721 (_token, address(0), _to, _value);
+        transferFrom721(_token, address(0), _to, _value);
     }
 
     function transferFrom721 (address _token, address _from, address _to, uint256 _id) public onlyActiveOwner() {
@@ -56,7 +56,7 @@ contract Wallet is IStorage, Heritable {
         IERC721(_token).safeTransferFrom(address(this), _to, _id);
     }
 
-    function safeTransferFrom721$Data (address _token, address _from, address _to, uint256 _id, bytes memory _data) public onlyActiveOwner() {
+    function safeTransferFrom721wData (address _token, address _from, address _to, uint256 _id, bytes memory _data) public onlyActiveOwner() {
         require(_token != address(0), "_token is 0x0");
         address from = _from == address(0) ? address(this): address(_from);
         emit Transfer721 (this.creator(), _token, from, _to, _id, _data);
@@ -88,22 +88,20 @@ contract Wallet is IStorage, Heritable {
         return this.onERC721Received.selector;
     }
 
-    /*
     function createTrust(address _wallet, uint40 _start, uint32 _period, uint16 _times, uint256 _amount, bool _cancelable) payable public {
-        require(trust == Trust(0));
-        trust = (new Trust).value(_amount.mul(_times))(_wallet, _start, _period, _times, _amount, _cancelable);
+        require(trust == Trust(payable(0)));
+        trust = (new Trust){value: _amount * _times}(payable(_wallet), _start, _period, _times, _amount, _cancelable);
     }
 
     function destroyTrust() public {
-        require(trust != Trust(0));
+        require(trust != Trust(payable(0)));
         trust.destroy();
-        trust = Trust(0);
+        trust = Trust(payable(0));
     }
 
     function getTrust() public view returns (Trust) {
         return trust;
     }
-    */
 
     // IStorage Implementation
     function migrate () external onlyCreator() override {}

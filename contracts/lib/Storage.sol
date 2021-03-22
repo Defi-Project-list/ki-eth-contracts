@@ -3,7 +3,7 @@
 pragma solidity ^0.8.0;
 
 import "./StorageBase.sol";
-//import "../Trust.sol";
+import "../Trust.sol";
 
 abstract contract Storage is IStorage {
 
@@ -46,6 +46,6 @@ abstract contract Storage is IStorage {
     Inheritance internal inheritance;
 
     // ------------- Trust ---------
-    //Trust internal trust;
+    Trust internal trust;
 
 }

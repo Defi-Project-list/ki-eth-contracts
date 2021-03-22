@@ -44,7 +44,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [],
@@ -57,7 +58,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [],
@@ -70,7 +72,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -119,7 +122,8 @@
       "name": "update20",
       "outputs": [],
       "stateMutability": "payable",
-      "type": "function"
+      "type": "function",
+      "payable": true
     },
     {
       "inputs": [
@@ -156,7 +160,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -175,7 +180,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [],
@@ -188,7 +194,8 @@
         }
       ],
       "stateMutability": "pure",
-      "type": "function"
+      "type": "function",
+      "constant": true
     }
   ],
   "metadata": "{\"compiler\":{\"version\":\"0.8.2+commit.661d1103\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner1\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner2\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner3\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"stateMutability\":\"nonpayable\",\"type\":\"fallback\"},{\"inputs\":[],\"name\":\"cancel\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"initialized\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_token\",\"type\":\"address\"}],\"name\":\"is20Safe\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_token\",\"type\":\"address\"}],\"name\":\"is721Safe\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"isOwner\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"paymentAddress\",\"outputs\":[{\"internalType\":\"address payable\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_newOwner\",\"type\":\"address\"}],\"name\":\"replaceOwner\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address payable\",\"name\":\"_payto\",\"type\":\"address\"}],\"name\":\"setPaymentAddress\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_token\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"_safe\",\"type\":\"bool\"}],\"name\":\"update20\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_token\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"_safe\",\"type\":\"bool\"}],\"name\":\"update721\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"version\",\"outputs\":[{\"internalType\":\"bytes8\",\"name\":\"\",\"type\":\"bytes8\"}],\"stateMutability\":\"pure\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"/opt/storage/data1/code/kirobo/ki-eth-contracts/contracts/Oracle.sol\":\"Oracle\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"/opt/storage/data1/code/kirobo/ki-eth-contracts/contracts/Oracle.sol\":{\"keccak256\":\"0x20e108809b5a8fe2f022ed46ef0d0879f5a30e163671063ba9c6bab2875f69b4\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://c53d9ce4bf0949e08749ef45518f38989b60e6094ac10b97317e0abce7fa5b45\",\"dweb:/ipfs/QmdJt3MBYKyjDhoZ9YmaYrQAzVjwBd1CcnPWdUe4NMHsnG\"]},\"/opt/storage/data1/code/kirobo/ki-eth-contracts/contracts/lib/IOracle.sol\":{\"keccak256\":\"0x8bb9498b453bb0330eb94cc2b26338a8ae6cfecf6a8942bd9d5279dd29c6bda0\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://9f86d295052785339ddb3fddfa905639eedf9563ec63f08cda935f6e1af97fa6\",\"dweb:/ipfs/QmbR7pHAdoPmP6VULDehFLkSLTsUMRGwG1Kf9QdB1PUha3\"]},\"/opt/storage/data1/code/kirobo/ki-eth-contracts/contracts/lib/MultiSig.sol\":{\"keccak256\":\"0xaa7ccc4ae937db7bf3394a91bd06d78261b88f51b620aad5ed6dbce0a992b032\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://77a9739b05dbcbd4d67d25268249ad7e4f4301994b035d5dd3c2e82d4c70151c\",\"dweb:/ipfs/QmWYs4XKRxqSgyCTEamiqgs41tgQr1APqs5HD2K9yBGjj1\"]},\"/opt/storage/data1/code/kirobo/ki-eth-contracts/contracts/lib/OracleBase.sol\":{\"keccak256\":\"0xf2f3d67721a4001f73cd6a2b4970875a0b68db926d35422c3149331d962d52a8\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://79a8c8aaf7c653ece8fafbc989c4be07d68334ab5d3f3a09d4262862ac0fc2f9\",\"dweb:/ipfs/QmUkpJjbtLkTrSLAP6NvBj2SrPPZSykuZMAQvwnvpc2Qt3\"]}},\"version\":1}",
@@ -5760,16 +5767,16 @@
     "absolutePath": "/opt/storage/data1/code/kirobo/ki-eth-contracts/contracts/Oracle.sol",
     "exportedSymbols": {
       "IOracle": [
-        4137
+        4138
       ],
       "MultiSig": [
-        4389
+        4390
       ],
       "Oracle": [
         1367
       ],
       "OracleBase": [
-        4452
+        4453
       ]
     },
     "id": 1368,
@@ -5794,7 +5801,7 @@
         "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
         "scope": 1368,
-        "sourceUnit": 4453,
+        "sourceUnit": 4454,
         "src": "65:30:4",
         "symbolAliases": [],
         "unitAlias": ""
@@ -5807,7 +5814,7 @@
               "id": 1265,
               "name": "OracleBase",
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 4452,
+              "referencedDeclaration": 4453,
               "src": "116:10:4"
             },
             "id": 1266,
@@ -5816,18 +5823,18 @@
           }
         ],
         "contractDependencies": [
-          4137,
-          4389,
-          4452
+          4138,
+          4390,
+          4453
         ],
         "contractKind": "contract",
         "fullyImplemented": true,
         "id": 1367,
         "linearizedBaseContracts": [
           1367,
-          4452,
-          4389,
-          4137
+          4453,
+          4390,
+          4138
         ],
         "name": "Oracle",
         "nameLocation": "106:6:4",
@@ -5980,7 +5987,7 @@
                   "id": 1282,
                   "name": "MultiSig",
                   "nodeType": "IdentifierPath",
-                  "referencedDeclaration": 4389,
+                  "referencedDeclaration": 4390,
                   "src": "289:8:4"
                 },
                 "nodeType": "ModifierInvocation",
@@ -6208,7 +6215,7 @@
                   "id": 1295,
                   "name": "multiSig2of3",
                   "nodeType": "IdentifierPath",
-                  "referencedDeclaration": 4315,
+                  "referencedDeclaration": 4316,
                   "src": "388:12:4"
                 },
                 "nodeType": "ModifierInvocation",
@@ -6397,7 +6404,7 @@
                   "id": 1313,
                   "name": "multiSig2of3",
                   "nodeType": "IdentifierPath",
-                  "referencedDeclaration": 4315,
+                  "referencedDeclaration": 4316,
                   "src": "520:12:4"
                 },
                 "nodeType": "ModifierInvocation",
@@ -6483,7 +6490,7 @@
           },
           {
             "baseFunctions": [
-              4109
+              4110
             ],
             "body": {
               "id": 1336,
@@ -6626,7 +6633,7 @@
           },
           {
             "baseFunctions": [
-              4116
+              4117
             ],
             "body": {
               "id": 1349,
@@ -6769,7 +6776,7 @@
           },
           {
             "baseFunctions": [
-              4121
+              4122
             ],
             "body": {
               "id": 1361,
@@ -6947,16 +6954,16 @@
     "absolutePath": "/opt/storage/data1/code/kirobo/ki-eth-contracts/contracts/Oracle.sol",
     "exportedSymbols": {
       "IOracle": [
-        4137
+        4138
       ],
       "MultiSig": [
-        4389
+        4390
       ],
       "Oracle": [
         1367
       ],
       "OracleBase": [
-        4452
+        4453
       ]
     },
     "id": 1368,
@@ -6981,7 +6988,7 @@
         "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
         "scope": 1368,
-        "sourceUnit": 4453,
+        "sourceUnit": 4454,
         "src": "65:30:4",
         "symbolAliases": [],
         "unitAlias": ""
@@ -6994,7 +7001,7 @@
               "id": 1265,
               "name": "OracleBase",
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 4452,
+              "referencedDeclaration": 4453,
               "src": "116:10:4"
             },
             "id": 1266,
@@ -7003,18 +7010,18 @@
           }
         ],
         "contractDependencies": [
-          4137,
-          4389,
-          4452
+          4138,
+          4390,
+          4453
         ],
         "contractKind": "contract",
         "fullyImplemented": true,
         "id": 1367,
         "linearizedBaseContracts": [
           1367,
-          4452,
-          4389,
-          4137
+          4453,
+          4390,
+          4138
         ],
         "name": "Oracle",
         "nameLocation": "106:6:4",
@@ -7167,7 +7174,7 @@
                   "id": 1282,
                   "name": "MultiSig",
                   "nodeType": "IdentifierPath",
-                  "referencedDeclaration": 4389,
+                  "referencedDeclaration": 4390,
                   "src": "289:8:4"
                 },
                 "nodeType": "ModifierInvocation",
@@ -7395,7 +7402,7 @@
                   "id": 1295,
                   "name": "multiSig2of3",
                   "nodeType": "IdentifierPath",
-                  "referencedDeclaration": 4315,
+                  "referencedDeclaration": 4316,
                   "src": "388:12:4"
                 },
                 "nodeType": "ModifierInvocation",
@@ -7584,7 +7591,7 @@
                   "id": 1313,
                   "name": "multiSig2of3",
                   "nodeType": "IdentifierPath",
-                  "referencedDeclaration": 4315,
+                  "referencedDeclaration": 4316,
                   "src": "520:12:4"
                 },
                 "nodeType": "ModifierInvocation",
@@ -7670,7 +7677,7 @@
           },
           {
             "baseFunctions": [
-              4109
+              4110
             ],
             "body": {
               "id": 1336,
@@ -7813,7 +7820,7 @@
           },
           {
             "baseFunctions": [
-              4116
+              4117
             ],
             "body": {
               "id": 1349,
@@ -7956,7 +7963,7 @@
           },
           {
             "baseFunctions": [
-              4121
+              4122
             ],
             "body": {
               "id": 1361,
@@ -8140,10 +8147,17 @@
       "links": {},
       "address": "0x6E47E7eDe61f46217d1d5CbC1abf567148E56472",
       "transactionHash": "0xbbb5be72a61f7ccca925fe507444d479f5c97c7160b51080fff46a1f9ac02371"
+    },
+    "1337": {
+      "events": {},
+      "links": {},
+      "address": "0xD4c36266aF81e520C387bfA0A88cce13744A28A8",
+      "transactionHash": "0x46a51edfcef69f43bcd25b1ced2b9076cd436b84af2af8cba34018f6724f8f46"
     }
   },
   "schemaVersion": "3.3.4",
-  "updatedAt": "2021-03-21T20:16:32.890Z",
+  "updatedAt": "2021-03-22T14:21:08.925Z",
+  "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",
     "methods": {},

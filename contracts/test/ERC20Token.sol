@@ -2,9 +2,9 @@
 
 pragma solidity ^0.8.0;
 
-import "../../node_modules/openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
-import "../../node_modules/openzeppelin-solidity/contracts/token/ERC20/extensions/ERC20Capped.sol";
-import "../../node_modules/openzeppelin-solidity/contracts/token/ERC20/extensions/ERC20Burnable.sol";
+import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
+import "openzeppelin-solidity/contracts/token/ERC20/extensions/ERC20Capped.sol";
+import "openzeppelin-solidity/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 
 contract ERC20Token is ERC20, ERC20Capped, ERC20Burnable {
 

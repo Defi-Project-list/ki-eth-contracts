@@ -37,7 +37,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [],
@@ -57,7 +58,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [],
@@ -70,7 +72,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -101,7 +104,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [],
@@ -114,7 +118,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [],
@@ -127,7 +132,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -3606,7 +3612,7 @@
                 }
               ]
             },
-            "name": "abi_encode_tuple_t_contract$_ProxyLatest_$4500__to_t_address_payable__fromStack_reversed",
+            "name": "abi_encode_tuple_t_contract$_ProxyLatest_$4501__to_t_address_payable__fromStack_reversed",
             "nodeType": "YulFunctionDefinition",
             "parameters": [
               {
@@ -3752,7 +3758,7 @@
                 }
               ]
             },
-            "name": "abi_encode_tuple_t_contract$_Proxy_$4471__to_t_address_payable__fromStack_reversed",
+            "name": "abi_encode_tuple_t_contract$_Proxy_$4472__to_t_address_payable__fromStack_reversed",
             "nodeType": "YulFunctionDefinition",
             "parameters": [
               {
@@ -5600,7 +5606,7 @@
           }
         ]
       },
-      "contents": "{\n    { }\n    function abi_decode_address(offset) -> value\n    {\n        value := calldataload(offset)\n        if iszero(eq(value, and(value, sub(shl(160, 1), 1)))) { revert(0, 0) }\n    }\n    function abi_decode_tuple_t_address(headStart, dataEnd) -> value0\n    {\n        if slt(sub(dataEnd, headStart), 32) { revert(value0, value0) }\n        value0 := abi_decode_address(headStart)\n    }\n    function abi_decode_tuple_t_addresst_address(headStart, dataEnd) -> value0, value1\n    {\n        if slt(sub(dataEnd, headStart), 64) { revert(value1, value1) }\n        value0 := abi_decode_address(headStart)\n        value1 := abi_decode_address(add(headStart, 32))\n    }\n    function abi_encode_tuple_packed_t_bytes_calldata_ptr__to_t_bytes_memory_ptr__nonPadded_inplace_fromStack_reversed(pos, value1, value0) -> end\n    {\n        calldatacopy(pos, value0, value1)\n        let _1 := add(pos, value1)\n        mstore(_1, end)\n        end := _1\n    }\n    function abi_encode_tuple_packed_t_bytes_storage__to_t_bytes_memory_ptr__nonPadded_inplace_fromStack_reversed(pos, value0) -> end\n    {\n        let ret := end\n        let slotValue := sload(value0)\n        let length := end\n        length := div(slotValue, 2)\n        let _1 := 1\n        let outOfPlaceEncoding := and(slotValue, _1)\n        if iszero(outOfPlaceEncoding) { length := and(length, 0x7f) }\n        let _2 := 32\n        if eq(outOfPlaceEncoding, lt(length, _2))\n        {\n            mstore(end, shl(224, 0x4e487b71))\n            mstore(4, 0x22)\n            revert(end, 0x24)\n        }\n        switch outOfPlaceEncoding\n        case 0 {\n            mstore(pos, and(slotValue, not(255)))\n            ret := add(pos, length)\n        }\n        case 1 {\n            let dataPos := array_dataslot_bytes_storage(value0)\n            let i := end\n            for { } lt(i, length) { i := add(i, _2) }\n            {\n                mstore(add(pos, i), sload(dataPos))\n                dataPos := add(dataPos, _1)\n            }\n            ret := add(pos, length)\n        }\n        end := ret\n    }\n    function abi_encode_tuple_t_address__to_t_address__fromStack_reversed(headStart, value0) -> tail\n    {\n        tail := add(headStart, 32)\n        mstore(headStart, and(value0, sub(shl(160, 1), 1)))\n    }\n    function abi_encode_tuple_t_bool__to_t_bool__fromStack_reversed(headStart, value0) -> tail\n    {\n        tail := add(headStart, 32)\n        mstore(headStart, iszero(iszero(value0)))\n    }\n    function abi_encode_tuple_t_bytes8__to_t_bytes8__fromStack_reversed(headStart, value0) -> tail\n    {\n        tail := add(headStart, 32)\n        mstore(headStart, and(value0, shl(192, 0xffffffffffffffff)))\n    }\n    function abi_encode_tuple_t_contract$_ProxyLatest_$4500__to_t_address_payable__fromStack_reversed(headStart, value0) -> tail\n    {\n        tail := add(headStart, 32)\n        mstore(headStart, and(value0, sub(shl(160, 1), 1)))\n    }\n    function abi_encode_tuple_t_contract$_Proxy_$4471__to_t_address_payable__fromStack_reversed(headStart, value0) -> tail\n    {\n        tail := add(headStart, 32)\n        mstore(headStart, and(value0, sub(shl(160, 1), 1)))\n    }\n    function abi_encode_tuple_t_stringliteral_1642eebb38b00494f08738c49d2c431778977664d916cf3fedc90f817d546a22__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 24)\n        mstore(add(headStart, 64), \"must sign the same value\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_30999f96fe928dbc0581c00989909065a956217420857211f0c6721657f8daef__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 18)\n        mstore(add(headStart, 64), \"owner should exist\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_593ed0dc88fe2a0e2e13ff77cd628582479b5d4f06903d55627f06e2435d5796__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 28)\n        mstore(add(headStart, 64), \"same owner cannot sign twice\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_7f23b2250f1c5a0586bf8e6695ab8497520fcd435b9a5cd44d161769df19127b__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 23)\n        mstore(add(headStart, 64), \"must sign the same data\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_b0166bf25fbac6fff5ee9f1f61fbe1c85804fa862bfc5471a0264f36274a4517__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 11)\n        mstore(add(headStart, 64), \"only owners\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_b8cca427986c1373d0242fcf324819f0fd58896e8c6a5857565607eb551877dd__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 9)\n        mstore(add(headStart, 64), \"no target\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_ba09248a5a13ba894d903382a6c2d3248c25adc9bd1d4915b4c8e5587323ba3f__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 26)\n        mstore(add(headStart, 64), \"new owner should not exist\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_d1218620da09f6e7d360a42f242ae4d3ee7430442ec5be1555963e53ec012550__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 6)\n        mstore(add(headStart, 64), \"frozen\")\n        tail := add(headStart, 96)\n    }\n    function array_dataslot_bytes_storage(ptr) -> data\n    {\n        mstore(data, ptr)\n        data := keccak256(data, 0x20)\n    }\n    function extract_byte_array_length(data) -> length\n    {\n        length := div(data, 2)\n        let outOfPlaceEncoding := and(data, 1)\n        if iszero(outOfPlaceEncoding) { length := and(length, 0x7f) }\n        if eq(outOfPlaceEncoding, lt(length, 32))\n        {\n            mstore(0, shl(224, 0x4e487b71))\n            mstore(4, 0x22)\n            revert(0, 0x24)\n        }\n    }\n}",
+      "contents": "{\n    { }\n    function abi_decode_address(offset) -> value\n    {\n        value := calldataload(offset)\n        if iszero(eq(value, and(value, sub(shl(160, 1), 1)))) { revert(0, 0) }\n    }\n    function abi_decode_tuple_t_address(headStart, dataEnd) -> value0\n    {\n        if slt(sub(dataEnd, headStart), 32) { revert(value0, value0) }\n        value0 := abi_decode_address(headStart)\n    }\n    function abi_decode_tuple_t_addresst_address(headStart, dataEnd) -> value0, value1\n    {\n        if slt(sub(dataEnd, headStart), 64) { revert(value1, value1) }\n        value0 := abi_decode_address(headStart)\n        value1 := abi_decode_address(add(headStart, 32))\n    }\n    function abi_encode_tuple_packed_t_bytes_calldata_ptr__to_t_bytes_memory_ptr__nonPadded_inplace_fromStack_reversed(pos, value1, value0) -> end\n    {\n        calldatacopy(pos, value0, value1)\n        let _1 := add(pos, value1)\n        mstore(_1, end)\n        end := _1\n    }\n    function abi_encode_tuple_packed_t_bytes_storage__to_t_bytes_memory_ptr__nonPadded_inplace_fromStack_reversed(pos, value0) -> end\n    {\n        let ret := end\n        let slotValue := sload(value0)\n        let length := end\n        length := div(slotValue, 2)\n        let _1 := 1\n        let outOfPlaceEncoding := and(slotValue, _1)\n        if iszero(outOfPlaceEncoding) { length := and(length, 0x7f) }\n        let _2 := 32\n        if eq(outOfPlaceEncoding, lt(length, _2))\n        {\n            mstore(end, shl(224, 0x4e487b71))\n            mstore(4, 0x22)\n            revert(end, 0x24)\n        }\n        switch outOfPlaceEncoding\n        case 0 {\n            mstore(pos, and(slotValue, not(255)))\n            ret := add(pos, length)\n        }\n        case 1 {\n            let dataPos := array_dataslot_bytes_storage(value0)\n            let i := end\n            for { } lt(i, length) { i := add(i, _2) }\n            {\n                mstore(add(pos, i), sload(dataPos))\n                dataPos := add(dataPos, _1)\n            }\n            ret := add(pos, length)\n        }\n        end := ret\n    }\n    function abi_encode_tuple_t_address__to_t_address__fromStack_reversed(headStart, value0) -> tail\n    {\n        tail := add(headStart, 32)\n        mstore(headStart, and(value0, sub(shl(160, 1), 1)))\n    }\n    function abi_encode_tuple_t_bool__to_t_bool__fromStack_reversed(headStart, value0) -> tail\n    {\n        tail := add(headStart, 32)\n        mstore(headStart, iszero(iszero(value0)))\n    }\n    function abi_encode_tuple_t_bytes8__to_t_bytes8__fromStack_reversed(headStart, value0) -> tail\n    {\n        tail := add(headStart, 32)\n        mstore(headStart, and(value0, shl(192, 0xffffffffffffffff)))\n    }\n    function abi_encode_tuple_t_contract$_ProxyLatest_$4501__to_t_address_payable__fromStack_reversed(headStart, value0) -> tail\n    {\n        tail := add(headStart, 32)\n        mstore(headStart, and(value0, sub(shl(160, 1), 1)))\n    }\n    function abi_encode_tuple_t_contract$_Proxy_$4472__to_t_address_payable__fromStack_reversed(headStart, value0) -> tail\n    {\n        tail := add(headStart, 32)\n        mstore(headStart, and(value0, sub(shl(160, 1), 1)))\n    }\n    function abi_encode_tuple_t_stringliteral_1642eebb38b00494f08738c49d2c431778977664d916cf3fedc90f817d546a22__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 24)\n        mstore(add(headStart, 64), \"must sign the same value\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_30999f96fe928dbc0581c00989909065a956217420857211f0c6721657f8daef__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 18)\n        mstore(add(headStart, 64), \"owner should exist\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_593ed0dc88fe2a0e2e13ff77cd628582479b5d4f06903d55627f06e2435d5796__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 28)\n        mstore(add(headStart, 64), \"same owner cannot sign twice\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_7f23b2250f1c5a0586bf8e6695ab8497520fcd435b9a5cd44d161769df19127b__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 23)\n        mstore(add(headStart, 64), \"must sign the same data\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_b0166bf25fbac6fff5ee9f1f61fbe1c85804fa862bfc5471a0264f36274a4517__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 11)\n        mstore(add(headStart, 64), \"only owners\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_b8cca427986c1373d0242fcf324819f0fd58896e8c6a5857565607eb551877dd__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 9)\n        mstore(add(headStart, 64), \"no target\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_ba09248a5a13ba894d903382a6c2d3248c25adc9bd1d4915b4c8e5587323ba3f__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 26)\n        mstore(add(headStart, 64), \"new owner should not exist\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_d1218620da09f6e7d360a42f242ae4d3ee7430442ec5be1555963e53ec012550__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 6)\n        mstore(add(headStart, 64), \"frozen\")\n        tail := add(headStart, 96)\n    }\n    function array_dataslot_bytes_storage(ptr) -> data\n    {\n        mstore(data, ptr)\n        data := keccak256(data, 0x20)\n    }\n    function extract_byte_array_length(data) -> length\n    {\n        length := div(data, 2)\n        let outOfPlaceEncoding := and(data, 1)\n        if iszero(outOfPlaceEncoding) { length := and(length, 0x7f) }\n        if eq(outOfPlaceEncoding, lt(length, 32))\n        {\n            mstore(0, shl(224, 0x4e487b71))\n            mstore(4, 0x22)\n            revert(0, 0x24)\n        }\n    }\n}",
       "id": 41,
       "language": "Yul",
       "name": "#utility.yul"
@@ -5623,31 +5629,31 @@
         1203
       ],
       "ICreator": [
-        4716
+        4717
       ],
       "IOracle": [
-        4137
+        4138
       ],
       "IProxy": [
-        4734
+        4735
       ],
       "IStorage": [
-        4743
+        4744
       ],
       "IStorageBase": [
-        4749
+        4750
       ],
       "MultiSig": [
-        4389
+        4390
       ],
       "Proxy": [
-        4471
+        4472
       ],
       "ProxyLatest": [
-        4500
+        4501
       ],
       "StorageBase": [
-        4878
+        4879
       ]
     },
     "id": 1116,
@@ -5707,7 +5713,7 @@
         ],
         "contractDependencies": [
           1203,
-          4389
+          4390
         ],
         "contractKind": "contract",
         "fullyImplemented": true,
@@ -5715,7 +5721,7 @@
         "linearizedBaseContracts": [
           1115,
           1203,
-          4389
+          4390
         ],
         "name": "FactoryProxy",
         "nameLocation": "130:12:1",
@@ -6261,7 +6267,7 @@
                   "id": 1072,
                   "name": "multiSig2of3",
                   "nodeType": "IdentifierPath",
-                  "referencedDeclaration": 4315,
+                  "referencedDeclaration": 4316,
                   "src": "386:12:1"
                 },
                 "nodeType": "ModifierInvocation",
@@ -6402,7 +6408,7 @@
                   "id": 1100,
                   "name": "multiSig2of3",
                   "nodeType": "IdentifierPath",
-                  "referencedDeclaration": 4315,
+                  "referencedDeclaration": 4316,
                   "src": "568:12:1"
                 },
                 "nodeType": "ModifierInvocation",
@@ -6742,31 +6748,31 @@
         1203
       ],
       "ICreator": [
-        4716
+        4717
       ],
       "IOracle": [
-        4137
+        4138
       ],
       "IProxy": [
-        4734
+        4735
       ],
       "IStorage": [
-        4743
+        4744
       ],
       "IStorageBase": [
-        4749
+        4750
       ],
       "MultiSig": [
-        4389
+        4390
       ],
       "Proxy": [
-        4471
+        4472
       ],
       "ProxyLatest": [
-        4500
+        4501
       ],
       "StorageBase": [
-        4878
+        4879
       ]
     },
     "id": 1116,
@@ -6826,7 +6832,7 @@
         ],
         "contractDependencies": [
           1203,
-          4389
+          4390
         ],
         "contractKind": "contract",
         "fullyImplemented": true,
@@ -6834,7 +6840,7 @@
         "linearizedBaseContracts": [
           1115,
           1203,
-          4389
+          4390
         ],
         "name": "FactoryProxy",
         "nameLocation": "130:12:1",
@@ -7380,7 +7386,7 @@
                   "id": 1072,
                   "name": "multiSig2of3",
                   "nodeType": "IdentifierPath",
-                  "referencedDeclaration": 4315,
+                  "referencedDeclaration": 4316,
                   "src": "386:12:1"
                 },
                 "nodeType": "ModifierInvocation",
@@ -7521,7 +7527,7 @@
                   "id": 1100,
                   "name": "multiSig2of3",
                   "nodeType": "IdentifierPath",
-                  "referencedDeclaration": 4315,
+                  "referencedDeclaration": 4316,
                   "src": "568:12:1"
                 },
                 "nodeType": "ModifierInvocation",
@@ -7891,10 +7897,17 @@
       "links": {},
       "address": "0xC97Bf7C8f20D32BD28e92845Eb18cA4462160110",
       "transactionHash": "0x68a1acf09ebf09917decbf1023bae5a6de0b6b3f9cfe3ad839eb830ea050f42d"
+    },
+    "1337": {
+      "events": {},
+      "links": {},
+      "address": "0x575Bb319Df8FfBB9c3919cEE863748544e40E2a7",
+      "transactionHash": "0x969179ef97afb54e085af7a664c7864a02d3459faff8477f402de61dd2a3d1de"
     }
   },
   "schemaVersion": "3.3.4",
-  "updatedAt": "2021-03-21T20:16:32.883Z",
+  "updatedAt": "2021-03-22T14:21:08.895Z",
+  "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",
     "methods": {},

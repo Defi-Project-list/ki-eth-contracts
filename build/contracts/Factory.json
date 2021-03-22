@@ -200,7 +200,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [],
@@ -220,7 +221,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -251,7 +253,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [],
@@ -264,7 +267,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [],
@@ -277,7 +281,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -394,7 +399,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -413,7 +419,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -445,7 +452,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     }
   ],
   "metadata": "{\"compiler\":{\"version\":\"0.8.2+commit.661d1103\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner1\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner2\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner3\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes8\",\"name\":\"version\",\"type\":\"bytes8\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"code\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"oracle\",\"type\":\"address\"}],\"name\":\"VersionAdded\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes8\",\"name\":\"version\",\"type\":\"bytes8\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"code\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"oracle\",\"type\":\"address\"}],\"name\":\"VersionDeployed\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"wallet\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"bytes8\",\"name\":\"version\",\"type\":\"bytes8\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"}],\"name\":\"WalletConfigurationRestored\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"wallet\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"bytes8\",\"name\":\"version\",\"type\":\"bytes8\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"}],\"name\":\"WalletCreated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"wallet\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"}],\"name\":\"WalletOwnershipRestored\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"wallet\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"bytes8\",\"name\":\"version\",\"type\":\"bytes8\"}],\"name\":\"WalletUpgraded\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"wallet\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"bytes8\",\"name\":\"version\",\"type\":\"bytes8\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"}],\"name\":\"WalletVersionRestored\",\"type\":\"event\"},{\"stateMutability\":\"nonpayable\",\"type\":\"fallback\"},{\"inputs\":[],\"name\":\"LATEST\",\"outputs\":[{\"internalType\":\"bytes8\",\"name\":\"\",\"type\":\"bytes8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_target\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_oracle\",\"type\":\"address\"}],\"name\":\"addVersion\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_backup\",\"type\":\"address\"}],\"name\":\"addWalletBackup\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"cancel\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bool\",\"name\":\"_auto\",\"type\":\"bool\"}],\"name\":\"createWallet\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes8\",\"name\":\"_version\",\"type\":\"bytes8\"}],\"name\":\"deployVersion\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getLatestVersion\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_account\",\"type\":\"address\"}],\"name\":\"getWallet\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"isOwner\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"oracle\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"_oracle\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_backup\",\"type\":\"address\"}],\"name\":\"removeWalletBackup\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_newOwner\",\"type\":\"address\"}],\"name\":\"replaceOwner\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"restoreWalletConfiguration\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"restoreWalletOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"restoreWalletVersion\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"swProxy\",\"outputs\":[{\"internalType\":\"contract Proxy\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"swProxyLatest\",\"outputs\":[{\"internalType\":\"contract ProxyLatest\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"target\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_newOwner\",\"type\":\"address\"}],\"name\":\"transferWalletOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes8\",\"name\":\"_version\",\"type\":\"bytes8\"}],\"name\":\"upgradeWallet\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"/opt/storage/data1/code/kirobo/ki-eth-contracts/contracts/Factory.sol\":\"Factory\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"/opt/storage/data1/code/kirobo/ki-eth-contracts/contracts/Factory.sol\":{\"keccak256\":\"0x869620b859ec02cbc6207ec37e6bb68875ad0716edbe9567ed94e854a0ed42a7\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://8059d06394a54a6d157c34b47cbd6659ae8110aa82a11eb566e8be4a32bfc7b8\",\"dweb:/ipfs/QmTkpRLvu22X58ojuXxuv9aBdg6jugrm4rcUkYzS2zyJF6\"]},\"/opt/storage/data1/code/kirobo/ki-eth-contracts/contracts/FactoryStorage.sol\":{\"keccak256\":\"0xe4e81a0f5e8018d65f4c35d52efe39680c346cf24a3a9936504a8cc6ac1c2b99\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://c4253936c58e5955be16c70b6300a6e8d5bbf8ead69592c64bdabf464a69744a\",\"dweb:/ipfs/QmdHje6WmBVCRjL3Fk4W8sxaeSJ1P2JGBfKqQwbZmUj2PK\"]},\"/opt/storage/data1/code/kirobo/ki-eth-contracts/contracts/lib/IOracle.sol\":{\"keccak256\":\"0x8bb9498b453bb0330eb94cc2b26338a8ae6cfecf6a8942bd9d5279dd29c6bda0\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://9f86d295052785339ddb3fddfa905639eedf9563ec63f08cda935f6e1af97fa6\",\"dweb:/ipfs/QmbR7pHAdoPmP6VULDehFLkSLTsUMRGwG1Kf9QdB1PUha3\"]},\"/opt/storage/data1/code/kirobo/ki-eth-contracts/contracts/lib/MultiSig.sol\":{\"keccak256\":\"0xaa7ccc4ae937db7bf3394a91bd06d78261b88f51b620aad5ed6dbce0a992b032\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://77a9739b05dbcbd4d67d25268249ad7e4f4301994b035d5dd3c2e82d4c70151c\",\"dweb:/ipfs/QmWYs4XKRxqSgyCTEamiqgs41tgQr1APqs5HD2K9yBGjj1\"]},\"/opt/storage/data1/code/kirobo/ki-eth-contracts/contracts/lib/Proxy.sol\":{\"keccak256\":\"0x6acc9cbbabe2c50f8eb5a83ba28b1aca73d05b6dc76410dffd31eb3ee1f58e4f\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://c79da39191c92c118bbeffad631c626f38de86f2f8567b7f51af7370392f733e\",\"dweb:/ipfs/QmPCLNBbJVQLsF7oWfroca2gPx6sHsshcoKpVdnYcQea4k\"]},\"/opt/storage/data1/code/kirobo/ki-eth-contracts/contracts/lib/ProxyLatest.sol\":{\"keccak256\":\"0x9b26692ccfd0efcc778e0602432f8f22ce637907be6062a98ad785f310ac1ce1\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://57fec5bf7c65fc50b7c0f24462d2c27b25a3e590f6652161e4971bfd9bff8907\",\"dweb:/ipfs/QmY1q2DC4942WuLHqqiFHjxRjv9b84mkxzvdJAfGd4a53e\"]},\"/opt/storage/data1/code/kirobo/ki-eth-contracts/contracts/lib/StorageBase.sol\":{\"keccak256\":\"0x8ce901f4b48749ad127cd19e034a0a66693969951e2eda45fa22f35e43efd4d2\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://9d6fd8e024876804ff99165f733c1d43f20b87511739e169a0e2d15e3c103476\",\"dweb:/ipfs/QmVfdYK3idjT1qNtRhYbszmui9V7dmdWvGfRhC7eoNCjqd\"]}},\"version\":1}",
@@ -4919,7 +4927,7 @@
                 }
               ]
             },
-            "name": "abi_encode_tuple_t_contract$_ProxyLatest_$4500__to_t_address_payable__fromStack_reversed",
+            "name": "abi_encode_tuple_t_contract$_ProxyLatest_$4501__to_t_address_payable__fromStack_reversed",
             "nodeType": "YulFunctionDefinition",
             "parameters": [
               {
@@ -5065,7 +5073,7 @@
                 }
               ]
             },
-            "name": "abi_encode_tuple_t_contract$_Proxy_$4471__to_t_address_payable__fromStack_reversed",
+            "name": "abi_encode_tuple_t_contract$_Proxy_$4472__to_t_address_payable__fromStack_reversed",
             "nodeType": "YulFunctionDefinition",
             "parameters": [
               {
@@ -12101,7 +12109,7 @@
           }
         ]
       },
-      "contents": "{\n    { }\n    function abi_decode_tuple_t_address(headStart, dataEnd) -> value0\n    {\n        if slt(sub(dataEnd, headStart), 32) { revert(value0, value0) }\n        let value := calldataload(headStart)\n        validator_revert_address(value)\n        value0 := value\n    }\n    function abi_decode_tuple_t_address_fromMemory(headStart, dataEnd) -> value0\n    {\n        if slt(sub(dataEnd, headStart), 32) { revert(value0, value0) }\n        let value := mload(headStart)\n        validator_revert_address(value)\n        value0 := value\n    }\n    function abi_decode_tuple_t_addresst_address(headStart, dataEnd) -> value0, value1\n    {\n        if slt(sub(dataEnd, headStart), 64) { revert(value1, value1) }\n        let value := calldataload(headStart)\n        validator_revert_address(value)\n        value0 := value\n        let value_1 := calldataload(add(headStart, 32))\n        validator_revert_address(value_1)\n        value1 := value_1\n    }\n    function abi_decode_tuple_t_bool(headStart, dataEnd) -> value0\n    {\n        if slt(sub(dataEnd, headStart), 32) { revert(value0, value0) }\n        let value := calldataload(headStart)\n        validator_revert_bool(value)\n        value0 := value\n    }\n    function abi_decode_tuple_t_bool_fromMemory(headStart, dataEnd) -> value0\n    {\n        if slt(sub(dataEnd, headStart), 32) { revert(value0, value0) }\n        let value := mload(headStart)\n        validator_revert_bool(value)\n        value0 := value\n    }\n    function abi_decode_tuple_t_bytes8(headStart, dataEnd) -> value0\n    {\n        if slt(sub(dataEnd, headStart), 32) { revert(value0, value0) }\n        let value := calldataload(headStart)\n        validator_revert_bytes8(value)\n        value0 := value\n    }\n    function abi_decode_tuple_t_bytes8_fromMemory(headStart, dataEnd) -> value0\n    {\n        if slt(sub(dataEnd, headStart), 32) { revert(value0, value0) }\n        let value := mload(headStart)\n        validator_revert_bytes8(value)\n        value0 := value\n    }\n    function abi_encode_tuple_packed_t_bytes_calldata_ptr__to_t_bytes_memory_ptr__nonPadded_inplace_fromStack_reversed(pos, value1, value0) -> end\n    {\n        calldatacopy(pos, value0, value1)\n        let _1 := add(pos, value1)\n        mstore(_1, end)\n        end := _1\n    }\n    function abi_encode_tuple_packed_t_bytes_storage__to_t_bytes_memory_ptr__nonPadded_inplace_fromStack_reversed(pos, value0) -> end\n    {\n        let ret := end\n        let slotValue := sload(value0)\n        let length := end\n        length := div(slotValue, 2)\n        let _1 := 1\n        let outOfPlaceEncoding := and(slotValue, _1)\n        if iszero(outOfPlaceEncoding) { length := and(length, 0x7f) }\n        let _2 := 32\n        if eq(outOfPlaceEncoding, lt(length, _2))\n        {\n            mstore(end, shl(224, 0x4e487b71))\n            mstore(4, 0x22)\n            revert(end, 0x24)\n        }\n        switch outOfPlaceEncoding\n        case 0 {\n            mstore(pos, and(slotValue, not(255)))\n            ret := add(pos, length)\n        }\n        case 1 {\n            let dataPos := array_dataslot_bytes_storage(value0)\n            let i := end\n            for { } lt(i, length) { i := add(i, _2) }\n            {\n                mstore(add(pos, i), sload(dataPos))\n                dataPos := add(dataPos, _1)\n            }\n            ret := add(pos, length)\n        }\n        end := ret\n    }\n    function abi_encode_tuple_t_address__to_t_address__fromStack_reversed(headStart, value0) -> tail\n    {\n        tail := add(headStart, 32)\n        mstore(headStart, and(value0, sub(shl(160, 1), 1)))\n    }\n    function abi_encode_tuple_t_address_t_address__to_t_address_t_address__fromStack_reversed(headStart, value1, value0) -> tail\n    {\n        tail := add(headStart, 64)\n        let _1 := sub(shl(160, 1), 1)\n        mstore(headStart, and(value0, _1))\n        mstore(add(headStart, 32), and(value1, _1))\n    }\n    function abi_encode_tuple_t_bool__to_t_bool__fromStack_reversed(headStart, value0) -> tail\n    {\n        tail := add(headStart, 32)\n        mstore(headStart, iszero(iszero(value0)))\n    }\n    function abi_encode_tuple_t_bytes8__to_t_bytes8__fromStack_reversed(headStart, value0) -> tail\n    {\n        tail := add(headStart, 32)\n        mstore(headStart, and(value0, shl(192, 0xffffffffffffffff)))\n    }\n    function abi_encode_tuple_t_contract$_ProxyLatest_$4500__to_t_address_payable__fromStack_reversed(headStart, value0) -> tail\n    {\n        tail := add(headStart, 32)\n        mstore(headStart, and(value0, sub(shl(160, 1), 1)))\n    }\n    function abi_encode_tuple_t_contract$_Proxy_$4471__to_t_address_payable__fromStack_reversed(headStart, value0) -> tail\n    {\n        tail := add(headStart, 32)\n        mstore(headStart, and(value0, sub(shl(160, 1), 1)))\n    }\n    function abi_encode_tuple_t_stringliteral_042fb49bf414c7baa0d1273c28a3728c1426531c812eece2a7e78cfebf5c6c8f__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 22)\n        mstore(add(headStart, 64), \"incorrect auto version\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_0c2297d07053e76c0e4eb2886613b2574079f2d80076a84fb8a818c9f48fc9cb__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 15)\n        mstore(add(headStart, 64), \"no auto version\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_0c8c0405e1d61936c279367a4536b72a0ddd0578b0067a137d490df7cde2c229__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 17)\n        mstore(add(headStart, 64), \"no oracle version\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_1260f3fc1987204c438c0095546b9dbdf72cb19ee73191534e63f8055afdfc9e__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 16)\n        mstore(add(headStart, 64), \"oracle not exist\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_1642eebb38b00494f08738c49d2c431778977664d916cf3fedc90f817d546a22__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 24)\n        mstore(add(headStart, 64), \"must sign the same value\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_1725448dba038ff9d546e88cf214b0d07e955b7d111b9489155159f7d634f48f__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 17)\n        mstore(add(headStart, 64), \"version not exist\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_1a50a2f8ad2792b20d5d762644206e71262422ea3e3f4713645ac41a70b5247b__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 17)\n        mstore(add(headStart, 64), \"version mistmatch\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_1b1b9f381f2fe3e3cba942f0bb15e80574ac3b8f98dd57a8f71ade6c2c7923a1__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 8)\n        mstore(add(headStart, 64), \"no proxy\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_1d307e6dd3716638ae6f83af2b57e07305f434a2a1180f3589747936f1af9ac1__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 15)\n        mstore(add(headStart, 64), \"no version code\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_1e98a56b76878d37b307923bc8d76c1ed91f6912b61757f27536e5b27e78a0e0__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 15)\n        mstore(add(headStart, 64), \"no wallet owner\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_292f416bd8088cce00d42f4e20bc08b355efa3dc6f64521968e22b5e90fa33e5__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 10)\n        mstore(add(headStart, 64), \"not wallet\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_30999f96fe928dbc0581c00989909065a956217420857211f0c6721657f8daef__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 18)\n        mstore(add(headStart, 64), \"owner should exist\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_3a6d114cd66ea69678dd5411069b4dce1a9c8ad3eb246f447450e90e90532349__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 22)\n        mstore(add(headStart, 64), \"oracle not initialized\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_3fa40f7c8a488104419a7101faa295bb7c536be12308e113ac6355899b005434__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 14)\n        mstore(add(headStart, 64), \"version exists\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_420af3797790a41ec056ac197f196cd202621e4dd2c8288d53e29619cd2e2e3a__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 20)\n        mstore(add(headStart, 64), \"backup has no wallet\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_593ed0dc88fe2a0e2e13ff77cd628582479b5d4f06903d55627f06e2435d5796__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 28)\n        mstore(add(headStart, 64), \"same owner cannot sign twice\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_5a871a55371a154bd077670ee0e3366e2d34221cb00256011ef399dadc6bccc7__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 15)\n        mstore(add(headStart, 64), \"no prod version\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_5bc9d508db96510bc089aa6da24492f5ae67f741d37e0fa09b62f5e7c32478bc__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 9)\n        mstore(add(headStart, 64), \"no wallet\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_77eec16374c9d06d3ac3e0c61c128c9631f90998c0d08e19d76d9e4471026b1d__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 15)\n        mstore(add(headStart, 64), \"from: no wallet\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_7f23b2250f1c5a0586bf8e6695ab8497520fcd435b9a5cd44d161769df19127b__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 23)\n        mstore(add(headStart, 64), \"must sign the same data\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_80445da8cf97cbc95eac46400f01fdd94fb5d0c7875847372e5a2b5f8c27380b__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 16)\n        mstore(add(headStart, 64), \"not wallet owner\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_8a4fca6eb2014dbd6fe9e32f66e40dafc1744a0a74fdd5c53b90215e91a5bbdf__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 9)\n        mstore(add(headStart, 64), \"no backup\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_8e08d69035b58294f78743842c04297c54b7bb13ec50e72293d2f105522c0afd__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 18)\n        mstore(add(headStart, 64), \"wallet not created\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_9933bd8385ab149fe405bcb012869c3790fbe4ede9331e2aa5a21f8eef8a278c__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 22)\n        mstore(add(headStart, 64), \"from: not wallet owner\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_aa9b05d4eecd282d478a9f9d4d0d4249f0dd887f6f5463ec98d098c2f46e81c1__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 13)\n        mstore(add(headStart, 64), \"oracle exists\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_b0166bf25fbac6fff5ee9f1f61fbe1c85804fa862bfc5471a0264f36274a4517__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 11)\n        mstore(add(headStart, 64), \"only owners\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_ba09248a5a13ba894d903382a6c2d3248c25adc9bd1d4915b4c8e5587323ba3f__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 26)\n        mstore(add(headStart, 64), \"new owner should not exist\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_c0797cb441cd5f6ba54822edb14163fa8d1f01222bb1dd02bbf533489a0608b8__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 23)\n        mstore(add(headStart, 64), \"wallet backup not exist\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_c64c3f49043d32f9dd562f946e19a560fb1c99f8b2ee596e331748df3fd2e24b__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 22)\n        mstore(add(headStart, 64), \"backup is wallet owner\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_cb6e4ee00235607239cea80a46becbde57e15fbc96fe5529e02a90923ef6c7c5__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 16)\n        mstore(add(headStart, 64), \"to: wallet owner\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_db993aaf3cad9e8839b132f806595d1e570fe0fa1772d122f0b21623cfaf222c__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 27)\n        mstore(add(headStart, 64), \"to: not same wallet as from\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_ece1700fcb730f263cf7763514d45c122f6368448fb6b4eaf9b21fba4e110bdc__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 10)\n        mstore(add(headStart, 64), \"no version\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_f0ede9d69727651b863bf5a17df06a83876bf71c6ee6b886154754a4d6ceadae__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 26)\n        mstore(add(headStart, 64), \"sender is not wallet owner\")\n        tail := add(headStart, 96)\n    }\n    function array_dataslot_bytes_storage(ptr) -> data\n    {\n        mstore(data, ptr)\n        data := keccak256(data, 0x20)\n    }\n    function checked_add_t_uint256(x, y) -> sum\n    {\n        if gt(x, not(y)) { panic_error_0x11() }\n        sum := add(x, y)\n    }\n    function extract_byte_array_length(data) -> length\n    {\n        length := div(data, 2)\n        let outOfPlaceEncoding := and(data, 1)\n        if iszero(outOfPlaceEncoding) { length := and(length, 0x7f) }\n        if eq(outOfPlaceEncoding, lt(length, 32))\n        {\n            mstore(0, shl(224, 0x4e487b71))\n            mstore(4, 0x22)\n            revert(0, 0x24)\n        }\n    }\n    function increment_t_uint256(value) -> ret\n    {\n        if eq(value, not(0)) { panic_error_0x11() }\n        ret := add(value, 1)\n    }\n    function panic_error_0x11()\n    {\n        mstore(0, shl(224, 0x4e487b71))\n        mstore(4, 0x11)\n        revert(0, 0x24)\n    }\n    function validator_revert_address(value)\n    {\n        if iszero(eq(value, and(value, sub(shl(160, 1), 1)))) { revert(0, 0) }\n    }\n    function validator_revert_bool(value)\n    {\n        if iszero(eq(value, iszero(iszero(value)))) { revert(0, 0) }\n    }\n    function validator_revert_bytes8(value)\n    {\n        if iszero(eq(value, and(value, shl(192, 0xffffffffffffffff)))) { revert(0, 0) }\n    }\n}",
+      "contents": "{\n    { }\n    function abi_decode_tuple_t_address(headStart, dataEnd) -> value0\n    {\n        if slt(sub(dataEnd, headStart), 32) { revert(value0, value0) }\n        let value := calldataload(headStart)\n        validator_revert_address(value)\n        value0 := value\n    }\n    function abi_decode_tuple_t_address_fromMemory(headStart, dataEnd) -> value0\n    {\n        if slt(sub(dataEnd, headStart), 32) { revert(value0, value0) }\n        let value := mload(headStart)\n        validator_revert_address(value)\n        value0 := value\n    }\n    function abi_decode_tuple_t_addresst_address(headStart, dataEnd) -> value0, value1\n    {\n        if slt(sub(dataEnd, headStart), 64) { revert(value1, value1) }\n        let value := calldataload(headStart)\n        validator_revert_address(value)\n        value0 := value\n        let value_1 := calldataload(add(headStart, 32))\n        validator_revert_address(value_1)\n        value1 := value_1\n    }\n    function abi_decode_tuple_t_bool(headStart, dataEnd) -> value0\n    {\n        if slt(sub(dataEnd, headStart), 32) { revert(value0, value0) }\n        let value := calldataload(headStart)\n        validator_revert_bool(value)\n        value0 := value\n    }\n    function abi_decode_tuple_t_bool_fromMemory(headStart, dataEnd) -> value0\n    {\n        if slt(sub(dataEnd, headStart), 32) { revert(value0, value0) }\n        let value := mload(headStart)\n        validator_revert_bool(value)\n        value0 := value\n    }\n    function abi_decode_tuple_t_bytes8(headStart, dataEnd) -> value0\n    {\n        if slt(sub(dataEnd, headStart), 32) { revert(value0, value0) }\n        let value := calldataload(headStart)\n        validator_revert_bytes8(value)\n        value0 := value\n    }\n    function abi_decode_tuple_t_bytes8_fromMemory(headStart, dataEnd) -> value0\n    {\n        if slt(sub(dataEnd, headStart), 32) { revert(value0, value0) }\n        let value := mload(headStart)\n        validator_revert_bytes8(value)\n        value0 := value\n    }\n    function abi_encode_tuple_packed_t_bytes_calldata_ptr__to_t_bytes_memory_ptr__nonPadded_inplace_fromStack_reversed(pos, value1, value0) -> end\n    {\n        calldatacopy(pos, value0, value1)\n        let _1 := add(pos, value1)\n        mstore(_1, end)\n        end := _1\n    }\n    function abi_encode_tuple_packed_t_bytes_storage__to_t_bytes_memory_ptr__nonPadded_inplace_fromStack_reversed(pos, value0) -> end\n    {\n        let ret := end\n        let slotValue := sload(value0)\n        let length := end\n        length := div(slotValue, 2)\n        let _1 := 1\n        let outOfPlaceEncoding := and(slotValue, _1)\n        if iszero(outOfPlaceEncoding) { length := and(length, 0x7f) }\n        let _2 := 32\n        if eq(outOfPlaceEncoding, lt(length, _2))\n        {\n            mstore(end, shl(224, 0x4e487b71))\n            mstore(4, 0x22)\n            revert(end, 0x24)\n        }\n        switch outOfPlaceEncoding\n        case 0 {\n            mstore(pos, and(slotValue, not(255)))\n            ret := add(pos, length)\n        }\n        case 1 {\n            let dataPos := array_dataslot_bytes_storage(value0)\n            let i := end\n            for { } lt(i, length) { i := add(i, _2) }\n            {\n                mstore(add(pos, i), sload(dataPos))\n                dataPos := add(dataPos, _1)\n            }\n            ret := add(pos, length)\n        }\n        end := ret\n    }\n    function abi_encode_tuple_t_address__to_t_address__fromStack_reversed(headStart, value0) -> tail\n    {\n        tail := add(headStart, 32)\n        mstore(headStart, and(value0, sub(shl(160, 1), 1)))\n    }\n    function abi_encode_tuple_t_address_t_address__to_t_address_t_address__fromStack_reversed(headStart, value1, value0) -> tail\n    {\n        tail := add(headStart, 64)\n        let _1 := sub(shl(160, 1), 1)\n        mstore(headStart, and(value0, _1))\n        mstore(add(headStart, 32), and(value1, _1))\n    }\n    function abi_encode_tuple_t_bool__to_t_bool__fromStack_reversed(headStart, value0) -> tail\n    {\n        tail := add(headStart, 32)\n        mstore(headStart, iszero(iszero(value0)))\n    }\n    function abi_encode_tuple_t_bytes8__to_t_bytes8__fromStack_reversed(headStart, value0) -> tail\n    {\n        tail := add(headStart, 32)\n        mstore(headStart, and(value0, shl(192, 0xffffffffffffffff)))\n    }\n    function abi_encode_tuple_t_contract$_ProxyLatest_$4501__to_t_address_payable__fromStack_reversed(headStart, value0) -> tail\n    {\n        tail := add(headStart, 32)\n        mstore(headStart, and(value0, sub(shl(160, 1), 1)))\n    }\n    function abi_encode_tuple_t_contract$_Proxy_$4472__to_t_address_payable__fromStack_reversed(headStart, value0) -> tail\n    {\n        tail := add(headStart, 32)\n        mstore(headStart, and(value0, sub(shl(160, 1), 1)))\n    }\n    function abi_encode_tuple_t_stringliteral_042fb49bf414c7baa0d1273c28a3728c1426531c812eece2a7e78cfebf5c6c8f__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 22)\n        mstore(add(headStart, 64), \"incorrect auto version\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_0c2297d07053e76c0e4eb2886613b2574079f2d80076a84fb8a818c9f48fc9cb__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 15)\n        mstore(add(headStart, 64), \"no auto version\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_0c8c0405e1d61936c279367a4536b72a0ddd0578b0067a137d490df7cde2c229__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 17)\n        mstore(add(headStart, 64), \"no oracle version\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_1260f3fc1987204c438c0095546b9dbdf72cb19ee73191534e63f8055afdfc9e__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 16)\n        mstore(add(headStart, 64), \"oracle not exist\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_1642eebb38b00494f08738c49d2c431778977664d916cf3fedc90f817d546a22__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 24)\n        mstore(add(headStart, 64), \"must sign the same value\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_1725448dba038ff9d546e88cf214b0d07e955b7d111b9489155159f7d634f48f__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 17)\n        mstore(add(headStart, 64), \"version not exist\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_1a50a2f8ad2792b20d5d762644206e71262422ea3e3f4713645ac41a70b5247b__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 17)\n        mstore(add(headStart, 64), \"version mistmatch\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_1b1b9f381f2fe3e3cba942f0bb15e80574ac3b8f98dd57a8f71ade6c2c7923a1__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 8)\n        mstore(add(headStart, 64), \"no proxy\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_1d307e6dd3716638ae6f83af2b57e07305f434a2a1180f3589747936f1af9ac1__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 15)\n        mstore(add(headStart, 64), \"no version code\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_1e98a56b76878d37b307923bc8d76c1ed91f6912b61757f27536e5b27e78a0e0__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 15)\n        mstore(add(headStart, 64), \"no wallet owner\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_292f416bd8088cce00d42f4e20bc08b355efa3dc6f64521968e22b5e90fa33e5__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 10)\n        mstore(add(headStart, 64), \"not wallet\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_30999f96fe928dbc0581c00989909065a956217420857211f0c6721657f8daef__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 18)\n        mstore(add(headStart, 64), \"owner should exist\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_3a6d114cd66ea69678dd5411069b4dce1a9c8ad3eb246f447450e90e90532349__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 22)\n        mstore(add(headStart, 64), \"oracle not initialized\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_3fa40f7c8a488104419a7101faa295bb7c536be12308e113ac6355899b005434__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 14)\n        mstore(add(headStart, 64), \"version exists\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_420af3797790a41ec056ac197f196cd202621e4dd2c8288d53e29619cd2e2e3a__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 20)\n        mstore(add(headStart, 64), \"backup has no wallet\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_593ed0dc88fe2a0e2e13ff77cd628582479b5d4f06903d55627f06e2435d5796__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 28)\n        mstore(add(headStart, 64), \"same owner cannot sign twice\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_5a871a55371a154bd077670ee0e3366e2d34221cb00256011ef399dadc6bccc7__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 15)\n        mstore(add(headStart, 64), \"no prod version\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_5bc9d508db96510bc089aa6da24492f5ae67f741d37e0fa09b62f5e7c32478bc__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 9)\n        mstore(add(headStart, 64), \"no wallet\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_77eec16374c9d06d3ac3e0c61c128c9631f90998c0d08e19d76d9e4471026b1d__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 15)\n        mstore(add(headStart, 64), \"from: no wallet\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_7f23b2250f1c5a0586bf8e6695ab8497520fcd435b9a5cd44d161769df19127b__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 23)\n        mstore(add(headStart, 64), \"must sign the same data\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_80445da8cf97cbc95eac46400f01fdd94fb5d0c7875847372e5a2b5f8c27380b__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 16)\n        mstore(add(headStart, 64), \"not wallet owner\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_8a4fca6eb2014dbd6fe9e32f66e40dafc1744a0a74fdd5c53b90215e91a5bbdf__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 9)\n        mstore(add(headStart, 64), \"no backup\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_8e08d69035b58294f78743842c04297c54b7bb13ec50e72293d2f105522c0afd__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 18)\n        mstore(add(headStart, 64), \"wallet not created\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_9933bd8385ab149fe405bcb012869c3790fbe4ede9331e2aa5a21f8eef8a278c__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 22)\n        mstore(add(headStart, 64), \"from: not wallet owner\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_aa9b05d4eecd282d478a9f9d4d0d4249f0dd887f6f5463ec98d098c2f46e81c1__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 13)\n        mstore(add(headStart, 64), \"oracle exists\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_b0166bf25fbac6fff5ee9f1f61fbe1c85804fa862bfc5471a0264f36274a4517__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 11)\n        mstore(add(headStart, 64), \"only owners\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_ba09248a5a13ba894d903382a6c2d3248c25adc9bd1d4915b4c8e5587323ba3f__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 26)\n        mstore(add(headStart, 64), \"new owner should not exist\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_c0797cb441cd5f6ba54822edb14163fa8d1f01222bb1dd02bbf533489a0608b8__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 23)\n        mstore(add(headStart, 64), \"wallet backup not exist\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_c64c3f49043d32f9dd562f946e19a560fb1c99f8b2ee596e331748df3fd2e24b__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 22)\n        mstore(add(headStart, 64), \"backup is wallet owner\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_cb6e4ee00235607239cea80a46becbde57e15fbc96fe5529e02a90923ef6c7c5__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 16)\n        mstore(add(headStart, 64), \"to: wallet owner\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_db993aaf3cad9e8839b132f806595d1e570fe0fa1772d122f0b21623cfaf222c__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 27)\n        mstore(add(headStart, 64), \"to: not same wallet as from\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_ece1700fcb730f263cf7763514d45c122f6368448fb6b4eaf9b21fba4e110bdc__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 10)\n        mstore(add(headStart, 64), \"no version\")\n        tail := add(headStart, 96)\n    }\n    function abi_encode_tuple_t_stringliteral_f0ede9d69727651b863bf5a17df06a83876bf71c6ee6b886154754a4d6ceadae__to_t_string_memory_ptr__fromStack_reversed(headStart) -> tail\n    {\n        mstore(headStart, 32)\n        mstore(add(headStart, 32), 26)\n        mstore(add(headStart, 64), \"sender is not wallet owner\")\n        tail := add(headStart, 96)\n    }\n    function array_dataslot_bytes_storage(ptr) -> data\n    {\n        mstore(data, ptr)\n        data := keccak256(data, 0x20)\n    }\n    function checked_add_t_uint256(x, y) -> sum\n    {\n        if gt(x, not(y)) { panic_error_0x11() }\n        sum := add(x, y)\n    }\n    function extract_byte_array_length(data) -> length\n    {\n        length := div(data, 2)\n        let outOfPlaceEncoding := and(data, 1)\n        if iszero(outOfPlaceEncoding) { length := and(length, 0x7f) }\n        if eq(outOfPlaceEncoding, lt(length, 32))\n        {\n            mstore(0, shl(224, 0x4e487b71))\n            mstore(4, 0x22)\n            revert(0, 0x24)\n        }\n    }\n    function increment_t_uint256(value) -> ret\n    {\n        if eq(value, not(0)) { panic_error_0x11() }\n        ret := add(value, 1)\n    }\n    function panic_error_0x11()\n    {\n        mstore(0, shl(224, 0x4e487b71))\n        mstore(4, 0x11)\n        revert(0, 0x24)\n    }\n    function validator_revert_address(value)\n    {\n        if iszero(eq(value, and(value, sub(shl(160, 1), 1)))) { revert(0, 0) }\n    }\n    function validator_revert_bool(value)\n    {\n        if iszero(eq(value, iszero(iszero(value)))) { revert(0, 0) }\n    }\n    function validator_revert_bytes8(value)\n    {\n        if iszero(eq(value, and(value, shl(192, 0xffffffffffffffff)))) { revert(0, 0) }\n    }\n}",
       "id": 41,
       "language": "Yul",
       "name": "#utility.yul"
@@ -12121,31 +12129,31 @@
         1203
       ],
       "ICreator": [
-        4716
+        4717
       ],
       "IOracle": [
-        4137
+        4138
       ],
       "IProxy": [
-        4734
+        4735
       ],
       "IStorage": [
-        4743
+        4744
       ],
       "IStorageBase": [
-        4749
+        4750
       ],
       "MultiSig": [
-        4389
+        4390
       ],
       "Proxy": [
-        4471
+        4472
       ],
       "ProxyLatest": [
-        4500
+        4501
       ],
       "StorageBase": [
-        4878
+        4879
       ]
     },
     "id": 1046,
@@ -12182,7 +12190,7 @@
         "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
         "scope": 1046,
-        "sourceUnit": 4138,
+        "sourceUnit": 4139,
         "src": "96:27:0",
         "symbolAliases": [],
         "unitAlias": ""
@@ -12205,7 +12213,7 @@
         ],
         "contractDependencies": [
           1203,
-          4389
+          4390
         ],
         "contractKind": "contract",
         "fullyImplemented": true,
@@ -12213,7 +12221,7 @@
         "linearizedBaseContracts": [
           1045,
           1203,
-          4389
+          4390
         ],
         "name": "Factory",
         "nameLocation": "134:7:0",
@@ -13979,10 +13987,10 @@
                           "name": "IProxy",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 4734,
+                          "referencedDeclaration": 4735,
                           "src": "1961:6:0",
                           "typeDescriptions": {
-                            "typeIdentifier": "t_type$_t_contract$_IProxy_$4734_$",
+                            "typeIdentifier": "t_type$_t_contract$_IProxy_$4735_$",
                             "typeString": "type(contract IProxy)"
                           }
                         },
@@ -13997,7 +14005,7 @@
                         "src": "1961:18:0",
                         "tryCall": false,
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_IProxy_$4734",
+                          "typeIdentifier": "t_contract$_IProxy_$4735",
                           "typeString": "contract IProxy"
                         }
                       },
@@ -14008,7 +14016,7 @@
                       "lValueRequested": false,
                       "memberName": "owner",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 4728,
+                      "referencedDeclaration": 4729,
                       "src": "1961:24:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_view$__$returns$_t_address_$",
@@ -15072,10 +15080,10 @@
                           "name": "IProxy",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 4734,
+                          "referencedDeclaration": 4735,
                           "src": "2450:6:0",
                           "typeDescriptions": {
-                            "typeIdentifier": "t_type$_t_contract$_IProxy_$4734_$",
+                            "typeIdentifier": "t_type$_t_contract$_IProxy_$4735_$",
                             "typeString": "type(contract IProxy)"
                           }
                         },
@@ -15090,7 +15098,7 @@
                         "src": "2450:18:0",
                         "tryCall": false,
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_IProxy_$4734",
+                          "typeIdentifier": "t_contract$_IProxy_$4735",
                           "typeString": "contract IProxy"
                         }
                       },
@@ -15101,7 +15109,7 @@
                       "lValueRequested": false,
                       "memberName": "init",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 4723,
+                      "referencedDeclaration": 4724,
                       "src": "2450:23:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_nonpayable$_t_address_$_t_address_$returns$__$",
@@ -15644,10 +15652,10 @@
                           "name": "IProxy",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 4734,
+                          "referencedDeclaration": 4735,
                           "src": "2773:6:0",
                           "typeDescriptions": {
-                            "typeIdentifier": "t_type$_t_contract$_IProxy_$4734_$",
+                            "typeIdentifier": "t_type$_t_contract$_IProxy_$4735_$",
                             "typeString": "type(contract IProxy)"
                           }
                         },
@@ -15662,7 +15670,7 @@
                         "src": "2773:18:0",
                         "tryCall": false,
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_IProxy_$4734",
+                          "typeIdentifier": "t_contract$_IProxy_$4735",
                           "typeString": "contract IProxy"
                         }
                       },
@@ -15673,7 +15681,7 @@
                       "lValueRequested": false,
                       "memberName": "owner",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 4728,
+                      "referencedDeclaration": 4729,
                       "src": "2773:24:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_view$__$returns$_t_address_$",
@@ -17146,10 +17154,10 @@
                           "name": "IProxy",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 4734,
+                          "referencedDeclaration": 4735,
                           "src": "3532:6:0",
                           "typeDescriptions": {
-                            "typeIdentifier": "t_type$_t_contract$_IProxy_$4734_$",
+                            "typeIdentifier": "t_type$_t_contract$_IProxy_$4735_$",
                             "typeString": "type(contract IProxy)"
                           }
                         },
@@ -17164,7 +17172,7 @@
                         "src": "3532:18:0",
                         "tryCall": false,
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_IProxy_$4734",
+                          "typeIdentifier": "t_contract$_IProxy_$4735",
                           "typeString": "contract IProxy"
                         }
                       },
@@ -17175,7 +17183,7 @@
                       "lValueRequested": false,
                       "memberName": "owner",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 4728,
+                      "referencedDeclaration": 4729,
                       "src": "3532:24:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_view$__$returns$_t_address_$",
@@ -17657,10 +17665,10 @@
                           "name": "IProxy",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 4734,
+                          "referencedDeclaration": 4735,
                           "src": "3760:6:0",
                           "typeDescriptions": {
-                            "typeIdentifier": "t_type$_t_contract$_IProxy_$4734_$",
+                            "typeIdentifier": "t_type$_t_contract$_IProxy_$4735_$",
                             "typeString": "type(contract IProxy)"
                           }
                         },
@@ -17675,7 +17683,7 @@
                         "src": "3760:18:0",
                         "tryCall": false,
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_IProxy_$4734",
+                          "typeIdentifier": "t_contract$_IProxy_$4735",
                           "typeString": "contract IProxy"
                         }
                       },
@@ -17686,7 +17694,7 @@
                       "lValueRequested": false,
                       "memberName": "init",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 4723,
+                      "referencedDeclaration": 4724,
                       "src": "3760:23:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_nonpayable$_t_address_$_t_address_$returns$__$",
@@ -17757,10 +17765,10 @@
                           "name": "IStorage",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 4743,
+                          "referencedDeclaration": 4744,
                           "src": "3808:8:0",
                           "typeDescriptions": {
-                            "typeIdentifier": "t_type$_t_contract$_IStorage_$4743_$",
+                            "typeIdentifier": "t_type$_t_contract$_IStorage_$4744_$",
                             "typeString": "type(contract IStorage)"
                           }
                         },
@@ -17775,7 +17783,7 @@
                         "src": "3808:20:0",
                         "tryCall": false,
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_IStorage_$4743",
+                          "typeIdentifier": "t_contract$_IStorage_$4744",
                           "typeString": "contract IStorage"
                         }
                       },
@@ -17786,7 +17794,7 @@
                       "lValueRequested": false,
                       "memberName": "migrate",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 4737,
+                      "referencedDeclaration": 4738,
                       "src": "3808:28:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_nonpayable$__$returns$__$",
@@ -18309,10 +18317,10 @@
                                 "name": "IOracle",
                                 "nodeType": "Identifier",
                                 "overloadedDeclarations": [],
-                                "referencedDeclaration": 4137,
+                                "referencedDeclaration": 4138,
                                 "src": "4110:7:0",
                                 "typeDescriptions": {
-                                  "typeIdentifier": "t_type$_t_contract$_IOracle_$4137_$",
+                                  "typeIdentifier": "t_type$_t_contract$_IOracle_$4138_$",
                                   "typeString": "type(contract IOracle)"
                                 }
                               },
@@ -18327,7 +18335,7 @@
                               "src": "4110:16:0",
                               "tryCall": false,
                               "typeDescriptions": {
-                                "typeIdentifier": "t_contract$_IOracle_$4137",
+                                "typeIdentifier": "t_contract$_IOracle_$4138",
                                 "typeString": "contract IOracle"
                               }
                             },
@@ -18338,7 +18346,7 @@
                             "lValueRequested": false,
                             "memberName": "initialized",
                             "nodeType": "MemberAccess",
-                            "referencedDeclaration": 4136,
+                            "referencedDeclaration": 4137,
                             "src": "4110:28:0",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_external_view$__$returns$_t_bool_$",
@@ -18509,10 +18517,10 @@
                           "name": "IStorage",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 4743,
+                          "referencedDeclaration": 4744,
                           "src": "4204:8:0",
                           "typeDescriptions": {
-                            "typeIdentifier": "t_type$_t_contract$_IStorage_$4743_$",
+                            "typeIdentifier": "t_type$_t_contract$_IStorage_$4744_$",
                             "typeString": "type(contract IStorage)"
                           }
                         },
@@ -18527,7 +18535,7 @@
                         "src": "4204:17:0",
                         "tryCall": false,
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_IStorage_$4743",
+                          "typeIdentifier": "t_contract$_IStorage_$4744",
                           "typeString": "contract IStorage"
                         }
                       },
@@ -18538,7 +18546,7 @@
                       "lValueRequested": false,
                       "memberName": "version",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 4742,
+                      "referencedDeclaration": 4743,
                       "src": "4204:25:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_pure$__$returns$_t_bytes8_$",
@@ -18606,10 +18614,10 @@
                                 "name": "IOracle",
                                 "nodeType": "Identifier",
                                 "overloadedDeclarations": [],
-                                "referencedDeclaration": 4137,
+                                "referencedDeclaration": 4138,
                                 "src": "4249:7:0",
                                 "typeDescriptions": {
-                                  "typeIdentifier": "t_type$_t_contract$_IOracle_$4137_$",
+                                  "typeIdentifier": "t_type$_t_contract$_IOracle_$4138_$",
                                   "typeString": "type(contract IOracle)"
                                 }
                               },
@@ -18624,7 +18632,7 @@
                               "src": "4249:16:0",
                               "tryCall": false,
                               "typeDescriptions": {
-                                "typeIdentifier": "t_contract$_IOracle_$4137",
+                                "typeIdentifier": "t_contract$_IOracle_$4138",
                                 "typeString": "contract IOracle"
                               }
                             },
@@ -18635,7 +18643,7 @@
                             "lValueRequested": false,
                             "memberName": "version",
                             "nodeType": "MemberAccess",
-                            "referencedDeclaration": 4121,
+                            "referencedDeclaration": 4122,
                             "src": "4249:24:0",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_external_pure$__$returns$_t_bytes8_$",
@@ -19398,7 +19406,7 @@
                   "id": 437,
                   "name": "multiSig2of3",
                   "nodeType": "IdentifierPath",
-                  "referencedDeclaration": 4315,
+                  "referencedDeclaration": 4316,
                   "src": "3954:12:0"
                 },
                 "nodeType": "ModifierInvocation",
@@ -20192,7 +20200,7 @@
                   "id": 542,
                   "name": "multiSig2of3",
                   "nodeType": "IdentifierPath",
-                  "referencedDeclaration": 4315,
+                  "referencedDeclaration": 4316,
                   "src": "4683:12:0"
                 },
                 "nodeType": "ModifierInvocation",
@@ -21152,10 +21160,10 @@
                           "name": "IProxy",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 4734,
+                          "referencedDeclaration": 4735,
                           "src": "5592:6:0",
                           "typeDescriptions": {
-                            "typeIdentifier": "t_type$_t_contract$_IProxy_$4734_$",
+                            "typeIdentifier": "t_type$_t_contract$_IProxy_$4735_$",
                             "typeString": "type(contract IProxy)"
                           }
                         },
@@ -21170,7 +21178,7 @@
                         "src": "5592:16:0",
                         "tryCall": false,
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_IProxy_$4734",
+                          "typeIdentifier": "t_contract$_IProxy_$4735",
                           "typeString": "contract IProxy"
                         }
                       },
@@ -21181,7 +21189,7 @@
                       "lValueRequested": false,
                       "memberName": "init",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 4723,
+                      "referencedDeclaration": 4724,
                       "src": "5592:21:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_nonpayable$_t_address_$_t_address_$returns$__$",
@@ -21886,10 +21894,10 @@
                           "name": "IProxy",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 4734,
+                          "referencedDeclaration": 4735,
                           "src": "5939:6:0",
                           "typeDescriptions": {
-                            "typeIdentifier": "t_type$_t_contract$_IProxy_$4734_$",
+                            "typeIdentifier": "t_type$_t_contract$_IProxy_$4735_$",
                             "typeString": "type(contract IProxy)"
                           }
                         },
@@ -21904,7 +21912,7 @@
                         "src": "5939:16:0",
                         "tryCall": false,
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_IProxy_$4734",
+                          "typeIdentifier": "t_contract$_IProxy_$4735",
                           "typeString": "contract IProxy"
                         }
                       },
@@ -21915,7 +21923,7 @@
                       "lValueRequested": false,
                       "memberName": "init",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 4723,
+                      "referencedDeclaration": 4724,
                       "src": "5939:21:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_nonpayable$_t_address_$_t_address_$returns$__$",
@@ -23005,10 +23013,10 @@
                           "name": "IProxy",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 4734,
+                          "referencedDeclaration": 4735,
                           "src": "6516:6:0",
                           "typeDescriptions": {
-                            "typeIdentifier": "t_type$_t_contract$_IProxy_$4734_$",
+                            "typeIdentifier": "t_type$_t_contract$_IProxy_$4735_$",
                             "typeString": "type(contract IProxy)"
                           }
                         },
@@ -23023,7 +23031,7 @@
                         "src": "6516:16:0",
                         "tryCall": false,
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_IProxy_$4734",
+                          "typeIdentifier": "t_contract$_IProxy_$4735",
                           "typeString": "contract IProxy"
                         }
                       },
@@ -23034,7 +23042,7 @@
                       "lValueRequested": false,
                       "memberName": "init",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 4723,
+                      "referencedDeclaration": 4724,
                       "src": "6516:21:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_nonpayable$_t_address_$_t_address_$returns$__$",
@@ -23462,7 +23470,7 @@
                               "referencedDeclaration": 1127,
                               "src": "6960:7:0",
                               "typeDescriptions": {
-                                "typeIdentifier": "t_contract$_Proxy_$4471",
+                                "typeIdentifier": "t_contract$_Proxy_$4472",
                                 "typeString": "contract Proxy"
                               }
                             }
@@ -23470,7 +23478,7 @@
                           "expression": {
                             "argumentTypes": [
                               {
-                                "typeIdentifier": "t_contract$_Proxy_$4471",
+                                "typeIdentifier": "t_contract$_Proxy_$4472",
                                 "typeString": "contract Proxy"
                               }
                             ],
@@ -24104,7 +24112,7 @@
                                     "referencedDeclaration": 1127,
                                     "src": "7272:7:0",
                                     "typeDescriptions": {
-                                      "typeIdentifier": "t_contract$_Proxy_$4471",
+                                      "typeIdentifier": "t_contract$_Proxy_$4472",
                                       "typeString": "contract Proxy"
                                     }
                                   }
@@ -24112,7 +24120,7 @@
                                 "expression": {
                                   "argumentTypes": [
                                     {
-                                      "typeIdentifier": "t_contract$_Proxy_$4471",
+                                      "typeIdentifier": "t_contract$_Proxy_$4472",
                                       "typeString": "contract Proxy"
                                     }
                                   ],
@@ -24624,10 +24632,10 @@
                                       "name": "IProxy",
                                       "nodeType": "Identifier",
                                       "overloadedDeclarations": [],
-                                      "referencedDeclaration": 4734,
+                                      "referencedDeclaration": 4735,
                                       "src": "7927:6:0",
                                       "typeDescriptions": {
-                                        "typeIdentifier": "t_type$_t_contract$_IProxy_$4734_$",
+                                        "typeIdentifier": "t_type$_t_contract$_IProxy_$4735_$",
                                         "typeString": "type(contract IProxy)"
                                       }
                                     },
@@ -24642,7 +24650,7 @@
                                     "src": "7927:16:0",
                                     "tryCall": false,
                                     "typeDescriptions": {
-                                      "typeIdentifier": "t_contract$_IProxy_$4734",
+                                      "typeIdentifier": "t_contract$_IProxy_$4735",
                                       "typeString": "contract IProxy"
                                     }
                                   },
@@ -24653,7 +24661,7 @@
                                   "lValueRequested": false,
                                   "memberName": "init",
                                   "nodeType": "MemberAccess",
-                                  "referencedDeclaration": 4723,
+                                  "referencedDeclaration": 4724,
                                   "src": "7927:21:0",
                                   "typeDescriptions": {
                                     "typeIdentifier": "t_function_external_nonpayable$_t_address_$_t_address_$returns$__$",
@@ -24725,10 +24733,10 @@
                                       "name": "IStorage",
                                       "nodeType": "Identifier",
                                       "overloadedDeclarations": [],
-                                      "referencedDeclaration": 4743,
+                                      "referencedDeclaration": 4744,
                                       "src": "8003:8:0",
                                       "typeDescriptions": {
-                                        "typeIdentifier": "t_type$_t_contract$_IStorage_$4743_$",
+                                        "typeIdentifier": "t_type$_t_contract$_IStorage_$4744_$",
                                         "typeString": "type(contract IStorage)"
                                       }
                                     },
@@ -24743,7 +24751,7 @@
                                     "src": "8003:18:0",
                                     "tryCall": false,
                                     "typeDescriptions": {
-                                      "typeIdentifier": "t_contract$_IStorage_$4743",
+                                      "typeIdentifier": "t_contract$_IStorage_$4744",
                                       "typeString": "contract IStorage"
                                     }
                                   },
@@ -24754,7 +24762,7 @@
                                   "lValueRequested": false,
                                   "memberName": "migrate",
                                   "nodeType": "MemberAccess",
-                                  "referencedDeclaration": 4737,
+                                  "referencedDeclaration": 4738,
                                   "src": "8003:26:0",
                                   "typeDescriptions": {
                                     "typeIdentifier": "t_function_external_nonpayable$__$returns$__$",
@@ -24927,7 +24935,7 @@
                                           "referencedDeclaration": 1130,
                                           "src": "7437:13:0",
                                           "typeDescriptions": {
-                                            "typeIdentifier": "t_contract$_ProxyLatest_$4500",
+                                            "typeIdentifier": "t_contract$_ProxyLatest_$4501",
                                             "typeString": "contract ProxyLatest"
                                           }
                                         }
@@ -24935,7 +24943,7 @@
                                       "expression": {
                                         "argumentTypes": [
                                           {
-                                            "typeIdentifier": "t_contract$_ProxyLatest_$4500",
+                                            "typeIdentifier": "t_contract$_ProxyLatest_$4501",
                                             "typeString": "contract ProxyLatest"
                                           }
                                         ],
@@ -25164,7 +25172,7 @@
                                           "referencedDeclaration": 1130,
                                           "src": "7544:13:0",
                                           "typeDescriptions": {
-                                            "typeIdentifier": "t_contract$_ProxyLatest_$4500",
+                                            "typeIdentifier": "t_contract$_ProxyLatest_$4501",
                                             "typeString": "contract ProxyLatest"
                                           }
                                         }
@@ -25172,7 +25180,7 @@
                                       "expression": {
                                         "argumentTypes": [
                                           {
-                                            "typeIdentifier": "t_contract$_ProxyLatest_$4500",
+                                            "typeIdentifier": "t_contract$_ProxyLatest_$4501",
                                             "typeString": "contract ProxyLatest"
                                           }
                                         ],
@@ -25399,7 +25407,7 @@
                                         "referencedDeclaration": 1130,
                                         "src": "7697:13:0",
                                         "typeDescriptions": {
-                                          "typeIdentifier": "t_contract$_ProxyLatest_$4500",
+                                          "typeIdentifier": "t_contract$_ProxyLatest_$4501",
                                           "typeString": "contract ProxyLatest"
                                         }
                                       }
@@ -25407,7 +25415,7 @@
                                     "expression": {
                                       "argumentTypes": [
                                         {
-                                          "typeIdentifier": "t_contract$_ProxyLatest_$4500",
+                                          "typeIdentifier": "t_contract$_ProxyLatest_$4501",
                                           "typeString": "contract ProxyLatest"
                                         }
                                       ],
@@ -25498,10 +25506,10 @@
                                       "name": "IProxy",
                                       "nodeType": "Identifier",
                                       "overloadedDeclarations": [],
-                                      "referencedDeclaration": 4734,
+                                      "referencedDeclaration": 4735,
                                       "src": "7655:6:0",
                                       "typeDescriptions": {
-                                        "typeIdentifier": "t_type$_t_contract$_IProxy_$4734_$",
+                                        "typeIdentifier": "t_type$_t_contract$_IProxy_$4735_$",
                                         "typeString": "type(contract IProxy)"
                                       }
                                     },
@@ -25516,7 +25524,7 @@
                                     "src": "7655:16:0",
                                     "tryCall": false,
                                     "typeDescriptions": {
-                                      "typeIdentifier": "t_contract$_IProxy_$4734",
+                                      "typeIdentifier": "t_contract$_IProxy_$4735",
                                       "typeString": "contract IProxy"
                                     }
                                   },
@@ -25527,7 +25535,7 @@
                                   "lValueRequested": false,
                                   "memberName": "init",
                                   "nodeType": "MemberAccess",
-                                  "referencedDeclaration": 4723,
+                                  "referencedDeclaration": 4724,
                                   "src": "7655:21:0",
                                   "typeDescriptions": {
                                     "typeIdentifier": "t_function_external_nonpayable$_t_address_$_t_address_$returns$__$",
@@ -25599,10 +25607,10 @@
                                       "name": "IStorage",
                                       "nodeType": "Identifier",
                                       "overloadedDeclarations": [],
-                                      "referencedDeclaration": 4743,
+                                      "referencedDeclaration": 4744,
                                       "src": "7730:8:0",
                                       "typeDescriptions": {
-                                        "typeIdentifier": "t_type$_t_contract$_IStorage_$4743_$",
+                                        "typeIdentifier": "t_type$_t_contract$_IStorage_$4744_$",
                                         "typeString": "type(contract IStorage)"
                                       }
                                     },
@@ -25617,7 +25625,7 @@
                                     "src": "7730:18:0",
                                     "tryCall": false,
                                     "typeDescriptions": {
-                                      "typeIdentifier": "t_contract$_IStorage_$4743",
+                                      "typeIdentifier": "t_contract$_IStorage_$4744",
                                       "typeString": "contract IStorage"
                                     }
                                   },
@@ -25628,7 +25636,7 @@
                                   "lValueRequested": false,
                                   "memberName": "migrate",
                                   "nodeType": "MemberAccess",
-                                  "referencedDeclaration": 4737,
+                                  "referencedDeclaration": 4738,
                                   "src": "7730:26:0",
                                   "typeDescriptions": {
                                     "typeIdentifier": "t_function_external_nonpayable$__$returns$__$",
@@ -26257,31 +26265,31 @@
         1203
       ],
       "ICreator": [
-        4716
+        4717
       ],
       "IOracle": [
-        4137
+        4138
       ],
       "IProxy": [
-        4734
+        4735
       ],
       "IStorage": [
-        4743
+        4744
       ],
       "IStorageBase": [
-        4749
+        4750
       ],
       "MultiSig": [
-        4389
+        4390
       ],
       "Proxy": [
-        4471
+        4472
       ],
       "ProxyLatest": [
-        4500
+        4501
       ],
       "StorageBase": [
-        4878
+        4879
       ]
     },
     "id": 1046,
@@ -26318,7 +26326,7 @@
         "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
         "scope": 1046,
-        "sourceUnit": 4138,
+        "sourceUnit": 4139,
         "src": "96:27:0",
         "symbolAliases": [],
         "unitAlias": ""
@@ -26341,7 +26349,7 @@
         ],
         "contractDependencies": [
           1203,
-          4389
+          4390
         ],
         "contractKind": "contract",
         "fullyImplemented": true,
@@ -26349,7 +26357,7 @@
         "linearizedBaseContracts": [
           1045,
           1203,
-          4389
+          4390
         ],
         "name": "Factory",
         "nameLocation": "134:7:0",
@@ -28115,10 +28123,10 @@
                           "name": "IProxy",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 4734,
+                          "referencedDeclaration": 4735,
                           "src": "1961:6:0",
                           "typeDescriptions": {
-                            "typeIdentifier": "t_type$_t_contract$_IProxy_$4734_$",
+                            "typeIdentifier": "t_type$_t_contract$_IProxy_$4735_$",
                             "typeString": "type(contract IProxy)"
                           }
                         },
@@ -28133,7 +28141,7 @@
                         "src": "1961:18:0",
                         "tryCall": false,
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_IProxy_$4734",
+                          "typeIdentifier": "t_contract$_IProxy_$4735",
                           "typeString": "contract IProxy"
                         }
                       },
@@ -28144,7 +28152,7 @@
                       "lValueRequested": false,
                       "memberName": "owner",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 4728,
+                      "referencedDeclaration": 4729,
                       "src": "1961:24:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_view$__$returns$_t_address_$",
@@ -29208,10 +29216,10 @@
                           "name": "IProxy",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 4734,
+                          "referencedDeclaration": 4735,
                           "src": "2450:6:0",
                           "typeDescriptions": {
-                            "typeIdentifier": "t_type$_t_contract$_IProxy_$4734_$",
+                            "typeIdentifier": "t_type$_t_contract$_IProxy_$4735_$",
                             "typeString": "type(contract IProxy)"
                           }
                         },
@@ -29226,7 +29234,7 @@
                         "src": "2450:18:0",
                         "tryCall": false,
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_IProxy_$4734",
+                          "typeIdentifier": "t_contract$_IProxy_$4735",
                           "typeString": "contract IProxy"
                         }
                       },
@@ -29237,7 +29245,7 @@
                       "lValueRequested": false,
                       "memberName": "init",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 4723,
+                      "referencedDeclaration": 4724,
                       "src": "2450:23:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_nonpayable$_t_address_$_t_address_$returns$__$",
@@ -29780,10 +29788,10 @@
                           "name": "IProxy",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 4734,
+                          "referencedDeclaration": 4735,
                           "src": "2773:6:0",
                           "typeDescriptions": {
-                            "typeIdentifier": "t_type$_t_contract$_IProxy_$4734_$",
+                            "typeIdentifier": "t_type$_t_contract$_IProxy_$4735_$",
                             "typeString": "type(contract IProxy)"
                           }
                         },
@@ -29798,7 +29806,7 @@
                         "src": "2773:18:0",
                         "tryCall": false,
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_IProxy_$4734",
+                          "typeIdentifier": "t_contract$_IProxy_$4735",
                           "typeString": "contract IProxy"
                         }
                       },
@@ -29809,7 +29817,7 @@
                       "lValueRequested": false,
                       "memberName": "owner",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 4728,
+                      "referencedDeclaration": 4729,
                       "src": "2773:24:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_view$__$returns$_t_address_$",
@@ -31282,10 +31290,10 @@
                           "name": "IProxy",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 4734,
+                          "referencedDeclaration": 4735,
                           "src": "3532:6:0",
                           "typeDescriptions": {
-                            "typeIdentifier": "t_type$_t_contract$_IProxy_$4734_$",
+                            "typeIdentifier": "t_type$_t_contract$_IProxy_$4735_$",
                             "typeString": "type(contract IProxy)"
                           }
                         },
@@ -31300,7 +31308,7 @@
                         "src": "3532:18:0",
                         "tryCall": false,
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_IProxy_$4734",
+                          "typeIdentifier": "t_contract$_IProxy_$4735",
                           "typeString": "contract IProxy"
                         }
                       },
@@ -31311,7 +31319,7 @@
                       "lValueRequested": false,
                       "memberName": "owner",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 4728,
+                      "referencedDeclaration": 4729,
                       "src": "3532:24:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_view$__$returns$_t_address_$",
@@ -31793,10 +31801,10 @@
                           "name": "IProxy",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 4734,
+                          "referencedDeclaration": 4735,
                           "src": "3760:6:0",
                           "typeDescriptions": {
-                            "typeIdentifier": "t_type$_t_contract$_IProxy_$4734_$",
+                            "typeIdentifier": "t_type$_t_contract$_IProxy_$4735_$",
                             "typeString": "type(contract IProxy)"
                           }
                         },
@@ -31811,7 +31819,7 @@
                         "src": "3760:18:0",
                         "tryCall": false,
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_IProxy_$4734",
+                          "typeIdentifier": "t_contract$_IProxy_$4735",
                           "typeString": "contract IProxy"
                         }
                       },
@@ -31822,7 +31830,7 @@
                       "lValueRequested": false,
                       "memberName": "init",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 4723,
+                      "referencedDeclaration": 4724,
                       "src": "3760:23:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_nonpayable$_t_address_$_t_address_$returns$__$",
@@ -31893,10 +31901,10 @@
                           "name": "IStorage",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 4743,
+                          "referencedDeclaration": 4744,
                           "src": "3808:8:0",
                           "typeDescriptions": {
-                            "typeIdentifier": "t_type$_t_contract$_IStorage_$4743_$",
+                            "typeIdentifier": "t_type$_t_contract$_IStorage_$4744_$",
                             "typeString": "type(contract IStorage)"
                           }
                         },
@@ -31911,7 +31919,7 @@
                         "src": "3808:20:0",
                         "tryCall": false,
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_IStorage_$4743",
+                          "typeIdentifier": "t_contract$_IStorage_$4744",
                           "typeString": "contract IStorage"
                         }
                       },
@@ -31922,7 +31930,7 @@
                       "lValueRequested": false,
                       "memberName": "migrate",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 4737,
+                      "referencedDeclaration": 4738,
                       "src": "3808:28:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_nonpayable$__$returns$__$",
@@ -32445,10 +32453,10 @@
                                 "name": "IOracle",
                                 "nodeType": "Identifier",
                                 "overloadedDeclarations": [],
-                                "referencedDeclaration": 4137,
+                                "referencedDeclaration": 4138,
                                 "src": "4110:7:0",
                                 "typeDescriptions": {
-                                  "typeIdentifier": "t_type$_t_contract$_IOracle_$4137_$",
+                                  "typeIdentifier": "t_type$_t_contract$_IOracle_$4138_$",
                                   "typeString": "type(contract IOracle)"
                                 }
                               },
@@ -32463,7 +32471,7 @@
                               "src": "4110:16:0",
                               "tryCall": false,
                               "typeDescriptions": {
-                                "typeIdentifier": "t_contract$_IOracle_$4137",
+                                "typeIdentifier": "t_contract$_IOracle_$4138",
                                 "typeString": "contract IOracle"
                               }
                             },
@@ -32474,7 +32482,7 @@
                             "lValueRequested": false,
                             "memberName": "initialized",
                             "nodeType": "MemberAccess",
-                            "referencedDeclaration": 4136,
+                            "referencedDeclaration": 4137,
                             "src": "4110:28:0",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_external_view$__$returns$_t_bool_$",
@@ -32645,10 +32653,10 @@
                           "name": "IStorage",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 4743,
+                          "referencedDeclaration": 4744,
                           "src": "4204:8:0",
                           "typeDescriptions": {
-                            "typeIdentifier": "t_type$_t_contract$_IStorage_$4743_$",
+                            "typeIdentifier": "t_type$_t_contract$_IStorage_$4744_$",
                             "typeString": "type(contract IStorage)"
                           }
                         },
@@ -32663,7 +32671,7 @@
                         "src": "4204:17:0",
                         "tryCall": false,
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_IStorage_$4743",
+                          "typeIdentifier": "t_contract$_IStorage_$4744",
                           "typeString": "contract IStorage"
                         }
                       },
@@ -32674,7 +32682,7 @@
                       "lValueRequested": false,
                       "memberName": "version",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 4742,
+                      "referencedDeclaration": 4743,
                       "src": "4204:25:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_pure$__$returns$_t_bytes8_$",
@@ -32742,10 +32750,10 @@
                                 "name": "IOracle",
                                 "nodeType": "Identifier",
                                 "overloadedDeclarations": [],
-                                "referencedDeclaration": 4137,
+                                "referencedDeclaration": 4138,
                                 "src": "4249:7:0",
                                 "typeDescriptions": {
-                                  "typeIdentifier": "t_type$_t_contract$_IOracle_$4137_$",
+                                  "typeIdentifier": "t_type$_t_contract$_IOracle_$4138_$",
                                   "typeString": "type(contract IOracle)"
                                 }
                               },
@@ -32760,7 +32768,7 @@
                               "src": "4249:16:0",
                               "tryCall": false,
                               "typeDescriptions": {
-                                "typeIdentifier": "t_contract$_IOracle_$4137",
+                                "typeIdentifier": "t_contract$_IOracle_$4138",
                                 "typeString": "contract IOracle"
                               }
                             },
@@ -32771,7 +32779,7 @@
                             "lValueRequested": false,
                             "memberName": "version",
                             "nodeType": "MemberAccess",
-                            "referencedDeclaration": 4121,
+                            "referencedDeclaration": 4122,
                             "src": "4249:24:0",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_external_pure$__$returns$_t_bytes8_$",
@@ -33534,7 +33542,7 @@
                   "id": 437,
                   "name": "multiSig2of3",
                   "nodeType": "IdentifierPath",
-                  "referencedDeclaration": 4315,
+                  "referencedDeclaration": 4316,
                   "src": "3954:12:0"
                 },
                 "nodeType": "ModifierInvocation",
@@ -34328,7 +34336,7 @@
                   "id": 542,
                   "name": "multiSig2of3",
                   "nodeType": "IdentifierPath",
-                  "referencedDeclaration": 4315,
+                  "referencedDeclaration": 4316,
                   "src": "4683:12:0"
                 },
                 "nodeType": "ModifierInvocation",
@@ -35288,10 +35296,10 @@
                           "name": "IProxy",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 4734,
+                          "referencedDeclaration": 4735,
                           "src": "5592:6:0",
                           "typeDescriptions": {
-                            "typeIdentifier": "t_type$_t_contract$_IProxy_$4734_$",
+                            "typeIdentifier": "t_type$_t_contract$_IProxy_$4735_$",
                             "typeString": "type(contract IProxy)"
                           }
                         },
@@ -35306,7 +35314,7 @@
                         "src": "5592:16:0",
                         "tryCall": false,
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_IProxy_$4734",
+                          "typeIdentifier": "t_contract$_IProxy_$4735",
                           "typeString": "contract IProxy"
                         }
                       },
@@ -35317,7 +35325,7 @@
                       "lValueRequested": false,
                       "memberName": "init",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 4723,
+                      "referencedDeclaration": 4724,
                       "src": "5592:21:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_nonpayable$_t_address_$_t_address_$returns$__$",
@@ -36022,10 +36030,10 @@
                           "name": "IProxy",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 4734,
+                          "referencedDeclaration": 4735,
                           "src": "5939:6:0",
                           "typeDescriptions": {
-                            "typeIdentifier": "t_type$_t_contract$_IProxy_$4734_$",
+                            "typeIdentifier": "t_type$_t_contract$_IProxy_$4735_$",
                             "typeString": "type(contract IProxy)"
                           }
                         },
@@ -36040,7 +36048,7 @@
                         "src": "5939:16:0",
                         "tryCall": false,
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_IProxy_$4734",
+                          "typeIdentifier": "t_contract$_IProxy_$4735",
                           "typeString": "contract IProxy"
                         }
                       },
@@ -36051,7 +36059,7 @@
                       "lValueRequested": false,
                       "memberName": "init",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 4723,
+                      "referencedDeclaration": 4724,
                       "src": "5939:21:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_nonpayable$_t_address_$_t_address_$returns$__$",
@@ -37141,10 +37149,10 @@
                           "name": "IProxy",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 4734,
+                          "referencedDeclaration": 4735,
                           "src": "6516:6:0",
                           "typeDescriptions": {
-                            "typeIdentifier": "t_type$_t_contract$_IProxy_$4734_$",
+                            "typeIdentifier": "t_type$_t_contract$_IProxy_$4735_$",
                             "typeString": "type(contract IProxy)"
                           }
                         },
@@ -37159,7 +37167,7 @@
                         "src": "6516:16:0",
                         "tryCall": false,
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_IProxy_$4734",
+                          "typeIdentifier": "t_contract$_IProxy_$4735",
                           "typeString": "contract IProxy"
                         }
                       },
@@ -37170,7 +37178,7 @@
                       "lValueRequested": false,
                       "memberName": "init",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 4723,
+                      "referencedDeclaration": 4724,
                       "src": "6516:21:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_nonpayable$_t_address_$_t_address_$returns$__$",
@@ -37598,7 +37606,7 @@
                               "referencedDeclaration": 1127,
                               "src": "6960:7:0",
                               "typeDescriptions": {
-                                "typeIdentifier": "t_contract$_Proxy_$4471",
+                                "typeIdentifier": "t_contract$_Proxy_$4472",
                                 "typeString": "contract Proxy"
                               }
                             }
@@ -37606,7 +37614,7 @@
                           "expression": {
                             "argumentTypes": [
                               {
-                                "typeIdentifier": "t_contract$_Proxy_$4471",
+                                "typeIdentifier": "t_contract$_Proxy_$4472",
                                 "typeString": "contract Proxy"
                               }
                             ],
@@ -38240,7 +38248,7 @@
                                     "referencedDeclaration": 1127,
                                     "src": "7272:7:0",
                                     "typeDescriptions": {
-                                      "typeIdentifier": "t_contract$_Proxy_$4471",
+                                      "typeIdentifier": "t_contract$_Proxy_$4472",
                                       "typeString": "contract Proxy"
                                     }
                                   }
@@ -38248,7 +38256,7 @@
                                 "expression": {
                                   "argumentTypes": [
                                     {
-                                      "typeIdentifier": "t_contract$_Proxy_$4471",
+                                      "typeIdentifier": "t_contract$_Proxy_$4472",
                                       "typeString": "contract Proxy"
                                     }
                                   ],
@@ -38760,10 +38768,10 @@
                                       "name": "IProxy",
                                       "nodeType": "Identifier",
                                       "overloadedDeclarations": [],
-                                      "referencedDeclaration": 4734,
+                                      "referencedDeclaration": 4735,
                                       "src": "7927:6:0",
                                       "typeDescriptions": {
-                                        "typeIdentifier": "t_type$_t_contract$_IProxy_$4734_$",
+                                        "typeIdentifier": "t_type$_t_contract$_IProxy_$4735_$",
                                         "typeString": "type(contract IProxy)"
                                       }
                                     },
@@ -38778,7 +38786,7 @@
                                     "src": "7927:16:0",
                                     "tryCall": false,
                                     "typeDescriptions": {
-                                      "typeIdentifier": "t_contract$_IProxy_$4734",
+                                      "typeIdentifier": "t_contract$_IProxy_$4735",
                                       "typeString": "contract IProxy"
                                     }
                                   },
@@ -38789,7 +38797,7 @@
                                   "lValueRequested": false,
                                   "memberName": "init",
                                   "nodeType": "MemberAccess",
-                                  "referencedDeclaration": 4723,
+                                  "referencedDeclaration": 4724,
                                   "src": "7927:21:0",
                                   "typeDescriptions": {
                                     "typeIdentifier": "t_function_external_nonpayable$_t_address_$_t_address_$returns$__$",
@@ -38861,10 +38869,10 @@
                                       "name": "IStorage",
                                       "nodeType": "Identifier",
                                       "overloadedDeclarations": [],
-                                      "referencedDeclaration": 4743,
+                                      "referencedDeclaration": 4744,
                                       "src": "8003:8:0",
                                       "typeDescriptions": {
-                                        "typeIdentifier": "t_type$_t_contract$_IStorage_$4743_$",
+                                        "typeIdentifier": "t_type$_t_contract$_IStorage_$4744_$",
                                         "typeString": "type(contract IStorage)"
                                       }
                                     },
@@ -38879,7 +38887,7 @@
                                     "src": "8003:18:0",
                                     "tryCall": false,
                                     "typeDescriptions": {
-                                      "typeIdentifier": "t_contract$_IStorage_$4743",
+                                      "typeIdentifier": "t_contract$_IStorage_$4744",
                                       "typeString": "contract IStorage"
                                     }
                                   },
@@ -38890,7 +38898,7 @@
                                   "lValueRequested": false,
                                   "memberName": "migrate",
                                   "nodeType": "MemberAccess",
-                                  "referencedDeclaration": 4737,
+                                  "referencedDeclaration": 4738,
                                   "src": "8003:26:0",
                                   "typeDescriptions": {
                                     "typeIdentifier": "t_function_external_nonpayable$__$returns$__$",
@@ -39063,7 +39071,7 @@
                                           "referencedDeclaration": 1130,
                                           "src": "7437:13:0",
                                           "typeDescriptions": {
-                                            "typeIdentifier": "t_contract$_ProxyLatest_$4500",
+                                            "typeIdentifier": "t_contract$_ProxyLatest_$4501",
                                             "typeString": "contract ProxyLatest"
                                           }
                                         }
@@ -39071,7 +39079,7 @@
                                       "expression": {
                                         "argumentTypes": [
                                           {
-                                            "typeIdentifier": "t_contract$_ProxyLatest_$4500",
+                                            "typeIdentifier": "t_contract$_ProxyLatest_$4501",
                                             "typeString": "contract ProxyLatest"
                                           }
                                         ],
@@ -39300,7 +39308,7 @@
                                           "referencedDeclaration": 1130,
                                           "src": "7544:13:0",
                                           "typeDescriptions": {
-                                            "typeIdentifier": "t_contract$_ProxyLatest_$4500",
+                                            "typeIdentifier": "t_contract$_ProxyLatest_$4501",
                                             "typeString": "contract ProxyLatest"
                                           }
                                         }
@@ -39308,7 +39316,7 @@
                                       "expression": {
                                         "argumentTypes": [
                                           {
-                                            "typeIdentifier": "t_contract$_ProxyLatest_$4500",
+                                            "typeIdentifier": "t_contract$_ProxyLatest_$4501",
                                             "typeString": "contract ProxyLatest"
                                           }
                                         ],
@@ -39535,7 +39543,7 @@
                                         "referencedDeclaration": 1130,
                                         "src": "7697:13:0",
                                         "typeDescriptions": {
-                                          "typeIdentifier": "t_contract$_ProxyLatest_$4500",
+                                          "typeIdentifier": "t_contract$_ProxyLatest_$4501",
                                           "typeString": "contract ProxyLatest"
                                         }
                                       }
@@ -39543,7 +39551,7 @@
                                     "expression": {
                                       "argumentTypes": [
                                         {
-                                          "typeIdentifier": "t_contract$_ProxyLatest_$4500",
+                                          "typeIdentifier": "t_contract$_ProxyLatest_$4501",
                                           "typeString": "contract ProxyLatest"
                                         }
                                       ],
@@ -39634,10 +39642,10 @@
                                       "name": "IProxy",
                                       "nodeType": "Identifier",
                                       "overloadedDeclarations": [],
-                                      "referencedDeclaration": 4734,
+                                      "referencedDeclaration": 4735,
                                       "src": "7655:6:0",
                                       "typeDescriptions": {
-                                        "typeIdentifier": "t_type$_t_contract$_IProxy_$4734_$",
+                                        "typeIdentifier": "t_type$_t_contract$_IProxy_$4735_$",
                                         "typeString": "type(contract IProxy)"
                                       }
                                     },
@@ -39652,7 +39660,7 @@
                                     "src": "7655:16:0",
                                     "tryCall": false,
                                     "typeDescriptions": {
-                                      "typeIdentifier": "t_contract$_IProxy_$4734",
+                                      "typeIdentifier": "t_contract$_IProxy_$4735",
                                       "typeString": "contract IProxy"
                                     }
                                   },
@@ -39663,7 +39671,7 @@
                                   "lValueRequested": false,
                                   "memberName": "init",
                                   "nodeType": "MemberAccess",
-                                  "referencedDeclaration": 4723,
+                                  "referencedDeclaration": 4724,
                                   "src": "7655:21:0",
                                   "typeDescriptions": {
                                     "typeIdentifier": "t_function_external_nonpayable$_t_address_$_t_address_$returns$__$",
@@ -39735,10 +39743,10 @@
                                       "name": "IStorage",
                                       "nodeType": "Identifier",
                                       "overloadedDeclarations": [],
-                                      "referencedDeclaration": 4743,
+                                      "referencedDeclaration": 4744,
                                       "src": "7730:8:0",
                                       "typeDescriptions": {
-                                        "typeIdentifier": "t_type$_t_contract$_IStorage_$4743_$",
+                                        "typeIdentifier": "t_type$_t_contract$_IStorage_$4744_$",
                                         "typeString": "type(contract IStorage)"
                                       }
                                     },
@@ -39753,7 +39761,7 @@
                                     "src": "7730:18:0",
                                     "tryCall": false,
                                     "typeDescriptions": {
-                                      "typeIdentifier": "t_contract$_IStorage_$4743",
+                                      "typeIdentifier": "t_contract$_IStorage_$4744",
                                       "typeString": "contract IStorage"
                                     }
                                   },
@@ -39764,7 +39772,7 @@
                                   "lValueRequested": false,
                                   "memberName": "migrate",
                                   "nodeType": "MemberAccess",
-                                  "referencedDeclaration": 4737,
+                                  "referencedDeclaration": 4738,
                                   "src": "7730:26:0",
                                   "typeDescriptions": {
                                     "typeIdentifier": "t_function_external_nonpayable$__$returns$__$",
@@ -40576,10 +40584,181 @@
       "links": {},
       "address": "0xC0404D1c33232d704bE74b719db4e655536C46aA",
       "transactionHash": "0xe624805fb122009f55a7e442ed83fd0b8484e1208d9e40995b9b96f53232bb97"
+    },
+    "1337": {
+      "events": {
+        "0xf3c8e7c782d00f601a9d70107849e3f4894c000271e60377966bcfa99ca3ead2": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "bytes8",
+              "name": "version",
+              "type": "bytes8"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "code",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "oracle",
+              "type": "address"
+            }
+          ],
+          "name": "VersionAdded",
+          "type": "event"
+        },
+        "0xb4d04ce57b22f1de0bfbaebe42d34d0616a77b6de95fde396bbd054851d22f58": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "bytes8",
+              "name": "version",
+              "type": "bytes8"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "code",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "oracle",
+              "type": "address"
+            }
+          ],
+          "name": "VersionDeployed",
+          "type": "event"
+        },
+        "0x9dff4715dcc255fd0abdc515933401366bac62424c60e57d607dfe9003f2dc17": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "wallet",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "bytes8",
+              "name": "version",
+              "type": "bytes8"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            }
+          ],
+          "name": "WalletConfigurationRestored",
+          "type": "event"
+        },
+        "0x689c6b1155ee0314d789d2c8968b47cb04b9c8592446c127023fc6399b17310c": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "wallet",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "bytes8",
+              "name": "version",
+              "type": "bytes8"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            }
+          ],
+          "name": "WalletCreated",
+          "type": "event"
+        },
+        "0x5818d755b157239746017f59fc87c7100652290409a15a7d4fba19ff98efcb5f": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "wallet",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            }
+          ],
+          "name": "WalletOwnershipRestored",
+          "type": "event"
+        },
+        "0xeafb3b932d1424e32ec924eb9695430fd852ce33327c076abb1699b72ec58f16": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "wallet",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "bytes8",
+              "name": "version",
+              "type": "bytes8"
+            }
+          ],
+          "name": "WalletUpgraded",
+          "type": "event"
+        },
+        "0x674e126c2ea08c63dbe99eca56b1e9bd3b8d412a467e57060a5953f6e3c20600": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "wallet",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "bytes8",
+              "name": "version",
+              "type": "bytes8"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            }
+          ],
+          "name": "WalletVersionRestored",
+          "type": "event"
+        }
+      },
+      "links": {},
+      "address": "0xB3354C3B54610518b7B14e7dBd47977afa17BCbe",
+      "transactionHash": "0xd5f1f0ed48063d37ad89255c1da5839e7272700cda216de124af27dd110ed792"
     }
   },
   "schemaVersion": "3.3.4",
-  "updatedAt": "2021-03-21T20:16:32.866Z",
+  "updatedAt": "2021-03-22T14:21:08.881Z",
+  "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",
     "methods": {},

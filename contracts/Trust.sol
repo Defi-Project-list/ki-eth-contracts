@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-// import "../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol";
+// import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 contract Trust {
 
