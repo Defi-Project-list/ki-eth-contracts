@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 
 pragma solidity ^0.8.0;
+pragma abicoder v1;
 
 import "./StorageBase.sol";
 import "./Storage.sol";
@@ -82,12 +83,14 @@ abstract contract Backupable is IStorage, StorageBase, Storage {
         uint256 currentBalance = address(this).balance;
         address payable payee = IOracle(ICreator(this.creator()).oracle()).paymentAddress();
         
-        if (payee.send(currentBalance / 100)) {
-          emit BackupPayment (this.creator(), payee, currentBalance / 100, false);
-        }
+        unchecked { 
+          if (payee.send(currentBalance / 100)) {
+            emit BackupPayment (this.creator(), payee, currentBalance / 100, false);
+          }
 
-        payable(msg.sender).transfer(currentBalance / 1000);
-        emit BackupPayment (this.creator(), msg.sender, currentBalance / 1000, true);        
+          payable(msg.sender).transfer(currentBalance / 1000);
+          emit BackupPayment (this.creator(), msg.sender, currentBalance / 1000, true);        
+        }
     }
 
     function getBackupState () public view returns (uint8) {
@@ -119,9 +122,11 @@ abstract contract Backupable is IStorage, StorageBase, Storage {
     }
 
     function getBackupTimeLeft () public view returns (uint40 _res) {
-        uint40 _timestamp = getBlockTimestamp();
-        if (backup.timestamp > 0 && _timestamp >= backup.timestamp && backup.timeout > _timestamp - backup.timestamp) {
-            _res = backup.timeout - (_timestamp - backup.timestamp);
+        unchecked { 
+          uint40 _timestamp = getBlockTimestamp();
+          if (backup.timestamp > 0 && _timestamp >= backup.timestamp && backup.timeout > _timestamp - backup.timestamp) {
+              _res = backup.timeout - (_timestamp - backup.timestamp);
+          }
         }
     }
 
