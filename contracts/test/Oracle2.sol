@@ -1,15 +1,18 @@
 // SPDX-License-Identifier: UNLICENSED
 
 pragma solidity ^0.8.0;
+pragma abicoder v1;
 
 import "../lib/OracleBase.sol";
 
 contract Oracle2 is OracleBase {
+    mapping(address => bool) private tokens;
 
-    mapping (address=>bool) private tokens;
-
-    constructor(address owner1, address owner2, address owner3) MultiSig(owner1, owner2, owner3) {
-    }
+    constructor(
+        address owner1,
+        address owner2,
+        address owner3
+    ) MultiSig(owner1, owner2, owner3) {}
 
     function updateToken(address _token, bool _safe) public {
         tokens[_token] = _safe;
@@ -28,7 +31,6 @@ contract Oracle2 is OracleBase {
     }
 
     function version() external pure override returns (bytes8) {
-      return bytes8("0.1");
+        return bytes8("0.1");
     }
-
 }

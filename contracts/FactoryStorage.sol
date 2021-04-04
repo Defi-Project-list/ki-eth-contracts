@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 
 pragma solidity ^0.8.0;
+pragma abicoder v1;
 
 import "./lib/MultiSig.sol";
 import "./lib/Proxy.sol";
@@ -8,7 +9,7 @@ import "./lib/ProxyLatest.sol";
 
 abstract contract FactoryStorage is MultiSig {
     address public target;
-//    address public proxy;
+    //    address public proxy;
 
     Proxy public swProxy;
     ProxyLatest public swProxyLatest;
@@ -37,7 +38,11 @@ abstract contract FactoryStorage is MultiSig {
     //     _;
     // }
 
-    constructor(address owner1, address owner2, address owner3) MultiSig(owner1, owner2, owner3) {
+    constructor(
+        address owner1,
+        address owner2,
+        address owner3
+    ) MultiSig(owner1, owner2, owner3) {
         // proxy = msg.sender; //in case we are using Factory directly
         swProxy = new Proxy();
         swProxyLatest = new ProxyLatest();
@@ -54,5 +59,4 @@ abstract contract FactoryStorage is MultiSig {
     //         versions_code[LATEST] = address(swProxyLatest);
     //     }
     // }
-
 }

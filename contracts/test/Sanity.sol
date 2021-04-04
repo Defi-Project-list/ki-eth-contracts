@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
 
 pragma solidity ^0.8.0;
+pragma abicoder v1;
 
 contract Sanity {
-
     string public name;
     uint256 private value;
     address public owner;
     uint256 private cancelCount;
 
-    modifier  ownerOnly {
+    modifier ownerOnly {
         if (msg.sender != owner) {
             revert();
         }
@@ -25,7 +25,7 @@ contract Sanity {
         value = 100;
     }
 
-    function getValue() view public returns (uint256) {
+    function getValue() public view returns (uint256) {
         return value;
     }
 

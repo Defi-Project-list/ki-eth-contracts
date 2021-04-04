@@ -1,28 +1,33 @@
 // SPDX-License-Identifier: UNLICENSED
 
 pragma solidity ^0.8.0;
+pragma abicoder v1;
 
 contract Root {
-
     // calculates a^(1/n) to dp decimal places
     // maxIts bounds the number of iterations performed
-    function nthRoot(uint _a, uint _n, uint _dp, uint _maxIts) pure public returns(uint) {
-        assert (_n > 1);
+    function nthRoot(
+        uint256 _a,
+        uint256 _n,
+        uint256 _dp,
+        uint256 _maxIts
+    ) public pure returns (uint256) {
+        assert(_n > 1);
 
         // The scale factor is a crude way to turn everything into integer calcs.
         // Actually do (a * (10 ^ ((dp + 1) * n))) ^ (1/n)
         // We calculate to one extra dp and round at the end
-        uint one = 10 ** (1 + _dp);
-        uint a0 = one ** _n * _a;
+        uint256 one = 10**(1 + _dp);
+        uint256 a0 = one**_n * _a;
 
         // Initial guess: 1.0
-        uint xNew = one;
+        uint256 xNew = one;
 
-        uint iter = 0;
-        uint x = 0;
+        uint256 iter = 0;
+        uint256 x = 0;
         while (xNew != x && iter < _maxIts) {
             x = xNew;
-            uint t0 = x ** (_n - 1);
+            uint256 t0 = x**(_n - 1);
             if (x * t0 > a0) {
                 xNew = x - (x - a0 / t0) / _n;
             } else {
@@ -35,5 +40,3 @@ contract Root {
         return (xNew + 5) / 10;
     }
 }
-
-

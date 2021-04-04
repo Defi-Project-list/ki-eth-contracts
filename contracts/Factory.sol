@@ -1,29 +1,58 @@
 // SPDX-License-Identifier: UNLICENSED
 
 pragma solidity ^0.8.0;
+pragma abicoder v1;
 
 import "./FactoryStorage.sol";
 import "./lib/IOracle.sol";
 
 contract Factory is FactoryStorage {
-
-    event WalletCreated(address indexed wallet, bytes8 indexed version, address indexed owner);
+    event WalletCreated(
+        address indexed wallet,
+        bytes8 indexed version,
+        address indexed owner
+    );
     event WalletUpgraded(address indexed wallet, bytes8 indexed version);
-    event WalletConfigurationRestored(address indexed wallet, bytes8 indexed version, address indexed owner);
-    event WalletOwnershipRestored(address indexed wallet, address indexed owner);
-    event WalletVersionRestored(address indexed wallet, bytes8 indexed version, address indexed owner);
-    event VersionAdded(bytes8 indexed version, address indexed code, address indexed oracle);
-    event VersionDeployed(bytes8 indexed version, address indexed code, address indexed oracle);
+    event WalletConfigurationRestored(
+        address indexed wallet,
+        bytes8 indexed version,
+        address indexed owner
+    );
+    event WalletOwnershipRestored(
+        address indexed wallet,
+        address indexed owner
+    );
+    event WalletVersionRestored(
+        address indexed wallet,
+        bytes8 indexed version,
+        address indexed owner
+    );
+    event VersionAdded(
+        bytes8 indexed version,
+        address indexed code,
+        address indexed oracle
+    );
+    event VersionDeployed(
+        bytes8 indexed version,
+        address indexed code,
+        address indexed oracle
+    );
 
-    constructor (address owner1, address owner2, address owner3) FactoryStorage(owner1, owner2, owner3) {
-    }
+    constructor(
+        address owner1,
+        address owner2,
+        address owner3
+    ) FactoryStorage(owner1, owner2, owner3) {}
 
-    function _createWallet(address _creator, address _target) private returns (address result) {
-        bytes memory
-        _code = hex"60998061000d6000396000f30036601657341560145734602052336001602080a25b005b6000805260046000601c376302d05d3f6000511415604b5773dadadadadadadadadadadadadadadadadadadada602052602080f35b366000803760008036600073bebebebebebebebebebebebebebebebebebebebe5af415608f57341560855734602052600051336002602080a35b3d6000803e3d6000f35b3d6000803e3d6000fd"; //log3-event-ids-address-funcid-opt (-2,-2) (min: 22440)
+    function _createWallet(address _creator, address _target)
+        private
+        returns (address result)
+    {
+        bytes memory _code =
+            hex"60998061000d6000396000f30036601657341560145734602052336001602080a25b005b6000805260046000601c376302d05d3f6000511415604b5773dadadadadadadadadadadadadadadadadadadada602052602080f35b366000803760008036600073bebebebebebebebebebebebebebebebebebebebe5af415608f57341560855734602052600051336002602080a35b3d6000803e3d6000f35b3d6000803e3d6000fd"; //log3-event-ids-address-funcid-opt (-2,-2) (min: 22440)
         bytes20 creatorBytes = bytes20(_creator);
         bytes20 targetBytes = bytes20(_target);
-        for (uint i = 0; i < 20; i++) {
+        for (uint256 i = 0; i < 20; i++) {
             _code[61 + i] = creatorBytes[i];
             _code[101 + i] = targetBytes[i];
         }
@@ -71,19 +100,28 @@ contract Factory is FactoryStorage {
         require(_code != address(0), "no version code");
         address _owner = IProxy(msg.sender).owner();
         Wallet storage _sw = accounts_wallet[_owner];
-        require(msg.sender == _sw.addr && _sw.owner == true, "sender is not wallet owner");
+        require(
+            msg.sender == _sw.addr && _sw.owner == true,
+            "sender is not wallet owner"
+        );
         wallets_version[_sw.addr] = _version;
         IProxy(msg.sender).init(_owner, _code);
         IStorage(msg.sender).migrate();
         emit WalletUpgraded(_sw.addr, _version);
     }
 
-    function addVersion(address _target, address _oracle) multiSig2of3(0) public {
+    function addVersion(address _target, address _oracle)
+        public
+        multiSig2of3(0)
+    {
         require(_target != address(0), "no version");
         require(_oracle != address(0), "no oracle version");
-        require(IOracle(_oracle).initialized() != false, "oracle not initialized");
+        require(
+            IOracle(_oracle).initialized() != false,
+            "oracle not initialized"
+        );
         bytes8 _version = IStorage(_target).version();
-        require(IOracle(_oracle).version() == _version, 'version mistmatch');
+        require(IOracle(_oracle).version() == _version, "version mistmatch");
         address _code = versions_code[_version];
         require(_code == address(0), "version exists");
         require(versions_oracle[_version] == address(0), "oracle exists");
@@ -92,7 +130,7 @@ contract Factory is FactoryStorage {
         emit VersionAdded(_version, _code, _oracle);
     }
 
-    function deployVersion(bytes8 _version) multiSig2of3(0) public {
+    function deployVersion(bytes8 _version) public multiSig2of3(0) {
         address _code = versions_code[_version];
         require(_code != address(0), "version not exist");
         address _oracle = versions_oracle[_version];
@@ -158,8 +196,14 @@ contract Factory is FactoryStorage {
             require(_sw.addr != address(0), "wallet not created");
             _sw.owner = true;
             if (_auto) {
-                require(address(swProxyLatest) != address(0), "no auto version");
-                require(versions_code[LATEST] == address(swProxyLatest), "incorrect auto version");
+                require(
+                    address(swProxyLatest) != address(0),
+                    "no auto version"
+                );
+                require(
+                    versions_code[LATEST] == address(swProxyLatest),
+                    "incorrect auto version"
+                );
                 wallets_version[_sw.addr] = LATEST;
                 IProxy(_sw.addr).init(msg.sender, address(swProxyLatest));
                 IStorage(_sw.addr).migrate();
@@ -170,7 +214,6 @@ contract Factory is FactoryStorage {
                 IStorage(_sw.addr).migrate();
                 emit WalletCreated(_sw.addr, production_version, msg.sender);
             }
-
         }
         return _sw.addr;
     }
@@ -191,8 +234,8 @@ contract Factory is FactoryStorage {
     }
     */
 
-    fallback () external {
-      /*
+    fallback() external {
+        /*
         bytes8 _version = wallets_version[msg.sender];
         if (_version == LATEST) {
             _version = production_version;
@@ -213,4 +256,3 @@ contract Factory is FactoryStorage {
             */
     }
 }
-

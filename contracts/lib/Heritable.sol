@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 
 pragma solidity ^0.8.0;
+pragma abicoder v1;
 
 // import "../../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "./Backupable.sol";

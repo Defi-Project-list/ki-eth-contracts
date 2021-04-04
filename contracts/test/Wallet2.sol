@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: UNLICENSED
 
 pragma solidity ^0.8.0;
+pragma abicoder v1;
 
 import "../lib/StorageBase.sol";
 import "../lib/Storage.sol";
 import "./Storage2.sol";
 
 contract Wallet2 is IStorage, StorageBase, Storage, Storage2 {
-
     event ValueChanged(uint256 newValue);
 
-    function setValue(uint256 _value, uint256 _mul) public onlyOwner payable {
+    function setValue(uint256 _value, uint256 _mul) public payable onlyOwner {
         value = _value * _mul;
         emit ValueChanged(value);
     }
@@ -21,8 +21,7 @@ contract Wallet2 is IStorage, StorageBase, Storage, Storage2 {
 
     // IStorage Implementation
 
-    function migrate () external override onlyCreator() {
-    }
+    function migrate() external override onlyCreator() {}
 
     function version() public pure override returns (bytes8) {
         return bytes8("0.1");
@@ -35,6 +34,4 @@ contract Wallet2 is IStorage, StorageBase, Storage, Storage2 {
     function removeTarget() public {
         _target = address(0);
     }
-
 }
-
