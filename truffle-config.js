@@ -1,5 +1,8 @@
 
 const HDWalletProvider = require("@truffle/hdwallet-provider");
+const ganache = require("ganache-cli")
+let server
+
 // let mnemonic = "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat";
 let mnemonic = "pelican bench orchard wisdom honey deputy donate suspect airport sail quick decade";
 // let mnemonic = "front assume robust donkey senior economy maple enhance click bright game alcohol";
@@ -60,32 +63,44 @@ module.exports = {
       gas
     },
     ganache: {
-	host: "127.0.0.1",
-      	port: 8545,
+	    host: "127.0.0.1",
+      port: 8545,
       // provider: function() {
       //   return new HDWalletProvider(mnemonic, "http://127.0.0.1:8545/");
       // },
       network_id: "*",
       gas
     },
-    development: devNetwork,
+    development: {
+      network_id: "*",
+      provider: function () {
+        const mnemonic = 'awesome grain neither pond excess garage tackle table piece assist venture escape'
+        // const mnemonic = 'front assume robust donkey senior economy maple enhance click bright game alcohol'
+        const port = 7545
+        if (!server) {
+          server = ganache.server({ mnemonic })
+           server.listen(port, () => { console.log('ready') })
+         }
+         const provider = new HDWalletProvider(mnemonic, `http://127.0.0.1:${port}`)
+         return provider
+       },
+    },
     dev: devNetwork
   },
-compilers: {
+  compilers: {
      solc: {
        // version: "0.6.11"  // ex:  "0.4.20". (Default: Truffle's installed solc)
        version: "0.8.2"  // ex:  "0.4.20". (Default: Truffle's installed solc)
      }
   },
-mochax: {
+  mochax: {
     reporter: 'eth-gas-reporter',
     reporterOptions : {
       url: 'http://127.0.0.1:8545',
     },
     // timeout: 100000
   },
-
-solc: {
+  solc: {
       settings: {
         optimizer: {
           enabled: true,

@@ -45,6 +45,11 @@ abstract contract Storage is IStorage {
     uint256 internal totalTransfered;
     Inheritance internal inheritance;
 
+    bytes32 internal s_uid;
+    uint32 internal s_nonce;
+    bytes32 public DOMAIN_SEPARATOR;
+    uint256 public CHAIN_ID;
+
     // ------------- Trust ---------
     // Trust internal trust;
 }

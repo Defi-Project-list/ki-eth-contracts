@@ -16,14 +16,11 @@ import "./lib/Heritable.sol";
 contract Wallet is IStorage, Heritable {
     //using SafeMath for uint256;
 
-    bytes32 private s_uid;
-    uint32 private s_nonce;
     uint8 public constant VERSION_NUMBER = 0x1;
     string public constant NAME = "Kirobo OCW";
     string public constant VERSION = "1";
-    bytes32 public DOMAIN_SEPARATOR;
-    bytes public DOMAIN_SEPARATOR_ASCII;
-    uint256 public CHAIN_ID;
+
+    // bytes public DOMAIN_SEPARATOR_ASCII;
 
     event SentEther(
         address indexed creator,
@@ -46,6 +43,14 @@ contract Wallet is IStorage, Heritable {
         uint256 id,
         bytes data
     );
+
+    modifier onlyActiveState() {
+        require(
+            backup.state != BACKUP_STATE_ACTIVATED,
+            "Wallet: not active state"
+        );
+        _;
+    }
 
     function sendEther(address payable _to, uint256 _value)
         public
@@ -210,7 +215,7 @@ contract Wallet is IStorage, Heritable {
                 s_uid
             )
         );
-        DOMAIN_SEPARATOR_ASCII = _hashToAscii(DOMAIN_SEPARATOR);
+        // DOMAIN_SEPARATOR_ASCII = _hashToAscii(DOMAIN_SEPARATOR);
     }
 
     function version() public pure override returns (bytes8) {
@@ -223,19 +228,47 @@ contract Wallet is IStorage, Heritable {
         require(false, "Wallet: not aceepting ether");
     }
 
+    function execute(
+        address to,
+        uint256 value,
+        bytes calldata data
+    ) public onlyActiveOwner() returns (bytes memory) {
+        (bool success, bytes memory res) = to.call{value: value}(data);
+        if (!success) {
+            revert(_getRevertMsg(res));
+        }
+        return res;
+    }
+
+    function _getRevertMsg(bytes memory returnData)
+        internal
+        pure
+        returns (string memory)
+    {
+        if (returnData.length < 68)
+            return "Wallet: Transaction reverted silently";
+
+        assembly {
+            returnData := add(returnData, 0x04)
+        }
+        return abi.decode(returnData, (string));
+    }
+
     function executeCall(
         uint8 v,
         bytes32 r,
         bytes32 s,
         bool eip712,
+        uint256 typeHash,
+        address to,
+        uint256 value,
         bytes calldata data
-    ) public onlyActiveOwner() returns (bool, bytes memory) {
-        (address to, uint256 value, bool staticCall, bytes memory _data) =
-            abi.decode(data, (address, uint256, bool, bytes));
-
+    ) public onlyActiveState() returns (bool, bytes memory) {
         bytes32 message =
             _messageToRecover(
-                keccak256(abi.encode(msg.sender, to, value, s_nonce, _data)),
+                keccak256(
+                    abi.encode(typeHash, msg.sender, to, value, s_nonce, data)
+                ),
                 eip712
             );
         address addr = ecrecover(message, v, r, s);
@@ -243,8 +276,95 @@ contract Wallet is IStorage, Heritable {
         require(addr == this.owner(), "Wallet: validation failed");
 
         s_nonce = s_nonce + 1;
-        return staticCall ? to.staticcall(_data) : to.call{value: value}(_data);
+        return
+            /* staticCall ? to.staticcall(_data) :*/
+            to.call{value: value}(data);
     }
+
+    function cacnelCall() public onlyActiveOwner() {
+        s_nonce = s_nonce + 1;
+    }
+
+    function nonce() public view returns (uint32) {
+        return s_nonce;
+    }
+
+    /*
+    function executeCallX(
+        uint8 v,
+        bytes32 r,
+        bytes32 s,
+        bool eip712,
+        bytes calldata data
+    ) public onlyActiveOwner() returns (bool, bytes memory) {
+        (
+            uint256 typeHash,
+            address to,
+            uint256 value,
+            // bool staticCall,
+            bytes memory _data
+        ) =
+            abi.decode(
+                data,
+                (
+                    uint256,
+                    address,
+                    uint256,
+                    // bool,
+                    bytes
+                )
+            );
+
+        bytes32 message =
+            _messageToRecover(
+                keccak256(
+                    abi.encode(typeHash, msg.sender, to, value, s_nonce, _data)
+                ),
+                eip712
+            );
+        address addr = ecrecover(message, v, r, s);
+
+        require(addr == this.owner(), "Wallet: validation failed");
+        // require(
+        //     uint8(typeHash) ==
+        //         uint8(_data[0] << 3) +
+        //             uint8(_data[1] << 2) +
+        //             uint8(_data[2] << 1) +
+        //             uint8(_data[3]),
+        //     "Wallet: wrong selector"
+        // );
+
+        s_nonce = s_nonce + 1;
+        return
+            // staticCall ? to.staticcall(_data) :
+            to.call{value: value}(_data);
+    }
+    */
+
+    /*
+    function executeCall2(
+        address to,
+        uint256 value,
+        uint8 v,
+        bytes32 r,
+        bytes32 s,
+        bool eip712,
+        bool staticCall,
+        bytes calldata data
+    ) public onlyActiveOwner() returns (bool, bytes memory) {
+        bytes32 message =
+            _messageToRecover(
+                keccak256(abi.encode(msg.sender, to, value, s_nonce, data)),
+                eip712
+            );
+        address addr = ecrecover(message, v, r, s);
+
+        require(addr == this.owner(), "Wallet: validation failed");
+
+        s_nonce = s_nonce + 1;
+        return staticCall ? to.staticcall(data) : to.call{value: value}(data);
+    }
+    */
 
     /*
     function validateCallMessage(
@@ -285,7 +405,7 @@ contract Wallet is IStorage, Heritable {
             keccak256(
                 abi.encodePacked(
                     "\x19Ethereum Signed Message:\n128",
-                    DOMAIN_SEPARATOR_ASCII,
+                    _hashToAscii(DOMAIN_SEPARATOR), // DOMAIN_SEPARATOR_ASCII,
                     _hashToAscii(hashedUnsignedMessage)
                 )
             );

@@ -7,6 +7,16 @@ const FactoryProxy = artifacts.require("FactoryProxy");
 const ERC20Token = artifacts.require("ERC20Token");
 const ERC721Token = artifacts.require("ERC721Token");
 const mlog = require('mocha-logger');
+
+const { ethers } = require('ethers')
+
+const getPrivateKey = (address) => {
+  // const wallet = web3.currentProvider.wallets[address.toLowerCase()]
+  return '0x5f055f3bc7f2c8cabcc5132d97d6b594c25becbc57139221f1ef89263efc99c7' // `0x${wallet._privKey.toString('hex')}`
+}
+
+const { defaultAbiCoder, keccak256, toUtf8Bytes } = ethers.utils
+
 const {
   assertRevert,
   assertInvalidOpcode,
@@ -20,6 +30,7 @@ contract('Wallet', async accounts => {
   let token20notSafe;
   let token721;
   let oracle;
+  let DOMAIN_SEPARATOR;
   const factoryOwner1 = accounts[0];
   const factoryOwner2 = accounts[1];
   const factoryOwner3 = accounts[2];
@@ -85,6 +96,8 @@ contract('Wallet', async accounts => {
     mlog.log('val1      ', val1);
     mlog.log('val2      ', val2);
     mlog.log('val3      ', val3);
+
+    DOMAIN_SEPARATOR = (await instance.DOMAIN_SEPARATOR()).slice(2)
   });
   
   it('should create empty wallet', async () => {
@@ -244,5 +257,112 @@ contract('Wallet', async accounts => {
     await instance.transfer721(token721.address, user2, 3, {from: owner});
     await instance.transfer721(token721.address, user2, 4, {from: owner});
   });
+
+  it('should be able to execute external calls', async () => {
+    const data = token20.contract.methods.transfer(user1, 10).encodeABI()
+    const balance = await token20.balanceOf(user1, {from: user1})
+    await instance.execute(token20.address, 0, data, { from: owner })
+    const diff = (await token20.balanceOf(user1)).toNumber() - balance.toNumber()
+    assert.equal (diff, 10, 'user1 balance change')
+  })
+
+  it('message: should be able to execute external calls', async () => {
+    const data = token20.contract.methods.transfer(user1, 5).encodeABI()
+    const nonce = await instance.nonce()
+    const typeHash = web3.utils.sha3('x')
+    const msgData = defaultAbiCoder.encode(
+        ['uint256', 'address', 'address', 'uint256', 'uint256', 'bytes'],
+        [typeHash, user2, token20.address, '0', '0', data],
+    )
+    const rlp = await web3.eth.accounts.sign(DOMAIN_SEPARATOR + web3.utils.sha3(msgData).slice(2), getPrivateKey(owner))    
+    const balance = await token20.balanceOf(user1, { from: user1 })
+    await instance.executeCall(rlp.v, rlp.r, rlp.s, false, typeHash, token20.address, 0, data, { from: user2 })
+    const diff = (await token20.balanceOf(user1)).toNumber() - balance.toNumber()
+    assert.equal (diff, 5, 'user1 balance change')
+  })
+
+  it('eip712: should be able to execute external calls', async () => {
+  //   const tokens = 500
+  //   const secret = 'my secret2'
+  //   const secretHash = web3.utils.sha3(secret)
+  //   await pool.issueTokens(user1, tokens, secretHash, { from: poolOwner })
+  //   const message = await pool.generateAcceptTokensMessage(user1, tokens, secretHash, { from: poolOwner })
+  //   mlog.log('message: ', message)
+  //   const typedData = {
+  //     types: {
+  //       EIP712Domain: [
+  //         { name: "name",               type: "string" },
+  //         { name: "version",            type: "string" },
+  //         { name: "chainId",            type: "uint256" },
+  //         { name: "verifyingContract",  type: "address" },
+  //         { name: "salt",               type: "bytes32" }
+  //       ],
+  //       acceptTokens: [
+  //         { name: 'recipient',          type: 'address' },
+  //         { name: 'value',              type: 'uint256' },
+  //         { name: 'secretHash',         type: 'bytes32' },
+  //       ]
+  //     },
+  //     primaryType: 'acceptTokens',
+  //     domain: {
+  //       name: await pool.NAME(),
+  //       version: await pool.VERSION(),
+  //       chainId: '0x' + web3.utils.toBN(await pool.CHAIN_ID()).toString('hex'), // await web3.eth.getChainId(),
+  //       verifyingContract: pool.address,
+  //       salt: await pool.uid(),
+  //     },
+  //     message: {
+  //       recipient: user1,
+  //       value: '0x' + web3.utils.toBN(tokens).toString('hex'),
+  //       secretHash,
+  //     }
+  //   }
+  //   mlog.log('typedData: ', JSON.stringify(typedData, null, 2))
+  //   const domainHash = TypedDataUtils.hashStruct(typedData, 'EIP712Domain', typedData.domain)
+  //   const domainHashHex = ethers.utils.hexlify(domainHash)
+  //   mlog.log('CHAIN_ID', await pool.CHAIN_ID())
+  //   mlog.log('DOMAIN_SEPARATOR', await pool.DOMAIN_SEPARATOR())
+  //   mlog.log('DOMAIN_SEPARATOR (calculated)', domainHashHex)
+    
+  //   const { defaultAbiCoder, keccak256, toUtf8Bytes } = ethers.utils
+
+  //   mlog.log('DOMAIN_SEPARATOR (calculated2)', keccak256(defaultAbiCoder.encode(
+  //       ['bytes32', 'bytes32', 'bytes32', 'uint256', 'address', 'bytes32'],
+  //       [
+  //         keccak256(
+  //           toUtf8Bytes('EIP712Domain(string name,string version,uint256 chainId,address verifyingContract,bytes32 salt)')
+  //         ),
+  //         keccak256(toUtf8Bytes(await pool.NAME())),
+  //         keccak256(toUtf8Bytes(await pool.VERSION())),
+  //         '0x' + web3.utils.toBN(await pool.CHAIN_ID()).toString('hex'),
+  //         pool.address,
+  //         await pool.uid(),
+  //       ]
+  //   )))
+
+  //   const messageDigest = TypedDataUtils.encodeDigest(typedData)
+  //   const messageDigestHex = ethers.utils.hexlify(messageDigest)
+  //   let signingKey = new ethers.utils.SigningKey(getPrivateKey(user1));
+  //   const sig = signingKey.signDigest(messageDigest)
+  //   const rlp = ethers.utils.splitSignature(sig)
+  //   rlp.v = '0x' + rlp.v.toString(16)
+  //   // const messageDigestHash = messageDigestHex.slice(2)
+  //   // mlog.log('messageDigestHash', messageDigestHash)
+  //   mlog.log('user1', user1, 'tokens', tokens, 'secretHash', secretHash)
+  //   const messageHash = TypedDataUtils.hashStruct(typedData, typedData.primaryType, typedData.message)
+  //   const messageHashHex = ethers.utils.hexlify(messageHash)
+  //   mlog.log('messageHash (calculated)', messageHashHex)
+    
+  //   const message2Hash = keccak256(message)
+  //   mlog.log('messageHash (calculated 2)', message2Hash)
+    
+  //   mlog.log('rlp', JSON.stringify(rlp))
+  //   mlog.log('recover', ethers.utils.recoverAddress(messageDigest, sig))
+  //   assert(await pool.validateAcceptTokens(user1, tokens, secretHash, rlp.v, rlp.r, rlp.s, true, { from: user1 }), 'invalid signature')
+  //   mlog.log('account info: ', JSON.stringify(await pool.account(user1), { from: user1 }))
+  //   await pool.executeAcceptTokens(user1, tokens, Buffer.from(secret), rlp.v, rlp.r, rlp.s, true, { from: poolOwner} )
+  //   mlog.log('account info: ', JSON.stringify(await pool.account(user1), { from: user1 }))
+  })
+  
   
 });
