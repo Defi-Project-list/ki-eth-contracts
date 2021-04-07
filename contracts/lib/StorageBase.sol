@@ -15,6 +15,8 @@ interface ICreator {
     function getLatestVersion() external view returns (address);
 
     function oracle() external view returns (address);
+
+    function activator() external view returns (address);
 }
 
 interface IProxy {

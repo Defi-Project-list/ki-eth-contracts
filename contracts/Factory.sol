@@ -226,6 +226,14 @@ contract Factory is FactoryStorage {
         _oracle = versions_oracle[_version];
     }
 
+    function activator() public view returns (address) {
+      return _activator;
+    }
+
+    function setActivator(address activator) public  multiSig2of3(0) {
+      _activator = activator;
+    }
+
     /*
     receive () external payable {
       if (msg.value > 0) {

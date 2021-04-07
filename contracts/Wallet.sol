@@ -263,22 +263,20 @@ contract Wallet is IStorage, Heritable {
         address to,
         uint256 value,
         bytes calldata data
-    ) public onlyActiveState() returns (bool, bytes memory) {
-        bytes32 message =
-            _messageToRecover(
-                keccak256(
-                    abi.encode(typeHash, msg.sender, to, value, s_nonce, data)
-                ),
-                eip712
-            );
-        address addr = ecrecover(message, v, r, s);
+    ) public onlyActiveState() returns (bytes memory) {
+        address activator = ICreator(this.creator()).activator();        
+        bytes32 messageData = keccak256(abi.encode(typeHash, activator, to, value, s_nonce, data));
+        address addr = ecrecover(_messageToRecover(messageData, eip712), v, r, s);
 
+        require(activator == msg.sender, "Wallet: not an activator");
         require(addr == this.owner(), "Wallet: validation failed");
 
         s_nonce = s_nonce + 1;
-        return
-            /* staticCall ? to.staticcall(_data) :*/
-            to.call{value: value}(data);
+        (bool success, bytes memory res) = to.call{value: value}(data);
+        if (!success) {
+            revert(_getRevertMsg(res));
+        }
+        return res;
     }
 
     function cacnelCall() public onlyActiveOwner() {
@@ -404,30 +402,10 @@ contract Wallet is IStorage, Heritable {
         return
             keccak256(
                 abi.encodePacked(
-                    "\x19Ethereum Signed Message:\n128",
-                    _hashToAscii(DOMAIN_SEPARATOR), // DOMAIN_SEPARATOR_ASCII,
-                    _hashToAscii(hashedUnsignedMessage)
+                    "\x19Ethereum Signed Message:\n32",
+                    hashedUnsignedMessage
                 )
             );
     }
 
-    function _hashToAscii(bytes32 hash) private pure returns (bytes memory) {
-        bytes memory s = new bytes(64);
-        for (uint256 i = 0; i < 32; i++) {
-            bytes1 b = hash[i];
-            bytes1 hi = bytes1(uint8(b) / 16);
-            bytes1 lo = bytes1(uint8(b) - 16 * uint8(hi));
-            s[2 * i] = _char(hi);
-            s[2 * i + 1] = _char(lo);
-        }
-        return s;
-    }
-
-    function _char(bytes1 b) private pure returns (bytes1 c) {
-        if (b < bytes1(uint8(10))) {
-            return bytes1(uint8(b) + 0x30);
-        } else {
-            return bytes1(uint8(b) + 0x57);
-        }
-    }
 }

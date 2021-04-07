@@ -30,6 +30,7 @@ abstract contract FactoryStorage is MultiSig {
 
     address internal production_version_oracle;
     mapping(bytes8 => address) internal versions_oracle;
+    address internal _activator;
 
     // storage end
 

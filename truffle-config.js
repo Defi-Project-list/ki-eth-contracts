@@ -96,7 +96,7 @@ module.exports = {
   mochax: {
     reporter: 'eth-gas-reporter',
     reporterOptions : {
-      url: 'http://127.0.0.1:8545',
+      url: 'http://127.0.0.1:7545',
     },
     // timeout: 100000
   },
