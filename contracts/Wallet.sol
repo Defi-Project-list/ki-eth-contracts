@@ -264,13 +264,13 @@ contract Wallet is IStorage, Heritable {
         uint256 value,
         bytes calldata data
     ) public onlyActiveState() returns (bytes memory) {
-        address activator = ICreator(this.creator()).activator();        
+        address creator = this.creator();
+        address activator = ICreator(creator).activator();        
         bytes32 messageData = keccak256(abi.encode(typeHash, activator, to, value, s_nonce, data));
-        address addr = ecrecover(_messageToRecover(messageData, eip712), v, r, s);
-
+        address signer = ecrecover(_messageToRecover(messageData, eip712), v, r, s);
         require(activator == msg.sender, "Wallet: not an activator");
-        require(addr == this.owner(), "Wallet: validation failed");
-
+        require(signer == this.owner(), "Wallet: validation failed");
+        require(to != address(this) && to != creator, "Wallet: reentrancy not allowed");
         s_nonce = s_nonce + 1;
         (bool success, bytes memory res) = to.call{value: value}(data);
         if (!success) {
