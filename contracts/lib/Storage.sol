@@ -12,6 +12,10 @@ abstract contract Storage is IStorage {
     uint8 public constant BACKUP_STATE_ENABLED = 2;
     uint8 public constant BACKUP_STATE_ACTIVATED = 3;
 
+    function uid() view external returns (bytes32) {
+        return s_uid;
+    }
+
     // ------------- Backupable ---------
     struct Backup {
         address wallet;
