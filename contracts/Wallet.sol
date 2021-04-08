@@ -20,8 +20,6 @@ contract Wallet is IStorage, Heritable {
     string public constant NAME = "Kirobo OCW";
     string public constant VERSION = "1";
 
-    // bytes public DOMAIN_SEPARATOR_ASCII;
-
     event SentEther(
         address indexed creator,
         address indexed owner,
