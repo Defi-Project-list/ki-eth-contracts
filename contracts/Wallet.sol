@@ -174,24 +174,46 @@ contract Wallet is IStorage, Heritable {
     }
 
     function executeBatchCall(Call[] calldata tr) public {
-      address creator = this.creator();
-      address activator = ICreator(creator).activator();
-      address owner = this.owner();       
-      for(uint i = 0; i < tr.length; i++) {
-        Call memory call = tr[i];
-        bytes32 messageData = keccak256(abi.encode(call.typeHash, activator, call.to, call.value, s_nonce + i, call.data));
-        address signer = ecrecover(_messageToRecover(messageData, call.typeHash != bytes32(0)), call.v, call.r, call.s);
-        require(activator == msg.sender, "Wallet: not an activator");
-        require(signer == owner, "Wallet: validation failed");
-        require(call.to != activator && call.to != signer && call.to != address(this) && call.to != creator, "Wallet: reentrancy not allowed");
-        (bool success, bytes memory res) = call.to.call{value: call.value}(call.data);
-        if (!success) {
-            revert(_getRevertMsg(res));
+        address creator = this.creator();
+        address activator = ICreator(creator).activator();
+        address owner = this.owner();
+        for (uint256 i = 0; i < tr.length; i++) {
+            Call memory call = tr[i];
+            bytes32 messageData =
+                keccak256(
+                    abi.encode(
+                        call.typeHash,
+                        activator,
+                        call.to,
+                        call.value,
+                        s_nonce + i,
+                        call.data
+                    )
+                );
+            address signer =
+                ecrecover(
+                    _messageToRecover(messageData, call.typeHash != bytes32(0)),
+                    call.v,
+                    call.r,
+                    call.s
+                );
+            require(activator == msg.sender, "Wallet: not an activator");
+            require(signer == owner, "Wallet: validation failed");
+            require(
+                call.to != activator &&
+                    call.to != signer &&
+                    call.to != address(this) &&
+                    call.to != creator,
+                "Wallet: reentrancy not allowed"
+            );
+            (bool success, bytes memory res) =
+                call.to.call{value: call.value}(call.data);
+            if (!success) {
+                revert(_getRevertMsg(res));
+            }
         }
-      }
-      s_nonce = s_nonce + uint32(tr.length);
+        s_nonce = s_nonce + uint32(tr.length);
     }
-
 
     function executeCall(
         uint8 v,
@@ -203,12 +225,27 @@ contract Wallet is IStorage, Heritable {
         bytes calldata data
     ) public onlyActiveState() returns (bytes memory) {
         address creator = this.creator();
-        address activator = ICreator(creator).activator();        
-        bytes32 messageData = keccak256(abi.encode(typeHash, activator, to, value, s_nonce, data));
-        address signer = ecrecover(_messageToRecover(messageData, typeHash != bytes32(0)), v, r, s);
+        address activator = ICreator(creator).activator();
+        bytes32 messageData =
+            keccak256(
+                abi.encode(typeHash, activator, to, value, s_nonce, data)
+            );
+        address signer =
+            ecrecover(
+                _messageToRecover(messageData, typeHash != bytes32(0)),
+                v,
+                r,
+                s
+            );
         require(activator == msg.sender, "Wallet: not an activator");
         require(signer == this.owner(), "Wallet: validation failed");
-        require(to != activator && to != signer && to != address(this) && to != creator, "Wallet: reentrancy not allowed");
+        require(
+            to != activator &&
+                to != signer &&
+                to != address(this) &&
+                to != creator,
+            "Wallet: reentrancy not allowed"
+        );
         s_nonce = s_nonce + 1;
         (bool success, bytes memory res) = to.call{value: value}(data);
         if (!success) {
@@ -228,11 +265,24 @@ contract Wallet is IStorage, Heritable {
     ) public onlyActiveState() returns (bytes memory) {
         address creator = this.creator();
         address owner = this.owner();
-        bytes32 messageData = keccak256(abi.encode(typeHash, owner, to, value, s_nonce, data));
-        address signer = ecrecover(_messageToRecover(messageData, typeHash != bytes32(0)), v, r, s);
+        bytes32 messageData =
+            keccak256(abi.encode(typeHash, owner, to, value, s_nonce, data));
+        address signer =
+            ecrecover(
+                _messageToRecover(messageData, typeHash != bytes32(0)),
+                v,
+                r,
+                s
+            );
         require(owner == msg.sender, "Wallet: not an owner");
-        require(signer == ICreator(creator).activator(), "Wallet: validation failed");
-        require(to != owner && to != signer && to != address(this) && to != creator, "Wallet: reentrancy not allowed");
+        require(
+            signer == ICreator(creator).activator(),
+            "Wallet: validation failed"
+        );
+        require(
+            to != owner && to != signer && to != address(this) && to != creator,
+            "Wallet: reentrancy not allowed"
+        );
         s_nonce = s_nonce + 1;
         (bool success, bytes memory res) = to.call{value: value}(data);
         if (!success) {
@@ -242,22 +292,45 @@ contract Wallet is IStorage, Heritable {
     }
 
     function executeXBatchCall(Call[] calldata tr) public {
-      address creator = this.creator();
-      address activator = ICreator(creator).activator();
-      address owner = this.owner();       
-      for(uint i = 0; i < tr.length; i++) {
-        Call memory call = tr[i];
-        bytes32 messageData = keccak256(abi.encode(call.typeHash, owner, call.to, call.value, s_nonce + i, call.data));
-        address signer = ecrecover(_messageToRecover(messageData, call.typeHash != bytes32(0)), call.v, call.r, call.s);
-        require(owner == msg.sender, "Wallet: not an owner");
-        require(signer == activator, "Wallet: validation failed");
-        require(call.to != owner && call.to != signer && call.to != address(this) && call.to != creator, "Wallet: reentrancy not allowed");
-        (bool success, bytes memory res) = call.to.call{value: call.value}(call.data);
-        if (!success) {
-            revert(_getRevertMsg(res));
+        address creator = this.creator();
+        address activator = ICreator(creator).activator();
+        address owner = this.owner();
+        for (uint256 i = 0; i < tr.length; i++) {
+            Call memory call = tr[i];
+            bytes32 messageData =
+                keccak256(
+                    abi.encode(
+                        call.typeHash,
+                        owner,
+                        call.to,
+                        call.value,
+                        s_nonce + i,
+                        call.data
+                    )
+                );
+            address signer =
+                ecrecover(
+                    _messageToRecover(messageData, call.typeHash != bytes32(0)),
+                    call.v,
+                    call.r,
+                    call.s
+                );
+            require(owner == msg.sender, "Wallet: not an owner");
+            require(signer == activator, "Wallet: validation failed");
+            require(
+                call.to != owner &&
+                    call.to != signer &&
+                    call.to != address(this) &&
+                    call.to != creator,
+                "Wallet: reentrancy not allowed"
+            );
+            (bool success, bytes memory res) =
+                call.to.call{value: call.value}(call.data);
+            if (!success) {
+                revert(_getRevertMsg(res));
+            }
         }
-      }
-      s_nonce = s_nonce + uint32(tr.length);
+        s_nonce = s_nonce + uint32(tr.length);
     }
 
     function executeXXCall(
@@ -272,11 +345,27 @@ contract Wallet is IStorage, Heritable {
         uint256 value,
         bytes calldata data
     ) public onlyActiveState() returns (bytes memory) {
-        bytes32 messageData = keccak256(abi.encode(typeHash, to, value, s_nonce, data));
-        address signer1 = ecrecover(_messageToRecover(messageData, typeHash != bytes32(0)), v1, r1, s1);
-        address signer2 = ecrecover(_messageToRecover(messageData, typeHash != bytes32(0)), v2, r2, s2);
+        bytes32 messageData =
+            keccak256(abi.encode(typeHash, to, value, s_nonce, data));
+        address signer1 =
+            ecrecover(
+                _messageToRecover(messageData, typeHash != bytes32(0)),
+                v1,
+                r1,
+                s1
+            );
+        address signer2 =
+            ecrecover(
+                _messageToRecover(messageData, typeHash != bytes32(0)),
+                v2,
+                r2,
+                s2
+            );
         require(signer1 == this.owner(), "Wallet: signer1 not an owner");
-        require(signer2 == ICreator(this.creator()).activator(), "Wallet: signer2 not an activator");
+        require(
+            signer2 == ICreator(this.creator()).activator(),
+            "Wallet: signer2 not an activator"
+        );
         // require(to != owner && to != signer && to != address(this) && to != creator, "Wallet: reentrancy not allowed");
         s_nonce = s_nonce + 1;
         (bool success, bytes memory res) = to.call{value: value}(data);
@@ -287,23 +376,45 @@ contract Wallet is IStorage, Heritable {
     }
 
     function executeXXBatchCall(XCall[] calldata tr) public {
-      address creator = this.creator();
-      address activator = ICreator(creator).activator();
-      address owner = this.owner();       
-      for(uint i = 0; i < tr.length; i++) {
-        XCall memory call = tr[i];
-        bytes32 messageData = keccak256(abi.encode(call.typeHash, call.to, call.value, s_nonce + i, call.data));
-        address signer1 = ecrecover(_messageToRecover(messageData, call.typeHash != bytes32(0)), call.v1, call.r1, call.s1);
-        address signer2 = ecrecover(_messageToRecover(messageData, call.typeHash != bytes32(0)), call.v2, call.r2, call.s2);
-        require(signer1 == owner, "Wallet: not an owner");
-        require(signer2 == activator, "Wallet: validation failed");
-        // require(call.to != owner && call.to != signer && call.to != address(this) && call.to != creator, "Wallet: reentrancy not allowed");
-        (bool success, bytes memory res) = call.to.call{value: call.value}(call.data);
-        if (!success) {
-            revert(_getRevertMsg(res));
+        address creator = this.creator();
+        address activator = ICreator(creator).activator();
+        address owner = this.owner();
+        for (uint256 i = 0; i < tr.length; i++) {
+            XCall memory call = tr[i];
+            bytes32 messageData =
+                keccak256(
+                    abi.encode(
+                        call.typeHash,
+                        call.to,
+                        call.value,
+                        s_nonce + i,
+                        call.data
+                    )
+                );
+            address signer1 =
+                ecrecover(
+                    _messageToRecover(messageData, call.typeHash != bytes32(0)),
+                    call.v1,
+                    call.r1,
+                    call.s1
+                );
+            address signer2 =
+                ecrecover(
+                    _messageToRecover(messageData, call.typeHash != bytes32(0)),
+                    call.v2,
+                    call.r2,
+                    call.s2
+                );
+            require(signer1 == owner, "Wallet: not an owner");
+            require(signer2 == activator, "Wallet: validation failed");
+            // require(call.to != owner && call.to != signer && call.to != address(this) && call.to != creator, "Wallet: reentrancy not allowed");
+            (bool success, bytes memory res) =
+                call.to.call{value: call.value}(call.data);
+            if (!success) {
+                revert(_getRevertMsg(res));
+            }
         }
-      }
-      s_nonce = s_nonce + uint32(tr.length);
+        s_nonce = s_nonce + uint32(tr.length);
     }
 
     function _getRevertMsg(bytes memory returnData)
@@ -351,5 +462,4 @@ contract Wallet is IStorage, Heritable {
                 )
             );
     }
-
 }
