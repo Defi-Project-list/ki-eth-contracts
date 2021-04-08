@@ -1,7 +1,7 @@
 'use strict';
 
-const Wallet = artifacts.require("Wallet");
-const Oracle = artifacts.require("Oracle");
+const RecoveryWallet = artifacts.require("RecoveryWallet");
+const RecoveryOracle = artifacts.require("RecoveryOracle");
 const Factory = artifacts.require("Factory");
 const FactoryProxy = artifacts.require("FactoryProxy");
 const ERC20Token = artifacts.require("ERC20Token");
@@ -9,6 +9,11 @@ const ERC721Token = artifacts.require("ERC721Token");
 const mlog = require('mocha-logger');
 
 const { ethers } = require('ethers')
+
+const getPrivateKey = (address) => {
+  // const wallet = web3.currentProvider.wallets[address.toLowerCase()]
+  return '0x5f055f3bc7f2c8cabcc5132d97d6b594c25becbc57139221f1ef89263efc99c7' // `0x${wallet._privKey.toString('hex')}`
+}
 
 const { solidityPack, soliditySha256, solidityKeccak256, defaultAbiCoder, keccak256, toUtf8Bytes } = ethers.utils
 
@@ -18,7 +23,7 @@ const {
   assertPayable,
   assetEvent_getArgs
 } = require('./lib/asserts');
-contract('Wallet', async accounts => {
+contract('RecoveryWallet', async accounts => {
   let instance;
   let factory;
   let token20;
@@ -39,17 +44,7 @@ contract('Wallet', async accounts => {
   const val2  = web3.utils.toWei('0.4', 'gwei');
   const val3  = web3.utils.toWei('0.6', 'gwei');
   const valBN = web3.utils.toBN(val1).add(web3.utils.toBN(val2)).add(web3.utils.toBN(val3));
-
-  const getPrivateKey = (address) => {
-    // const wallet = web3.currentProvider.wallets[address.toLowerCase()]
-    if (address === owner) {
-      return '0x5f055f3bc7f2c8cabcc5132d97d6b594c25becbc57139221f1ef89263efc99c7' // `0x${wallet._privKey.toString('hex')}`
-    }
-    if (address === activator) {
-      return '0xf2eb3ee5aca80df482e9b6474f6af69b1186766ba10faf59a761aaa04ff405d0'
-    }
-  }
-
+  
   before('checking constants', async () => {
     assert(typeof factoryOwner1 == 'string', 'factoryOwner1 should be string');
     assert(typeof factoryOwner2 == 'string', 'factoryOwner2 should be string');
@@ -71,8 +66,8 @@ contract('Wallet', async accounts => {
     factory = await Factory.at(sw_factory_proxy.address, { from: factoryOwner3 });
     
     //const factory = await FactoryProxy.new({ from: creator });
-    const version = await Wallet.new({ from: factoryOwner3 });
-    oracle = await Oracle.new(factoryOwner1, factoryOwner2, factoryOwner3, {from: owner, nonce: await web3.eth.getTransactionCount(owner)});
+    const version = await RecoveryWallet.new({ from: factoryOwner3 });
+    oracle = await RecoveryOracle.new(factoryOwner1, factoryOwner2, factoryOwner3, {from: owner, nonce: await web3.eth.getTransactionCount(owner)});
     await oracle.setPaymentAddress(factoryOwner2, { from: factoryOwner2 });
     await oracle.setPaymentAddress(factoryOwner2, { from: factoryOwner1 });
     //await factory.addVersion(web3.fromAscii("1.1", 8), version.address, { from: creator });
@@ -81,7 +76,7 @@ contract('Wallet', async accounts => {
     await factory.deployVersion(await version.version(), { from: factoryOwner1 });
     await factory.deployVersion(await version.version(), { from: factoryOwner2 });
     await factory.createWallet(false, { from: owner });
-    instance = await Wallet.at( await factory.getWallet(owner) );
+    instance = await RecoveryWallet.at( await factory.getWallet(owner) );
 
     token20 = await ERC20Token.new('Kirobo ERC20 Token', 'KDB20', {from: owner});
     await oracle.update721(token20.address, true, {from: factoryOwner3});
@@ -114,6 +109,8 @@ contract('Wallet', async accounts => {
   it('should create empty wallet', async () => {
     const balance = await web3.eth.getBalance(instance.address);
     assert.equal(balance.toString(10), web3.utils.toBN('0').toString(10));
+    await web3.eth.sendTransaction({ from: owner, value: val2, to: instance.address });
+    await instance.sendEther(user1, val2, { from: owner });
   });
 
   it('should accept ether from everyone', async () => {
@@ -123,60 +120,158 @@ contract('Wallet', async accounts => {
     
     const balance = await web3.eth.getBalance(instance.address);
     assert.equal(balance.toString(10), valBN.toString(10));
-
-    await token20.mint(user1, 1000, { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
-    await token20.transfer(instance.address, 50, {from: user1, nonce: await web3.eth.getTransactionCount(user1)});
   });
   
-  it('message: should be able to execute external calls', async () => {
-    await instance.cacnelCall({ from: owner })
-    const data = token20.contract.methods.transfer(user1, 5).encodeABI()
-    const nonce = await instance.nonce()
-    const typeHash = '0x'.padEnd(66,'0')
-    const msgData = defaultAbiCoder.encode(
-        ['bytes32', 'address', 'address', 'uint256', 'uint256', 'bytes'],
-        [typeHash, activator, token20.address, '0', nonce.toString(), data],
-    )
-    const rlp = await web3.eth.accounts.sign(web3.utils.sha3(msgData), getPrivateKey(owner))    
-    const balance = await token20.balanceOf(user1, { from: user1 })
-    const { receipt } = await instance.executeCall(rlp.v, rlp.r, rlp.s, typeHash, token20.address, 0, data, { from: activator })
-    const diff = (await token20.balanceOf(user1)).toNumber() - balance.toNumber()
-    assert.equal (diff, 5, 'user1 balance change')
-    mlog.pending(`ERC20 Transfer consumed ${JSON.stringify(receipt.gasUsed)} gas`)
-  })
+  /*it('only owner can call getBalance', async () => {
+    const balance = await instance.getBalance.call({
+      from: owner
+    });
+    assert.equal(balance.toString(10), valBN.toString(10));
+    try {
+      const balance = await instance.getBalance.call({
+        from: user1
+      });
+      assert(false);
+    } catch (err) {
+      assertRevert(err);
+    }
+  });*/
 
-  it('message: should be able to execute external calls', async () => {
-    await instance.cacnelCall({ from: owner })
-    const data = token20.contract.methods.transfer(user1, 5).encodeABI()
-    const nonce = await instance.nonce()
-    const typeHash = '0x'.padEnd(66,'0')
-    const msgData = defaultAbiCoder.encode(
-        ['bytes32', 'address', 'address', 'uint256', 'uint256', 'bytes'],
-        [typeHash, owner, token20.address, '0', nonce.toString(), data],
-    )
-    const rlp = await web3.eth.accounts.sign(web3.utils.sha3(msgData), getPrivateKey(activator))    
-    const balance = await token20.balanceOf(user1, { from: user1 })
-    const { receipt } = await instance.executeXCall(rlp.v, rlp.r, rlp.s, typeHash, token20.address, 0, data, { from: owner })
-    const diff = (await token20.balanceOf(user1)).toNumber() - balance.toNumber()
-    assert.equal (diff, 5, 'user1 balance change')
-    mlog.pending(`ERC20 Transfer consumed ${JSON.stringify(receipt.gasUsed)} gas`)
-  })
+  it('only owner can send ether', async () => {
+    const userBalanceBefore = await web3.eth.getBalance(user2);
+    await instance.sendEther(user2, val1, { from: owner });
+    const userBalanceAfter = await web3.eth.getBalance(user2);
+    mlog.log('before', userBalanceBefore)
+    mlog.log('after', userBalanceAfter)
+    const userBalanceDelta = web3.utils.toBN(userBalanceAfter).sub(web3.utils.toBN(userBalanceBefore));
+    mlog.log('delta', userBalanceDelta)
+    assert.equal(userBalanceDelta.toString(10), val1);
+    
+    try {
+      await instance.sendEther(user2, val1, { from: user1 });
+      assert(false);
+    } catch (err) {
+      assertRevert(err);
+    }
+    
+  });
+  
+  it('should not allow sendEther to be payable', async () => {
+    const contractBalanceBefore = await web3.eth.getBalance(instance.address);
+    try {
+      await instance.sendEther(owner, val1, { from: owner, value: val1 });
+      assert(false);
+    } catch (err) {
+      assertPayable(err);
+    }
+    const contractBalanceAfter = await web3.eth.getBalance(instance.address);
+    const contractBalanceDelta = web3.utils.toBN(contractBalanceBefore).sub(web3.utils.toBN(contractBalanceAfter));
+    assert.equal(contractBalanceDelta.toString(10), web3.utils.toBN('0').toString(10));
+  });
 
-  it('message: should be able to execute external calls', async () => {
-    await instance.cacnelCall({ from: owner })
-    const data = token20.contract.methods.transfer(user1, 5).encodeABI()
-    const nonce = await instance.nonce()
-    const typeHash = '0x'.padEnd(66,'0')
-    const msgData = defaultAbiCoder.encode(
-        ['bytes32', 'address', 'uint256', 'uint256', 'bytes'],
-        [typeHash, token20.address, '0', nonce.toString(), data],
-    )
-    const rlp1 = await web3.eth.accounts.sign(web3.utils.sha3(msgData), getPrivateKey(owner))    
-    const rlp2 = await web3.eth.accounts.sign(web3.utils.sha3(msgData), getPrivateKey(activator))    
-    const balance = await token20.balanceOf(user1, { from: user1 })
-    const { receipt } = await instance.executeXXCall(rlp1.v, rlp1.r, rlp1.s, rlp2.v, rlp2.r, rlp2.s, typeHash, token20.address, 0, data, { from: owner })
+  it('should send ether from the contract when calling sendEther', async() => {
+    const contractBalanceBefore = await web3.eth.getBalance(instance.address);
+    const walletBalanceBefore = await instance.getBalance.call({ from: owner });
+    
+    await instance.sendEther(user2, val2, { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
+    
+    const contractBalanceAfter = await web3.eth.getBalance(instance.address);
+    const walletBalanceAfter = await instance.getBalance.call({ from: owner });
+    
+    const contractBalanceDelta = web3.utils.toBN(contractBalanceBefore).sub(web3.utils.toBN(contractBalanceAfter));
+    const walletBalanceDelta = web3.utils.toBN(walletBalanceBefore.sub(web3.utils.toBN(walletBalanceAfter)));
+    
+    assert.equal(contractBalanceDelta, val2);
+    assert.equal(walletBalanceDelta, val2);
+  });
+  
+
+  it ('should emit event "GotEther(from, value)" when getting ether', async () => {
+    const tx = await web3.eth.sendTransaction({ from: user2, value: val3, to: instance.address, nonce: await web3.eth.getTransactionCount(user2) });
+    mlog.log('logs', JSON.stringify(tx.logs)); // TODO: parse low level log and add assets
+    //assert.equal(args.owner, owner, '..(owner, ..)');
+    
+    // const logs = await new Promise((r, j) => web3.eth.filter({
+      //       address: instance.address,
+      //       fromBlock: 'latest',
+      //       toBlock: 'latest',
+      //       topics: ['0x0000000000000000000000000000000000000000000000000000000000000001']
+      //     })
+      //     .get((err, logs) => { r(logs) }));
+      //     mlog.log('logs', JSON.stringify(logs));
+      //     /*
+    //     //const args = assetEvent_getArgs(logs, '0x');
+    //     //assert.equal (args.from, user2, '..(from, ..)');
+    //     //assert.equal (args.value, val3, '..(.. ,value)');
+    //     */
+  });
+      
+  it ('should emit event "SentEther(to, value)" when calling sendEther', async () => {
+    const tx = await instance.sendEther(user1, val2, { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
+    const args = assetEvent_getArgs(tx.logs, 'SentEther');
+    assert.equal (args.to, user1, '..(to, ..)');
+    assert.equal (args.value, val2, '..(.. ,value)');
+  });
+
+  it ('should be able to send erc20 tokens to wallet', async () => {
+    await token20.mint(user1, 1000, { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
+    await token20.transfer(instance.address, 50, {from: user1, nonce: await web3.eth.getTransactionCount(user1)});
+    
+    let balance = await token20.balanceOf(user1, {from: user1});
+    assert.equal (balance.toNumber(), 950, 'user1 balance');
+    balance = await instance.balanceOf20(token20.address);
+    assert.equal (balance.toNumber(), 50, 'wallet balance');
+  });
+
+  it ('should be able to send erc20 tokens from wallet', async () => {
+    await instance.transfer20(token20.address, user2, 10, { from: owner});
+    const { receipt } = await instance.transfer20(token20.address, user2, 10, { from: owner});
+    
+    let balance = await token20.balanceOf(instance.address, {from: owner});
+    assert.equal (balance.toNumber(), 30, 'wallet balance (native)');
+    balance = await instance.balanceOf20(token20.address, {from: owner});
+    assert.equal (balance.toNumber(), 30, 'wallet balance');
+    balance = await token20.balanceOf(user2, {from: user2});
+    assert.equal (balance.toNumber(), 20, 'wallet balance');
+    mlog.pending(`ERC20 Transfer consumed ${JSON.stringify(receipt.gasUsed)} gas`)
+  });
+  
+  it ('token20 should be safe to use', async () => {
+    const isTokenSafe = await instance.is20Safe(token20.address, { from: owner});
+    assert.equal (isTokenSafe, true, "is token20 safe");
+  });
+  
+  it ('token20notSafe should not be safe to use', async () => {
+    const isTokenSafe = await instance.is20Safe(token20notSafe.address, { from: owner});
+    assert.equal (isTokenSafe, false, "is token20notSafe safe");
+  });
+  
+  it ('should be able to send erc721 token to wallet', async () => {
+    await token721.createTimeframe("https://example.com/doggo.json" , { from: owner});
+    await token721.createTimeframe("https://example.com/doggo2.json" , { from: owner});
+    await token721.createTimeframe("https://example.com/doggo3.json" , { from: owner});
+    await token721.createTimeframe("https://example.com/doggo4.json" , { from: owner});
+    await token721.transferFrom(owner, instance.address, 1, {from: owner});
+    await token721.safeTransferFrom(owner, instance.address, 2, {from: owner});
+    await token721.approve(instance.address, 3, { from: owner });
+    await token721.approve(instance.address, 4, { from: owner });
+    await token721.transferFrom(owner, instance.address, 3, {from: owner});
+    await token721.safeTransferFrom(owner, instance.address, 4, {from: owner});
+  });
+
+  it ('should be able to send erc721 token from wallet', async () => {
+    await instance.transfer721(token721.address, user1, 1, {from: owner});
+    await instance.transfer721(token721.address, user1, 2, {from: owner});
+    await instance.transfer721(token721.address, user2, 3, {from: owner});
+    await instance.transfer721(token721.address, user2, 4, {from: owner});
+  });
+
+  it('should be able to execute external calls', async () => {
+    const data = token20.contract.methods.transfer(user1, 10).encodeABI()
+    const balance = await token20.balanceOf(user1, {from: user1})
+    const { receipt } = await instance.execute(token20.address, 0, data, { from: owner })
     const diff = (await token20.balanceOf(user1)).toNumber() - balance.toNumber()
-    assert.equal (diff, 5, 'user1 balance change')
+    assert.equal (diff, 10, 'user1 balance change')
     mlog.pending(`ERC20 Transfer consumed ${JSON.stringify(receipt.gasUsed)} gas`)
   })
 

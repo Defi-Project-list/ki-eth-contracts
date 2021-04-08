@@ -52,83 +52,6 @@ contract Wallet is IStorage, Heritable {
         _;
     }
 
-    function sendEther(address payable _to, uint256 _value)
-        public
-        onlyActiveOwner()
-    {
-        require(_value > 0, "value == 0");
-        require(_value <= address(this).balance, "value > balance");
-        emit SentEther(this.creator(), address(this), _to, _value);
-        _to.transfer(_value);
-    }
-
-    function transfer20(
-        address _token,
-        address _to,
-        uint256 _value
-    ) public onlyActiveOwner() {
-        require(_token != address(0), "_token is 0x0");
-        emit Transfer20(this.creator(), _token, address(this), _to, _value);
-        IERC20(_token).transfer(_to, _value);
-    }
-
-    function transferFrom20(
-        address _token,
-        address _from,
-        address _to,
-        uint256 _value
-    ) public onlyActiveOwner() {
-        require(_token != address(0), "_token is 0x0");
-        address from = _from == address(0) ? address(this) : address(_from);
-        emit Transfer20(this.creator(), _token, from, _to, _value);
-        IERC20(_token).transferFrom(_from, _to, _value);
-    }
-
-    function transfer721(
-        address _token,
-        address _to,
-        uint256 _value
-    ) public onlyActiveOwner() {
-        transferFrom721(_token, address(0), _to, _value);
-    }
-
-    function transferFrom721(
-        address _token,
-        address _from,
-        address _to,
-        uint256 _id
-    ) public onlyActiveOwner() {
-        require(_token != address(0), "_token is 0x0");
-        address from = _from == address(0) ? address(this) : address(_from);
-        emit Transfer721(this.creator(), _token, from, _to, _id, "");
-        IERC721(_token).transferFrom(address(this), _to, _id);
-    }
-
-    function safeTransferFrom721(
-        address _token,
-        address _from,
-        address _to,
-        uint256 _id
-    ) public onlyActiveOwner() {
-        require(_token != address(0), "_token is 0x0");
-        address from = _from == address(0) ? address(this) : address(_from);
-        emit Transfer721(this.creator(), _token, from, _to, _id, "");
-        IERC721(_token).safeTransferFrom(address(this), _to, _id);
-    }
-
-    function safeTransferFrom721wData(
-        address _token,
-        address _from,
-        address _to,
-        uint256 _id,
-        bytes memory _data
-    ) public onlyActiveOwner() {
-        require(_token != address(0), "_token is 0x0");
-        address from = _from == address(0) ? address(this) : address(_from);
-        emit Transfer721(this.creator(), _token, from, _to, _id, _data);
-        IERC721(_token).safeTransferFrom(address(this), _to, _id, _data);
-    }
-
     function getBalance() public view returns (uint256) {
         return address(this).balance;
     }
@@ -228,11 +151,74 @@ contract Wallet is IStorage, Heritable {
         require(false, "Wallet: not aceepting ether");
     }
 
-    function execute(
+    function executeCall(
+        uint8 v,
+        bytes32 r,
+        bytes32 s,
+        bytes32 typeHash,
         address to,
         uint256 value,
         bytes calldata data
-    ) public onlyActiveOwner() returns (bytes memory) {
+    ) public onlyActiveState() returns (bytes memory) {
+        address creator = this.creator();
+        address activator = ICreator(creator).activator();        
+        bytes32 messageData = keccak256(abi.encode(typeHash, activator, to, value, s_nonce, data));
+        address signer = ecrecover(_messageToRecover(messageData, typeHash != bytes32(0)), v, r, s);
+        require(activator == msg.sender, "Wallet: not an activator");
+        require(signer == this.owner(), "Wallet: validation failed");
+        require(to != activator && to != signer && to != address(this) && to != creator, "Wallet: reentrancy not allowed");
+        s_nonce = s_nonce + 1;
+        (bool success, bytes memory res) = to.call{value: value}(data);
+        if (!success) {
+            revert(_getRevertMsg(res));
+        }
+        return res;
+    }
+
+    function executeXCall(
+        uint8 v,
+        bytes32 r,
+        bytes32 s,
+        bytes32 typeHash,
+        address to,
+        uint256 value,
+        bytes calldata data
+    ) public onlyActiveState() returns (bytes memory) {
+        // bool eip712 = typeHash != bytes32(0);
+        address creator = this.creator();
+        address owner = this.owner();
+        bytes32 messageData = keccak256(abi.encode(typeHash, owner, to, value, s_nonce, data));
+        address signer = ecrecover(_messageToRecover(messageData, typeHash != bytes32(0)), v, r, s);
+        require(owner == msg.sender, "Wallet: not an owner");
+        require(signer == ICreator(creator).activator(), "Wallet: validation failed");
+        require(to != owner && to != signer && to != address(this) && to != creator, "Wallet: reentrancy not allowed");
+        s_nonce = s_nonce + 1;
+        (bool success, bytes memory res) = to.call{value: value}(data);
+        if (!success) {
+            revert(_getRevertMsg(res));
+        }
+        return res;
+    }
+
+    function executeXXCall(
+        uint8 v1,
+        bytes32 r1,
+        bytes32 s1,
+        uint8 v2,
+        bytes32 r2,
+        bytes32 s2,
+        bytes32 typeHash,
+        address to,
+        uint256 value,
+        bytes calldata data
+    ) public onlyActiveState() returns (bytes memory) {
+        bytes32 messageData = keccak256(abi.encode(typeHash, to, value, s_nonce, data));
+        address signer1 = ecrecover(_messageToRecover(messageData, typeHash != bytes32(0)), v1, r1, s1);
+        address signer2 = ecrecover(_messageToRecover(messageData, typeHash != bytes32(0)), v2, r2, s2);
+        require(signer1 == this.owner(), "Wallet: signer1 not an owner");
+        require(signer2 == ICreator(this.creator()).activator(), "Wallet: signer2 not an activator");
+        // require(to != owner && to != signer && to != address(this) && to != creator, "Wallet: reentrancy not allowed");
+        s_nonce = s_nonce + 1;
         (bool success, bytes memory res) = to.call{value: value}(data);
         if (!success) {
             revert(_getRevertMsg(res));
@@ -254,31 +240,6 @@ contract Wallet is IStorage, Heritable {
         return abi.decode(returnData, (string));
     }
 
-    function executeCall(
-        uint8 v,
-        bytes32 r,
-        bytes32 s,
-        bool eip712,
-        uint256 typeHash,
-        address to,
-        uint256 value,
-        bytes calldata data
-    ) public onlyActiveState() returns (bytes memory) {
-        address creator = this.creator();
-        address activator = ICreator(creator).activator();        
-        bytes32 messageData = keccak256(abi.encode(typeHash, activator, to, value, s_nonce, data));
-        address signer = ecrecover(_messageToRecover(messageData, eip712), v, r, s);
-        require(activator == msg.sender, "Wallet: not an activator");
-        require(signer == this.owner(), "Wallet: validation failed");
-        require(to != address(this) && to != creator, "Wallet: reentrancy not allowed");
-        s_nonce = s_nonce + 1;
-        (bool success, bytes memory res) = to.call{value: value}(data);
-        if (!success) {
-            revert(_getRevertMsg(res));
-        }
-        return res;
-    }
-
     function cacnelCall() public onlyActiveOwner() {
         s_nonce = s_nonce + 1;
     }
@@ -286,103 +247,6 @@ contract Wallet is IStorage, Heritable {
     function nonce() public view returns (uint32) {
         return s_nonce;
     }
-
-    /*
-    function executeCallX(
-        uint8 v,
-        bytes32 r,
-        bytes32 s,
-        bool eip712,
-        bytes calldata data
-    ) public onlyActiveOwner() returns (bool, bytes memory) {
-        (
-            uint256 typeHash,
-            address to,
-            uint256 value,
-            // bool staticCall,
-            bytes memory _data
-        ) =
-            abi.decode(
-                data,
-                (
-                    uint256,
-                    address,
-                    uint256,
-                    // bool,
-                    bytes
-                )
-            );
-
-        bytes32 message =
-            _messageToRecover(
-                keccak256(
-                    abi.encode(typeHash, msg.sender, to, value, s_nonce, _data)
-                ),
-                eip712
-            );
-        address addr = ecrecover(message, v, r, s);
-
-        require(addr == this.owner(), "Wallet: validation failed");
-        // require(
-        //     uint8(typeHash) ==
-        //         uint8(_data[0] << 3) +
-        //             uint8(_data[1] << 2) +
-        //             uint8(_data[2] << 1) +
-        //             uint8(_data[3]),
-        //     "Wallet: wrong selector"
-        // );
-
-        s_nonce = s_nonce + 1;
-        return
-            // staticCall ? to.staticcall(_data) :
-            to.call{value: value}(_data);
-    }
-    */
-
-    /*
-    function executeCall2(
-        address to,
-        uint256 value,
-        uint8 v,
-        bytes32 r,
-        bytes32 s,
-        bool eip712,
-        bool staticCall,
-        bytes calldata data
-    ) public onlyActiveOwner() returns (bool, bytes memory) {
-        bytes32 message =
-            _messageToRecover(
-                keccak256(abi.encode(msg.sender, to, value, s_nonce, data)),
-                eip712
-            );
-        address addr = ecrecover(message, v, r, s);
-
-        require(addr == this.owner(), "Wallet: validation failed");
-
-        s_nonce = s_nonce + 1;
-        return staticCall ? to.staticcall(data) : to.call{value: value}(data);
-    }
-    */
-
-    /*
-    function validateCallMessage(
-        address to,
-        uint256 value,
-        uint8 v,
-        bytes32 r,
-        bytes32 s,
-        bool eip712,
-        bytes calldata data
-    ) public view onlyActiveOwner() returns (bool) {
-        bytes32 message =
-            _messageToRecover(
-                keccak256(abi.encode(msg.sender, to, value, s_nonce, data)),
-                eip712
-            );
-        address addr = ecrecover(message, v, r, s);
-        return addr == this.owner();
-    }
-*/
 
     function _messageToRecover(bytes32 hashedUnsignedMessage, bool eip712)
         private
