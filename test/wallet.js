@@ -375,13 +375,14 @@ contract('Wallet', async accounts => {
   mlog.log('m (calculated)', m)
 
   const m2 = TypedDataUtils.typeHash(typedData.types, 'executeCall')
-  mlog.log('m (calculated)', m2)
+  const m2Hex = ethers.utils.hexlify(m2)
+  mlog.log('m2 (calculated)', m2Hex)
 
   mlog.log('rlp', JSON.stringify(rlp))
   mlog.log('recover', ethers.utils.recoverAddress(messageDigest, sig))
 
   const balance = await token20.balanceOf(user1, { from: user1 })
-  const { receipt } = await instance.executeCall(rlp.v, rlp.r, rlp.s, m2, token20.address, 0, data, { from: activator })
+  const { receipt } = await instance.executeCall(rlp.v, rlp.r, rlp.s, m2Hex, token20.address, 0, data, { from: activator })
   const diff = (await token20.balanceOf(user1)).toNumber() - balance.toNumber()
   assert.equal (diff, 5, 'user1 balance change')
   mlog.pending(`ERC20 Transfer consumed ${JSON.stringify(receipt.gasUsed)} gas`)
