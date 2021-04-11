@@ -139,22 +139,22 @@ contract('Wallet', async accounts => {
     mlog.pending(`ERC20 native Transfer consumed ${JSON.stringify(receipt.gasUsed)} gas`)
   });
   
-  // it('message: should be able to execute external calls', async () => {
-  //   await instance.cacnelCall({ from: owner })
-  //   const data = token20.contract.methods.transfer(user1, 5).encodeABI()
-  //   const nonce = await instance.nonce()
-  //   const typeHash = '0x'.padEnd(66,'0')
-  //   const msgData = defaultAbiCoder.encode(
-  //       ['bytes32', 'address', 'address', 'uint256', 'uint256', 'bytes'],
-  //       [typeHash, activator, token20.address, '0', nonce.toString(), data],
-  //   )
-  //   const rlp = await web3.eth.accounts.sign(web3.utils.sha3(msgData), getPrivateKey(owner))    
-  //   const balance = await token20.balanceOf(user1, { from: user1 })
-  //   const { receipt } = await instance.executeCall(rlp.v, rlp.r, rlp.s, typeHash, token20.address, 0, data, { from: activator })
-  //   const diff = (await token20.balanceOf(user1)).toNumber() - balance.toNumber()
-  //   assert.equal (diff, 5, 'user1 balance change')
-  //   mlog.pending(`ERC20 Transfer consumed ${JSON.stringify(receipt.gasUsed)} gas`)
-  // })
+  it('message: should be able to execute external calls', async () => {
+    await instance.cacnelCall({ from: owner })
+    const data = token20.contract.methods.transfer(user1, 5).encodeABI()
+    const nonce = await instance.nonce()
+    const typeHash = '0x'.padEnd(66,'0')
+    const msgData = defaultAbiCoder.encode(
+        ['bytes32', 'address', 'address', 'uint256', 'uint256', 'bytes4', 'bytes'],
+        [typeHash, activator, token20.address, '0', nonce.toString(), data.slice(0, 10), '0x' + data.slice(10)],
+    )
+    const rlp = await web3.eth.accounts.sign(web3.utils.sha3(msgData), getPrivateKey(owner))    
+    const balance = await token20.balanceOf(user1, { from: user1 })
+    const { receipt } = await instance.executeCall(rlp.v, rlp.r, rlp.s, typeHash, token20.address, 0, data, { from: activator })
+    const diff = (await token20.balanceOf(user1)).toNumber() - balance.toNumber()
+    assert.equal (diff, 5, 'user1 balance change')
+    mlog.pending(`ERC20 Transfer consumed ${JSON.stringify(receipt.gasUsed)} gas`)
+  })
 
   // it('message: should be able to execute external calls', async () => {
   //   await instance.cacnelCall({ from: owner })
@@ -310,12 +310,14 @@ contract('Wallet', async accounts => {
         ],
         executeCall: [
           { name: 'activator',          type: 'address' },
-          { name: 'to',                 type: 'address' },
-          { name: 'value',              type: 'uint256' },
+          { name: 'contract',           type: 'address' },
+          { name: 'eth',                type: 'uint256' },
           { name: 'nonce',              type: 'uint256' },
-          // { name: 'selector',           type: 'bytes4' },
-          // { name: 'recipient',          type: 'address' },
-          // { name: 'amount',             type: 'uint256' },
+          { name: 'selector',           type: 'bytes4' },
+          { name: 'trStart',            type: 'uint256' },
+          { name: 'trLength',           type: 'uint256' },
+          { name: 'recipient',          type: 'address' },
+          { name: 'amount',             type: 'uint256' },
         ]
       },
       primaryType: 'executeCall',
@@ -328,12 +330,14 @@ contract('Wallet', async accounts => {
       },
       message: {
         activator,
-        to: token20.address,
-        value: '0',
+        contract: token20.address,
+        eth: '0',
         nonce: (await instance.nonce()).toString(),
-        selector: data.slice(0,10),
-        // recipient: user1,
-        // amount: '5',
+        selector: '0x' + data.slice(2,10),
+        trStart: '224', // 7*32
+        trLength: '64',
+        recipient: user1,
+        amount: '5',
       }
     }
 
@@ -343,9 +347,11 @@ contract('Wallet', async accounts => {
   mlog.log('CHAIN_ID', await instance.CHAIN_ID())
   mlog.log('DOMAIN_SEPARATOR', await instance.DOMAIN_SEPARATOR())
   mlog.log('DOMAIN_SEPARATOR (calculated)', domainHashHex)
-    
-  const { defaultAbiCoder, keccak256, toUtf8Bytes } = ethers.utils
 
+  mlog.log('encode 1 ---------------> ', defaultAbiCoder.encode(['uint256', 'uint256', 'bytes4'],['32', '4', '0x20304050']))
+  mlog.log('encode 2 ---------------> ', defaultAbiCoder.encode(['bytes'],['0x20304050']))
+  //       ['bytes32', 'bytes32', 'bytes32', 'uint256', 'address', 'bytes32'],
+    
   //   mlog.log('DOMAIN_SEPARATOR (calculated2)', keccak256(defaultAbiCoder.encode(
   //       ['bytes32', 'bytes32', 'bytes32', 'uint256', 'address', 'bytes32'],
   //       [
@@ -382,6 +388,41 @@ contract('Wallet', async accounts => {
   mlog.log('recover', ethers.utils.recoverAddress(messageDigest, sig))
 
   const balance = await token20.balanceOf(user1, { from: user1 })
+  mlog.log('executeCall: ' + instance.contract.methods.executeCall(rlp.v, rlp.r, rlp.s, m2Hex, token20.address, 0, '0x6520').encodeABI())
+
+ // selector = d400ab6b
+ // v = 000000000000000000000000000000000000000000000000000000000000001b
+ // r = 8a5ae27ae668b450631ab7d03871129003b89ee4cb83fb0fa294d93d823357bf
+ // s = 54c88ff70062e830657b37eaa268ef728cada33fc56a1a3b8f2dbb9243262f41
+ // m = 706d68419964b6be11efaf5de0fb37d4387b007dfbafb0cfd1b3f82bc43f8a9b
+ // a = 000000000000000000000000e245b476e2af0ac0a323418353497aca0827506d
+ // v = 0000000000000000000000000000000000000000000000000000000000000000
+        
+        
+        // 00000000000000000000000000000000000000000000000000000000000000e0
+        // 0000000000000000000000000000000000000000000000000000000000000044
+        // a9059cbb
+        // 0000000000000000000000005b8c872719f71067922e444f1f2840e01b086da7
+        // 0000000000000000000000000000000000000000000000000000000000000005
+        // 00000000000000000000000000000000000000000000000000000000
+
+//  0x0000000000000000000000000000000000000000000000000000000000000020
+//    0000000000000000000000000000000000000000000000000000000000000044
+//    a9059cbb
+//    0000000000000000000000005b8c872719f71067922e444f1f2840e01b086da7
+//    0000000000000000000000000000000000000000000000000000000000000005
+//    00000000000000000000000000000000000000000000000000000000
+
+//  0x0000000000000000000000000000000000000000000000000000000000000020
+//    0000000000000000000000000000000000000000000000000000000000000044
+//    a9059cbb
+//    0000000000000000000000005b8c872719f71067922e444f1f2840e01b086da7
+//    0000000000000000000000000000000000000000000000000000000000000005
+//    00000000000000000000000000000000000000000000000000000000
+
+  mlog.log('getIt 0', await instance.getIt('0', '1', data))
+  mlog.log('getIt 1', await instance.getIt('1', '2', data))
+  mlog.log('getIt 2', await instance.getIt('2', '3', data))
   const { receipt } = await instance.executeCall(rlp.v, rlp.r, rlp.s, m2Hex, token20.address, 0, data, { from: activator })
   const diff = (await token20.balanceOf(user1)).toNumber() - balance.toNumber()
   assert.equal (diff, 5, 'user1 balance change')
