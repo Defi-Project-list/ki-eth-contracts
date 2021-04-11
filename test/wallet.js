@@ -295,6 +295,7 @@ contract('Wallet', async accounts => {
 
   it('eip712: should be able to execute external calls', async () => {
     const tokens = 2
+    await instance.cacnelCall({ from: owner })
     const data = token20.contract.methods.transfer(user1, 5).encodeABI()
 
     mlog.log('---> data', data)
