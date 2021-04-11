@@ -204,7 +204,7 @@ contract Wallet is IStorage, Heritable {
     ) public onlyActiveState() returns (bytes memory) {
         address creator = this.creator();
         address activator = ICreator(creator).activator();        
-        bytes32 messageData = keccak256(abi.encode(typeHash, activator, to, value, s_nonce, data));
+        bytes32 messageData = keccak256(abi.encode(typeHash, activator, to, value, s_nonce/*, data[:8]*/));
         address signer = ecrecover(_messageToRecover(messageData, typeHash != bytes32(0)), v, r, s);
         require(activator == msg.sender, "Wallet: not an activator");
         require(signer == this.owner(), "Wallet: validation failed");

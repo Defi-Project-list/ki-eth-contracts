@@ -313,9 +313,9 @@ contract('Wallet', async accounts => {
           { name: 'to',                 type: 'address' },
           { name: 'value',              type: 'uint256' },
           { name: 'nonce',              type: 'uint256' },
-          { name: 'selector',           type: 'bytes4' },
-          { name: 'recipient',          type: 'address' },
-          { name: 'amount',             type: 'uint256' },
+          // { name: 'selector',           type: 'bytes4' },
+          // { name: 'recipient',          type: 'address' },
+          // { name: 'amount',             type: 'uint256' },
         ]
       },
       primaryType: 'executeCall',
@@ -332,8 +332,8 @@ contract('Wallet', async accounts => {
         value: '0',
         nonce: (await instance.nonce()).toString(),
         selector: data.slice(0,10),
-        recipient: user1,
-        amount: '5',
+        // recipient: user1,
+        // amount: '5',
       }
     }
 
@@ -375,7 +375,7 @@ contract('Wallet', async accounts => {
   mlog.log('m (calculated)', m)
 
   const m2 = TypedDataUtils.typeHash(typedData.types, 'executeCall')
-  const m2Hex = ethers.utils.hexlify(m2)
+  const m2Hex = ethers.utils.hexZeroPad(ethers.utils.hexlify(m2), 32)
   mlog.log('m2 (calculated)', m2Hex)
 
   mlog.log('rlp', JSON.stringify(rlp))
