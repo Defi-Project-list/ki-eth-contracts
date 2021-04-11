@@ -156,6 +156,7 @@ contract('Wallet', async accounts => {
     mlog.pending(`ERC20 Transfer consumed ${JSON.stringify(receipt.gasUsed)} gas`)
   })
 
+
   // it('message: should be able to execute external calls', async () => {
   //   await instance.cacnelCall({ from: owner })
   //   const data = token20.contract.methods.transfer(user1, 5).encodeABI()
@@ -252,10 +253,60 @@ contract('Wallet', async accounts => {
     )
     const rlp = await web3.eth.accounts.sign(web3.utils.sha3(msgData), getPrivateKey(owner))    
     const balance = await token20.balanceOf(user1, { from: user1 })
-    const { receipt } = await instance.executeBatchCall([{v: rlp.v, r: rlp.r, s: rlp.s, typeHash, to: token20.address, value: 0, data}], { from: activator })
+    const { receipt } = await instance.executeBatchCall([{native: false, v: rlp.v, r: rlp.r, s: rlp.s, typeHash, to: token20.address, value: 0, data}], { from: activator })
     const diff = (await token20.balanceOf(user1)).toNumber() - balance.toNumber()
     assert.equal (diff, 5, 'user1 balance change')
     mlog.pending(`ERC20 Transfer consumed ${JSON.stringify(receipt.gasUsed)} gas`)
+  })
+
+  it('message: should be able to execute batch of sends', async () => {
+    await instance.cacnelCall({ from: owner })
+    const nonce = await instance.nonce()
+    const typeHash = '0x'.padEnd(66,'0')
+    const msgData = defaultAbiCoder.encode(
+        ['bytes32', 'address', 'address', 'uint256', 'uint256', 'bytes32'],
+        [typeHash, activator, user3, '10', nonce.toString(), keccak256(toUtf8Bytes(''))],
+    )
+    const rlp = await web3.eth.accounts.sign(web3.utils.sha3(msgData), getPrivateKey(owner))    
+    const balance = await token20.balanceOf(user1, { from: user1 })
+    const { receipt } = await instance.executeBatchCall([{native: true, v: rlp.v, r: rlp.r, s: rlp.s, typeHash, to: user3, value: 10, data: []}], { from: activator })
+    const diff = (await token20.balanceOf(user1)).toNumber() - balance.toNumber()
+    // assert.equal (diff, 5, 'user1 balance change')
+    mlog.pending(`ERC20 Transfer consumed ${JSON.stringify(receipt.gasUsed)} gas`)
+  })
+
+  it('message: should be able to execute batch of sends and calls', async () => {
+    await instance.cacnelCall({ from: owner })
+    const nonce = await instance.nonce()
+    const typeHash = '0x'.padEnd(66,'0')
+    const msgData = defaultAbiCoder.encode(
+        ['bytes32', 'address', 'address', 'uint256', 'uint256', 'bytes32'],
+        [typeHash, activator, user3, '10', nonce.toString(), keccak256(toUtf8Bytes(''))],
+    )
+    const rlp = await web3.eth.accounts.sign(web3.utils.sha3(msgData), getPrivateKey(owner))    
+
+    const data2 = token20.contract.methods.transfer(user1, 5).encodeABI()
+    const msgData2 = defaultAbiCoder.encode(
+        ['bytes32', 'address', 'address', 'uint256', 'uint256', 'bytes4', 'bytes'],
+        [typeHash, activator, token20.address, '0', +nonce.toString()+1, data2.slice(0, 10), '0x' + data2.slice(10)],
+    )
+    const rlp2 = await web3.eth.accounts.sign(web3.utils.sha3(msgData2), getPrivateKey(owner))    
+
+    const msgData3 = defaultAbiCoder.encode(
+        ['bytes32', 'address', 'address', 'uint256', 'uint256', 'bytes32'],
+        [typeHash, activator, user2, '8', +nonce.toString()+2, keccak256('0x1234')],
+    )
+    const rlp3 = await web3.eth.accounts.sign(web3.utils.sha3(msgData3), getPrivateKey(owner))    
+
+    const balance = await token20.balanceOf(user1, { from: user1 })
+    const { receipt } = await instance.executeBatchCall([
+      {native: true, v: rlp.v, r: rlp.r, s: rlp.s, typeHash, to: user3, value: 10, data: []},
+      {native: false, v: rlp2.v, r: rlp2.r, s: rlp2.s, typeHash, to: token20.address, value: 0, data: data2},
+      {native: true, v: rlp3.v, r: rlp3.r, s: rlp3.s, typeHash, to: user2, value: 8, data: '0x1234'},
+    ], { from: activator })
+    const diff = (await token20.balanceOf(user1)).toNumber() - balance.toNumber()
+    // assert.equal (diff, 5, 'user1 balance change')
+    mlog.pending(`Ether + ERC20 Transfers consumed ${JSON.stringify(receipt.gasUsed)} gas`)
   })
 
   it('message: should be able to execute batch of external calls', async () => {

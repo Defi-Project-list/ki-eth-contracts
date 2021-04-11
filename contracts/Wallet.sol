@@ -157,7 +157,17 @@ contract Wallet is IStorage, Heritable {
         bytes32 typeHash;
         address to;
         uint256 value;
+        bool native;
         bytes data;
+    }
+
+    struct Send {
+        uint8 v;
+        bytes32 r;
+        bytes32 s;
+        address to;
+        uint256 value;
+        bool eip712;
     }
 
     struct XCall {
@@ -179,8 +189,10 @@ contract Wallet is IStorage, Heritable {
       address owner = this.owner();       
       for(uint i = 0; i < tr.length; i++) {
         Call memory call = tr[i];
-        bytes4 selector = call.data[0] | (bytes4(call.data[1]) >> 8) | (bytes4(call.data[2]) >> 16) | (bytes4(call.data[3]) >> 24);
-        bytes32 messageData = keccak256(abi.encode(call.typeHash, activator, call.to, call.value, s_nonce + i, selector, tr[i].data[4:]));
+        bytes4 selector = call.native ? bytes4(0) : call.data[0] | (bytes4(call.data[1]) >> 8) | (bytes4(call.data[2]) >> 16) | (bytes4(call.data[3]) >> 24);
+        bytes32 messageData = call.native ? 
+          keccak256(abi.encode(call.typeHash, activator, call.to, call.value, s_nonce + i, keccak256(tr[i].data))):
+          keccak256(abi.encode(call.typeHash, activator, call.to, call.value, s_nonce + i, selector, tr[i].data[4:]));
         address signer = ecrecover(_messageToRecover(messageData, call.typeHash != bytes32(0)), call.v, call.r, call.s);
         require(activator == msg.sender, "Wallet: not an activator");
         require(signer == owner, "Wallet: validation failed");
@@ -191,10 +203,6 @@ contract Wallet is IStorage, Heritable {
         }
       }
       s_nonce = s_nonce + uint32(tr.length);
-    }
-
-    function getIt(uint256 start, uint256 end, bytes calldata data) public view returns (bytes memory) {
-      return abi.encode(data);
     }
 
     function executeCall(
