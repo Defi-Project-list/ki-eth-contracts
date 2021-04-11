@@ -191,55 +191,55 @@ contract('Wallet', async accounts => {
   //   mlog.pending(`ERC20 Transfer consumed ${JSON.stringify(receipt.gasUsed)} gas`)
   // })
 
-  // it('message: should be able to execute batch external calls', async () => {
-  //   await instance.cacnelCall({ from: owner })
-  //   const data = token20.contract.methods.transfer(user1, 4).encodeABI()
-  //   const data2 = token20.contract.methods.transfer(user2, 3).encodeABI()
-  //   const data3 = token20.contract.methods.transfer(user3, 1).encodeABI()
-  //   const data4 = token20.contract.methods.transfer(user4, 2).encodeABI()
-  //   const nonce = await instance.nonce()
-  //   const typeHash = '0x'.padEnd(66,'0')
-  //   const msgData = defaultAbiCoder.encode(
-  //       ['bytes32', 'address', 'address', 'uint256', 'uint256', 'bytes'],
-  //       [typeHash, activator, token20.address, '0', nonce.toString(), data],
-  //   )
-  //   const msgData2 = defaultAbiCoder.encode(
-  //       ['bytes32', 'address', 'address', 'uint256', 'uint256', 'bytes'],
-  //       [typeHash, activator, token20.address, '0', +nonce.toString()+1, data2],
-  //   )
-  //   const msgData3 = defaultAbiCoder.encode(
-  //       ['bytes32', 'address', 'address', 'uint256', 'uint256', 'bytes'],
-  //       [typeHash, activator, token20.address, '0', +nonce.toString()+2, data3],
-  //   )
-  //   const msgData4 = defaultAbiCoder.encode(
-  //       ['bytes32', 'address', 'address', 'uint256', 'uint256', 'bytes'],
-  //       [typeHash, activator, token20.address, '0', +nonce.toString()+3, data4],
-  //   )
-  //   const rlp = await web3.eth.accounts.sign(web3.utils.sha3(msgData), getPrivateKey(owner))    
-  //   const rlp2 = await web3.eth.accounts.sign(web3.utils.sha3(msgData2), getPrivateKey(owner))    
-  //   const rlp3 = await web3.eth.accounts.sign(web3.utils.sha3(msgData3), getPrivateKey(owner))    
-  //   const rlp4 = await web3.eth.accounts.sign(web3.utils.sha3(msgData4), getPrivateKey(owner))    
-  //   const balance = await token20.balanceOf(user1, { from: user1 })
-  //   const balance2 = await token20.balanceOf(user2, { from: user1 })
-  //   const balance3 = await token20.balanceOf(user3, { from: user1 })
-  //   const balance4 = await token20.balanceOf(user4, { from: user1 })
-  //   const { receipt } = await instance.executeBatchCall(
-  //     [
-  //       {v:rlp.v, r:rlp.r, s:rlp.s, typeHash, to: token20.address, value: 0, data},
-  //       {v:rlp2.v, r:rlp2.r, s:rlp2.s, typeHash, to: token20.address, value: 0, data: data2},
-  //       {v:rlp3.v, r:rlp3.r, s:rlp3.s, typeHash, to: token20.address, value: 0, data: data3},
-  //       {v:rlp4.v, r:rlp4.r, s:rlp4.s, typeHash, to: token20.address, value: 0, data: data4}
-  //     ], { from: activator })
-  //   const diff = (await token20.balanceOf(user1)).toNumber() - balance.toNumber()
-  //   assert.equal (diff, 4, 'user1 balance change')
-  //   const diff2 = (await token20.balanceOf(user2)).toNumber() - balance2.toNumber()
-  //   assert.equal (diff2, 3, 'user2 balance change')
-  //   const diff3 = (await token20.balanceOf(user3)).toNumber() - balance3.toNumber()
-  //   assert.equal (diff3, 1, 'user2 balance change')
-  //   const diff4 = (await token20.balanceOf(user4)).toNumber() - balance3.toNumber()
-  //   assert.equal (diff4, 2, 'user2 balance change')
-  //   mlog.pending(`ERC20 * 4 * Transfer consumed ${JSON.stringify(receipt.gasUsed)} gas (${Math.ceil(receipt.gasUsed/4)} gas per call)`)
-  // })
+  it('message: should be able to execute batch external calls', async () => {
+    await instance.cacnelCall({ from: owner })
+    const data = token20.contract.methods.transfer(user1, 4).encodeABI()
+    const data2 = token20.contract.methods.transfer(user2, 3).encodeABI()
+    const data3 = token20.contract.methods.transfer(user3, 1).encodeABI()
+    const data4 = token20.contract.methods.transfer(user4, 2).encodeABI()
+    const nonce = await instance.nonce()
+    const typeHash = '0x'.padEnd(66,'0')
+    const msgData = defaultAbiCoder.encode(
+        ['bytes32', 'address', 'address', 'uint256', 'uint256', 'bytes4', 'bytes'],
+        [typeHash, activator, token20.address, '0', nonce.toString(), data.slice(0, 10), '0x' + data.slice(10)],
+    )
+    const msgData2 = defaultAbiCoder.encode(
+        ['bytes32', 'address', 'address', 'uint256', 'uint256', 'bytes4', 'bytes'],
+        [typeHash, activator, token20.address, '0', +nonce.toString()+1, data2.slice(0, 10), '0x' + data2.slice(10)],
+    )
+    const msgData3 = defaultAbiCoder.encode(
+        ['bytes32', 'address', 'address', 'uint256', 'uint256', 'bytes4', 'bytes'],
+        [typeHash, activator, token20.address, '0', +nonce.toString()+2, data3.slice(0, 10), '0x' + data3.slice(10)],
+    )
+    const msgData4 = defaultAbiCoder.encode(
+        ['bytes32', 'address', 'address', 'uint256', 'uint256', 'bytes4', 'bytes'],
+        [typeHash, activator, token20.address, '0', +nonce.toString()+3, data4.slice(0, 10), '0x' + data4.slice(10)],
+    )
+    const rlp = await web3.eth.accounts.sign(web3.utils.sha3(msgData), getPrivateKey(owner))    
+    const rlp2 = await web3.eth.accounts.sign(web3.utils.sha3(msgData2), getPrivateKey(owner))    
+    const rlp3 = await web3.eth.accounts.sign(web3.utils.sha3(msgData3), getPrivateKey(owner))    
+    const rlp4 = await web3.eth.accounts.sign(web3.utils.sha3(msgData4), getPrivateKey(owner))    
+    const balance = await token20.balanceOf(user1, { from: user1 })
+    const balance2 = await token20.balanceOf(user2, { from: user1 })
+    const balance3 = await token20.balanceOf(user3, { from: user1 })
+    const balance4 = await token20.balanceOf(user4, { from: user1 })
+    const { receipt } = await instance.executeBatchCall(
+      [
+        {v:rlp.v, r:rlp.r, s:rlp.s, typeHash, to: token20.address, value: 0, data},
+        {v:rlp2.v, r:rlp2.r, s:rlp2.s, typeHash, to: token20.address, value: 0, data: data2},
+        {v:rlp3.v, r:rlp3.r, s:rlp3.s, typeHash, to: token20.address, value: 0, data: data3},
+        {v:rlp4.v, r:rlp4.r, s:rlp4.s, typeHash, to: token20.address, value: 0, data: data4}
+      ], { from: activator })
+    const diff = (await token20.balanceOf(user1)).toNumber() - balance.toNumber()
+    assert.equal (diff, 4, 'user1 balance change')
+    const diff2 = (await token20.balanceOf(user2)).toNumber() - balance2.toNumber()
+    assert.equal (diff2, 3, 'user2 balance change')
+    const diff3 = (await token20.balanceOf(user3)).toNumber() - balance3.toNumber()
+    assert.equal (diff3, 1, 'user2 balance change')
+    const diff4 = (await token20.balanceOf(user4)).toNumber() - balance3.toNumber()
+    assert.equal (diff4, 2, 'user2 balance change')
+    mlog.pending(`ERC20 * 4 * Transfer consumed ${JSON.stringify(receipt.gasUsed)} gas (${Math.ceil(receipt.gasUsed/4)} gas per call)`)
+  })
 
   // it('message: should be able to execute batch of external calls', async () => {
   //   await instance.cacnelCall({ from: owner })
