@@ -247,7 +247,7 @@ contract('Wallet', async accounts => {
     mlog.pending(`ERC20 * 4 * Transfer consumed ${JSON.stringify(receipt.gasUsed)} gas (${Math.ceil(receipt.gasUsed/4)} gas per call)`)
   })
 
-  it('message: should be able to execute batch of external calls', async () => {
+  it('message: should be able to execute batch of external calls: signer==owner, sender==operator', async () => {
     await instance.cancelCall({ from: owner })
     const data = token20.contract.methods.transfer(user1, 5).encodeABI()
     const nonce = await instance.nonce()
@@ -266,7 +266,7 @@ contract('Wallet', async accounts => {
     mlog.pending(`ERC20 Transfer consumed ${JSON.stringify(receipt.gasUsed)} gas`)
   })
 
-  it('message: should be able to execute batch of sends', async () => {
+  it('message: should be able to execute batch of sends: signer==owner, sender==operator', async () => {
     await instance.cancelCall({ from: owner })
     const nonce = await instance.nonce()
     const typeHash = '0x'.padEnd(66,'0')
@@ -284,7 +284,7 @@ contract('Wallet', async accounts => {
     mlog.pending(`Eth Transfer consumed ${JSON.stringify(receipt.gasUsed)} gas`)
   })
 
-  it('message: should be able to execute batch of sends and calls', async () => {
+  it('message: should be able to execute batch of sends and calls: signer==owner, sender==operator', async () => {
     await instance.cancelCall({ from: owner })
     const nonce = await instance.nonce()
     const typeHash = '0x'.padEnd(66,'0')
@@ -320,7 +320,7 @@ contract('Wallet', async accounts => {
     mlog.pending(`2 X Ether + ERC20 Transfers consumed ${JSON.stringify(receipt.gasUsed)} gas (${Math.ceil(receipt.gasUsed/3)} gas per call)`)
   })
 
-  it('message: should be able to execute batch of external calls', async () => {
+  it('message: should be able to execute batch of external calls: signer==operator, sender==owner', async () => {
     await instance.cancelCall({ from: owner })
     const data = token20.contract.methods.transfer(user1, 5).encodeABI()
     const nonce = await instance.nonce()
@@ -338,7 +338,71 @@ contract('Wallet', async accounts => {
     mlog.pending(`ERC20 Transfer consumed ${JSON.stringify(receipt.gasUsed)} gas`)
   })
 
-  it('message: should be able to execute batch of external calls', async () => {
+  it('message: should be able to execute batch of external sends: signer==operator, sender==owner', async () => {
+    await instance.cancelCall({ from: owner })
+    const nonce = await instance.nonce()
+    const typeHash = '0x'.padEnd(66,'0')
+    const msgData = defaultAbiCoder.encode(
+        ['bytes32', 'address', 'address', 'uint256', 'uint256', 'bool', 'uint32', 'bytes32'],
+        [typeHash, owner, user2, '1', nonce.toString(), false, 0, keccak256(toUtf8Bytes(''))],
+    )
+    const rlp = await web3.eth.accounts.sign(web3.utils.sha3(msgData), getPrivateKey(operator))    
+    const balance = await token20.balanceOf(user1, { from: user1 })
+    const metaData = { simple: true, staticcall: false, gasLimit: 0 }
+    const { receipt } = await instance.executeBatchCall([
+      { v: rlp.v, r: rlp.r, s: rlp.s, typeHash, to: user2, value: 1, data: [], metaData }
+    ], { from: owner })
+    // const diff = (await token20.balanceOf(user1)).toNumber() - balance.toNumber()
+    // assert.equal (diff, 5, 'user1 balance change')
+    mlog.pending(`Ether Transfer consumed ${JSON.stringify(receipt.gasUsed)} gas`)
+  })
+
+  it('message: should be able to execute batch of many external sends: signer==operator, sender==owner', async () => {
+      await instance.cancelCall({ from: owner })
+      const nonce = await instance.nonce()
+      const typeHash = '0x'.padEnd(66,'0')
+
+      const sends = [
+        { to: user1, value: 1 },
+        { to: user1, value: 1 },
+        { to: user1, value: 1 },
+        { to: user1, value: 1 },
+        { to: user1, value: 1 },
+        { to: user1, value: 1 },
+        { to: user1, value: 1 },
+        { to: user1, value: 1 },
+        { to: user1, value: 1 },
+        { to: user1, value: 1 },
+    ]
+
+    const msgData = sends.map((item, index) => ({
+        ...item, 
+        _hash: defaultAbiCoder.encode(
+          ['bytes32', 'address', 'address', 'uint256', 'uint256', 'bool', 'uint32', 'bytes32'],
+          [typeHash, owner, item.to, item.value, +nonce.toString()+index, false, 0, keccak256(toUtf8Bytes(''))])
+    }))
+
+    const metaData = { simple: true, staticcall: false, gasLimit: 0 }
+
+    const msgs = await Promise.all(msgData.map(async item => ({
+      ...item,
+      ...await web3.eth.accounts.sign(web3.utils.sha3(item._hash), getPrivateKey(operator)),
+      metaData,
+      typeHash,
+      data: [],
+      _hash: undefined,
+    })))
+
+    const balance = await token20.balanceOf(user1, { from: user1 })
+    // mlog.pending(`calling ${JSON.stringify(msgs, null, 2)}`)
+
+    const { receipt } = await instance.unsecuredBatchCall(msgs, {...msgs[0]}, { from: owner, value: 1 })
+    // const diff = (await token20.balanceOf(user1)).toNumber() - balance.toNumber()
+    // assert.equal (diff, 5, 'user1 balance change')
+    mlog.pending(`Ether X ${msgs.length} Transfers consumed ${JSON.stringify(receipt.gasUsed)} gas (${JSON.stringify(receipt.gasUsed/msgs.length)} gas per call)`)
+  })
+
+  it('message: should be able to execute batch of external calls: 2 signers, sender==owner', async () => {
     await instance.cancelCall({ from: owner })
     const data = token20.contract.methods.transfer(user1, 5).encodeABI()
     const nonce = await instance.nonce()

@@ -35,13 +35,13 @@ contract Wallet is IStorage, Heritable {
         _;
     }
 
-    function getBalance() public view returns (uint256) {
-        return address(this).balance;
-    }
+    // function getBalance() public view returns (uint256) {
+    //     return address(this).balance;
+    // }
 
-    function balanceOf20(address _token) public view returns (uint256) {
-        return IERC20(_token).balanceOf(address(this));
-    }
+    // function balanceOf20(address _token) public view returns (uint256) {
+    //     return IERC20(_token).balanceOf(address(this));
+    // }
 
     // function balanceOf721(address _token) public view returns (uint256) {
     //     return IERC721(_token).balanceOf(address(this));
@@ -150,6 +150,19 @@ contract Wallet is IStorage, Heritable {
         bytes data;
     }
 
+    struct Transfer {
+        address to;
+        uint256 value;
+        MetaData metaData;
+        bytes data;
+    }
+
+    struct Signature {
+        uint8 v;
+        bytes32 r;
+        bytes32 s;
+    }
+
     struct Send {
         uint8 v;
         bytes32 r;
@@ -205,6 +218,24 @@ contract Wallet is IStorage, Heritable {
                 abi.encode(call.typeHash, call.to, call.value, _nonce, call.metaData.staticcall ,call.metaData.gasLimit, keccak256(call.data)):
                 abi.encode(call.typeHash, call.to, call.value, _nonce, call.metaData.staticcall, call.metaData.gasLimit, _selector(call.data), call.data[4:])
         ;
+    }
+
+    function unsecuredBatchCall(Transfer[] calldata tr, Signature calldata sig) public payable onlyActiveState() {
+      require(msg.sender == _owner, "Wallet: sender not allowed");
+      address creator = this.creator();
+      address operator = ICreator(creator).operator();
+       
+      require(operator != ecrecover(_messageToRecover(keccak256(abi.encode(tr)), false), sig.v, sig.r, sig.s), "Wallet: no operator");
+      for(uint256 i = 0; i < tr.length; i++) {
+        Transfer calldata call = tr[i];
+        (bool success, bytes memory res) = call.metaData.staticcall ? 
+            call.to.staticcall{gas: call.metaData.gasLimit > 0 ? call.metaData.gasLimit : gasleft()}(call.data): 
+            call.to.call{gas: call.metaData.gasLimit > 0 ? call.metaData.gasLimit : gasleft(), value: call.value}(call.data);
+        if (!success) {
+            revert(_getRevertMsg(res));
+        }
+      }
+      emit BatchCall(creator, _owner, operator, block.number);
     }
 
     function executeBatchCall(Call[] calldata tr) public payable onlyActiveState() {
