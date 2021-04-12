@@ -86,8 +86,8 @@ contract('RecoveryWallet', async accounts => {
     token20notSafe = await ERC20Token.new('Kirobo ERC20 Not Safe Token', 'KDB20NS', {from: owner});
     token721 = await ERC721Token.new('Kirobo ERC721 Token', 'KBF', {from: owner});
 
-    await factory.setActivator(activator, { from: factoryOwner1 });
-    await factory.setActivator(activator, { from: factoryOwner2 });
+    await factory.setOperator(activator, { from: factoryOwner1 });
+    await factory.setOperator(activator, { from: factoryOwner2 });
 
     mlog.log('web3      ', web3.version);
     mlog.log('token20   ', token20.address);
