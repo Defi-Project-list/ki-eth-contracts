@@ -193,6 +193,7 @@ contract Wallet is IStorage, Heritable {
         bytes32 typeHash;
         address to;
         uint256 value;
+        MetaData metaData;
         bytes data;
     }
 
@@ -206,15 +207,31 @@ contract Wallet is IStorage, Heritable {
       address owner;  
     }
 
-    function _getSigner(Call calldata call, address activator, uint256 _nonce) private view returns (address) {
-        return ecrecover(_messageToRecover(
-            call.metaData.simple ? 
-                keccak256(abi.encode(call.typeHash, activator, call.to, call.value, _nonce, call.metaData.staticcall ,call.metaData.gasLimit, keccak256(call.data))):
-                keccak256(abi.encode(call.typeHash, activator, call.to, call.value, _nonce, call.metaData.staticcall, call.metaData.gasLimit, _selector(call.data), call.data[4:]))
-        , call.typeHash != bytes32(0)), call.v, call.r, call.s); 
+    function generateMessage(Call calldata call, address activator, uint256 _nonce) public pure returns (bytes memory) {
+        return _generateMessage(call, activator, _nonce);
     }
 
-    function executeBatchCall(Call[] calldata tr) public payable {
+    function generateXXMessage(XCall calldata call, uint256 _nonce) public pure returns (bytes memory) {
+        return _generateXXMessage(call, _nonce);
+    }
+
+    function _generateMessage(Call calldata call, address activator, uint256 _nonce) private pure returns (bytes memory) {
+        return
+            call.metaData.simple ?
+                abi.encode(call.typeHash, activator, call.to, call.value, _nonce, call.metaData.staticcall ,call.metaData.gasLimit, keccak256(call.data)):
+                abi.encode(call.typeHash, activator, call.to, call.value, _nonce, call.metaData.staticcall, call.metaData.gasLimit, _selector(call.data), call.data[4:])
+        ;
+    }
+
+    function _generateXXMessage(XCall calldata call, uint256 _nonce) private pure returns (bytes memory) {
+        return
+            call.metaData.simple ?
+                abi.encode(call.typeHash, call.to, call.value, _nonce, call.metaData.staticcall ,call.metaData.gasLimit, keccak256(call.data)):
+                abi.encode(call.typeHash, call.to, call.value, _nonce, call.metaData.staticcall, call.metaData.gasLimit, _selector(call.data), call.data[4:])
+        ;
+    }
+
+    function executeBatchCall(Call[] calldata tr) public payable onlyActiveState() {
       Entities memory entities;
       entities.creator = this.creator();
       entities.operator = ICreator(entities.creator).operator();
@@ -223,7 +240,15 @@ contract Wallet is IStorage, Heritable {
       for(uint256 i = 0; i < tr.length; i++) {
         Call calldata call = tr[i];
         unchecked {  
-          address signer = _getSigner(tr[i], msg.sender, s_nonce + i);
+          address signer = ecrecover(
+            _messageToRecover(
+              keccak256(_generateMessage(call, msg.sender, i > 0 ? s_nonce + i: s_nonce)),
+              call.typeHash != bytes32(0)
+            ),
+            call.v,
+            call.r,
+            call.s
+          );
           require(signer != msg.sender, "Wallet: sender cannot be signer");
           require(signer == entities.owner || signer == entities.operator, "Wallet: signer not allowed");
           require(msg.sender == entities.operator || msg.sender == entities.owner, "Wallet: sender not allowed");
@@ -240,120 +265,47 @@ contract Wallet is IStorage, Heritable {
       emit BatchCall(entities.creator, entities.owner, entities.operator, block.number);
     }
 
-    // function executeCall(
-    //     uint8 v,
-    //     bytes32 r,
-    //     bytes32 s,
-    //     bytes32 typeHash,
-    //     address to,
-    //     uint256 value,
-    //     bytes calldata data
-    // ) public onlyActiveState() returns (bytes memory) {
-    //     address creator = this.creator();
-    //     address activator = ICreator(creator).activator();        
-    //     bytes4 selector = data[0] | (bytes4(data[1]) >> 8) | (bytes4(data[2]) >> 16) | (bytes4(data[3]) >> 24);
-    //     bytes32 messageData = keccak256(abi.encode(typeHash, activator, to, value, s_nonce, selector, data[4:]));
-    //     address signer = ecrecover(_messageToRecover(messageData, typeHash != bytes32(0)), v, r, s);
-    //     require(activator == msg.sender, "Wallet: not an activator");
-    //     require(signer == this.owner(), "Wallet: validation failed");
-    //     require(to != activator && to != signer && to != address(this) && to != creator, "Wallet: reentrancy not allowed");
-    //     s_nonce = s_nonce + 1;
-    //     (bool success, bytes memory res) = to.call{value: value}(data);
-    //     if (!success) {
-    //         revert(_getRevertMsg(res));
-    //     }
-    //     return res;
-    // }
-
-    // function executeXCall(
-    //     uint8 v,
-    //     bytes32 r,
-    //     bytes32 s,
-    //     bytes32 typeHash,
-    //     address to,
-    //     uint256 value,
-    //     bytes calldata data
-    // ) public onlyActiveState() returns (bytes memory) {
-    //     address creator = this.creator();
-    //     address owner = this.owner();
-    //     bytes32 messageData = keccak256(abi.encode(typeHash, owner, to, value, s_nonce, data));
-    //     address signer = ecrecover(_messageToRecover(messageData, typeHash != bytes32(0)), v, r, s);
-    //     require(owner == msg.sender, "Wallet: not an owner");
-    //     require(signer == ICreator(creator).activator(), "Wallet: validation failed");
-    //     require(to != owner && to != signer && to != address(this) && to != creator, "Wallet: reentrancy not allowed");
-    //     s_nonce = s_nonce + 1;
-    //     (bool success, bytes memory res) = to.call{value: value}(data);
-    //     if (!success) {
-    //         revert(_getRevertMsg(res));
-    //     }
-    //     return res;
-    // }
-
-    // function executeXBatchCall(Call[] calldata tr) public {
-    //   address creator = this.creator();
-    //   address activator = ICreator(creator).operator();
-    //   address owner = this.owner();       
-    //   for(uint i = 0; i < tr.length; i++) {
-    //     Call memory call = tr[i];
-    //     bytes4 selector = call.data[0] | (bytes4(call.data[1]) >> 8) | (bytes4(call.data[2]) >> 16) | (bytes4(call.data[3]) >> 24);
-    //     bytes32 messageData = keccak256(abi.encode(call.typeHash, owner, call.to, call.value, s_nonce + i, selector, tr[i].data[4:]));
-    //     address signer = ecrecover(_messageToRecover(messageData, call.typeHash != bytes32(0)), call.v, call.r, call.s);
-    //     require(owner == msg.sender, "Wallet: not an owner");
-    //     require(signer == activator, "Wallet: validation failed");
-    //     require(call.to != owner && call.to != signer && call.to != address(this) && call.to != creator, "Wallet: reentrancy not allowed");
-    //     (bool success, bytes memory res) = call.to.call{value: call.value}(call.data);
-    //     if (!success) {
-    //         revert(_getRevertMsg(res));
-    //     }
-    //   }
-    //   s_nonce = s_nonce + uint32(tr.length);
-    // }
-
-    // function executeXXCall(
-    //     uint8 v1,
-    //     bytes32 r1,
-    //     bytes32 s1,
-    //     uint8 v2,
-    //     bytes32 r2,
-    //     bytes32 s2,
-    //     bytes32 typeHash,
-    //     address to,
-    //     uint256 value,
-    //     bytes calldata data
-    // ) public onlyActiveState() returns (bytes memory) {
-    //     bytes32 messageData = keccak256(abi.encode(typeHash, to, value, s_nonce, data));
-    //     address signer1 = ecrecover(_messageToRecover(messageData, typeHash != bytes32(0)), v1, r1, s1);
-    //     address signer2 = ecrecover(_messageToRecover(messageData, typeHash != bytes32(0)), v2, r2, s2);
-    //     require(signer1 == this.owner(), "Wallet: signer1 not an owner");
-    //     require(signer2 == ICreator(this.creator()).activator(), "Wallet: signer2 not an activator");
-    //     // require(to != owner && to != signer && to != address(this) && to != creator, "Wallet: reentrancy not allowed");
-    //     s_nonce = s_nonce + 1;
-    //     (bool success, bytes memory res) = to.call{value: value}(data);
-    //     if (!success) {
-    //         revert(_getRevertMsg(res));
-    //     }
-    //     return res;
-    // }
-
-    function executeXXBatchCall(XCall[] calldata tr) public {
-      address creator = this.creator();
-      address activator = ICreator(creator).operator();
-      address owner = this.owner();       
+    function executeXXBatchCall(XCall[] calldata tr) public payable onlyActiveOwner() {
+      Entities memory entities;
+      entities.creator = this.creator();
+      entities.operator = ICreator(entities.creator).operator();
+      entities.owner = this.owner();   
+      
       for(uint i = 0; i < tr.length; i++) {
-        XCall memory call = tr[i];
-        bytes4 selector = call.data[0] | (bytes4(call.data[1]) >> 8) | (bytes4(call.data[2]) >> 16) | (bytes4(call.data[3]) >> 24);
-        bytes32 messageData = keccak256(abi.encode(call.typeHash, call.to, call.value, s_nonce + i, selector, tr[i].data[4:]));
-        address signer1 = ecrecover(_messageToRecover(messageData, call.typeHash != bytes32(0)), call.v1, call.r1, call.s1);
-        address signer2 = ecrecover(_messageToRecover(messageData, call.typeHash != bytes32(0)), call.v2, call.r2, call.s2);
-        require(signer1 == owner, "Wallet: not an owner");
-        require(signer2 == activator, "Wallet: validation failed");
-        // require(call.to != owner && call.to != signer && call.to != address(this) && call.to != creator, "Wallet: reentrancy not allowed");
-        (bool success, bytes memory res) = call.to.call{value: call.value}(call.data);
+        XCall calldata call = tr[i];
+
+        unchecked {  
+          address signer1 = ecrecover(
+            _messageToRecover(
+              keccak256(_generateXXMessage(call, i > 0 ? s_nonce + i: s_nonce)),
+              call.typeHash != bytes32(0)
+            ),
+            call.v1,
+            call.r1,
+            call.s1
+          );
+          address signer2 = ecrecover(
+            _messageToRecover(
+              keccak256(_generateXXMessage(call, i > 0 ? s_nonce + i: s_nonce)),
+              call.typeHash != bytes32(0)
+            ),
+            call.v2,
+            call.r2,
+            call.s2
+          );
+          require(signer1 == entities.owner, "Wallet: signer1 is not owner");
+          require(signer2 == entities.operator, "Wallet: signer2 is not operator");          
+          require(call.to != signer1 && call.to != signer2 && call.to != address(this) && call.to != entities.creator, "Wallet: reentrancy not allowed");
+        }
+        (bool success, bytes memory res) = call.metaData.staticcall ? 
+            call.to.staticcall{gas: call.metaData.gasLimit > 0 ? call.metaData.gasLimit : gasleft()}(call.data): 
+            call.to.call{gas: call.metaData.gasLimit > 0 ? call.metaData.gasLimit : gasleft(), value: call.value}(call.data);
         if (!success) {
             revert(_getRevertMsg(res));
         }
       }
       s_nonce = s_nonce + uint32(tr.length);
+      emit BatchCall(entities.creator, entities.owner, entities.operator, block.number);
     }
 
     function _getRevertMsg(bytes memory returnData)
