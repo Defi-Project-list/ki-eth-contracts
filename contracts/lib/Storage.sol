@@ -53,7 +53,9 @@ abstract contract Storage is IStorage {
     uint32 internal s_nonce;
     bytes32 public DOMAIN_SEPARATOR;
     uint256 public CHAIN_ID;
-
+    // address internal s_operator;
+    // address internal s_activator;
+    
     // ------------- Trust ---------
     // Trust internal trust;
 }

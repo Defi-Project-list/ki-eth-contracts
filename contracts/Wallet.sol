@@ -121,6 +121,7 @@ contract Wallet is IStorage, Heritable {
                 s_uid
             )
         );
+        // (s_operator, s_activator) = ICreator(msg.sender).managers();
     }
 
     function version() public pure override returns (bytes8) {
@@ -240,8 +241,8 @@ contract Wallet is IStorage, Heritable {
 
     function executeBatchCall(Call[] calldata tr) public payable onlyActiveState() {
       address creator = this.creator();
-      address operator = ICreator(creator).operator();
-      require(msg.sender == operator || msg.sender == _owner, "Wallet: sender not allowed");
+      (address s_operator, address s_activator) = ICreator(creator).managers();
+      require(msg.sender == s_activator || msg.sender == _owner, "Wallet: sender not allowed");
           
       for(uint256 i = 0; i < tr.length; i++) {
         Call calldata call = tr[i];
@@ -256,7 +257,7 @@ contract Wallet is IStorage, Heritable {
             call.s
           );
           require(signer != msg.sender, "Wallet: sender cannot be signer");
-          require(signer == _owner || signer == operator, "Wallet: signer not allowed");
+          require(signer == _owner || signer == s_operator, "Wallet: signer not allowed");
           require(call.to != msg.sender && call.to != signer && call.to != address(this) && call.to != creator, "Wallet: reentrancy not allowed");
         }
         (bool success, bytes memory res) = call.metaData.staticcall ? 
@@ -269,7 +270,7 @@ contract Wallet is IStorage, Heritable {
       unchecked {  
         s_nonce = s_nonce + uint32(tr.length);
       }
-      emit BatchCall(creator, _owner, operator, block.number);
+      emit BatchCall(creator, _owner, s_operator, block.number);
     }
 
     function executeXXBatchCall(XCall[] calldata tr) public payable onlyActiveState() {

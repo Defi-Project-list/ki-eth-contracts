@@ -17,6 +17,8 @@ interface ICreator {
     function oracle() external view returns (address);
 
     function operator() external view returns (address);
+    function activator() external view returns (address);
+    function managers() external view returns (address, address);
 }
 
 interface IProxy {

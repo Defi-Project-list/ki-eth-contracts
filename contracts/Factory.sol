@@ -230,8 +230,20 @@ contract Factory is FactoryStorage {
       return _operator;
     }
 
-    function setOperator(address operator) public  multiSig2of3(0) {
-      _operator = operator;
+    function activator() public view returns (address) {
+      return _activator;
+    }
+
+    function managers() public view returns (address, address) {
+      return (_operator, _activator);
+    }
+
+    function setOperator(address oper) public  multiSig2of3(0) {
+      _operator = oper;
+    }
+
+    function setActivator(address act) public  multiSig2of3(0) {
+      _activator = act;
     }
 
     /*
