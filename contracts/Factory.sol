@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 
 pragma solidity ^0.8.0;
-pragma abicoder v1;
+pragma abicoder v2;
 
 import "./FactoryStorage.sol";
 import "./lib/IOracle.sol";
@@ -225,6 +225,97 @@ contract Factory is FactoryStorage {
         }
         _oracle = versions_oracle[_version];
     }
+
+    // keccak256("acceptTokens(address recipient,uint256 value,bytes32 secretHash)");
+    bytes32 public constant TRANSFER_TYPEHASH = 0xf728cfc064674dacd2ced2a03acd588dfd299d5e4716726c6d5ec364d16406eb;
+    // keccak256("acceptTokens(address recipient,uint256 value,bytes32 secretHash)");
+    bytes32 public constant DOMAIN_SEPARATOR = 0xf728cfc064674dacd2ced2a03acd588dfd299d5e4716726c6d5ec364d16406eb;
+
+    // bytes4(keccak256("sendEther(address payable,uint256)"));
+    bytes4 public constant TRANSFER_SELECTOR = 0xc61f08fd;
+
+    struct Transfer {
+        uint8 v;
+        bytes32 r;
+        bytes32 s;
+        address to;
+        uint256 value;
+        uint256 nonce;
+        uint256 gasPrice;
+    }
+
+    function batchTransfer(Transfer[] calldata tr) public {
+      require(msg.sender == _activator, "Wallet: sender not allowed");
+      uint256 gas = 50000;
+      uint256 minNonce = type(uint256).max;
+      uint256 maxNonce = 0;
+      uint256 minGasPrice = type(uint256).max;
+      for(uint256 i = 0; i < tr.length; i++) {
+        Transfer calldata call = tr[i];
+        address signer = ecrecover(
+          _messageToRecover(keccak256(abi.encode(TRANSFER_TYPEHASH, call.to, call.value, call.nonce, call.gasPrice)), false),
+          call.v,
+          call.r,
+          call.s
+        );
+        if (maxNonce < call.nonce) {
+          maxNonce = call.nonce;
+        }
+        if (minNonce > call.nonce) {
+          minNonce = call.nonce;
+        }
+        if (minGasPrice < call.gasPrice) {
+          minGasPrice = call.gasPrice;
+        }
+        address wallet = accounts_wallet[signer].addr;
+        require(wallet != address(0), "Factory: signer is not owner");
+        (bool success, bytes memory res) = wallet.call{gas: gas}(abi.encodeWithSignature("sendEther(address payable,uint256)", call.to, call.value));
+        if (!success) {
+            revert(_getRevertMsg(res));
+        }
+        // IWallet(wallet).sendEther(payable(call.to), call.value);
+      }
+    }
+
+    function _getRevertMsg(bytes memory returnData)
+        internal
+        pure
+        returns (string memory)
+    {
+        if (returnData.length < 68)
+            return "Wallet: Transaction reverted silently";
+
+        assembly {
+            returnData := add(returnData, 0x04)
+        }
+        return abi.decode(returnData, (string));
+    }
+
+
+    function _messageToRecover(bytes32 hashedUnsignedMessage, bool eip712)
+        private
+        view
+        returns (bytes32)
+    {
+        if (eip712) {
+            return
+                keccak256(
+                    abi.encodePacked(
+                        "\x19\x01",
+                        DOMAIN_SEPARATOR,
+                        hashedUnsignedMessage
+                    )
+                );
+        }
+        return
+            keccak256(
+                abi.encodePacked(
+                    "\x19Ethereum Signed Message:\n32",
+                    hashedUnsignedMessage
+                )
+            );
+    }
+
 
     function operator() public view returns (address) {
       return _operator;

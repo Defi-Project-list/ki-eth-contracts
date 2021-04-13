@@ -364,26 +364,96 @@ contract('Wallet', async accounts => {
   it('message: should be able to execute batch of many external sends: signer==operator, sender==owner', async () => {
       await instance.cancelCall({ from: owner })
       const nonce = await instance.nonce()
-      const typeHash = '0x'.padEnd(66,'0')
+      const typeHash = '0xf728cfc064674dacd2ced2a03acd588dfd299d5e4716726c6d5ec364d16406eb'; // 0x'.padEnd(66,'0')
 
       const sends = [
         { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 1 },
         { to: user1, value: 1 },
+        { to: user2, value: 8 },
+        { to: user3, value: 1 },
         { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 6 },
         { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 1 },
         { to: user1, value: 1 },
+        { to: user2, value: 4 },
+        { to: user3, value: 1 },
         { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 1 },
+        { to: user1, value: 2 },
+        { to: user2, value: 1 },
+/*        { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 1 },
         { to: user1, value: 1 },
+        { to: user2, value: 8 },
+        { to: user3, value: 1 },
         { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 6 },
         { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 1 },
         { to: user1, value: 1 },
+        { to: user2, value: 4 },
+        { to: user3, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 1 },
+        { to: user1, value: 2 },
+        { to: user2, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 8 },
+        { to: user3, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 6 },
+        { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 4 },
+        { to: user3, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 1 },
+        { to: user1, value: 2 },
+        { to: user2, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 8 },
+        { to: user3, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 6 },
+        { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 4 },
+        { to: user3, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 1 },
+        { to: user1, value: 2 },
+        { to: user2, value: 1 },*/
     ]
 
     const msgData = sends.map((item, index) => ({
         ...item, 
         _hash: defaultAbiCoder.encode(
-          ['bytes32', 'address', 'address', 'uint256', 'uint256', 'bool', 'uint32', 'bytes32'],
-          [typeHash, activator, item.to, item.value, +nonce.toString()+index, false, 0, keccak256(toUtf8Bytes(''))])
+          ['bytes32',/* 'address', */'address', 'uint256', 'uint256', 'uint256'/*, 'bool', 'uint32', 'bytes32'*/],
+          [typeHash,/* activator, */ item.to, item.value, 1, 20000 /*, +nonce.toString()+index,*/ /*false, 0, keccak256(toUtf8Bytes('')) */])
     }))
 
     const metaData = { simple: true, staticcall: false, gasLimit: 0 }
@@ -394,6 +464,8 @@ contract('Wallet', async accounts => {
       metaData,
       typeHash,
       data: [],
+      nonce: 1,
+      gasPrice: 20000,
       _hash: undefined,
     })))
 
@@ -401,7 +473,7 @@ contract('Wallet', async accounts => {
     // mlog.pending(`calling ${JSON.stringify(msgs, null, 2)}`)
 
     // const { receipt } = await instance.unsecuredBatchCall(msgs, {...msgs[0]}, { from: owner, value: 1 })
-    const { receipt } = await instance.executeBatchCall(msgs, { from: activator })
+    const { receipt } = await factory.batchTransfer(msgs, { from: activator })
     // const diff = (await token20.balanceOf(user1)).toNumber() - balance.toNumber()
     // assert.equal (diff, 5, 'user1 balance change')
     mlog.pending(`Ether X ${msgs.length} Transfers consumed ${JSON.stringify(receipt.gasUsed)} gas (${JSON.stringify(receipt.gasUsed/msgs.length)} gas per call)`)

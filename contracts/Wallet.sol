@@ -152,10 +152,11 @@ contract Wallet is IStorage, Heritable {
     }
 
     struct Transfer {
+        uint8 v;
+        bytes32 r;
+        bytes32 s;
         address to;
         uint256 value;
-        MetaData metaData;
-        bytes data;
     }
 
     struct Signature {
@@ -221,35 +222,73 @@ contract Wallet is IStorage, Heritable {
         ;
     }
 
-    function unsecuredBatchCall(Transfer[] calldata tr, Signature calldata sig) public payable onlyActiveState() {
-      require(msg.sender == _owner, "Wallet: sender not allowed");
-      address creator = this.creator();
-      address operator = ICreator(creator).operator();
+    // function unsecuredBatchCall(Transfer[] calldata tr, Signature calldata sig) public payable onlyActiveState() {
+    //   require(msg.sender == _owner, "Wallet: sender not allowed");
+    //   address creator = this.creator();
+    //   address operator = ICreator(creator).operator();
        
-      require(operator != ecrecover(_messageToRecover(keccak256(abi.encode(tr)), false), sig.v, sig.r, sig.s), "Wallet: no operator");
+    //   require(operator != ecrecover(_messageToRecover(keccak256(abi.encode(tr)), false), sig.v, sig.r, sig.s), "Wallet: no operator");
+    //   for(uint256 i = 0; i < tr.length; i++) {
+    //     Transfer calldata call = tr[i];
+    //     (bool success, bytes memory res) = call.metaData.staticcall ? 
+    //         call.to.staticcall{gas: call.metaData.gasLimit > 0 ? call.metaData.gasLimit : gasleft()}(call.data): 
+    //         call.to.call{gas: call.metaData.gasLimit > 0 ? call.metaData.gasLimit : gasleft(), value: call.value}(call.data);
+    //     if (!success) {
+    //         revert(_getRevertMsg(res));
+    //     }
+    //   }
+    //   emit BatchCall(creator, _owner, operator, block.number);
+    // }
+
+    // keccak256("acceptTokens(address recipient,uint256 value,bytes32 secretHash)");
+    bytes32 public constant ACCEPT_TYPEHASH = 0xf728cfc064674dacd2ced2a03acd588dfd299d5e4716726c6d5ec364d16406eb;
+
+
+
+    function unsecuredBatchCall(Transfer[] calldata tr) public payable onlyActiveState() {
+      require(msg.sender != this.creator(), "Wallet: sender not allowed");
+      uint32 nonce = s_nonce;
+      address owner = _owner;
       for(uint256 i = 0; i < tr.length; i++) {
         Transfer calldata call = tr[i];
-        (bool success, bytes memory res) = call.metaData.staticcall ? 
-            call.to.staticcall{gas: call.metaData.gasLimit > 0 ? call.metaData.gasLimit : gasleft()}(call.data): 
-            call.to.call{gas: call.metaData.gasLimit > 0 ? call.metaData.gasLimit : gasleft(), value: call.value}(call.data);
-        if (!success) {
-            revert(_getRevertMsg(res));
+        unchecked {  
+          address signer = ecrecover(
+            _messageToRecover(
+              // keccak256(_generateMessage(call, msg.sender, i > 0 ? nonce + i: nonce)),
+              // call.typeHash != bytes32(0)
+              keccak256(abi.encode(ACCEPT_TYPEHASH, call.to, call.value, nonce + i)),
+              false)
+            ,
+            call.v,
+            call.r,
+            call.s
+          );
+          require(signer != owner, "Wallet: signer is not owner");
+          // require(call.to != msg.sender && call.to != signer && call.to != address(this) && call.to != this.creator(), "Wallet: reentrancy not allowed");
         }
+        payable(call.to).transfer(call.value);
+        // (bool success, bytes memory res) = call.metaData.staticcall ? 
+        //     call.to.staticcall{gas: call.metaData.gasLimit > 0 ? call.metaData.gasLimit : gasleft()}(call.data): 
+        //     call.to.call{gas: call.metaData.gasLimit > 0 ? call.metaData.gasLimit : gasleft(), value: call.value}(call.data);
+        // if (!success) {
+        //     revert(_getRevertMsg(res));
+        // }
       }
-      emit BatchCall(creator, _owner, operator, block.number);
     }
 
     function executeBatchCall(Call[] calldata tr) public payable onlyActiveState() {
       address creator = this.creator();
-      (address s_operator, address s_activator) = ICreator(creator).managers();
-      require(msg.sender == s_activator || msg.sender == _owner, "Wallet: sender not allowed");
+      (address operator, address activator) = ICreator(creator).managers();
+      uint32 nonce = s_nonce;
+      address owner = _owner;
+      require(msg.sender == activator || msg.sender == owner, "Wallet: sender not allowed");
           
       for(uint256 i = 0; i < tr.length; i++) {
         Call calldata call = tr[i];
         unchecked {  
           address signer = ecrecover(
             _messageToRecover(
-              keccak256(_generateMessage(call, msg.sender, i > 0 ? s_nonce + i: s_nonce)),
+              keccak256(_generateMessage(call, msg.sender, nonce + i)),
               call.typeHash != bytes32(0)
             ),
             call.v,
@@ -257,7 +296,7 @@ contract Wallet is IStorage, Heritable {
             call.s
           );
           require(signer != msg.sender, "Wallet: sender cannot be signer");
-          require(signer == _owner || signer == s_operator, "Wallet: signer not allowed");
+          require(signer == owner || signer == operator, "Wallet: signer not allowed");
           require(call.to != msg.sender && call.to != signer && call.to != address(this) && call.to != creator, "Wallet: reentrancy not allowed");
         }
         (bool success, bytes memory res) = call.metaData.staticcall ? 
@@ -268,9 +307,9 @@ contract Wallet is IStorage, Heritable {
         }
       }
       unchecked {  
-        s_nonce = s_nonce + uint32(tr.length);
+        s_nonce = nonce + uint32(tr.length);
       }
-      emit BatchCall(creator, _owner, s_operator, block.number);
+      emit BatchCall(creator, owner, operator, block.number);
     }
 
     function executeXXBatchCall(XCall[] calldata tr) public payable onlyActiveState() {
@@ -335,6 +374,13 @@ contract Wallet is IStorage, Heritable {
 
     function nonce() public view returns (uint32) {
         return s_nonce;
+    }
+
+    function sendEther(address payable _to, uint256 _value)
+        public
+        onlyCreator()
+    {
+        _to.transfer(_value);
     }
 
     function _messageToRecover(bytes32 hashedUnsignedMessage, bool eip712)

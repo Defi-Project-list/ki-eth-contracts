@@ -39,6 +39,10 @@ interface IStorageBase {
     function owner() external view returns (address);
 }
 
+interface IWallet {
+    function sendEther(address payable _to, uint256 _value) external;
+}
+
 contract StorageBase is IProxy {
     address internal _owner;
     address internal _target;
