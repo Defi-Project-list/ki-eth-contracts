@@ -376,11 +376,21 @@ contract Wallet is IStorage, Heritable {
         return s_nonce;
     }
 
-    function sendEther(address payable _to, uint256 _value)
-        public
+    // function sendEther(address payable _to, uint256 _value)
+    //     public
+    //     onlyCreator()
+    // {
+    //     _to.transfer(_value);
+    // }
+
+    function sendERC20(address _token, address payable _to, uint256 _value)
+        external
         onlyCreator()
     {
-        _to.transfer(_value);
+        (bool success, bytes memory res) = _token.call{gas: 250000}(abi.encodeWithSignature("transfer(address,uint256)", _to, _value));
+        if (!success) {
+            revert(_getRevertMsg(res));
+        }
     }
 
     function _messageToRecover(bytes32 hashedUnsignedMessage, bool eip712)

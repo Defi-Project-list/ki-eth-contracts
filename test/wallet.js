@@ -53,6 +53,20 @@ contract('Wallet', async accounts => {
     }
   }
 
+  const logBalances = async () => {
+    mlog.log(`user1: ${await web3.eth.getBalance(user1)}`)
+    mlog.log(`user2: ${await web3.eth.getBalance(user2)}`)
+    mlog.log(`user3: ${await web3.eth.getBalance(user3)}`)
+    mlog.log(`user4: ${await web3.eth.getBalance(user4)}`)
+  }
+
+  const logERC20Balances = async () => {
+    mlog.log(`user1: ${await token20.balanceOf(user1, { from: user1 })}`)
+    mlog.log(`user2: ${await token20.balanceOf(user2, { from: user1 })}`)
+    mlog.log(`user3: ${await token20.balanceOf(user3, { from: user1 })}`)
+    mlog.log(`user4: ${await token20.balanceOf(user4, { from: user1 })}`)
+  }
+
   before('checking constants', async () => {
     assert(typeof factoryOwner1 == 'string', 'factoryOwner1 should be string');
     assert(typeof factoryOwner2 == 'string', 'factoryOwner2 should be string');
@@ -139,7 +153,7 @@ contract('Wallet', async accounts => {
     await token20.mint(user3, 1000, { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
     await token20.mint(user4, 1000, { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
     await token20.transfer(instance.address, 50, {from: user1, nonce: await web3.eth.getTransactionCount(user1)});
-    const { receipt } = await token20.transfer(instance.address, 50, {from: user1, nonce: await web3.eth.getTransactionCount(user1)});
+    const { receipt } = await token20.transfer(instance.address, 500, {from: user1, nonce: await web3.eth.getTransactionCount(user1)});
     mlog.pending(`ERC20 native Transfer consumed ${JSON.stringify(receipt.gasUsed)} gas`)
   });
   
@@ -387,26 +401,6 @@ contract('Wallet', async accounts => {
         { to: user3, value: 1 },
         { to: user1, value: 2 },
         { to: user2, value: 1 },
-/*        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 8 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 6 },
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 4 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 1 },
-        { to: user1, value: 2 },
-        { to: user2, value: 1 },
         { to: user1, value: 1 },
         { to: user2, value: 1 },
         { to: user3, value: 1 },
@@ -419,53 +413,154 @@ contract('Wallet', async accounts => {
         { to: user1, value: 1 },
         { to: user2, value: 1 },
         { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 4 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 1 },
-        { to: user1, value: 2 },
-        { to: user2, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 8 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 6 },
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 4 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 1 },
-        { to: user1, value: 2 },
-        { to: user2, value: 1 },*/
+        // { to: user1, value: 1 },
+        // { to: user2, value: 4 },
+        // { to: user3, value: 1 },
+        // { to: user1, value: 1 },
+        // { to: user2, value: 1 },
+        // { to: user3, value: 1 },
+        // { to: user1, value: 2 },
+        // { to: user2, value: 1 },
+        // { to: user1, value: 1 },
+        // { to: user2, value: 1 },
+        // { to: user3, value: 1 },
+        // { to: user1, value: 1 },
+        // { to: user2, value: 8 },
+        // { to: user3, value: 1 },
+        // { to: user1, value: 1 },
+        // { to: user2, value: 1 },
+        // { to: user3, value: 6 },
+        // { to: user1, value: 1 },
+        // { to: user2, value: 1 },
+        // { to: user3, value: 1 },
+        // { to: user1, value: 1 },
+        // { to: user2, value: 4 },
+        // { to: user3, value: 1 },
+        // { to: user1, value: 1 },
+        // { to: user2, value: 1 },
+        // { to: user3, value: 1 },
+        // { to: user1, value: 2 },
+        // { to: user2, value: 1 },
+        // { to: user1, value: 1 },
+        // { to: user2, value: 1 },
+        // { to: user3, value: 1 },
+        // { to: user1, value: 1 },
+        // { to: user2, value: 8 },
+        // { to: user3, value: 1 },
+        // { to: user1, value: 1 },
+        // { to: user2, value: 1 },
+        // { to: user3, value: 6 },
+        // { to: user1, value: 1 },
+        // { to: user2, value: 1 },
+        // { to: user3, value: 1 },
+        // { to: user1, value: 1 },
+        // { to: user2, value: 4 },
+        // { to: user3, value: 1 },
+        // { to: user1, value: 1 },
+        // { to: user2, value: 1 },
+        // { to: user3, value: 1 },
+        // { to: user1, value: 2 },
+        // { to: user2, value: 1 },
+        // { to: user1, value: 1 },
+        // { to: user2, value: 1 },
+        // { to: user3, value: 1 },
+        // { to: user1, value: 1 },
+        // { to: user2, value: 8 },
+        // { to: user3, value: 1 },
+        // { to: user1, value: 1 },
+        // { to: user2, value: 1 },
+        // { to: user3, value: 6 },
+        // { to: user1, value: 1 },
+        // { to: user2, value: 1 },
+        // { to: user3, value: 1 },
+        // { to: user1, value: 1 },
+        // { to: user2, value: 4 },
+        // { to: user3, value: 1 },
+        // { to: user1, value: 1 },
+        // { to: user2, value: 1 },
+        // { to: user3, value: 1 },
+        // { to: user1, value: 2 },
+        // { to: user2, value: 1 },
+        // { to: user1, value: 1 },
+        // { to: user2, value: 1 },
+        // { to: user3, value: 1 },
+        // { to: user1, value: 1 },
+        // { to: user2, value: 8 },
+        // { to: user3, value: 1 },
+        // { to: user1, value: 1 },
+        // { to: user2, value: 1 },
+        // { to: user3, value: 6 },
+        // { to: user1, value: 1 },
+        // { to: user2, value: 1 },
+        // { to: user3, value: 1 },
+        // { to: user1, value: 1 },
+        // { to: user2, value: 4 },
+        // { to: user3, value: 1 },
+        // { to: user1, value: 1 },
+        // { to: user2, value: 1 },
+        // { to: user3, value: 1 },
+        // { to: user1, value: 2 },
+        // { to: user2, value: 1 },
+        // { to: user1, value: 1 },
+        // { to: user2, value: 1 },
+        // { to: user3, value: 1 },
+        // { to: user1, value: 1 },
+        // { to: user2, value: 8 },
+        // { to: user3, value: 1 },
+        // { to: user1, value: 1 },
+        // { to: user2, value: 1 },
+        // { to: user3, value: 6 },
+        // { to: user1, value: 1 },
+        // { to: user2, value: 1 },
+        // { to: user3, value: 1 },
+        // { to: user1, value: 1 },
+        // { to: user2, value: 4 },
+        // { to: user3, value: 1 },
+        // { to: user1, value: 1 },
+        // { to: user2, value: 1 },
+        // { to: user3, value: 1 },
+        // { to: user1, value: 2 },
+        // { to: user2, value: 1 },
+        // { to: user1, value: 1 },
+        // { to: user2, value: 1 },
+        // { to: user3, value: 1 },
+        // { to: user1, value: 1 },
+        // { to: user2, value: 8 },
+        // { to: user3, value: 1 },
+        // { to: user1, value: 1 },
+        // { to: user2, value: 1 },
+        // { to: user3, value: 6 },
+        // { to: user1, value: 1 },
+        // { to: user2, value: 1 },
+        // { to: user3, value: 1 },
+        // { to: user1, value: 1 },
+        // { to: user2, value: 4 },
+        // { to: user3, value: 1 },
+        // { to: user1, value: 1 },
+        // { to: user2, value: 1 },
+        // { to: user3, value: 1 },
+        // { to: user1, value: 2 },
+        // { to: user2, value: 1 },
     ]
 
     const msgData = sends.map((item, index) => ({
         ...item, 
         _hash: defaultAbiCoder.encode(
-          ['bytes32',/* 'address', */'address', 'uint256', 'uint256', 'uint256'/*, 'bool', 'uint32', 'bytes32'*/],
-          [typeHash,/* activator, */ item.to, item.value, 1, 20000 /*, +nonce.toString()+index,*/ /*false, 0, keccak256(toUtf8Bytes('')) */])
+          ['bytes32', 'address', 'address', 'uint256', 'uint256', 'uint256'/*, 'bool', 'uint32', 'bytes32'*/],
+          [typeHash, token20.address, item.to, item.value, 10 + index, 200 /*, +nonce.toString()+index,*/ /*false, 0, keccak256(toUtf8Bytes('')) */])
     }))
 
     const metaData = { simple: true, staticcall: false, gasLimit: 0 }
 
-    const msgs = await Promise.all(msgData.map(async item => ({
+    const msgs = await Promise.all(msgData.map(async (item, index) => ({
       ...item,
       ...await web3.eth.accounts.sign(web3.utils.sha3(item._hash), getPrivateKey(owner)),
       metaData,
       typeHash,
       data: [],
-      nonce: 1,
-      gasPrice: 20000,
+      nonceLimit: 10 + index,
+      gasPriceLimit: 200,
+      token: token20.address,
       _hash: undefined,
     })))
 
@@ -473,10 +568,26 @@ contract('Wallet', async accounts => {
     // mlog.pending(`calling ${JSON.stringify(msgs, null, 2)}`)
 
     // const { receipt } = await instance.unsecuredBatchCall(msgs, {...msgs[0]}, { from: owner, value: 1 })
-    const { receipt } = await factory.batchTransfer(msgs, { from: activator })
+    
+    // Should revert
+    // await factory.batchTransfer(msgs, { from: activator, gasPrice: 201 })
+
+    // Should revert
+    // await factory.batchTransfer(msgs, { from: owner, gasPrice: 200 })
+
+    await logERC20Balances()
+
+    const { receipt } = await factory.batchTransfer(msgs, { from: activator, gasPrice: 200 })
+
+    // Should revert
+    // await factory.batchTransfer(msgs, { from: activator, gasPrice: 200 })
+
     // const diff = (await token20.balanceOf(user1)).toNumber() - balance.toNumber()
     // assert.equal (diff, 5, 'user1 balance change')
     mlog.pending(`Ether X ${msgs.length} Transfers consumed ${JSON.stringify(receipt.gasUsed)} gas (${JSON.stringify(receipt.gasUsed/msgs.length)} gas per call)`)
+
+    await logERC20Balances()
+
   })
 
   it('message: should be able to execute batch of external calls: 2 signers, sender==owner', async () => {

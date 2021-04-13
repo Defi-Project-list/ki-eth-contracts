@@ -25,4 +25,19 @@ contract ERC20Token is ERC20, ERC20Capped, ERC20Burnable {
     function mint(address account, uint256 amount) public {
         _mint(account, amount);
     }
+
+    function transfer(address account, uint256 amount) public override returns (bool) {
+        // _mint(account, amount);
+        // _burn(account, amount);
+        // _mint(account, amount);
+        // _burn(account, amount);
+        // _mint(account, amount);
+        // _burn(account, amount);
+        // _mint(account, amount);
+        // _burn(account, amount);
+        // _mint(account, amount);
+        // _burn(account, amount);
+        super.transfer(account, amount);
+    }
+
 }

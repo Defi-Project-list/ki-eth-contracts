@@ -32,6 +32,7 @@ abstract contract FactoryStorage is MultiSig {
     mapping(bytes8 => address) internal versions_oracle;
     address internal _operator;
     address internal _activator;
+    uint256 internal s_nonce;
 
     // storage end
 
@@ -49,6 +50,7 @@ abstract contract FactoryStorage is MultiSig {
         swProxy = new Proxy();
         swProxyLatest = new ProxyLatest();
         versions_code[LATEST] = address(swProxyLatest);
+        s_nonce = 1;
     }
 
     // function migrate() public onlyProxy() {
