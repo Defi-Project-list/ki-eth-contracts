@@ -1,29 +1,29 @@
 {
   "contractName": "Storage2",
   "abi": [],
-  "metadata": "{\"compiler\":{\"version\":\"0.8.2+commit.661d1103\"},\"language\":\"Solidity\",\"output\":{\"abi\":[],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"/opt/storage/data1/code/kirobo/ki-eth-contracts/contracts/test/Storage2.sol\":\"Storage2\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"/opt/storage/data1/code/kirobo/ki-eth-contracts/contracts/test/Storage2.sol\":{\"keccak256\":\"0x6f91a599090ee855eab886cf4a5df7b60bce5dd2e790cbf1d28b21418d0a06c7\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://f90c0d2fdbfe01d820d630ded4d7749678d9552b18dd55a2072b94a5be2f20a5\",\"dweb:/ipfs/QmUFggRmC2G9TGXLuizQ5qYD2gHPgWnZBxPQFqMa95AS6L\"]}},\"version\":1}",
-  "bytecode": "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea2646970667358221220fb65a5655bb08bac09a427629bbc4b3b3182a4406d715ca5a342a3ed75f206ba64736f6c63430008020033",
-  "deployedBytecode": "0x6080604052600080fdfea2646970667358221220fb65a5655bb08bac09a427629bbc4b3b3182a4406d715ca5a342a3ed75f206ba64736f6c63430008020033",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.2+commit.661d1103\"},\"language\":\"Solidity\",\"output\":{\"abi\":[],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"/Users/Tal/code/kirobo/ki-eth-contracts/contracts/test/Storage2.sol\":\"Storage2\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"/Users/Tal/code/kirobo/ki-eth-contracts/contracts/test/Storage2.sol\":{\"keccak256\":\"0x0ea253a1d3b40538683548d977f8cc219357078ce77791402cbb74768ce2eeb3\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://092b49a07d48b10fbaee31de930e3db4e7e8bb31019da7f741fd72dd696864f8\",\"dweb:/ipfs/QmPV3JtMr76HXgXd7yNC7gwScjtKo7jEFzXU7W7q2xhmyS\"]}},\"version\":1}",
+  "bytecode": "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea264697066735822122068ecefd0ba3805bb3e8e4d9a3eea318bf34a59fc5b62adbb46586460b23d9d1b64736f6c63430008020033",
+  "deployedBytecode": "0x6080604052600080fdfea264697066735822122068ecefd0ba3805bb3e8e4d9a3eea318bf34a59fc5b62adbb46586460b23d9d1b64736f6c63430008020033",
   "immutableReferences": {},
   "generatedSources": [],
   "deployedGeneratedSources": [],
-  "sourceMap": "65:49:24:-:0;;;;;;;;;;;;;;;;;;;",
-  "deployedSourceMap": "65:49:24:-:0;;;;;",
-  "source": "// SPDX-License-Identifier: UNLICENSED\n\npragma solidity ^0.8.0;\n\ncontract Storage2 {\n    uint256 internal value;\n}\n\n",
-  "sourcePath": "/opt/storage/data1/code/kirobo/ki-eth-contracts/contracts/test/Storage2.sol",
+  "sourceMap": "85:49:26:-:0;;;;;;;;;;;;;;;;;;;",
+  "deployedSourceMap": "85:49:26:-:0;;;;;",
+  "source": "// SPDX-License-Identifier: UNLICENSED\n\npragma solidity ^0.8.0;\npragma abicoder v1;\n\ncontract Storage2 {\n    uint256 internal value;\n}\n",
+  "sourcePath": "/Users/Tal/code/kirobo/ki-eth-contracts/contracts/test/Storage2.sol",
   "ast": {
-    "absolutePath": "/opt/storage/data1/code/kirobo/ki-eth-contracts/contracts/test/Storage2.sol",
+    "absolutePath": "/Users/Tal/code/kirobo/ki-eth-contracts/contracts/test/Storage2.sol",
     "exportedSymbols": {
       "Storage2": [
-        5205
+        7057
       ]
     },
-    "id": 5206,
+    "id": 7058,
     "license": "UNLICENSED",
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 5202,
+        "id": 7053,
         "literals": [
           "solidity",
           "^",
@@ -31,7 +31,16 @@
           ".0"
         ],
         "nodeType": "PragmaDirective",
-        "src": "40:23:24"
+        "src": "40:23:26"
+      },
+      {
+        "id": 7054,
+        "literals": [
+          "abicoder",
+          "v1"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "64:19:26"
       },
       {
         "abstract": false,
@@ -39,23 +48,23 @@
         "contractDependencies": [],
         "contractKind": "contract",
         "fullyImplemented": true,
-        "id": 5205,
+        "id": 7057,
         "linearizedBaseContracts": [
-          5205
+          7057
         ],
         "name": "Storage2",
-        "nameLocation": "74:8:24",
+        "nameLocation": "94:8:26",
         "nodeType": "ContractDefinition",
         "nodes": [
           {
             "constant": false,
-            "id": 5204,
+            "id": 7056,
             "mutability": "mutable",
             "name": "value",
-            "nameLocation": "106:5:24",
+            "nameLocation": "126:5:26",
             "nodeType": "VariableDeclaration",
-            "scope": 5205,
-            "src": "89:22:24",
+            "scope": 7057,
+            "src": "109:22:26",
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -63,10 +72,10 @@
               "typeString": "uint256"
             },
             "typeName": {
-              "id": 5203,
+              "id": 7055,
               "name": "uint256",
               "nodeType": "ElementaryTypeName",
-              "src": "89:7:24",
+              "src": "109:7:26",
               "typeDescriptions": {
                 "typeIdentifier": "t_uint256",
                 "typeString": "uint256"
@@ -75,25 +84,25 @@
             "visibility": "internal"
           }
         ],
-        "scope": 5206,
-        "src": "65:49:24"
+        "scope": 7058,
+        "src": "85:49:26"
       }
     ],
-    "src": "40:76:24"
+    "src": "40:95:26"
   },
   "legacyAST": {
-    "absolutePath": "/opt/storage/data1/code/kirobo/ki-eth-contracts/contracts/test/Storage2.sol",
+    "absolutePath": "/Users/Tal/code/kirobo/ki-eth-contracts/contracts/test/Storage2.sol",
     "exportedSymbols": {
       "Storage2": [
-        5205
+        7057
       ]
     },
-    "id": 5206,
+    "id": 7058,
     "license": "UNLICENSED",
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 5202,
+        "id": 7053,
         "literals": [
           "solidity",
           "^",
@@ -101,7 +110,16 @@
           ".0"
         ],
         "nodeType": "PragmaDirective",
-        "src": "40:23:24"
+        "src": "40:23:26"
+      },
+      {
+        "id": 7054,
+        "literals": [
+          "abicoder",
+          "v1"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "64:19:26"
       },
       {
         "abstract": false,
@@ -109,23 +127,23 @@
         "contractDependencies": [],
         "contractKind": "contract",
         "fullyImplemented": true,
-        "id": 5205,
+        "id": 7057,
         "linearizedBaseContracts": [
-          5205
+          7057
         ],
         "name": "Storage2",
-        "nameLocation": "74:8:24",
+        "nameLocation": "94:8:26",
         "nodeType": "ContractDefinition",
         "nodes": [
           {
             "constant": false,
-            "id": 5204,
+            "id": 7056,
             "mutability": "mutable",
             "name": "value",
-            "nameLocation": "106:5:24",
+            "nameLocation": "126:5:26",
             "nodeType": "VariableDeclaration",
-            "scope": 5205,
-            "src": "89:22:24",
+            "scope": 7057,
+            "src": "109:22:26",
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -133,10 +151,10 @@
               "typeString": "uint256"
             },
             "typeName": {
-              "id": 5203,
+              "id": 7055,
               "name": "uint256",
               "nodeType": "ElementaryTypeName",
-              "src": "89:7:24",
+              "src": "109:7:26",
               "typeDescriptions": {
                 "typeIdentifier": "t_uint256",
                 "typeString": "uint256"
@@ -145,11 +163,11 @@
             "visibility": "internal"
           }
         ],
-        "scope": 5206,
-        "src": "65:49:24"
+        "scope": 7058,
+        "src": "85:49:26"
       }
     ],
-    "src": "40:76:24"
+    "src": "40:95:26"
   },
   "compiler": {
     "name": "solc",
@@ -157,7 +175,7 @@
   },
   "networks": {},
   "schemaVersion": "3.3.4",
-  "updatedAt": "2021-03-22T14:20:41.948Z",
+  "updatedAt": "2021-04-13T23:14:26.464Z",
   "devdoc": {
     "kind": "dev",
     "methods": {},

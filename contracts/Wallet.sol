@@ -376,20 +376,47 @@ contract Wallet is IStorage, Heritable {
         return s_nonce;
     }
 
-    // function sendEther(address payable _to, uint256 _value)
+    // function transferEth(address payable _to, uint256 _value)
     //     public
     //     onlyCreator()
     // {
     //     _to.transfer(_value);
     // }
 
-    function sendERC20(address _token, address payable _to, uint256 _value)
-        external
+    // function transferERC20(/*address refundToken, address payable refund,*/address _token, address payable _to, uint256 _value)
+    //     external
+    //     onlyCreator()
+    // {
+    //     (bool success, bytes memory res) = 
+    //         _token.call(abi.encodeWithSignature("transfer(address,uint256)", _to, _value));
+    //     if (!success) {
+    //         revert(_getRevertMsg(res));
+    //     }
+    //     // (bool success2, bytes memory res2) = 
+    //     //     refundToken.call{gas: 80000}(abi.encodeWithSignature("transfer(address,uint256)", refund, _value));
+    //     // if (!success2) {
+    //     //     revert(_getRevertMsg(res2));
+    //     // }
+    // }
+
+    function transfer(address payable refund, address _token, address payable _to, uint256 _value)
+        public
         onlyCreator()
     {
-        (bool success, bytes memory res) = _token.call{gas: 250000}(abi.encodeWithSignature("transfer(address,uint256)", _to, _value));
-        if (!success) {
-            revert(_getRevertMsg(res));
+        if (_token == address(0)) {
+            _to.transfer(_value);
+            //refund.transfer(tx.gasprice * 5000);
+        } else {
+            (bool success, bytes memory res) = 
+                _token.call{gas: 80000}(abi.encodeWithSignature("transfer(address,uint256)", _to, _value));
+            if (!success) {
+                revert(_getRevertMsg(res));
+            }
+            // (bool success2, bytes memory res2) = 
+            //     _token.call{gas: 80000}(abi.encodeWithSignature("transfer(address,uint256)", refund, 10));
+            // if (!success2) {
+            //     revert(_getRevertMsg(res2));
+            // }
         }
     }
 

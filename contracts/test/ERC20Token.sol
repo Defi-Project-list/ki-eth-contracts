@@ -10,7 +10,7 @@ import "openzeppelin-solidity/contracts/token/ERC20/extensions/ERC20Burnable.sol
 contract ERC20Token is ERC20, ERC20Capped, ERC20Burnable {
     constructor(string memory name, string memory symbol)
         ERC20Burnable()
-        ERC20Capped(20000)
+        ERC20Capped(2000000)
         ERC20(name, symbol)
     {}
 
@@ -26,18 +26,20 @@ contract ERC20Token is ERC20, ERC20Capped, ERC20Burnable {
         _mint(account, amount);
     }
 
-    function transfer(address account, uint256 amount) public override returns (bool) {
-        // _mint(account, amount);
-        // _burn(account, amount);
-        // _mint(account, amount);
-        // _burn(account, amount);
-        // _mint(account, amount);
-        // _burn(account, amount);
-        // _mint(account, amount);
-        // _burn(account, amount);
-        // _mint(account, amount);
-        // _burn(account, amount);
-        super.transfer(account, amount);
-    }
+    // function transfer(address account, uint256 amount) public override returns (bool) {
+    //     // _mint(account, amount);
+    //     // _burn(account, amount);
+    //     // _mint(account, amount);
+    //     // _burn(account, amount);
+    //     // _mint(account, amount);
+    //     // _burn(account, amount);
+    //     // _mint(account, amount);
+    //     // _burn(account, amount);
+    //     // _mint(account, amount);
+    //     // _burn(account, amount);
+    //     super.transfer(account, amount);
+    // }
 
+    // function transfer2(address account, uint256 amount) public returns (bool) {
+    // }
 }

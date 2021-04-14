@@ -6,7 +6,7 @@ let server
 // let mnemonic = "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat";
 let mnemonic = "pelican bench orchard wisdom honey deputy donate suspect airport sail quick decade";
 // let mnemonic = "front assume robust donkey senior economy maple enhance click bright game alcohol";
-const gas = 6700000;
+const gas = 12000000;
 
 // const ganache = require('ganache-cli');
 const devNetwork = {
@@ -104,12 +104,12 @@ module.exports = {
       settings: {
         optimizer: {
           enabled: true,
-          runs: 999   // Optimize for how many times you intend to run the code
+          runs: 200   // Optimize for how many times you intend to run the code
         },
       },
         optimizer: {
             enabled: true,
-            runs:999
+            runs:200
         }
     }
 };

@@ -246,6 +246,7 @@ contract Factory is FactoryStorage {
     }
 
     function batchTransfer(Transfer[] calldata tr) public {
+      // address refund = _activator;
       require(msg.sender == _activator, "Wallet: sender not allowed");
       uint256 nonce = s_nonce;
       uint256 minNonce = type(uint256).max;
@@ -270,7 +271,11 @@ contract Factory is FactoryStorage {
         }
         address wallet = accounts_wallet[signer].addr;
         require(wallet != address(0), "Factory: signer is not owner");
-        (bool success, bytes memory res) = wallet.call{gas: 250000}(abi.encodeWithSignature("sendERC20(address,address,uint256)", call.token, call.to, call.value));
+        (bool success, bytes memory res) = call.token == address(0) ? 
+            wallet.call{gas: 40000}(abi.encodeWithSignature("transferEth(address,uint256)", call.to, call.value)):
+            wallet.call{gas: 80000}(abi.encodeWithSignature("transferERC20(address,address,uint256)", call.token, call.to, call.value));
+        // (bool success, bytes memory res) = 
+        //     wallet.call(abi.encodeWithSignature("transfer(address,address,address,uint256)", refund, call.token, call.to, call.value));
         if (!success) {
             revert(_getRevertMsg(res));
         }

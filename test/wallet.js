@@ -7,6 +7,7 @@ const FactoryProxy = artifacts.require("FactoryProxy")
 const ERC20Token = artifacts.require("ERC20Token")
 const ERC721Token = artifacts.require("ERC721Token")
 const mlog = require('mocha-logger')
+const { ZERO_ADDRESS, ZERO_BYTES32, ZERO_BN } = require('./lib/consts')
 
 const { ethers } = require('ethers')
 const { TypedDataUtils } = require('ethers-eip712')
@@ -58,6 +59,7 @@ contract('Wallet', async accounts => {
     mlog.log(`user2: ${await web3.eth.getBalance(user2)}`)
     mlog.log(`user3: ${await web3.eth.getBalance(user3)}`)
     mlog.log(`user4: ${await web3.eth.getBalance(user4)}`)
+    mlog.log(`activator: ${await token20.balanceOf(activator, { from: user1 })}`)
   }
 
   const logERC20Balances = async () => {
@@ -65,6 +67,7 @@ contract('Wallet', async accounts => {
     mlog.log(`user2: ${await token20.balanceOf(user2, { from: user1 })}`)
     mlog.log(`user3: ${await token20.balanceOf(user3, { from: user1 })}`)
     mlog.log(`user4: ${await token20.balanceOf(user4, { from: user1 })}`)
+    mlog.log(`activator: ${await token20.balanceOf(activator, { from: user1 })}`)
   }
 
   before('checking constants', async () => {
@@ -148,12 +151,12 @@ contract('Wallet', async accounts => {
     const balance = await web3.eth.getBalance(instance.address);
     assert.equal(balance.toString(10), valBN.toString(10));
 
-    await token20.mint(user1, 1000, { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
-    await token20.mint(user2, 1000, { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
-    await token20.mint(user3, 1000, { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
-    await token20.mint(user4, 1000, { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
-    await token20.transfer(instance.address, 50, {from: user1, nonce: await web3.eth.getTransactionCount(user1)});
-    const { receipt } = await token20.transfer(instance.address, 500, {from: user1, nonce: await web3.eth.getTransactionCount(user1)});
+    await token20.mint(user1, 10000, { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
+    await token20.mint(user2, 10000, { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
+    await token20.mint(user3, 10000, { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
+    await token20.mint(user4, 10000, { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
+    await token20.transfer(instance.address, 5000, {from: user1, nonce: await web3.eth.getTransactionCount(user1)});
+    const { receipt } = await token20.transfer(instance.address, 50, {from: user1, nonce: await web3.eth.getTransactionCount(user1)});
     mlog.pending(`ERC20 native Transfer consumed ${JSON.stringify(receipt.gasUsed)} gas`)
   });
   
@@ -413,146 +416,165 @@ contract('Wallet', async accounts => {
         { to: user1, value: 1 },
         { to: user2, value: 1 },
         { to: user3, value: 1 },
-        // { to: user1, value: 1 },
-        // { to: user2, value: 4 },
-        // { to: user3, value: 1 },
-        // { to: user1, value: 1 },
-        // { to: user2, value: 1 },
-        // { to: user3, value: 1 },
-        // { to: user1, value: 2 },
-        // { to: user2, value: 1 },
-        // { to: user1, value: 1 },
-        // { to: user2, value: 1 },
-        // { to: user3, value: 1 },
-        // { to: user1, value: 1 },
-        // { to: user2, value: 8 },
-        // { to: user3, value: 1 },
-        // { to: user1, value: 1 },
-        // { to: user2, value: 1 },
-        // { to: user3, value: 6 },
-        // { to: user1, value: 1 },
-        // { to: user2, value: 1 },
-        // { to: user3, value: 1 },
-        // { to: user1, value: 1 },
-        // { to: user2, value: 4 },
-        // { to: user3, value: 1 },
-        // { to: user1, value: 1 },
-        // { to: user2, value: 1 },
-        // { to: user3, value: 1 },
-        // { to: user1, value: 2 },
-        // { to: user2, value: 1 },
-        // { to: user1, value: 1 },
-        // { to: user2, value: 1 },
-        // { to: user3, value: 1 },
-        // { to: user1, value: 1 },
-        // { to: user2, value: 8 },
-        // { to: user3, value: 1 },
-        // { to: user1, value: 1 },
-        // { to: user2, value: 1 },
-        // { to: user3, value: 6 },
-        // { to: user1, value: 1 },
-        // { to: user2, value: 1 },
-        // { to: user3, value: 1 },
-        // { to: user1, value: 1 },
-        // { to: user2, value: 4 },
-        // { to: user3, value: 1 },
-        // { to: user1, value: 1 },
-        // { to: user2, value: 1 },
-        // { to: user3, value: 1 },
-        // { to: user1, value: 2 },
-        // { to: user2, value: 1 },
-        // { to: user1, value: 1 },
-        // { to: user2, value: 1 },
-        // { to: user3, value: 1 },
-        // { to: user1, value: 1 },
-        // { to: user2, value: 8 },
-        // { to: user3, value: 1 },
-        // { to: user1, value: 1 },
-        // { to: user2, value: 1 },
-        // { to: user3, value: 6 },
-        // { to: user1, value: 1 },
-        // { to: user2, value: 1 },
-        // { to: user3, value: 1 },
-        // { to: user1, value: 1 },
-        // { to: user2, value: 4 },
-        // { to: user3, value: 1 },
-        // { to: user1, value: 1 },
-        // { to: user2, value: 1 },
-        // { to: user3, value: 1 },
-        // { to: user1, value: 2 },
-        // { to: user2, value: 1 },
-        // { to: user1, value: 1 },
-        // { to: user2, value: 1 },
-        // { to: user3, value: 1 },
-        // { to: user1, value: 1 },
-        // { to: user2, value: 8 },
-        // { to: user3, value: 1 },
-        // { to: user1, value: 1 },
-        // { to: user2, value: 1 },
-        // { to: user3, value: 6 },
-        // { to: user1, value: 1 },
-        // { to: user2, value: 1 },
-        // { to: user3, value: 1 },
-        // { to: user1, value: 1 },
-        // { to: user2, value: 4 },
-        // { to: user3, value: 1 },
-        // { to: user1, value: 1 },
-        // { to: user2, value: 1 },
-        // { to: user3, value: 1 },
-        // { to: user1, value: 2 },
-        // { to: user2, value: 1 },
-        // { to: user1, value: 1 },
-        // { to: user2, value: 1 },
-        // { to: user3, value: 1 },
-        // { to: user1, value: 1 },
-        // { to: user2, value: 8 },
-        // { to: user3, value: 1 },
-        // { to: user1, value: 1 },
-        // { to: user2, value: 1 },
-        // { to: user3, value: 6 },
-        // { to: user1, value: 1 },
-        // { to: user2, value: 1 },
-        // { to: user3, value: 1 },
-        // { to: user1, value: 1 },
-        // { to: user2, value: 4 },
-        // { to: user3, value: 1 },
-        // { to: user1, value: 1 },
-        // { to: user2, value: 1 },
-        // { to: user3, value: 1 },
-        // { to: user1, value: 2 },
-        // { to: user2, value: 1 },
-        // { to: user1, value: 1 },
-        // { to: user2, value: 1 },
-        // { to: user3, value: 1 },
-        // { to: user1, value: 1 },
-        // { to: user2, value: 8 },
-        // { to: user3, value: 1 },
-        // { to: user1, value: 1 },
-        // { to: user2, value: 1 },
-        // { to: user3, value: 6 },
-        // { to: user1, value: 1 },
-        // { to: user2, value: 1 },
-        // { to: user3, value: 1 },
-        // { to: user1, value: 1 },
-        // { to: user2, value: 4 },
-        // { to: user3, value: 1 },
-        // { to: user1, value: 1 },
-        // { to: user2, value: 1 },
-        // { to: user3, value: 1 },
-        // { to: user1, value: 2 },
-        // { to: user2, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 4 },
+        { to: user3, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 1 },
+        { to: user1, value: 2 },
+        { to: user2, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 8 },
+        { to: user3, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 6 },
+        { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 4 },
+        { to: user3, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 1 },
+        { to: user1, value: 2 },
+        { to: user2, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 8 },
+        { to: user3, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 6 },
+        { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 4 },
+        { to: user3, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 1 },
+        { to: user1, value: 2 },
+        { to: user2, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 8 },
+        { to: user3, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 6 },
+        { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 4 },
+        { to: user3, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 1 },
+        { to: user1, value: 2 },
+        { to: user2, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 8 },
+        { to: user3, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 6 },
+        { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 4 },
+        { to: user3, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 1 },
+        { to: user1, value: 2 },
+        { to: user2, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 8 },
+        { to: user3, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 6 },
+        { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 4 },
+        { to: user3, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 1 },
+        { to: user1, value: 2 },
+        { to: user2, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 8 },
+        { to: user3, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 6 },
+        { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 4 },
+        { to: user3, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 1 },
+        { to: user1, value: 2 },
+        { to: user2, value: 1 },
     ]
 
-    const msgData = sends.map((item, index) => ({
+    const msgDataERC20 = sends.map((item, index) => ({
         ...item, 
         _hash: defaultAbiCoder.encode(
           ['bytes32', 'address', 'address', 'uint256', 'uint256', 'uint256'/*, 'bool', 'uint32', 'bytes32'*/],
-          [typeHash, token20.address, item.to, item.value, 10 + index, 200 /*, +nonce.toString()+index,*/ /*false, 0, keccak256(toUtf8Bytes('')) */])
+          [typeHash, token20.address, item.to, item.value, 1000 + index, 200 /*, +nonce.toString()+index,*/ /*false, 0, keccak256(toUtf8Bytes('')) */])
     }))
+
+    const msgDataEth = sends.map((item, index) => ({
+      ...item, 
+      _hash: defaultAbiCoder.encode(
+        ['bytes32', 'address', 'address', 'uint256', 'uint256', 'uint256'/*, 'bool', 'uint32', 'bytes32'*/],
+        [typeHash, ZERO_ADDRESS, item.to, item.value, 10 + index, 200 /*, +nonce.toString()+index,*/ /*false, 0, keccak256(toUtf8Bytes('')) */])
+  }))
 
     const metaData = { simple: true, staticcall: false, gasLimit: 0 }
 
-    const msgs = await Promise.all(msgData.map(async (item, index) => ({
+    const msgsERC20 = await Promise.all(msgDataERC20.map(async (item, index) => ({
+      ...item,
+      ...await web3.eth.accounts.sign(web3.utils.sha3(item._hash), getPrivateKey(owner)),
+      metaData,
+      typeHash,
+      data: [],
+      nonceLimit: 1000 + index,
+      gasPriceLimit: 200,
+      token: token20.address,
+      _hash: undefined,
+    })))
+
+    const msgsEth = await Promise.all(msgDataEth.map(async (item, index) => ({
       ...item,
       ...await web3.eth.accounts.sign(web3.utils.sha3(item._hash), getPrivateKey(owner)),
       metaData,
@@ -560,7 +582,7 @@ contract('Wallet', async accounts => {
       data: [],
       nonceLimit: 10 + index,
       gasPriceLimit: 200,
-      token: token20.address,
+      token: ZERO_ADDRESS,
       _hash: undefined,
     })))
 
@@ -575,16 +597,21 @@ contract('Wallet', async accounts => {
     // Should revert
     // await factory.batchTransfer(msgs, { from: owner, gasPrice: 200 })
 
+    await logBalances()
+    const { receipt: receiptEth } = await factory.batchTransfer(msgsEth, { from: activator, gasPrice: 200 })
+    mlog.pending(`Ether X ${msgsEth.length} Transfers consumed ${JSON.stringify(receiptEth.gasUsed)} gas (${JSON.stringify(receiptEth.gasUsed/msgsEth.length)} gas per call)`)
+    await logBalances()
+
     await logERC20Balances()
 
-    const { receipt } = await factory.batchTransfer(msgs, { from: activator, gasPrice: 200 })
+    const { receipt: receiptERC20 } = await factory.batchTransfer(msgsERC20, { from: activator, gasPrice: 200 })
 
     // Should revert
     // await factory.batchTransfer(msgs, { from: activator, gasPrice: 200 })
 
     // const diff = (await token20.balanceOf(user1)).toNumber() - balance.toNumber()
     // assert.equal (diff, 5, 'user1 balance change')
-    mlog.pending(`Ether X ${msgs.length} Transfers consumed ${JSON.stringify(receipt.gasUsed)} gas (${JSON.stringify(receipt.gasUsed/msgs.length)} gas per call)`)
+    mlog.pending(`ERC20 X ${msgsERC20.length} Transfers consumed ${JSON.stringify(receiptERC20.gasUsed)} gas (${JSON.stringify(receiptERC20.gasUsed/msgsEth.length)} gas per call)`)
 
     await logERC20Balances()
 

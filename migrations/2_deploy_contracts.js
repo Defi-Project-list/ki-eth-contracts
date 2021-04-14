@@ -11,7 +11,7 @@ var Root = artifacts.require("./Root.sol");
 const liveNetworks = { rinkeby: true, kovan: true };
 
 const gasPrice =  web3.utils.toWei('3', 'gwei');
-const gas = 6700000;
+const gas = 9700000;
 
 module.exports = function (deployer, network, accounts) {
   console.log('deploy_contracts')
@@ -29,14 +29,14 @@ module.exports = function (deployer, network, accounts) {
       await ora.setPaymentAddress(accounts[0], { from: accounts[1] })
 
 		  const fac = await Factory.at(factoryProxy.address)
-		  
+
 	  	await fac.addVersion(sw.address, oracle.address, { from: accounts[0], gas, gasPrice });
 	  	await fac.addVersion(sw.address, oracle.address, { from: accounts[1], gas, gasPrice });
 	  	await fac.deployVersion(await sw.version(), { from: accounts[0], gas, gasPrice });
 	  	await fac.deployVersion(await sw.version(), { from: accounts[1], gas, gasPrice });
 
 		  // const fac1 = await Factory.at(factory.address)
-		  
+
 	  	// await fac1.addVersion(sw.address, oracle.address, { from: accounts[0], gas, gasPrice });
 	  	// await fac1.addVersion(sw.address, oracle.address, { from: accounts[1], gas, gasPrice });
 	  	// await fac1.deployVersion(await sw.version(), { from: accounts[0], gas, gasPrice });
