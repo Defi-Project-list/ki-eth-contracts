@@ -75,7 +75,9 @@ contract('RecoveryWallet', async accounts => {
     await factory.addVersion(version.address, oracle.address, { from: factoryOwner1 });
     await factory.deployVersion(await version.version(), { from: factoryOwner1 });
     await factory.deployVersion(await version.version(), { from: factoryOwner2 });
-    await factory.createWallet(false, { from: owner });
+    const { receipt } = await factory.createWallet(false, { from: owner });
+    mlog.pending(`Creating Wallet Cost ${JSON.stringify(receipt.gasUsed)} gas`)
+
     instance = await RecoveryWallet.at( await factory.getWallet(owner) );
 
     token20 = await ERC20Token.new('Kirobo ERC20 Token', 'KDB20', {from: owner});

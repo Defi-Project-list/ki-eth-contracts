@@ -241,50 +241,58 @@ contract Factory is FactoryStorage {
         address token;
         address to;
         uint256 value;
-        uint256 nonceLimit;
+        uint256 sessionId;
         uint256 gasPriceLimit;
     }
 
-    function batchTransfer(Transfer[] calldata tr) public {
+    function batchTransfer(Transfer[] calldata tr, uint128 nonceGroup) public {
       // address refund = _activator;
+      unchecked {
       require(msg.sender == _activator, "Wallet: sender not allowed");
-      uint256 nonce = s_nonce;
+      uint256 nonce = s_nonce_group[nonceGroup] + (uint256(nonceGroup) << 128);
       uint256 minNonce = type(uint256).max;
       uint256 maxNonce = 0;
       uint256 minGasPrice = type(uint256).max;
       for(uint256 i = 0; i < tr.length; i++) {
         Transfer calldata call = tr[i];
+        uint256 sessionId = call.sessionId;
+        uint256 gasPriceLimit = call.gasPriceLimit;
+        address to = call.to;
+        uint256 value = call.value;
+        address token = call.token;
         address signer = ecrecover(
-          _messageToRecover(keccak256(abi.encode(TRANSFER_TYPEHASH, call.token, call.to, call.value, call.nonceLimit, call.gasPriceLimit)), false),
+          _messageToRecover(keccak256(abi.encode(0xf728cfc064674dacd2ced2a03acd588dfd299d5e4716726c6d5ec364d16406eb, token, to, value, sessionId, gasPriceLimit)), false),
           call.v,
           call.r,
           call.s
         );
-        if (maxNonce < call.nonceLimit) {
-          maxNonce = call.nonceLimit;
+        if (maxNonce < sessionId) {
+          maxNonce = sessionId;
         }
-        if (minNonce > call.nonceLimit) {
-          minNonce = call.nonceLimit;
+        if (minNonce > sessionId) {
+          minNonce = sessionId;
         }
-        if (minGasPrice > call.gasPriceLimit) {
-          minGasPrice = call.gasPriceLimit;
+        if (minGasPrice > gasPriceLimit) {
+          minGasPrice = gasPriceLimit;
         }
         address wallet = accounts_wallet[signer].addr;
         require(wallet != address(0), "Factory: signer is not owner");
-        (bool success, bytes memory res) = call.token == address(0) ? 
-            wallet.call{gas: 40000}(abi.encodeWithSignature("transferEth(address,uint256)", call.to, call.value)):
-            wallet.call{gas: 80000}(abi.encodeWithSignature("transferERC20(address,address,uint256)", call.token, call.to, call.value));
-        // (bool success, bytes memory res) = 
-        //     wallet.call(abi.encodeWithSignature("transfer(address,address,address,uint256)", refund, call.token, call.to, call.value));
+        (bool success, bytes memory res) = token == address(0) ?
+            wallet.call(abi.encodeWithSelector(0xe9bb84c2, to,value)):
+            wallet.call(abi.encodeWithSelector(0x9db5dbe4, token, to, value));
+            // e9bb84c27dc2c8bc5107c5b354d1ce66def1bcb8670a1a1bc2f2c410225e3050
+            // wallet.call(abi.encodeWithSignature("transferEth(address,uint256)", to, value)):
+            // 9db5dbe4982ea7264288816937f1d1290e660d28eca5904e32464a2f1578e4f3
+            // wallet.call(abi.encodeWithSignature("transferERC20(address,address,uint256)", token, to, value));
         if (!success) {
             revert(_getRevertMsg(res));
         }
-        // IWallet(wallet).sendEther(payable(call.to), call.value);
       }
       require(minGasPrice >= tx.gasprice, "Factory: gas price too high");
       require(minNonce >= nonce, "Factory: nonce too low");
-      require(maxNonce < nonce+100000, "Factory: nonce too high");
-      s_nonce = maxNonce + 1;
+      require(maxNonce < nonce + 100000, "Factory: nonce too high");
+      s_nonce_group[nonceGroup] = (maxNonce >> 128) + 1;
+      }
     }
 
     function _getRevertMsg(bytes memory returnData)

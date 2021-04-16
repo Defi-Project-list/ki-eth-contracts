@@ -102,7 +102,8 @@ contract('Wallet', async accounts => {
     await factory.addVersion(version.address, oracle.address, { from: factoryOwner1 });
     await factory.deployVersion(await version.version(), { from: factoryOwner1 });
     await factory.deployVersion(await version.version(), { from: factoryOwner2 });
-    await factory.createWallet(false, { from: owner });
+    const { receipt } = await factory.createWallet(false, { from: owner });
+    mlog.pending(`Creating Wallet Cost ${JSON.stringify(receipt.gasUsed)} gas`)
     instance = await Wallet.at( await factory.getWallet(owner) );
 
     token20 = await ERC20Token.new('Kirobo ERC20 Token', 'KDB20', {from: owner});
@@ -138,7 +139,7 @@ contract('Wallet', async accounts => {
     DOMAIN_SEPARATOR = (await instance.DOMAIN_SEPARATOR())
   });
   
-  it('should create empty wallet', async () => {
+  it('should create an empty wallet', async () => {
     const balance = await web3.eth.getBalance(instance.address);
     assert.equal(balance.toString(10), web3.utils.toBN('0').toString(10));
   });
@@ -568,7 +569,7 @@ contract('Wallet', async accounts => {
       metaData,
       typeHash,
       data: [],
-      nonceLimit: 1000 + index,
+      sessionId: 1000 + index,
       gasPriceLimit: 200,
       token: token20.address,
       _hash: undefined,
@@ -580,7 +581,7 @@ contract('Wallet', async accounts => {
       metaData,
       typeHash,
       data: [],
-      nonceLimit: 10 + index,
+      sessionId: 10 + index,
       gasPriceLimit: 200,
       token: ZERO_ADDRESS,
       _hash: undefined,
@@ -598,13 +599,13 @@ contract('Wallet', async accounts => {
     // await factory.batchTransfer(msgs, { from: owner, gasPrice: 200 })
 
     await logBalances()
-    const { receipt: receiptEth } = await factory.batchTransfer(msgsEth, { from: activator, gasPrice: 200 })
+    const { receipt: receiptEth } = await factory.batchTransfer(msgsEth, 0, { from: activator, gasPrice: 200 })
     mlog.pending(`Ether X ${msgsEth.length} Transfers consumed ${JSON.stringify(receiptEth.gasUsed)} gas (${JSON.stringify(receiptEth.gasUsed/msgsEth.length)} gas per call)`)
     await logBalances()
 
     await logERC20Balances()
 
-    const { receipt: receiptERC20 } = await factory.batchTransfer(msgsERC20, { from: activator, gasPrice: 200 })
+    const { receipt: receiptERC20 } = await factory.batchTransfer(msgsERC20, 0, { from: activator, gasPrice: 200 })
 
     // Should revert
     // await factory.batchTransfer(msgs, { from: activator, gasPrice: 200 })

@@ -14,7 +14,13 @@ contract Proxy is StorageBase {
         public
         onlyCreator()
     {
-        _to.transfer(_value);
+        // (bool success, bytes memory res) = 
+        //     _to.call{value: _value}("");
+        // if (!success) {
+        //     revert(_getRevertMsg(res));
+        // }
+        _to.call{value: _value, gas: 10000}("");
+        // _to.transfer(_value);
     }
 
     function transferERC20(address _token, address payable _to, uint256 _value)
