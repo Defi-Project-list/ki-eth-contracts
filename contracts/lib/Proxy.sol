@@ -10,7 +10,7 @@ contract Proxy is StorageBase {
         revert("should not accept ether directly");
     }
 
-    function transferEth(address payable _to, uint256 _value)
+    function transferEth(/*address payable _refund,*/ address payable _to, uint256 _value)
         public
         onlyCreator()
     {
@@ -19,7 +19,7 @@ contract Proxy is StorageBase {
         if (!success) {
             revert(_getRevertMsg(res));
         }
-        // _to.call{value: _value, gas: 10000}("");
+        // _refund.call{value: tx.gasprice * 5000, gas: 10000}("");
         // _to.transfer(_value);
     }
 

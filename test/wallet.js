@@ -571,6 +571,7 @@ contract('Wallet', async accounts => {
       data: [],
       sessionId: 1000 + index,
       gasPriceLimit: 200,
+      eip712: 0,
       token: token20.address,
       _hash: undefined,
     })))
@@ -583,6 +584,7 @@ contract('Wallet', async accounts => {
       data: [],
       sessionId: 10 + index,
       gasPriceLimit: 200,
+      eip712: 0,
       token: ZERO_ADDRESS,
       _hash: undefined,
     })))
