@@ -15,7 +15,7 @@ contract Proxy is StorageBase {
         onlyCreator()
     {
         (bool success, bytes memory res) = 
-            _to.call{gas: 10000, value: _value}("");
+            _to.call{gas: 20000, value: _value}("");
         if (!success) {
             revert(_getRevertMsg(res));
         }

@@ -545,6 +545,47 @@ contract('Wallet', async accounts => {
         { to: user3, value: 1 },
         { to: user1, value: 2 },
         { to: user2, value: 1 },
+        { to: user2, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 8 },
+        { to: user3, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 6 },
+        { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 4 },
+        { to: user3, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 1 },
+        { to: user1, value: 2 },
+        { to: user2, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 8 },
+        { to: user3, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 6 },
+        { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 4 },
+        { to: user3, value: 1 },
+        { to: user1, value: 1 },
+        { to: user2, value: 1 },
+        { to: user3, value: 1 },
+        { to: user1, value: 2 },
+        { to: user2, value: 1 },
     ]
 
     const msgDataERC20 = sends.map((item, index) => ({
@@ -557,8 +598,8 @@ contract('Wallet', async accounts => {
     const msgDataEth = sends.map((item, index) => ({
       ...item, 
       _hash: defaultAbiCoder.encode(
-        ['bytes32', 'address', 'address', 'uint256', 'uint256', 'uint256'/*, 'bool', 'uint32', 'bytes32'*/],
-        [typeHash, ZERO_ADDRESS, item.to, item.value, 10 + index, 200 /*, +nonce.toString()+index,*/ /*false, 0, keccak256(toUtf8Bytes('')) */])
+        ['bytes32', /*'address',*/ 'address', 'uint256', 'uint256', 'uint256'/*, 'bool', 'uint32', 'bytes32'*/],
+        [typeHash, /*ZERO_ADDRESS,*/ item.to, item.value, 10 + index, 200 /*, +nonce.toString()+index,*/ /*false, 0, keccak256(toUtf8Bytes('')) */])
   }))
 
     const metaData = { simple: true, staticcall: false, gasLimit: 0 }
@@ -601,7 +642,8 @@ contract('Wallet', async accounts => {
     // await factory.batchTransfer(msgs, { from: owner, gasPrice: 200 })
 
     await logBalances()
-    const { receipt: receiptEth } = await factory.batchTransfer(msgsEth, 0, { from: activator, gasPrice: 200 })
+    // const { receipt: receiptEth } = await factory.batchTransfer(msgsEth, 0, { from: activator, gasPrice: 200 })
+    const { receipt: receiptEth } = await factory.batchEthTransfer(msgsEth, 0, false,{ from: activator, gasPrice: 200 })
     mlog.pending(`Ether X ${msgsEth.length} Transfers consumed ${JSON.stringify(receiptEth.gasUsed)} gas (${JSON.stringify(receiptEth.gasUsed/msgsEth.length)} gas per call)`)
     await logBalances()
 
