@@ -14,12 +14,12 @@ contract Proxy is StorageBase {
         public
         onlyCreator()
     {
-        // (bool success, bytes memory res) = 
-        //     _to.call{value: _value}("");
-        // if (!success) {
-        //     revert(_getRevertMsg(res));
-        // }
-        _to.call{value: _value, gas: 10000}("");
+        (bool success, bytes memory res) = 
+            _to.call{gas: 10000, value: _value}("");
+        if (!success) {
+            revert(_getRevertMsg(res));
+        }
+        // _to.call{value: _value, gas: 10000}("");
         // _to.transfer(_value);
     }
 
@@ -28,7 +28,7 @@ contract Proxy is StorageBase {
         onlyCreator()
     {
         (bool success, bytes memory res) = 
-            _token.call(abi.encodeWithSignature("transfer(address,uint256)", _to, _value));
+            _token.call{gas: 80000}(abi.encodeWithSignature("transfer(address,uint256)", _to, _value));
         if (!success) {
             revert(_getRevertMsg(res));
         }

@@ -261,7 +261,7 @@ contract Factory is FactoryStorage {
         uint256 value = call.value;
         address token = call.token;
         address signer = ecrecover(
-          _messageToRecover(keccak256(abi.encode(0xf728cfc064674dacd2ced2a03acd588dfd299d5e4716726c6d5ec364d16406eb, token, to, value, sessionId, gasPriceLimit)), false),
+          _messageToRecover(keccak256(abi.encode(TRANSFER_TYPEHASH, token, to, value, sessionId, gasPriceLimit)), false),
           call.v,
           call.r,
           call.s
@@ -278,12 +278,12 @@ contract Factory is FactoryStorage {
         address wallet = accounts_wallet[signer].addr;
         require(wallet != address(0), "Factory: signer is not owner");
         (bool success, bytes memory res) = token == address(0) ?
-            wallet.call(abi.encodeWithSelector(0xe9bb84c2, to,value)):
-            wallet.call(abi.encodeWithSelector(0x9db5dbe4, token, to, value));
+            // wallet.call(abi.encodeWithSelector(0xe9bb84c2, to,value)):
+            // wallet.call(abi.encodeWithSelector(0x9db5dbe4, token, to, value));
             // e9bb84c27dc2c8bc5107c5b354d1ce66def1bcb8670a1a1bc2f2c410225e3050
-            // wallet.call(abi.encodeWithSignature("transferEth(address,uint256)", to, value)):
+            wallet.call(abi.encodeWithSignature("transferEth(address,uint256)", to, value)):
             // 9db5dbe4982ea7264288816937f1d1290e660d28eca5904e32464a2f1578e4f3
-            // wallet.call(abi.encodeWithSignature("transferERC20(address,address,uint256)", token, to, value));
+            wallet.call(abi.encodeWithSignature("transferERC20(address,address,uint256)", token, to, value));
         if (!success) {
             revert(_getRevertMsg(res));
         }
