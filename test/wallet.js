@@ -14,6 +14,8 @@ const { TypedDataUtils } = require('ethers-eip712')
 
 const { solidityPack, soliditySha256, solidityKeccak256, defaultAbiCoder, keccak256, toUtf8Bytes } = ethers.utils
 
+const keys = require('./pkeys.json')
+
 const {
   assertRevert,
   assertInvalidOpcode,
@@ -38,12 +40,17 @@ contract('Wallet', async accounts => {
   const operator      = accounts[7];
   const user4         = accounts[8];
   const activator     = accounts[9];
+  const instances     = []
   
   const val1  = web3.utils.toWei('0.5', 'gwei');
   const val2  = web3.utils.toWei('0.4', 'gwei');
   const val3  = web3.utils.toWei('0.6', 'gwei');
   const valBN = web3.utils.toBN(val1).add(web3.utils.toBN(val2)).add(web3.utils.toBN(val3));
 
+  const gas = 7000000
+  const userCount = 60
+
+  console.log('accounts', JSON.stringify(accounts))
   const getPrivateKey = (address) => {
     // const wallet = web3.currentProvider.wallets[address.toLowerCase()]
     if (address === owner) {
@@ -55,18 +62,18 @@ contract('Wallet', async accounts => {
   }
 
   const logBalances = async () => {
-    mlog.log(`user1: ${await web3.eth.getBalance(user1)}`)
-    mlog.log(`user2: ${await web3.eth.getBalance(user2)}`)
-    mlog.log(`user3: ${await web3.eth.getBalance(user3)}`)
-    mlog.log(`user4: ${await web3.eth.getBalance(user4)}`)
+    mlog.log(`user1: ${await web3.eth.getBalance(accounts[10+userCount/2])}`)
+    mlog.log(`user2: ${await web3.eth.getBalance(accounts[11+userCount/2])}`)
+    mlog.log(`user3: ${await web3.eth.getBalance(accounts[12+userCount/2])}`)
+    mlog.log(`user4: ${await web3.eth.getBalance(accounts[13+userCount/2])}`)
     mlog.log(`activator: ${await token20.balanceOf(activator, { from: user1 })}`)
   }
 
   const logERC20Balances = async () => {
-    mlog.log(`user1: ${await token20.balanceOf(user1, { from: user1 })}`)
-    mlog.log(`user2: ${await token20.balanceOf(user2, { from: user1 })}`)
-    mlog.log(`user3: ${await token20.balanceOf(user3, { from: user1 })}`)
-    mlog.log(`user4: ${await token20.balanceOf(user4, { from: user1 })}`)
+    mlog.log(`user1: ${await token20.balanceOf(accounts[10+userCount/2], { from: user1 })}`)
+    mlog.log(`user2: ${await token20.balanceOf(accounts[11+userCount/2], { from: user1 })}`)
+    mlog.log(`user3: ${await token20.balanceOf(accounts[12+userCount/2], { from: user1 })}`)
+    mlog.log(`user4: ${await token20.balanceOf(accounts[13+userCount/2], { from: user1 })}`)
     mlog.log(`activator: ${await token20.balanceOf(activator, { from: user1 })}`)
   }
 
@@ -86,6 +93,10 @@ contract('Wallet', async accounts => {
   });
   
   before('setup contract for the test', async () => {
+    // for (const key of keys) {
+    //   await web3.eth.accounts.wallet.add(key)
+    // }
+
     const sw_factory = await Factory.new(factoryOwner1, factoryOwner2, factoryOwner3, { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
     const sw_factory_proxy = await FactoryProxy.new(factoryOwner1, factoryOwner2, factoryOwner3, { from: owner });
     await sw_factory_proxy.setTarget(sw_factory.address, { from: factoryOwner1 });
@@ -104,7 +115,7 @@ contract('Wallet', async accounts => {
     await factory.deployVersion(await version.version(), { from: factoryOwner2 });
     const { receipt } = await factory.createWallet(false, { from: owner });
     mlog.pending(`Creating Wallet Cost ${JSON.stringify(receipt.gasUsed)} gas`)
-    instance = await Wallet.at( await factory.getWallet(owner) );
+    instance = await Wallet.at( await factory.getWallet(owner));
 
     token20 = await ERC20Token.new('Kirobo ERC20 Token', 'KDB20', {from: owner});
     await oracle.update721(token20.address, true, {from: factoryOwner3});
@@ -145,9 +156,9 @@ contract('Wallet', async accounts => {
   });
 
   it('should accept ether from everyone', async () => {
-    await web3.eth.sendTransaction({ from: owner, value: val1, to: instance.address, nonce: await web3.eth.getTransactionCount(owner) });
-    await web3.eth.sendTransaction({ from: user1, value: val2, to: instance.address, nonce: await web3.eth.getTransactionCount(user1) });
-    await web3.eth.sendTransaction({ from: user2, value: val3, to: instance.address, nonce: await web3.eth.getTransactionCount(user2) });
+    await web3.eth.sendTransaction({ gas, from: owner, value: val1, to: instance.address, nonce: await web3.eth.getTransactionCount(owner) });
+    await web3.eth.sendTransaction({ gas, from: user1, value: val2, to: instance.address, nonce: await web3.eth.getTransactionCount(user1) });
+    await web3.eth.sendTransaction({ gas, from: user2, value: val3, to: instance.address, nonce: await web3.eth.getTransactionCount(user2) });
     
     const balance = await web3.eth.getBalance(instance.address);
     assert.equal(balance.toString(10), valBN.toString(10));
@@ -156,6 +167,21 @@ contract('Wallet', async accounts => {
     await token20.mint(user2, 10000, { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
     await token20.mint(user3, 10000, { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
     await token20.mint(user4, 10000, { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
+
+    for (let i=10; i<10+userCount; ++i) {
+      await token20.mint(accounts[i], 10000, { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
+    }
+    for (let i=10; i<10+userCount/2; ++i) {
+      const { receipt } = await factory.createWallet(false, { from: accounts[i] });
+      mlog.pending(`Creating Wallet Cost ${JSON.stringify(receipt.gasUsed)} gas`)
+      instances.push(await factory.getWallet(accounts[i]));
+    }
+    console.log('instances', instances)
+    for (const instance of instances) {
+      await token20.mint(instance, 10000, { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
+      await web3.eth.sendTransaction({ from: owner, value: val1, to: instance, nonce: await web3.eth.getTransactionCount(owner) });
+    }
+
     await token20.transfer(instance.address, 5000, {from: user1, nonce: await web3.eth.getTransactionCount(user1)});
     const { receipt } = await token20.transfer(instance.address, 50, {from: user1, nonce: await web3.eth.getTransactionCount(user1)});
     mlog.pending(`ERC20 native Transfer consumed ${JSON.stringify(receipt.gasUsed)} gas`)
@@ -384,7 +410,13 @@ contract('Wallet', async accounts => {
       const nonce = await instance.nonce()
       const typeHash = '0xf728cfc064674dacd2ced2a03acd588dfd299d5e4716726c6d5ec364d16406eb'; // 0x'.padEnd(66,'0')
 
-      const sends = [
+      const sends = []
+
+      for (let i=10+userCount/2; i<10+userCount; ++i) {
+        sends.push({ to: accounts[i], value: 2 })
+      }
+
+      const sends2 = [
         { to: user1, value: 1 },
         { to: user2, value: 1 },
         { to: user3, value: 1 },
@@ -606,7 +638,7 @@ contract('Wallet', async accounts => {
 
     const msgsERC20 = await Promise.all(msgDataERC20.map(async (item, index) => ({
       ...item,
-      ...await web3.eth.accounts.sign(web3.utils.sha3(item._hash), getPrivateKey(owner)),
+      ...await web3.eth.accounts.sign(web3.utils.sha3(item._hash), keys[index%1+10] /*getPrivateKey(owner)*/),
       metaData,
       typeHash,
       data: [],
@@ -619,7 +651,7 @@ contract('Wallet', async accounts => {
 
     const msgsEth = await Promise.all(msgDataEth.map(async (item, index) => ({
       ...item,
-      ...await web3.eth.accounts.sign(web3.utils.sha3(item._hash), getPrivateKey(owner)),
+      ...await web3.eth.accounts.sign(web3.utils.sha3(item._hash), keys[index%1+10]), //getPrivateKey(owner)),
       metaData,
       typeHash,
       data: [],

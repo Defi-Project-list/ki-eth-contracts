@@ -277,13 +277,13 @@ contract Factory is FactoryStorage {
                 call.s
             );
             if (maxNonce < sessionId) {
-            maxNonce = sessionId;
+                maxNonce = sessionId;
             }
             if (minNonce > sessionId) {
-            minNonce = sessionId;
+                minNonce = sessionId;
             }
             if (minGasPrice > gasPriceLimit) {
-            minGasPrice = gasPriceLimit;
+                minGasPrice = gasPriceLimit;
             }
             address wallet = accounts_wallet[signer].addr;
             require(wallet != address(0), "Factory: signer is not owner");
@@ -326,13 +326,13 @@ contract Factory is FactoryStorage {
                 call.s
             );
             if (maxNonce < sessionId) {
-            maxNonce = sessionId;
+                maxNonce = sessionId;
             }
             if (minNonce > sessionId) {
-            minNonce = sessionId;
+                minNonce = sessionId;
             }
             if (minGasPrice > gasPriceLimit) {
-            minGasPrice = gasPriceLimit;
+                minGasPrice = gasPriceLimit;
             }
             address wallet = accounts_wallet[signer].addr;
             require(wallet != address(0), "Factory: signer is not owner");

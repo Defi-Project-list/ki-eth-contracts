@@ -10,7 +10,7 @@ import "openzeppelin-solidity/contracts/token/ERC20/extensions/ERC20Burnable.sol
 contract ERC20Token is ERC20, ERC20Capped, ERC20Burnable {
     constructor(string memory name, string memory symbol)
         ERC20Burnable()
-        ERC20Capped(2000000)
+        ERC20Capped(200000000)
         ERC20(name, symbol)
     {}
 
