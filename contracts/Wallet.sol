@@ -245,36 +245,36 @@ contract Wallet is IStorage, Heritable {
 
 
 
-    function unsecuredBatchCall(Transfer[] calldata tr) public payable onlyActiveState() {
-      require(msg.sender != this.creator(), "Wallet: sender not allowed");
-      uint32 nonce = s_nonce;
-      address owner = _owner;
-      for(uint256 i = 0; i < tr.length; i++) {
-        Transfer calldata call = tr[i];
-        unchecked {  
-          address signer = ecrecover(
-            _messageToRecover(
-              // keccak256(_generateMessage(call, msg.sender, i > 0 ? nonce + i: nonce)),
-              // call.typeHash != bytes32(0)
-              keccak256(abi.encode(ACCEPT_TYPEHASH, call.to, call.value, nonce + i)),
-              false)
-            ,
-            call.v,
-            call.r,
-            call.s
-          );
-          require(signer != owner, "Wallet: signer is not owner");
-          // require(call.to != msg.sender && call.to != signer && call.to != address(this) && call.to != this.creator(), "Wallet: reentrancy not allowed");
-        }
-        payable(call.to).transfer(call.value);
-        // (bool success, bytes memory res) = call.metaData.staticcall ? 
-        //     call.to.staticcall{gas: call.metaData.gasLimit > 0 ? call.metaData.gasLimit : gasleft()}(call.data): 
-        //     call.to.call{gas: call.metaData.gasLimit > 0 ? call.metaData.gasLimit : gasleft(), value: call.value}(call.data);
-        // if (!success) {
-        //     revert(_getRevertMsg(res));
-        // }
-      }
-    }
+    // function unsecuredBatchCall(Transfer[] calldata tr) public payable onlyActiveState() {
+    //   require(msg.sender != this.creator(), "Wallet: sender not allowed");
+    //   uint32 nonce = s_nonce;
+    //   address owner = _owner;
+    //   for(uint256 i = 0; i < tr.length; i++) {
+    //     Transfer calldata call = tr[i];
+    //     unchecked {  
+    //       address signer = ecrecover(
+    //         _messageToRecover(
+    //           // keccak256(_generateMessage(call, msg.sender, i > 0 ? nonce + i: nonce)),
+    //           // call.typeHash != bytes32(0)
+    //           keccak256(abi.encode(ACCEPT_TYPEHASH, call.to, call.value, nonce + i)),
+    //           false)
+    //         ,
+    //         call.v,
+    //         call.r,
+    //         call.s
+    //       );
+    //       require(signer != owner, "Wallet: signer is not owner");
+    //       // require(call.to != msg.sender && call.to != signer && call.to != address(this) && call.to != this.creator(), "Wallet: reentrancy not allowed");
+    //     }
+    //     payable(call.to).transfer(call.value);
+    //     // (bool success, bytes memory res) = call.metaData.staticcall ? 
+    //     //     call.to.staticcall{gas: call.metaData.gasLimit > 0 ? call.metaData.gasLimit : gasleft()}(call.data): 
+    //     //     call.to.call{gas: call.metaData.gasLimit > 0 ? call.metaData.gasLimit : gasleft(), value: call.value}(call.data);
+    //     // if (!success) {
+    //     //     revert(_getRevertMsg(res));
+    //     // }
+    //   }
+    // }
 
     function executeBatchCall(Call[] calldata tr) public payable onlyActiveState() {
       address creator = this.creator();
@@ -285,6 +285,8 @@ contract Wallet is IStorage, Heritable {
           
       for(uint256 i = 0; i < tr.length; i++) {
         Call calldata call = tr[i];
+        address to = call.to;
+        uint256 gasLimit = call.metaData.gasLimit;
         unchecked {  
           address signer = ecrecover(
             _messageToRecover(
@@ -297,11 +299,11 @@ contract Wallet is IStorage, Heritable {
           );
           require(signer != msg.sender, "Wallet: sender cannot be signer");
           require(signer == owner || signer == operator, "Wallet: signer not allowed");
-          require(call.to != msg.sender && call.to != signer && call.to != address(this) && call.to != creator, "Wallet: reentrancy not allowed");
+          require(to != msg.sender && to != signer && to != address(this) && to != creator, "Wallet: reentrancy not allowed");
         }
         (bool success, bytes memory res) = call.metaData.staticcall ? 
-            call.to.staticcall{gas: call.metaData.gasLimit > 0 ? call.metaData.gasLimit : gasleft()}(call.data): 
-            call.to.call{gas: call.metaData.gasLimit > 0 ? call.metaData.gasLimit : gasleft(), value: call.value}(call.data);
+            to.staticcall{gas: gasLimit > 0 ? gasLimit : gasleft()}(call.data): 
+            to.call{gas: gasLimit > 0 ? gasLimit : gasleft(), value: call.value}(call.data);
         if (!success) {
             revert(_getRevertMsg(res));
         }

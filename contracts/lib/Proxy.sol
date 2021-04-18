@@ -23,15 +23,18 @@ contract Proxy is StorageBase {
         // _to.transfer(_value);
     }
 
-    function transferERC20(address _token, address payable _to, uint256 _value)
+    function transferERC20(/*uint256 _refundValue, address _refundAddress,*/ address _token, address payable _to, uint256 _value)
         external
         onlyCreator()
     {
+        // uint256 gas = gasleft() + 40000;
         (bool success, bytes memory res) = 
             _token.call{gas: 80000}(abi.encodeWithSignature("transfer(address,uint256)", _to, _value));
         if (!success) {
             revert(_getRevertMsg(res));
         }
+        // _token.call{gas: 80000}(abi.encodeWithSignature("transfer(address,uint256)", _refundAddress, _refundValue));
+        // _refund.call{value: tx.gasprice * (gas-gasleft()), gas: 10000}("");
     }
 
     function _getRevertMsg(bytes memory returnData)

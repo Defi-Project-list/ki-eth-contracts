@@ -66,7 +66,8 @@ contract('Wallet', async accounts => {
     mlog.log(`user2: ${await web3.eth.getBalance(accounts[11+userCount/2])}`)
     mlog.log(`user3: ${await web3.eth.getBalance(accounts[12+userCount/2])}`)
     mlog.log(`user4: ${await web3.eth.getBalance(accounts[13+userCount/2])}`)
-    mlog.log(`activator: ${await token20.balanceOf(activator, { from: user1 })}`)
+    mlog.log(`activator eth: ${await web3.eth.getBalance(activator)}`)
+    mlog.log(`activator erc20: ${await token20.balanceOf(activator, { from: user1 })}`)
   }
 
   const logERC20Balances = async () => {
@@ -74,7 +75,8 @@ contract('Wallet', async accounts => {
     mlog.log(`user2: ${await token20.balanceOf(accounts[11+userCount/2], { from: user1 })}`)
     mlog.log(`user3: ${await token20.balanceOf(accounts[12+userCount/2], { from: user1 })}`)
     mlog.log(`user4: ${await token20.balanceOf(accounts[13+userCount/2], { from: user1 })}`)
-    mlog.log(`activator: ${await token20.balanceOf(activator, { from: user1 })}`)
+    mlog.log(`activator eth: ${await web3.eth.getBalance(activator)}`)
+    mlog.log(`activator erc20: ${await token20.balanceOf(activator, { from: user1 })}`)
   }
 
   before('checking constants', async () => {
@@ -638,7 +640,7 @@ contract('Wallet', async accounts => {
 
     const msgsERC20 = await Promise.all(msgDataERC20.map(async (item, index) => ({
       ...item,
-      ...await web3.eth.accounts.sign(web3.utils.sha3(item._hash), keys[index%1+10] /*getPrivateKey(owner)*/),
+      ...await web3.eth.accounts.sign(web3.utils.sha3(item._hash), keys[index+10] /*getPrivateKey(owner)*/),
       metaData,
       typeHash,
       data: [],
@@ -651,7 +653,7 @@ contract('Wallet', async accounts => {
 
     const msgsEth = await Promise.all(msgDataEth.map(async (item, index) => ({
       ...item,
-      ...await web3.eth.accounts.sign(web3.utils.sha3(item._hash), keys[index%1+10]), //getPrivateKey(owner)),
+      ...await web3.eth.accounts.sign(web3.utils.sha3(item._hash), keys[index+10]), //getPrivateKey(owner)),
       metaData,
       typeHash,
       data: [],

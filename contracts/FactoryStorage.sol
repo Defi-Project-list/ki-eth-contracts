@@ -21,8 +21,14 @@ abstract contract FactoryStorage is MultiSig {
         bool owner;
     }
 
+    struct UpgradeRequest {
+        bytes8 version;
+        uint256 validAt;
+    }
+
     mapping(address => Wallet) internal accounts_wallet;
     mapping(address => bytes8) internal wallets_version;
+    mapping(address => UpgradeRequest) internal wallets_upgrade_requests;
     mapping(bytes8 => address) internal versions_code;
 
     bytes8 internal production_version;

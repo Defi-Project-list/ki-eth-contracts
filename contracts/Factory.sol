@@ -13,6 +13,8 @@ contract Factory is FactoryStorage {
         address indexed owner
     );
     event WalletUpgraded(address indexed wallet, bytes8 indexed version);
+    event WalletUpgradeRequested(address indexed wallet, bytes8 indexed version);
+    event WalletUpgradeDismissed(address indexed wallet, bytes8 indexed version);
     event WalletConfigurationRestored(
         address indexed wallet,
         bytes8 indexed version,
@@ -95,7 +97,7 @@ contract Factory is FactoryStorage {
         _sw.addr = address(0);
     }
 
-    function upgradeWallet(bytes8 _version) external {
+    function upgradeWalletRequest(bytes8 _version) external {
         address _code = versions_code[_version];
         require(_code != address(0), "no version code");
         address _owner = IProxy(msg.sender).owner();
@@ -104,10 +106,47 @@ contract Factory is FactoryStorage {
             msg.sender == _sw.addr && _sw.owner == true,
             "sender is not wallet owner"
         );
-        wallets_version[_sw.addr] = _version;
-        IProxy(msg.sender).init(_owner, _code);
+        wallets_upgrade_requests[_sw.addr] = UpgradeRequest({ version: _version, validAt: block.timestamp + 48 hours});
+        emit WalletUpgradeRequested(_sw.addr, _version);
+    }
+
+    function upgradeWalletDismiss() external {
+        address _owner = IProxy(msg.sender).owner();
+        Wallet storage _sw = accounts_wallet[_owner];
+        require(
+            msg.sender == _sw.addr && _sw.owner == true,
+            "sender is not wallet owner"
+        );
+        UpgradeRequest storage _upgradeRequest = wallets_upgrade_requests[_sw.addr];
+        require(
+            _upgradeRequest.validAt > 0,
+            "request not exsist"
+        );
+        _upgradeRequest.validAt = 0;
+        emit WalletUpgradeDismissed(_sw.addr, _upgradeRequest.version);
+    }
+
+    function upgradeWalletExecute() external {
+        address _owner = IProxy(msg.sender).owner();
+        Wallet storage _sw = accounts_wallet[_owner];
+        require(
+            msg.sender == _sw.addr && _sw.owner == true,
+            "sender is not wallet owner"
+        );
+        UpgradeRequest storage _upgradeRequest = wallets_upgrade_requests[_sw.addr];
+        require(
+            _upgradeRequest.validAt > 0,
+            "request not exsist"
+        );
+        require(
+            _upgradeRequest.validAt <= block.timestamp,
+            "too early"
+        );
+        bytes8 version = _upgradeRequest.version;
+        wallets_version[_sw.addr] = version;
+        IProxy(msg.sender).init(_owner, versions_code[version]);
         IStorage(msg.sender).migrate();
-        emit WalletUpgraded(_sw.addr, _version);
+        emit WalletUpgraded(_sw.addr, version);
     }
 
     function addVersion(address _target, address _oracle)
@@ -316,15 +355,15 @@ contract Factory is FactoryStorage {
             address to = call.to;
             uint256 value = call.value;
             address token = call.token;
-            address signer = ecrecover(
-                _messageToRecover(
-                    keccak256(abi.encode(TRANSFER_TYPEHASH, token, to, value, sessionId, gasPriceLimit)),
-                    call.eip712 > 0
-                ),
-                call.v,
-                call.r,
-                call.s
-            );
+            // address signer = ecrecover(
+            //     _messageToRecover(
+            //         keccak256(abi.encode(TRANSFER_TYPEHASH, token, to, value, sessionId, gasPriceLimit)),
+            //         call.eip712 > 0
+            //     ),
+            //     call.v,
+            //     call.r,
+            //     call.s
+            // );
             if (maxNonce < sessionId) {
                 maxNonce = sessionId;
             }
@@ -334,7 +373,15 @@ contract Factory is FactoryStorage {
             if (minGasPrice > gasPriceLimit) {
                 minGasPrice = gasPriceLimit;
             }
-            address wallet = accounts_wallet[signer].addr;
+            address wallet = accounts_wallet[ecrecover(
+                _messageToRecover(
+                    keccak256(abi.encode(TRANSFER_TYPEHASH, token, to, value, sessionId, gasPriceLimit)),
+                    call.eip712 > 0
+                ),
+                call.v,
+                call.r,
+                call.s
+            )].addr;
             require(wallet != address(0), "Factory: signer is not owner");
             (bool success, bytes memory res) = token == address(0) ?
                 // wallet.call(abi.encodeWithSelector(0xe9bb84c2, to,value)):

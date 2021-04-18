@@ -11,7 +11,7 @@ var Root = artifacts.require("./Root.sol");
 const liveNetworks = { rinkeby: true, kovan: true };
 
 const gasPrice =  web3.utils.toWei('3', 'gwei');
-const gas = 9700000;
+const gas = 25000000;
 
 module.exports = function (deployer, network, accounts) {
   console.log('deploy_contracts')
