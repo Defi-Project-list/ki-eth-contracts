@@ -430,7 +430,7 @@ contract('Wallet', async accounts => {
     const tnonce = '0000000000000001'
     const after = '0000000000'
     const before = 'ffffffffff'
-    const maxGasPrice = '000000000000ffff'
+    const maxGasPrice = '00000000000000c8'
     const eip712 = '00'
     const sessionId = `0x${group}${tnonce}${after}${before}${maxGasPrice}${eip712}`
 
@@ -438,7 +438,7 @@ contract('Wallet', async accounts => {
     const tnonceERC20  = '0000000000000002'
     const afterERC20  = '0000000000'
     const beforeERC20 = 'ffffffffff'
-    const maxGasPriceERC20 = '000000000000ffff'
+    const maxGasPriceERC20 = '00000000000000c8'
     const eip712ERC20 = '00'
     const sessionIdERC20 = `0x${groupERC20}${tnonceERC20}${afterERC20}${beforeERC20}${maxGasPriceERC20}${eip712ERC20}`
 

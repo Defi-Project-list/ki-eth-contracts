@@ -159,7 +159,7 @@ contract FactoryProxy is FactoryStorage {
             }
         }
         require(maxNonce < nonce + (1 << 192), "Factory: nonce too high");
-        s_nonce_group[nonceGroup] = maxNonce << 32 >> 32;
+        s_nonce_group[nonceGroup] = uint224(maxNonce);
       }
     }
 
