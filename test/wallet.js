@@ -431,7 +431,7 @@ contract('Wallet', async accounts => {
     const after = '0000000000'
     const before = 'ffffffffff'
     const maxGasPrice = '000000000000ffff'
-    const eip712 = '0000'
+    const eip712 = '00'
     const sessionId = `0x${group}${tnonce}${after}${before}${maxGasPrice}${eip712}`
 
     const groupERC20  = '00000001'
@@ -439,13 +439,13 @@ contract('Wallet', async accounts => {
     const afterERC20  = '0000000000'
     const beforeERC20 = 'ffffffffff'
     const maxGasPriceERC20 = '000000000000ffff'
-    const eip712ERC20 = '0000'
+    const eip712ERC20 = '00'
     const sessionIdERC20 = `0x${groupERC20}${tnonceERC20}${afterERC20}${beforeERC20}${maxGasPriceERC20}${eip712ERC20}`
 
     const msgDataERC20 = sends.map((item, index) => ({
         ...item, 
         _hash: defaultAbiCoder.encode(
-          ['bytes32', 'address', 'address', 'uint256', 'uint256', 'uint256', 'uint256', 'uint256'/*, 'bool', 'uint32', 'bytes32'*/],
+          ['bytes32', 'address', 'address', 'uint256', 'uint256', 'uint40', 'uint40', 'uint256'/*, 'bool', 'uint32', 'bytes32'*/],
           [typeHash, token20.address, item.to, item.value, sessionIdERC20, '0x'+afterERC20, '0x'+beforeERC20, '0x'+maxGasPriceERC20 /*, +nonce.toString()+index,*/ /*false, 0, keccak256(toUtf8Bytes('')) */])
     }))
 
@@ -460,7 +460,7 @@ contract('Wallet', async accounts => {
 
     const metaData = { simple: true, staticcall: false, gasLimit: 0 }
 
-    const msgsERC20 = await Promise.all(msgDataERC20.map(async (item, index) => ({
+    const msgsERC20 = (await Promise.all(msgDataERC20.map(async (item, index) => ({
       ...item,
       ...await web3.eth.accounts.sign(web3.utils.sha3(item._hash), keys[index+10] /*getPrivateKey(owner)*/),
       metaData,
@@ -471,9 +471,9 @@ contract('Wallet', async accounts => {
       // eip712: 0,
       token: token20.address,
       _hash: undefined,
-    })))
+    })))).map(item=> ({...item, sessionId: item.sessionId + item.v.slice(2).padStart(2,'0') }))
 
-    const msgsEth = await Promise.all(msgDataEth.map(async (item, index) => ({
+    const msgsEth = (await Promise.all(msgDataEth.map(async (item, index) => ({
       ...item,
       ...await web3.eth.accounts.sign(web3.utils.sha3(item._hash), keys[index+10]), //getPrivateKey(owner)),
       metaData,
@@ -484,10 +484,10 @@ contract('Wallet', async accounts => {
       // eip712: 0,
       token: ZERO_ADDRESS,
       _hash: undefined,
-    })))
+    })))).map(item=> ({...item, sessionId: item.sessionId + item.v.slice(2).padStart(2,'0') }))
 
     const balance = await token20.balanceOf(user1, { from: user1 })
-    // mlog.pending(`calling ${JSON.stringify(msgs, null, 2)}`)
+    mlog.pending(`calling ${JSON.stringify(msgsERC20[0], null, 2)}`)
 
     // const { receipt } = await instance.unsecuredBatchCall(msgs, {...msgs[0]}, { from: owner, value: 1 })
     

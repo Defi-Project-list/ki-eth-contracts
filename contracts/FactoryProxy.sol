@@ -49,7 +49,7 @@ contract FactoryProxy is FactoryStorage {
     bytes4 public constant TRANSFER_SELECTOR = 0xc61f08fd;
 
     struct Transfer {
-        uint8 v;
+        // uint8 v;
         bytes32 r;
         bytes32 s;
         address token;
@@ -115,7 +115,7 @@ contract FactoryProxy is FactoryStorage {
     }
 
 
-    function batchTransfer(Transfer[] calldata tr, uint128 nonceGroup) public {
+    function batchTransfer(Transfer[] calldata tr, uint256 nonceGroup) public {
       // address refund = _activator;
       unchecked {
         require(msg.sender == _activator, "Wallet: sender not allowed");
@@ -123,18 +123,13 @@ contract FactoryProxy is FactoryStorage {
         uint256 maxNonce = 0;
         for(uint256 i = 0; i < tr.length; i++) {
             Transfer calldata call = tr[i];
-            uint256 sessionId = call.sessionId;
-            // uint256 gasPriceLimit = call.gasPriceLimit;
-            // uint256 afterTS = (sessionId & 0x000000000000000000000000ffffffffff000000000000000000000000000000) >> 120;
-            uint256 afterTS = sessionId << 96 >> 216;
-            // uint256 beforeTS  = (sessionId & 0x0000000000000000000000000000000000ffffffffff00000000000000000000) >> 80;
-            uint256 beforeTS  = sessionId << 136 >> 216;
-            // uint256 gasPriceLimit  = (sessionId & 0x00000000000000000000000000000000000000000000ffffffffffffffff0000) >> 16;
-            uint256 gasPriceLimit  = sessionId << 176 >> 192;
-
             address to = call.to;
             uint256 value = call.value;
             address token = call.token;
+            uint256 sessionId = call.sessionId;
+            uint256 afterTS = uint40(sessionId >> 120);
+            uint256 beforeTS  = uint40(sessionId >> 80);
+            uint256 gasPriceLimit  = uint64(sessionId >> 16);
 
             if (maxNonce < sessionId) {
                 maxNonce = sessionId;
@@ -147,10 +142,10 @@ contract FactoryProxy is FactoryStorage {
 
             address wallet = accounts_wallet[ecrecover(
                 _messageToRecover(
-                    keccak256(abi.encode(TRANSFER_TYPEHASH, token, to, value, sessionId, afterTS, beforeTS, gasPriceLimit)),
-                    sessionId & 0xff > 0
+                    keccak256(abi.encode(TRANSFER_TYPEHASH, token, to, value, sessionId >> 8, afterTS, beforeTS, gasPriceLimit)),
+                    sessionId & 0xff00 > 0 // eip712
                 ),
-                call.v,
+                uint8(sessionId), // v
                 call.r,
                 call.s
             )].addr;
