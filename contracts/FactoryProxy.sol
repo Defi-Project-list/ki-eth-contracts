@@ -60,6 +60,16 @@ contract FactoryProxy is FactoryStorage {
         // uint256 eip712;
     }
 
+    struct Call {
+        bytes32 r;
+        bytes32 s;
+        bytes32 typeHash;
+        address to;
+        uint256 value;
+        uint256 sessionId;
+        bytes data;
+    }
+
     struct STransfer {
         uint8 v;
         bytes32 r;
@@ -143,7 +153,7 @@ contract FactoryProxy is FactoryStorage {
             address wallet = accounts_wallet[ecrecover(
                 _messageToRecover(
                     keccak256(abi.encode(TRANSFER_TYPEHASH, token, to, value, sessionId >> 8, afterTS, beforeTS, gasPriceLimit)),
-                    sessionId & 0xff00 > 0 // eip712
+                    sessionId & 0x0f00 > 0 // eip712
                 ),
                 uint8(sessionId), // v
                 call.r,
@@ -162,6 +172,60 @@ contract FactoryProxy is FactoryStorage {
         s_nonce_group[nonceGroup] = uint224(maxNonce);
       }
     }
+
+    function _selector(bytes calldata data) private pure returns (bytes4) {
+      return data[0] | (bytes4(data[1]) >> 8) | (bytes4(data[2]) >> 16) | (bytes4(data[3]) >> 24);
+    }
+
+    function batchCall(Call[] calldata tr, uint256 nonceGroup) public {
+      // address refund = _activator;
+      unchecked {
+        require(msg.sender == _activator, "Wallet: sender not allowed");
+        uint256 nonce = s_nonce_group[nonceGroup] + (uint256(nonceGroup) << 224);
+        uint256 maxNonce = 0;
+        for(uint256 i = 0; i < tr.length; i++) {
+            Call calldata call = tr[i];
+            address to = call.to;
+            // uint256 value = call.value;
+            uint256 sessionId = call.sessionId;
+            uint256 afterTS = uint40(sessionId >> 120);
+            uint256 beforeTS  = uint40(sessionId >> 80);
+            uint256 gasPriceLimit  = uint64(sessionId >> 16);
+
+            if (maxNonce < sessionId) {
+                maxNonce = sessionId;
+            }
+
+            require(sessionId >= nonce, "Factory: nonce too low");
+            require(tx.gasprice <= gasPriceLimit, "Factory: gas price too high");
+            require(block.timestamp > afterTS, "Factory: too early");
+            require(block.timestamp < beforeTS, "Factory: too late");
+
+            bytes32 msgHash = keccak256(abi.encode(call.typeHash, to, call.value, sessionId >> 8, afterTS, beforeTS, gasPriceLimit, _selector(call.data), call.data[4:]));
+
+            address wallet = accounts_wallet[ecrecover(
+                _messageToRecover(
+                    msgHash,
+                    false // sessionId & 0x0f00 > 0 // eip712
+                ),
+                uint8(sessionId), // v
+                call.r,
+                call.s
+            )].addr;
+
+            require(wallet != address(0), "Factory: signer is not owner");
+            (bool success, bytes memory res) = sessionId & 0xf000 > 0 ? // staticcall
+                wallet.call(abi.encodeWithSignature("staticcall(address,uint256,uint256,bytes)", to, call.value, gasleft(), call.data)):
+                wallet.call(abi.encodeWithSignature("call(address,uint256,uint256,bytes)", to, call.value, gasleft(), call.data));
+            if (!success) {
+                revert(_getRevertMsg(res));
+            }
+        }
+        require(maxNonce < nonce + (1 << 192), "Factory: nonce too high");
+        s_nonce_group[nonceGroup] = uint224(maxNonce);
+      }
+    }
+
 
     function _getRevertMsg(bytes memory returnData)
         internal

@@ -512,7 +512,74 @@ contract('Wallet', async accounts => {
 
     // const diff = (await token20.balanceOf(user1)).toNumber() - balance.toNumber()
     // assert.equal (diff, 5, 'user1 balance change')
-    mlog.pending(`ERC20 X ${msgsERC20.length} Transfers consumed ${JSON.stringify(receiptERC20.gasUsed)} gas (${JSON.stringify(receiptERC20.gasUsed/msgsEth.length)} gas per call)`)
+    mlog.pending(`ERC20 X ${msgsERC20.length} Transfers consumed ${JSON.stringify(receiptERC20.gasUsed)} gas (${JSON.stringify(receiptERC20.gasUsed/msgsERC20.length)} gas per call)`)
+
+    await logERC20Balances()
+
+  })
+
+
+it('message: should be able to execute batch of many external calls: signer==operator, sender==owner', async () => {
+    await instance.cancelCall({ from: owner })
+    const nonce = await instance.nonce()
+    const typeHash = '0xf728cfc064674dacd2ced2a03acd588dfd299d5e4716726c6d5ec364d16406eb'; // 0x'.padEnd(66,'0')
+
+    const sends = []
+
+    for (let i=10+userCount/2; i<10+userCount; ++i) {
+      sends.push({
+        data: token20.contract.methods.transfer(accounts[i], 5).encodeABI(),
+        value: 0,
+        typeHash: '0x'.padEnd(66,'0'),
+        to: token20.address
+      })
+    }
+
+    const groupERC20  = '00000002'
+    const tnonceERC20  = '0000000000000001'
+    const afterERC20  = '0000000000'
+    const beforeERC20 = 'ffffffffff'
+    const maxGasPriceERC20 = '00000000000000c8'
+    const eip712ERC20 = '00'
+    const sessionIdERC20 = `0x${groupERC20}${tnonceERC20}${afterERC20}${beforeERC20}${maxGasPriceERC20}${eip712ERC20}`
+
+    const msgDataERC20 = sends.map((item, index) => ({
+        ...item, 
+        _hash: defaultAbiCoder.encode(
+          ['bytes32', 'address', 'uint256', 'uint256', 'uint40', 'uint40', 'uint256', 'bytes4', 'bytes'],
+          [item.typeHash, item.to, item.value, sessionIdERC20, '0x'+afterERC20, '0x'+beforeERC20, '0x'+maxGasPriceERC20, item.data.slice(0, 10), '0x' + item.data.slice(10)])
+    }))
+
+    // const metaData = { simple: true, staticcall: false, gasLimit: 0 }
+
+    const msgsERC20 = (await Promise.all(msgDataERC20.map(async (item, index) => ({
+      ...item,
+      ...await web3.eth.accounts.sign(web3.utils.sha3(item._hash), keys[index+10] /*getPrivateKey(owner)*/),
+      sessionId: sessionIdERC20,
+      _hash: undefined,
+    })))).map(item=> ({...item, sessionId: item.sessionId + item.v.slice(2).padStart(2,'0') }))
+
+    const balance = await token20.balanceOf(user1, { from: user1 })
+    mlog.pending(`calling ${JSON.stringify(msgsERC20[0], null, 2)}`)
+
+    // const { receipt } = await instance.unsecuredBatchCall(msgs, {...msgs[0]}, { from: owner, value: 1 })
+    
+    // Should revert
+    // await factory.batchTransfer(msgs, { from: activator, gasPrice: 201 })
+
+    // Should revert
+    // await factory.batchTransfer(msgs, { from: owner, gasPrice: 200 })
+
+    await logERC20Balances()
+
+    const { receipt: receiptERC20 } = await factoryProxy.batchCall(msgsERC20, 2, { from: activator, gasPrice: 200 })
+
+    // Should revert
+    // await factory.batchTransfer(msgs, { from: activator, gasPrice: 200 })
+
+    // const diff = (await token20.balanceOf(user1)).toNumber() - balance.toNumber()
+    // assert.equal (diff, 5, 'user1 balance change')
+    mlog.pending(`ERC20 X ${msgsERC20.length} Transfers consumed ${JSON.stringify(receiptERC20.gasUsed)} gas (${JSON.stringify(receiptERC20.gasUsed/msgsERC20.length)} gas per call)`)
 
     await logERC20Balances()
 
