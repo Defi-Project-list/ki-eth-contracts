@@ -401,7 +401,7 @@ contract Wallet is IStorage, Heritable {
     //     // }
     // }
 
-    function transfer(address payable refund, address _token, address payable _to, uint256 _value)
+    function transfer(/*address payable refund,*/ address _token, address payable _to, uint256 _value)
         public
         onlyCreator()
     {

@@ -25,6 +25,7 @@ const {
 contract('Wallet', async accounts => {
   let instance;
   let factory;
+  let factoryProxy;
   let token20;
   let token20notSafe;
   let token721;
@@ -48,7 +49,7 @@ contract('Wallet', async accounts => {
   const valBN = web3.utils.toBN(val1).add(web3.utils.toBN(val2)).add(web3.utils.toBN(val3));
 
   const gas = 7000000
-  const userCount = 60
+  const userCount = 120
 
   console.log('accounts', JSON.stringify(accounts))
   const getPrivateKey = (address) => {
@@ -99,13 +100,20 @@ contract('Wallet', async accounts => {
     //   await web3.eth.accounts.wallet.add(key)
     // }
 
-    const sw_factory = await Factory.new(factoryOwner1, factoryOwner2, factoryOwner3, { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
-    const sw_factory_proxy = await FactoryProxy.new(factoryOwner1, factoryOwner2, factoryOwner3, { from: owner });
+    const sw_factory = await Factory.new(factoryOwner1, factoryOwner2, factoryOwner3, { from: owner, nonce: await web3.eth.getTransactionCount(owner) })
+    .on('receipt', function(receipt){ mlog.pending(`Creating Factory Cost ${receipt.gasUsed} gas`) })
+    const sw_factory_proxy =await FactoryProxy.new(factoryOwner1, factoryOwner2, factoryOwner3, { from: owner })
+    .on('receipt', function(receipt){ mlog.pending(`Creating Factory Proxy Cost ${receipt.gasUsed} gas`) })
+
+    // const sw_factory = await Factory.new(factoryOwner1, factoryOwner2, factoryOwner3, { from: owner, nonce: await web3.eth.getTransactionCount(owner) })
+    // const sw_factory_proxy = await FactoryProxy.new(factoryOwner1, factoryOwner2, factoryOwner3, { from: owner })
     await sw_factory_proxy.setTarget(sw_factory.address, { from: factoryOwner1 });
     await sw_factory_proxy.setTarget(sw_factory.address, { from: factoryOwner2 });
-    factory = await Factory.at(sw_factory_proxy.address, { from: factoryOwner3 });
     
-    //const factory = await FactoryProxy.new({ from: creator });
+    factory = await Factory.at(sw_factory_proxy.address, { from: factoryOwner3 });
+    factoryProxy = await FactoryProxy.at(sw_factory_proxy.address, { from: factoryOwner3 });
+
+    // const factory = await FactoryProxy.new({ from: creator });
     const version = await Wallet.new({ from: factoryOwner3 });
     oracle = await Oracle.new(factoryOwner1, factoryOwner2, factoryOwner3, {from: owner, nonce: await web3.eth.getTransactionCount(owner)});
     await oracle.setPaymentAddress(factoryOwner2, { from: factoryOwner2 });
@@ -408,232 +416,46 @@ contract('Wallet', async accounts => {
   })
 
   it('message: should be able to execute batch of many external sends: signer==operator, sender==owner', async () => {
-      await instance.cancelCall({ from: owner })
-      const nonce = await instance.nonce()
-      const typeHash = '0xf728cfc064674dacd2ced2a03acd588dfd299d5e4716726c6d5ec364d16406eb'; // 0x'.padEnd(66,'0')
+    await instance.cancelCall({ from: owner })
+    const nonce = await instance.nonce()
+    const typeHash = '0xf728cfc064674dacd2ced2a03acd588dfd299d5e4716726c6d5ec364d16406eb'; // 0x'.padEnd(66,'0')
 
-      const sends = []
+    const sends = []
 
-      for (let i=10+userCount/2; i<10+userCount; ++i) {
-        sends.push({ to: accounts[i], value: 2 })
-      }
+    for (let i=10+userCount/2; i<10+userCount; ++i) {
+      sends.push({ to: accounts[i], value: 2 })
+    }
 
-      const sends2 = [
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 8 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 6 },
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 4 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 1 },
-        { to: user1, value: 2 },
-        { to: user2, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 8 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 6 },
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 4 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 1 },
-        { to: user1, value: 2 },
-        { to: user2, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 8 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 6 },
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 4 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 1 },
-        { to: user1, value: 2 },
-        { to: user2, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 8 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 6 },
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 4 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 1 },
-        { to: user1, value: 2 },
-        { to: user2, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 8 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 6 },
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 4 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 1 },
-        { to: user1, value: 2 },
-        { to: user2, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 8 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 6 },
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 4 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 1 },
-        { to: user1, value: 2 },
-        { to: user2, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 8 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 6 },
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 4 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 1 },
-        { to: user1, value: 2 },
-        { to: user2, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 8 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 6 },
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 4 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 1 },
-        { to: user1, value: 2 },
-        { to: user2, value: 1 },
-        { to: user2, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 8 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 6 },
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 4 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 1 },
-        { to: user1, value: 2 },
-        { to: user2, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 8 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 6 },
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 4 },
-        { to: user3, value: 1 },
-        { to: user1, value: 1 },
-        { to: user2, value: 1 },
-        { to: user3, value: 1 },
-        { to: user1, value: 2 },
-        { to: user2, value: 1 },
-    ]
+    const group = '00000001'
+    const tnonce = '0000000000000001'
+    const after = '0000000000'
+    const before = 'ffffffffff'
+    const maxGasPrice = '000000000000ffff'
+    const eip712 = '0000'
+    const sessionId = `0x${group}${tnonce}${after}${before}${maxGasPrice}${eip712}`
+
+    const groupERC20  = '00000001'
+    const tnonceERC20  = '0000000000000002'
+    const afterERC20  = '0000000000'
+    const beforeERC20 = 'ffffffffff'
+    const maxGasPriceERC20 = '000000000000ffff'
+    const eip712ERC20 = '0000'
+    const sessionIdERC20 = `0x${groupERC20}${tnonceERC20}${afterERC20}${beforeERC20}${maxGasPriceERC20}${eip712ERC20}`
 
     const msgDataERC20 = sends.map((item, index) => ({
         ...item, 
         _hash: defaultAbiCoder.encode(
-          ['bytes32', 'address', 'address', 'uint256', 'uint256', 'uint256'/*, 'bool', 'uint32', 'bytes32'*/],
-          [typeHash, token20.address, item.to, item.value, 1000 + index, 200 /*, +nonce.toString()+index,*/ /*false, 0, keccak256(toUtf8Bytes('')) */])
+          ['bytes32', 'address', 'address', 'uint256', 'uint256', 'uint256', 'uint256', 'uint256'/*, 'bool', 'uint32', 'bytes32'*/],
+          [typeHash, token20.address, item.to, item.value, sessionIdERC20, '0x'+afterERC20, '0x'+beforeERC20, '0x'+maxGasPriceERC20 /*, +nonce.toString()+index,*/ /*false, 0, keccak256(toUtf8Bytes('')) */])
     }))
 
     const msgDataEth = sends.map((item, index) => ({
       ...item, 
       _hash: defaultAbiCoder.encode(
-        ['bytes32', /*'address',*/ 'address', 'uint256', 'uint256', 'uint256'/*, 'bool', 'uint32', 'bytes32'*/],
-        [typeHash, /*ZERO_ADDRESS,*/ item.to, item.value, 10 + index, 200 /*, +nonce.toString()+index,*/ /*false, 0, keccak256(toUtf8Bytes('')) */])
+        ['bytes32', 'address', 'address', 'uint256', 'uint256', 'uint256', 'uint256', 'uint256'/*, 'bool', 'uint32', 'bytes32'*/],
+        // ['bytes32', /*'address',*/ 'address', 'uint256', 'uint256', 'uint256'/*, 'bool', 'uint32', 'bytes32'*/],
+        // [typeHash, /*ZERO_ADDRESS,*/ item.to, item.value, 10 + index, 200 /*, +nonce.toString()+index,*/ /*false, 0, keccak256(toUtf8Bytes('')) */])
+        [typeHash, ZERO_ADDRESS, item.to, item.value, sessionId, '0x'+after, '0x'+before, '0x'+maxGasPrice /*, +nonce.toString()+index,*/ /*false, 0, keccak256(toUtf8Bytes('')) */])
   }))
 
     const metaData = { simple: true, staticcall: false, gasLimit: 0 }
@@ -644,9 +466,9 @@ contract('Wallet', async accounts => {
       metaData,
       typeHash,
       data: [],
-      sessionId: 1000 + index,
-      gasPriceLimit: 200,
-      eip712: 0,
+      sessionId: sessionIdERC20,
+      // gasPriceLimit: 200,
+      // eip712: 0,
       token: token20.address,
       _hash: undefined,
     })))
@@ -657,9 +479,9 @@ contract('Wallet', async accounts => {
       metaData,
       typeHash,
       data: [],
-      sessionId: 10 + index,
-      gasPriceLimit: 200,
-      eip712: 0,
+      sessionId: sessionId,
+      // gasPriceLimit: 200,
+      // eip712: 0,
       token: ZERO_ADDRESS,
       _hash: undefined,
     })))
@@ -676,14 +498,14 @@ contract('Wallet', async accounts => {
     // await factory.batchTransfer(msgs, { from: owner, gasPrice: 200 })
 
     await logBalances()
-    // const { receipt: receiptEth } = await factory.batchTransfer(msgsEth, 0, { from: activator, gasPrice: 200 })
-    const { receipt: receiptEth } = await factory.batchEthTransfer(msgsEth, 0, false,{ from: activator, gasPrice: 200 })
+    const { receipt: receiptEth } = await factoryProxy.batchTransfer(msgsEth, 1, { from: activator, gasPrice: 200 })
+    // const { receipt: receiptEth } = await factoryProxy.batchEthTransfer(msgsEth, 0, false,{ from: activator, gasPrice: 200 })
     mlog.pending(`Ether X ${msgsEth.length} Transfers consumed ${JSON.stringify(receiptEth.gasUsed)} gas (${JSON.stringify(receiptEth.gasUsed/msgsEth.length)} gas per call)`)
     await logBalances()
 
     await logERC20Balances()
 
-    const { receipt: receiptERC20 } = await factory.batchTransfer(msgsERC20, 0, { from: activator, gasPrice: 200 })
+    const { receipt: receiptERC20 } = await factoryProxy.batchTransfer(msgsERC20, 1, { from: activator, gasPrice: 200 })
 
     // Should revert
     // await factory.batchTransfer(msgs, { from: activator, gasPrice: 200 })
