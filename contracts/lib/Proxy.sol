@@ -12,7 +12,7 @@ contract Proxy is StorageBase {
 
     function call(address target, uint256 value, uint256 gas, bytes calldata data) public onlyCreator() {
       (bool success, bytes memory res) = 
-        target.call{gas: gasleft(), value: value}(data);
+        target.call{gas: gas, value: value}(data);
       if (!success) {
         revert(_getRevertMsg(res));
       }
@@ -20,7 +20,7 @@ contract Proxy is StorageBase {
 
     function staticcall(address target, uint256 value, uint256 gas, bytes calldata data) public onlyCreator() {
       (bool success, bytes memory res) = 
-        target.staticcall{gas: gasleft()}(data);
+        target.staticcall{gas: gas}(data);
       if (!success) {
         revert(_getRevertMsg(res));
       }
