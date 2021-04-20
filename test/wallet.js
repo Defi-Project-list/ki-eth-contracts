@@ -667,18 +667,31 @@ it('message: should be able to execute multi external calls: signer==operator, s
     await instance.cancelCall({ from: owner })
     const nonce = await instance.nonce()
 
-    const sends = [[{
-        data: token20.contract.methods.transfer(accounts[11], 5).encodeABI(),
-        value: 0,
-        typeHash: '0x'.padEnd(66,'1'),
-        to: token20.address
-      },
-      {
-        data: token20.contract.methods.transfer(accounts[12], 5).encodeABI(),
-        value: 0,
-        typeHash: '0x'.padEnd(66,'1'),
-        to: token20.address
-      }]]
+    const sends = []
+
+    for (let i=10+userCount/2; i<10+userCount; ++i) {
+      sends.push([
+        {
+          data: token20.contract.methods.transfer(accounts[i], 5).encodeABI(),
+          value: 0,
+          typeHash: '0x'.padEnd(66,'1'),
+          to: token20.address
+        },
+        {
+          data: instance.contract.methods.erc20BalanceGT(token20.address, accounts[i], 2).encodeABI(),
+          value: 0,
+          typeHash: '0x'.padEnd(66,'1'),
+          to: instance.address,
+          staticcall: true, 
+        },
+        // {
+        //   data: token20.contract.methods.transfer(accounts[13], 3).encodeABI(),
+        //   value: 0,
+        //   typeHash: '0x'.padEnd(66,'1'),
+        //   to: token20.address
+        // },
+      ])
+    }
 
     const groupERC20  = '00000004'
     const tnonceERC20  = '00000000000000'
@@ -686,23 +699,23 @@ it('message: should be able to execute multi external calls: signer==operator, s
     const beforeERC20 = 'ffffffffff'
     const maxGasPriceERC20 = '00000000000000c8'
     const eip712ERC20 = '0200' // ordered
-    const sessionIdERC20 = `0x${groupERC20}${tnonceERC20}01${afterERC20}${beforeERC20}${maxGasPriceERC20}${eip712ERC20}`
+    const eip712ERC20Static = '0600' // ordered, staticcall
 
-    const getSessionIdERC20 = index => (
-      `0x${groupERC20}${tnonceERC20}${(index).toString(16).padStart(2,'0')}${afterERC20}${beforeERC20}${maxGasPriceERC20}${eip712ERC20}`
+    const getSessionIdERC20 = (index, staticcall) => (
+      `0x${groupERC20}${tnonceERC20}${(index).toString(16).padStart(2,'0')}${afterERC20}${beforeERC20}${maxGasPriceERC20}${staticcall ? eip712ERC20 : eip712ERC20}`
     )
 
     console.log('sends', JSON.stringify(sends, null,2))
 
     const msgDataERC20 = sends.map((send, index) => ({
-        mcall: send.map(item => ({...item, eip712: false, sessionId: getSessionIdERC20(index), selector: item.data.slice(0, 10), data: '0x' + item.data.slice(10)})), 
+        mcall: send.map(item => ({...item, eip712: false, sessionId: getSessionIdERC20(index, item.staticcall), selector: item.data.slice(0, 10), data: '0x' + item.data.slice(10)})), 
         _hash: defaultAbiCoder.encode(
           ['(bytes32,address,uint256,uint256,uint40,uint40,uint256,bytes4,bytes)[]'],
-          [send.map((item, index) => ([ 
+          [send.map(item => ([ 
                 item.typeHash,
                 item.to,
                 item.value,
-                getSessionIdERC20(index),
+                getSessionIdERC20(index, item.staticcall),
                 '0x'+afterERC20,
                 '0x'+beforeERC20,
                 '0x'+maxGasPriceERC20,
@@ -731,7 +744,7 @@ it('message: should be able to execute multi external calls: signer==operator, s
 
     await logERC20Balances()
 
-    const { receipt: receiptERC20 } = await factoryProxy.batchMultiCall(msgsERC20, 4, { from: activator, gasPrice: 200 })
+    const { receipt: receiptERC20 } = /*tx =*/ await factoryProxy.batchMultiCall(msgsERC20, 4, { from: activator, gasPrice: 200 }) // .catch(revertReason => console.log({ revertReason: JSON.stringify(revertReason, null ,2) }))
 
     mlog.pending(`ERC20 X ${msgsERC20.length} Transfers consumed ${JSON.stringify(receiptERC20.gasUsed)} gas (${JSON.stringify(receiptERC20.gasUsed/msgsERC20.length)} gas per call)`)
 
