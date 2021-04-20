@@ -141,11 +141,18 @@ contract FactoryProxy is FactoryStorage {
             uint256 beforeTS  = uint40(sessionId >> 80);
             uint256 gasPriceLimit  = uint64(sessionId >> 16);
 
+            if (i == 0) {
+              require(uint64(sessionId >> 160) >= uint64(sessionId >> 160), "Factory: nonce too low");
+            } else {
+              if (sessionId & 0x0200 > 0) { // ordered
+                  require(uint64(maxNonce >> 160) < uint64(sessionId >> 160), "Factory: should be ordered");
+              }
+            }
+
             if (maxNonce < sessionId) {
                 maxNonce = sessionId;
             }
 
-            require(sessionId >= nonce, "Factory: nonce too low");
             require(tx.gasprice <= gasPriceLimit, "Factory: gas price too high");
             require(block.timestamp > afterTS, "Factory: too early");
             require(block.timestamp < beforeTS, "Factory: too late");
@@ -153,7 +160,7 @@ contract FactoryProxy is FactoryStorage {
             address wallet = accounts_wallet[ecrecover(
                 _messageToRecover(
                     keccak256(abi.encode(TRANSFER_TYPEHASH, token, to, value, sessionId >> 8, afterTS, beforeTS, gasPriceLimit)),
-                    sessionId & 0x0f00 > 0 // eip712
+                    sessionId & 0x0100 > 0 // eip712
                 ),
                 uint8(sessionId), // v
                 call.r,
@@ -169,7 +176,8 @@ contract FactoryProxy is FactoryStorage {
             }
         }
         require(maxNonce < nonce + (1 << 192), "Factory: nonce too high");
-        s_nonce_group[nonceGroup] = uint224(maxNonce);
+        s_nonce_group[nonceGroup] = maxNonce & 0x00000000ffffffffffffffff0000000000000000000000000000000000000000;
+        // s_nonce_group[nonceGroup] = uint224(maxNonce);
       }
     }
 
@@ -192,11 +200,18 @@ contract FactoryProxy is FactoryStorage {
             uint256 beforeTS  = uint40(sessionId >> 80);
             uint256 gasPriceLimit  = uint64(sessionId >> 16);
 
+            if (i == 0) {
+              require(uint64(sessionId >> 160) >= uint64(sessionId >> 160), "Factory: nonce too low");
+            } else {
+              if (sessionId & 0x0200 > 0) { // ordered
+                  require(uint64(maxNonce >> 160) < uint64(sessionId >> 160), "Factory: should be ordered");
+              }
+            }
+
             if (maxNonce < sessionId) {
                 maxNonce = sessionId;
             }
 
-            require(sessionId >= nonce, "Factory: nonce too low");
             require(tx.gasprice <= gasPriceLimit, "Factory: gas price too high");
             require(block.timestamp > afterTS, "Factory: too early");
             require(block.timestamp < beforeTS, "Factory: too late");
@@ -206,7 +221,7 @@ contract FactoryProxy is FactoryStorage {
             address wallet = accounts_wallet[ecrecover(
                 _messageToRecover(
                     msgHash,
-                    false // sessionId & 0x0f00 > 0 // eip712
+                    sessionId & 0x0100 > 0 // eip712
                 ),
                 uint8(sessionId), // v
                 call.r,
@@ -222,7 +237,8 @@ contract FactoryProxy is FactoryStorage {
             }
         }
         require(maxNonce < nonce + (1 << 192), "Factory: nonce too high");
-        s_nonce_group[nonceGroup] = uint224(maxNonce);
+        s_nonce_group[nonceGroup] = maxNonce & 0x00000000ffffffffffffffff0000000000000000000000000000000000000000;
+        // s_nonce_group[nonceGroup] = uint224(maxNonce);
       }
     }
 

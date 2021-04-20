@@ -536,18 +536,22 @@ it('message: should be able to execute batch of many external calls: signer==ope
     }
 
     const groupERC20  = '00000002'
-    const tnonceERC20  = '0000000000000001'
+    const tnonceERC20  = '00000000000000'
     const afterERC20  = '0000000000'
     const beforeERC20 = 'ffffffffff'
     const maxGasPriceERC20 = '00000000000000c8'
-    const eip712ERC20 = '00'
-    const sessionIdERC20 = `0x${groupERC20}${tnonceERC20}${afterERC20}${beforeERC20}${maxGasPriceERC20}${eip712ERC20}`
+    const eip712ERC20 = '02' // ordered
+    const sessionIdERC20 = `0x${groupERC20}${tnonceERC20}01${afterERC20}${beforeERC20}${maxGasPriceERC20}${eip712ERC20}`
+
+    const getSessionIdERC20 = index => (
+      `0x${groupERC20}${tnonceERC20}${(index).toString(16).padStart(2,'0')}${afterERC20}${beforeERC20}${maxGasPriceERC20}${eip712ERC20}`
+    )
 
     const msgDataERC20 = sends.map((item, index) => ({
         ...item, 
         _hash: defaultAbiCoder.encode(
           ['bytes32', 'address', 'uint256', 'uint256', 'uint40', 'uint40', 'uint256', 'bytes4', 'bytes'],
-          [item.typeHash, item.to, item.value, sessionIdERC20, '0x'+afterERC20, '0x'+beforeERC20, '0x'+maxGasPriceERC20, item.data.slice(0, 10), '0x' + item.data.slice(10)])
+          [item.typeHash, item.to, item.value, getSessionIdERC20(index), '0x'+afterERC20, '0x'+beforeERC20, '0x'+maxGasPriceERC20, item.data.slice(0, 10), '0x' + item.data.slice(10)])
     }))
 
     // const metaData = { simple: true, staticcall: false, gasLimit: 0 }
@@ -555,7 +559,7 @@ it('message: should be able to execute batch of many external calls: signer==ope
     const msgsERC20 = (await Promise.all(msgDataERC20.map(async (item, index) => ({
       ...item,
       ...await web3.eth.accounts.sign(web3.utils.sha3(item._hash), keys[index+10] /*getPrivateKey(owner)*/),
-      sessionId: sessionIdERC20,
+      sessionId: getSessionIdERC20(index),
       _hash: undefined,
     })))).map(item=> ({...item, sessionId: item.sessionId + item.v.slice(2).padStart(2,'0') }))
 
