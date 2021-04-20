@@ -180,7 +180,7 @@ contract FactoryProxy is FactoryStorage {
             uint256 gasPriceLimit  = uint64(sessionId >> 16);
 
             if (i == 0) {
-              require(uint64(sessionId >> 160) >= uint64(sessionId >> 160), "Factory: nonce too low");
+              require(uint64(sessionId >> 160) >= uint64(nonce >> 160), "Factory: nonce too low");
             } else {
               if (sessionId & 0x0200 > 0) { // ordered
                   require(uint64(maxNonce >> 160) < uint64(sessionId >> 160), "Factory: should be ordered");
@@ -241,7 +241,7 @@ contract FactoryProxy is FactoryStorage {
             uint256 gasPriceLimit  = uint64(sessionId >> 16);
 
             if (i == 0) {
-              require(uint64(sessionId >> 160) >= uint64(sessionId >> 160), "Factory: nonce too low");
+              require(uint64(sessionId >> 160) >= uint64(nonce >> 160), "Factory: nonce too low");
             } else {
               if (sessionId & 0x0200 > 0) { // ordered
                   require(uint64(maxNonce >> 160) < uint64(sessionId >> 160), "Factory: should be ordered");
@@ -301,7 +301,7 @@ contract FactoryProxy is FactoryStorage {
               uint256 gasPriceLimit  = uint64(sessionId >> 16);
 
               if (i == 0) {
-                require(uint64(sessionId >> 160) >= uint64(sessionId >> 160), "Factory: nonce too low");
+                require(uint64(sessionId >> 160) >= uint64(nonce >> 160), "Factory: nonce too low");
               } else {
                 if (sessionId & 0x0200 > 0) { // ordered
                     require(uint64(maxNonce >> 160) < uint64(sessionId >> 160), "Factory: should be ordered");
@@ -315,8 +315,7 @@ contract FactoryProxy is FactoryStorage {
               require(tx.gasprice <= gasPriceLimit, "Factory: gas price too high");
               require(block.timestamp > afterTS, "Factory: too early");
               require(block.timestamp < beforeTS, "Factory: too late");
-              bytes memory x = abi.encode(call.typeHash, to, call.value, sessionId, afterTS, beforeTS, gasPriceLimit, call.selector, call.data);
-              msg2 = abi.encodePacked(msg2, x);
+              msg2 = abi.encodePacked(msg2, abi.encode(call.typeHash, to, call.value, sessionId, afterTS, beforeTS, gasPriceLimit, call.selector, call.data));
               if (j < mcalls.mcall.length-1) {
                 msgPre = abi.encodePacked(msgPre, msg2.length + 32*mcalls.mcall.length);
               }

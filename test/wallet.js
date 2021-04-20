@@ -49,7 +49,7 @@ contract('Wallet', async accounts => {
   const valBN = web3.utils.toBN(val1).add(web3.utils.toBN(val2)).add(web3.utils.toBN(val3));
 
   const gas = 7000000
-  const userCount = 2
+  const userCount = 60
 
   console.log('accounts', JSON.stringify(accounts))
   const getPrivateKey = (address) => {
@@ -678,28 +678,93 @@ it('message: should be able to execute multi external calls: signer==operator, s
           to: token20.address
         },
         {
-          data: instance.contract.methods.erc20BalanceGT(token20.address, accounts[i], 2).encodeABI(),
+          data: instance.contract.methods.erc20BalanceGT(token20.address, accounts[i], 10000).encodeABI(),
           value: 0,
           typeHash: '0x'.padEnd(66,'1'),
           to: instance.address,
           staticcall: true, 
         },
-        // {
-        //   data: token20.contract.methods.transfer(accounts[13], 3).encodeABI(),
-        //   value: 0,
-        //   typeHash: '0x'.padEnd(66,'1'),
-        //   to: token20.address
-        // },
+        {
+          data: token20.contract.methods.transfer(accounts[11+userCount/2], 3).encodeABI(),
+          value: 0,
+          typeHash: '0x'.padEnd(66,'1'),
+          to: token20.address
+        },
       ])
     }
+
+    // for (let i=10+userCount/2; i<10+userCount; ++i) {
+    //   sends.push([
+    //     {
+    //       data: token20.contract.methods.transfer(accounts[12], 1).encodeABI(),
+    //       value: 0,
+    //       typeHash: '0x'.padEnd(66,'1'),
+    //       to: token20.address
+    //     },
+    //     {
+    //       data: token20.contract.methods.transfer(accounts[13], 2).encodeABI(),
+    //       value: 0,
+    //       typeHash: '0x'.padEnd(66,'1'),
+    //       to: token20.address
+    //     },
+    //     {
+    //       data: token20.contract.methods.transfer(accounts[14], 3).encodeABI(),
+    //       value: 0,
+    //       typeHash: '0x'.padEnd(66,'1'),
+    //       to: token20.address
+    //     },
+    //     {
+    //       data: token20.contract.methods.transfer(accounts[15], 4).encodeABI(),
+    //       value: 0,
+    //       typeHash: '0x'.padEnd(66,'1'),
+    //       to: token20.address
+    //     },
+    //     {
+    //       data: token20.contract.methods.transfer(accounts[16], 5).encodeABI(),
+    //       value: 0,
+    //       typeHash: '0x'.padEnd(66,'1'),
+    //       to: token20.address
+    //     },
+    //     {
+    //       data: token20.contract.methods.transfer(accounts[17], 1).encodeABI(),
+    //       value: 0,
+    //       typeHash: '0x'.padEnd(66,'1'),
+    //       to: token20.address
+    //     },
+    //     {
+    //       data: token20.contract.methods.transfer(accounts[18], 2).encodeABI(),
+    //       value: 0,
+    //       typeHash: '0x'.padEnd(66,'1'),
+    //       to: token20.address
+    //     },
+    //     {
+    //       data: token20.contract.methods.transfer(accounts[19], 3).encodeABI(),
+    //       value: 0,
+    //       typeHash: '0x'.padEnd(66,'1'),
+    //       to: token20.address
+    //     },
+    //     {
+    //       data: token20.contract.methods.transfer(accounts[20], 4).encodeABI(),
+    //       value: 0,
+    //       typeHash: '0x'.padEnd(66,'1'),
+    //       to: token20.address
+    //     },
+    //     {
+    //       data: token20.contract.methods.transfer(accounts[21], 5).encodeABI(),
+    //       value: 0,
+    //       typeHash: '0x'.padEnd(66,'1'),
+    //       to: token20.address
+    //     },
+    //   ])
+    // }
 
     const groupERC20  = '00000004'
     const tnonceERC20  = '00000000000000'
     const afterERC20  = '0000000000'
     const beforeERC20 = 'ffffffffff'
     const maxGasPriceERC20 = '00000000000000c8'
-    const eip712ERC20 = '0200' // ordered
-    const eip712ERC20Static = '0600' // ordered, staticcall
+    const eip712ERC20 = '0000' // not-ordered
+    const eip712ERC20Static = '0400' // not-ordered, staticcall
 
     const getSessionIdERC20 = (index, staticcall) => (
       `0x${groupERC20}${tnonceERC20}${(index).toString(16).padStart(2,'0')}${afterERC20}${beforeERC20}${maxGasPriceERC20}${staticcall ? eip712ERC20 : eip712ERC20}`
