@@ -71,6 +71,22 @@ contract FactoryProxy is FactoryStorage {
         bytes data;
     }
 
+     struct MCall {
+        bytes32 typeHash;
+        address to;
+        uint256 value;
+        uint256 sessionId;
+        bytes4 selector;
+        bytes data;
+     }
+
+     struct MCalls {
+        uint8 v;
+        bytes32 r;
+        bytes32 s;
+        bool eip712;
+        MCall[] mcall;
+     }
 
     struct CallMessage {
         bytes32 typeHash;
@@ -264,18 +280,65 @@ contract FactoryProxy is FactoryStorage {
       }
     }
 
+    function bytesToString(bytes memory byteCode) public pure returns(string memory stringData)
+{
+    uint256 blank = 0; //blank 32 byte value
+    uint256 length = byteCode.length;
 
-    function batchMultiCall(Call[][] calldata tr, uint256 nonceGroup) public {
+    uint cycles = byteCode.length / 0x20;
+    uint requiredAlloc = length;
+
+    if (length % 0x20 > 0) //optimise copying the final part of the bytes - to avoid looping with single byte writes
+    {
+        cycles++;
+        requiredAlloc += 0x20; //expand memory to allow end blank, so we don't smack the next stack entry
+    }
+
+    stringData = new string(requiredAlloc);
+
+    //copy data in 32 byte blocks
+    assembly {
+        let cycle := 0
+
+        for
+        {
+            let mc := add(stringData, 0x20) //pointer into bytes we're writing to
+            let cc := add(byteCode, 0x20)   //pointer to where we're reading from
+        } lt(cycle, cycles) {
+            mc := add(mc, 0x20)
+            cc := add(cc, 0x20)
+            cycle := add(cycle, 0x01)
+        } {
+            mstore(mc, mload(cc))
+        }
+    }
+
+    //finally blank final bytes and shrink size (part of the optimisation to avoid looping adding blank bytes1)
+    if (length % 0x20 > 0)
+    {
+        uint offsetStart = 0x20 + length;
+        assembly
+        {
+            let mc := add(stringData, offsetStart)
+            mstore(mc, mload(add(blank, 0x20)))
+            //now shrink the memory back so the returned object is the correct size
+            mstore(stringData, length)
+        }
+    }
+}
+
+    function batchMultiCall(MCalls[] calldata tr, uint256 nonceGroup) public {
       unchecked {
         require(msg.sender == _activator, "Wallet: sender not allowed");
         uint256 nonce = s_nonce_group[nonceGroup] + (uint256(nonceGroup) << 224);
         uint256 maxNonce = 0;
         for(uint256 i = 0; i < tr.length; i++) {
-            Call[] calldata mcall = tr[i];
-            bytes memory msgPre = abi.encode(0x20, mcall.length);
-            bytes memory msg;
-          for(uint256 j = 0; j < mcall.length; j++) {
-              Call calldata call = mcall[j];
+            MCalls calldata mcalls = tr[i];
+            bytes memory msgPre = abi.encode(0x20, mcalls.mcall.length);
+            bytes memory msg2;
+            
+            for(uint256 j = 0; j < mcalls.mcall.length; j++) {
+              MCall calldata call = mcalls.mcall[j];
               address to = call.to;
               uint256 sessionId = call.sessionId;
               uint256 afterTS = uint40(sessionId >> 120);
@@ -297,32 +360,34 @@ contract FactoryProxy is FactoryStorage {
               require(tx.gasprice <= gasPriceLimit, "Factory: gas price too high");
               require(block.timestamp > afterTS, "Factory: too early");
               require(block.timestamp < beforeTS, "Factory: too late");
-              bytes memory x = abi.encode(call.typeHash, to, call.value, sessionId >> 8, afterTS, beforeTS, gasPriceLimit, _selector(call.data), call.data[4:]);
-              msg = abi.encodePacked(msg, x);
+              bytes memory x = abi.encode(call.typeHash, to, call.value, sessionId, afterTS, beforeTS, gasPriceLimit, call.selector, call.data);
+              msg2 = abi.encodePacked(msg2, x);
               msgPre = abi.encodePacked(msgPre, x.length);
               // msg = abi.encode(call.typeHash, to, call.value, sessionId >> 8, afterTS, beforeTS, gasPriceLimit, _selector(call.data), call.data[4:]);
             }
 
-            bytes32 msgHash = keccak256(abi.encodePacked(msgPre, msg));
+            bytes32 msgHash = keccak256(abi.encodePacked(msgPre, msg2));
+
+            require(false, string(abi.encodePacked(msgPre, msg2)));
 
             address wallet = accounts_wallet[ecrecover(
                 _messageToRecover(
                     msgHash,
-                    mcall[0].sessionId & 0x0100 > 0 // eip712
+                    mcalls.eip712
                 ),
-                uint8(mcall[0].sessionId), // v
-                mcall[0].r,
-                mcall[0].s
+                mcalls.v,
+                mcalls.r,
+                mcalls.s
             )].addr;
 
             require(wallet != address(0), "Factory: signer is not owner");
 
-          for(uint256 j = 0; j < mcall.length; j++) {
-              Call calldata call = mcall[j];
+          for(uint256 j = 0; j < mcalls.mcall.length; j++) {
+              MCall calldata call = mcalls.mcall[j];
 
             (bool success, bytes memory res) = call.sessionId & 0x0400 > 0 ? // staticcall
-                wallet.call(abi.encodeWithSignature("staticcall(address,uint256,uint256,bytes)", call.to, call.value, gasleft(), call.data)):
-                wallet.call(abi.encodeWithSignature("call(address,uint256,uint256,bytes)", call.to, call.value, gasleft(), call.data));
+                wallet.call(abi.encodeWithSignature("staticcall(address,uint256,uint256,bytes)", call.to, call.value, gasleft(), abi.encodePacked(call.selector, call.data))):
+                wallet.call(abi.encodeWithSignature("call(address,uint256,uint256,bytes)", call.to, call.value, gasleft(), abi.encodePacked(call.selector, call.data)));
             if (!success) {
                 revert(_getRevertMsg(res));
             }
