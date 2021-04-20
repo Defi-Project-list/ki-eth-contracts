@@ -175,8 +175,9 @@ contract FactoryProxy is FactoryStorage {
                 revert(_getRevertMsg(res));
             }
         }
-        require(maxNonce < nonce + (1 << 192), "Factory: nonce too high");
-        s_nonce_group[nonceGroup] = maxNonce & 0x00000000ffffffffffffffff0000000000000000000000000000000000000000;
+        uint256 nextNonce = maxNonce & 0x00000000ffffffffffffffff0000000000000000000000000000000000000000 + (1 << 160);
+        require(nextNonce < nonce + (1 << 192), "Factory: nonce too high");
+        s_nonce_group[nonceGroup] = nextNonce;
         // s_nonce_group[nonceGroup] = uint224(maxNonce);
       }
     }
@@ -229,16 +230,16 @@ contract FactoryProxy is FactoryStorage {
             )].addr;
 
             require(wallet != address(0), "Factory: signer is not owner");
-            (bool success, bytes memory res) = sessionId & 0xf000 > 0 ? // staticcall
+            (bool success, bytes memory res) = sessionId & 0x0400 > 0 ? // staticcall
                 wallet.call(abi.encodeWithSignature("staticcall(address,uint256,uint256,bytes)", to, call.value, gasleft(), call.data)):
                 wallet.call(abi.encodeWithSignature("call(address,uint256,uint256,bytes)", to, call.value, gasleft(), call.data));
             if (!success) {
                 revert(_getRevertMsg(res));
             }
         }
-        require(maxNonce < nonce + (1 << 192), "Factory: nonce too high");
-        s_nonce_group[nonceGroup] = maxNonce & 0x00000000ffffffffffffffff0000000000000000000000000000000000000000;
-        // s_nonce_group[nonceGroup] = uint224(maxNonce);
+        uint256 nextNonce = maxNonce & 0x00000000ffffffffffffffff0000000000000000000000000000000000000000 + (1 << 160);
+        require(nextNonce < nonce + (1 << 192), "Factory: nonce too high");
+        s_nonce_group[nonceGroup] = nextNonce;
       }
     }
 

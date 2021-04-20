@@ -192,6 +192,10 @@ contract Wallet is IStorage, Heritable {
       return data[0] | (bytes4(data[1]) >> 8) | (bytes4(data[2]) >> 16) | (bytes4(data[3]) >> 24);
     }
 
+    function erc20BalanceGT(address token, address account, uint256 value) external view {
+      require(IERC20(token).balanceOf(account) >= value, "ERC20Balance: too low");
+    }
+
     struct Entities {
       address creator;
       address operator;
