@@ -77,7 +77,8 @@ contract FactoryProxy is FactoryStorage {
         bytes32 typeHash;
         address to;
         uint256 value;
-        uint256 sessionId;
+        // uint8 flags;
+        uint32 gasLimit;
         bytes4 selector;
         bytes data;
      }
@@ -86,7 +87,7 @@ contract FactoryProxy is FactoryStorage {
         uint8 v;
         bytes32 r;
         bytes32 s;
-        bool eip712;
+        uint256 sessionId;
         MCall[] mcall;
      }
 
@@ -163,11 +164,10 @@ contract FactoryProxy is FactoryStorage {
     }
 
 
-    function batchTransfer(Transfer[] calldata tr, uint256 nonceGroup) public {
-      // address refund = _activator;
+    function batchTransfer(Transfer[] calldata tr, uint24 nonceGroup) public {
       unchecked {
         require(msg.sender == _activator, "Wallet: sender not allowed");
-        uint256 nonce = s_nonce_group[nonceGroup] + (uint256(nonceGroup) << 224);
+        uint256 nonce = s_nonce_group[nonceGroup] + (uint256(nonceGroup) << 232);
         uint256 maxNonce = 0;
         for(uint256 i = 0; i < tr.length; i++) {
             Transfer calldata call = tr[i];
@@ -175,15 +175,16 @@ contract FactoryProxy is FactoryStorage {
             uint256 value = call.value;
             address token = call.token;
             uint256 sessionId = call.sessionId;
-            uint256 afterTS = uint40(sessionId >> 120);
-            uint256 beforeTS  = uint40(sessionId >> 80);
+            uint256 afterTS = uint40(sessionId >> 152);
+            uint256 beforeTS  = uint40(sessionId >> 112);
+            uint256 gasLimit  = uint32(sessionId >> 80);
             uint256 gasPriceLimit  = uint64(sessionId >> 16);
 
             if (i == 0) {
-              require(uint64(sessionId >> 160) >= uint64(nonce >> 160), "Factory: nonce too low");
+              require(sessionId >> 192 >= nonce >> 192, "Factory: group+nonce too low");
             } else {
               if (sessionId & 0x0200 > 0) { // ordered
-                  require(uint64(maxNonce >> 160) < uint64(sessionId >> 160), "Factory: should be ordered");
+                  require(uint40(maxNonce >> 192) < uint40(sessionId >> 192), "Factory: should be ordered");
               }
             }
 
@@ -197,7 +198,7 @@ contract FactoryProxy is FactoryStorage {
 
             address wallet = accounts_wallet[ecrecover(
                 _messageToRecover(
-                    keccak256(abi.encode(TRANSFER_TYPEHASH, token, to, value, sessionId >> 8, afterTS, beforeTS, gasPriceLimit)),
+                    keccak256(abi.encode(TRANSFER_TYPEHASH, token, to, value, sessionId >> 8, afterTS, beforeTS, gasLimit, gasPriceLimit)),
                     sessionId & 0x0100 > 0 // eip712
                 ),
                 uint8(sessionId), // v
@@ -207,16 +208,14 @@ contract FactoryProxy is FactoryStorage {
 
             require(wallet != address(0), "Factory: signer is not owner");
             (bool success, bytes memory res) = token == address(0) ?
-                wallet.call(abi.encodeWithSignature("transferEth(address,uint256)", to, value)):
-                wallet.call(abi.encodeWithSignature("transferERC20(address,address,uint256)", token, to, value));
+                wallet.call{gas: gasLimit>0 ? gasLimit: gasleft()}(abi.encodeWithSignature("transferEth(address,uint256)", to, value)):
+                wallet.call{gas: gasLimit>0 ? gasLimit: gasleft()}(abi.encodeWithSignature("transferERC20(address,address,uint256)", token, to, value));
             if (!success) {
                 revert(_getRevertMsg(res));
             }
         }
-        uint256 nextNonce = maxNonce & 0x00000000ffffffffffffffff0000000000000000000000000000000000000000 + (1 << 160);
-        require(nextNonce < nonce + (1 << 192), "Factory: nonce too high");
-        s_nonce_group[nonceGroup] = nextNonce;
-        // s_nonce_group[nonceGroup] = uint224(maxNonce);
+        require(maxNonce < nonce + (1 << 216), "Factory: gourp+nonce too high");
+        s_nonce_group[nonceGroup] = (maxNonce & 0x000000ffffffffff000000000000000000000000000000000000000000000000) + (1 << 192);
       }
     }
 
@@ -228,23 +227,26 @@ contract FactoryProxy is FactoryStorage {
       // address refund = _activator;
       unchecked {
         require(msg.sender == _activator, "Wallet: sender not allowed");
-        uint256 nonce = s_nonce_group[nonceGroup] + (uint256(nonceGroup) << 224);
+        uint256 nonce = s_nonce_group[nonceGroup] + (nonceGroup << 232);
         uint256 maxNonce = 0;
         for(uint256 i = 0; i < tr.length; i++) {
             Call calldata call = tr[i];
-            address to = call.to;
+            // address to = call.to;
             // uint256 value = call.value;
-            bytes4 selector = call.selector;
+            // bytes4 selector = call.selector;
             uint256 sessionId = call.sessionId;
-            uint256 afterTS = uint40(sessionId >> 120);
-            uint256 beforeTS  = uint40(sessionId >> 80);
+            uint256 afterTS = uint40(sessionId >> 152);
+            uint256 beforeTS  = uint40(sessionId >> 112);
+            uint256 gasLimit  = uint32(sessionId >> 80);
             uint256 gasPriceLimit  = uint64(sessionId >> 16);
 
+            // emit ErrorHandled(abi.encode(sessionId >> 192, nonce >> 192));
+
             if (i == 0) {
-              require(uint64(sessionId >> 160) >= uint64(nonce >> 160), "Factory: nonce too low");
+              require(sessionId >> 192 >= nonce >> 192, "Factory: group+nonce too low");
             } else {
               if (sessionId & 0x0200 > 0) { // ordered
-                  require(uint64(maxNonce >> 160) < uint64(sessionId >> 160), "Factory: should be ordered");
+                  require(uint40(maxNonce >> 192) < uint40(sessionId >> 192), "Factory: should be ordered");
               }
             }
 
@@ -256,7 +258,7 @@ contract FactoryProxy is FactoryStorage {
             require(block.timestamp > afterTS, "Factory: too early");
             require(block.timestamp < beforeTS, "Factory: too late");
 
-            bytes32 msgHash = keccak256(abi.encode(call.typeHash, to, call.value, sessionId >> 8, afterTS, beforeTS, gasPriceLimit, selector, call.data));
+            bytes32 msgHash = keccak256(abi.encode(call.typeHash, call.to, call.value, sessionId >> 8, afterTS, beforeTS, gasLimit, gasPriceLimit, call.selector, call.data));
 
             address wallet = accounts_wallet[ecrecover(
                 _messageToRecover(
@@ -270,56 +272,55 @@ contract FactoryProxy is FactoryStorage {
 
             require(wallet != address(0), "Factory: signer is not owner");
             (bool success, bytes memory res) = sessionId & 0x0400 > 0 ? // staticcall
-                wallet.call(abi.encodeWithSignature("staticcall(address,uint256,uint256,bytes)", to, call.value, gasleft(), abi.encodePacked(selector, call.data))):
-                wallet.call(abi.encodeWithSignature("call(address,uint256,uint256,bytes)", to, call.value, gasleft(), abi.encodePacked(selector, call.data)));
+                wallet.call{gas: gasLimit>0 ? gasLimit: gasleft()}(abi.encodeWithSignature("staticcall(address,uint256,uint256,bytes)", call.to, call.value, gasleft(), abi.encodePacked(call.selector, call.data))):
+                wallet.call{gas: gasLimit>0 ? gasLimit: gasleft()}(abi.encodeWithSignature("call(address,uint256,uint256,bytes)", call.to, call.value, gasleft(), abi.encodePacked(call.selector, call.data)));
             if (!success) {
                 revert(_getRevertMsg(res));
             }
         }
-        uint256 nextNonce = maxNonce & 0x00000000ffffffffffffffff0000000000000000000000000000000000000000 + (1 << 160);
-        require(nextNonce < nonce + (1 << 192), "Factory: nonce too high");
-        s_nonce_group[nonceGroup] = nextNonce;
+        require(maxNonce < nonce + (1 << 216), "Factory: gourp+nonce too high");
+        s_nonce_group[nonceGroup] = (maxNonce & 0x000000ffffffffff000000000000000000000000000000000000000000000000) + (1 << 192);
       }
     }
 
     function batchMultiCall(MCalls[] calldata tr, uint256 nonceGroup) public {
       unchecked {
         require(msg.sender == _activator, "Wallet: sender not allowed");
-        uint256 nonce = s_nonce_group[nonceGroup] + (uint256(nonceGroup) << 224);
+        uint256 nonce = s_nonce_group[nonceGroup] + (uint256(nonceGroup) << 232);
         uint256 maxNonce = 0;
         for(uint256 i = 0; i < tr.length; i++) {
             MCalls calldata mcalls = tr[i];
             bytes memory msgPre = abi.encode(0x20, mcalls.mcall.length, 32*mcalls.mcall.length);
             bytes memory msg2;
+            uint256 sessionId = mcalls.sessionId;
+            uint256 afterTS = uint40(sessionId >> 152);
+            uint256 beforeTS  = uint40(sessionId >> 112);
+            uint256 gasPriceLimit  = uint64(sessionId >> 16);
+
+            if (i == 0) {
+              require(sessionId >> 192 >= nonce >> 192, "Factory: group+nonce too low");
+            } else {
+              if (sessionId & 0x0200 > 0) { // ordered
+                  require(uint40(maxNonce >> 192) < uint40(sessionId >> 192), "Factory: should be ordered");
+              }
+            }
+
+            if (maxNonce < sessionId) {
+                maxNonce = sessionId;
+            }
+
+            require(tx.gasprice <= gasPriceLimit, "Factory: gas price too high");
+            require(block.timestamp > afterTS, "Factory: too early");
+            require(block.timestamp < beforeTS, "Factory: too late");
             
             for(uint256 j = 0; j < mcalls.mcall.length; j++) {
-              MCall calldata call = mcalls.mcall[j];
-              address to = call.to;
-              uint256 sessionId = call.sessionId;
-              uint256 afterTS = uint40(sessionId >> 120);
-              uint256 beforeTS  = uint40(sessionId >> 80);
-              uint256 gasPriceLimit  = uint64(sessionId >> 16);
-
-              if (i == 0) {
-                require(uint64(sessionId >> 160) >= uint64(nonce >> 160), "Factory: nonce too low");
-              } else {
-                if (sessionId & 0x0200 > 0) { // ordered
-                    require(uint64(maxNonce >> 160) < uint64(sessionId >> 160), "Factory: should be ordered");
+                MCall calldata call = mcalls.mcall[j];
+                address to = call.to;
+                msg2 = abi.encodePacked(msg2, abi.encode(call.typeHash, to, call.value, sessionId, afterTS, beforeTS, call.gasLimit, gasPriceLimit, call.selector, call.data));
+                if (j < mcalls.mcall.length-1) {
+                  msgPre = abi.encodePacked(msgPre, msg2.length + 32*mcalls.mcall.length);
                 }
-              }
-
-              if (maxNonce < sessionId) {
-                  maxNonce = sessionId;
-              }
-
-              require(tx.gasprice <= gasPriceLimit, "Factory: gas price too high");
-              require(block.timestamp > afterTS, "Factory: too early");
-              require(block.timestamp < beforeTS, "Factory: too late");
-              msg2 = abi.encodePacked(msg2, abi.encode(call.typeHash, to, call.value, sessionId, afterTS, beforeTS, gasPriceLimit, call.selector, call.data));
-              if (j < mcalls.mcall.length-1) {
-                msgPre = abi.encodePacked(msgPre, msg2.length + 32*mcalls.mcall.length);
-              }
-              // msg = abi.encode(call.typeHash, to, call.value, sessionId >> 8, afterTS, beforeTS, gasPriceLimit, _selector(call.data), call.data[4:]);
+                // msg = abi.encode(call.typeHash, to, call.value, sessionId >> 8, afterTS, beforeTS, gasPriceLimit, _selector(call.data), call.data[4:]);
             }
 
             bytes32 msgHash = keccak256(abi.encodePacked(msgPre, msg2));
@@ -328,7 +329,7 @@ contract FactoryProxy is FactoryStorage {
             address wallet = accounts_wallet[ecrecover(
                 _messageToRecover(
                     msgHash,
-                    mcalls.eip712
+                    sessionId & 0x0100 > 0 // eip712
                 ),
                 mcalls.v,
                 mcalls.r,
@@ -339,18 +340,17 @@ contract FactoryProxy is FactoryStorage {
 
           for(uint256 j = 0; j < mcalls.mcall.length; j++) {
               MCall calldata call = mcalls.mcall[j];
-
-            (bool success, bytes memory res) = call.sessionId & 0x0400 > 0 ? // staticcall
-                wallet.call(abi.encodeWithSignature("staticcall(address,uint256,uint256,bytes)", call.to, call.value, gasleft(), abi.encodePacked(call.selector, call.data))):
-                wallet.call(abi.encodeWithSignature("call(address,uint256,uint256,bytes)", call.to, call.value, gasleft(), abi.encodePacked(call.selector, call.data)));
+              uint32 gasLimit = call.gasLimit;
+            (bool success, bytes memory res) = false ? // call.sessionId & 0x0400 > 0 ? // staticcall
+                wallet.call{gas: gasLimit > 0 ? gasLimit: gasleft()}(abi.encodeWithSignature("staticcall(address,uint256,uint256,bytes)", call.to, call.value, gasleft(), abi.encodePacked(call.selector, call.data))):
+                wallet.call{gas: gasLimit > 0 ? gasLimit: gasleft()}(abi.encodeWithSignature("call(address,uint256,uint256,bytes)", call.to, call.value, gasleft(), abi.encodePacked(call.selector, call.data)));
             if (!success) {
                 revert(_getRevertMsg(res));
             }
           }
         }
-        uint256 nextNonce = maxNonce & 0x00000000ffffffffffffffff0000000000000000000000000000000000000000 + (1 << 160);
-        require(nextNonce < nonce + (1 << 192), "Factory: nonce too high");
-        s_nonce_group[nonceGroup] = nextNonce;
+        require(maxNonce < nonce + (1 << 216), "Factory: gourp+nonce too high");
+        s_nonce_group[nonceGroup] = (maxNonce & 0x000000ffffffffff000000000000000000000000000000000000000000000000) + (1 << 192);
       }
     }
 
