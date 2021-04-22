@@ -468,6 +468,7 @@ contract('Wallet', async accounts => {
       metaData,
       typeHash,
       data: [],
+      signer: ZERO_ADDRESS,
       sessionId: sessionIdERC20,
       // gasPriceLimit: 200,
       // eip712: 0,
@@ -482,6 +483,7 @@ contract('Wallet', async accounts => {
       typeHash,
       data: [],
       sessionId: sessionId,
+      signer: ZERO_ADDRESS,
       // gasPriceLimit: 200,
       // eip712: 0,
       token: ZERO_ADDRESS,
@@ -563,6 +565,7 @@ it('message: should be able to execute batch of many external calls: signer==ope
       ...await web3.eth.accounts.sign(web3.utils.sha3(item._hash), keys[index+10] /*getPrivateKey(owner)*/),
       sessionId: getSessionIdERC20(index),
       selector: item.data.slice(0,10),
+      signer: ZERO_ADDRESS,
       data: '0x' + item.data.slice(10),
       _hash: undefined,
     })))).map(item=> ({...item, sessionId: item.sessionId + item.v.slice(2).padStart(2,'0') }))
@@ -635,6 +638,7 @@ it('message: should be able to execute batch of many external static calls: sign
       ...await web3.eth.accounts.sign(web3.utils.sha3(item._hash), keys[index+10] /*getPrivateKey(owner)*/),
       sessionId: getSessionIdERC20(index),
       selector: item.data.slice(0,10),
+      signer: ZERO_ADDRESS,
       data: '0x' + item.data.slice(10),
       _hash: undefined,
     })))).map(item=> ({...item, sessionId: item.sessionId + item.v.slice(2).padStart(2,'0') }))

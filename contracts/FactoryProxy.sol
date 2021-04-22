@@ -3,10 +3,14 @@
 pragma solidity ^0.8.0;
 pragma abicoder v2;
 
+import "openzeppelin-solidity/contracts/utils/cryptography/SignatureChecker.sol";
 import "./FactoryStorage.sol";
 // import "./Factory.sol";
 
 contract FactoryProxy is FactoryStorage {
+
+    using SignatureChecker for address;
+
     bool public frozen;
 
     constructor(
@@ -74,6 +78,7 @@ contract FactoryProxy is FactoryStorage {
     }
 
     struct Call {
+        // address signer;
         bytes32 r;
         bytes32 s;
         bytes32 typeHash;
@@ -271,10 +276,14 @@ contract FactoryProxy is FactoryStorage {
 
             bytes32 msgHash = keccak256(abi.encode(call.typeHash, call.to, call.value, sessionId >> 8, afterTS, beforeTS, gasLimit, gasPriceLimit, call.selector, call.data));
 
-            address wallet = accounts_wallet[ecrecover(
+
+            // signer != address(0) && signer.isValidSignatureNow(msgHash, abi.encodePacked(uint8(sessionId), callsr, call.s));
+
+            address wallet = accounts_wallet[
+              ecrecover(
                 _messageToRecover(
                     msgHash,
-                    sessionId & FLAG_EIP712 > 0 // eip712
+                    sessionId & FLAG_EIP712 > 0
                 ),
                 uint8(sessionId), // v
                 call.r,
