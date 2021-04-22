@@ -49,7 +49,7 @@ contract('Wallet', async accounts => {
   const valBN = web3.utils.toBN(val1).add(web3.utils.toBN(val2)).add(web3.utils.toBN(val3));
 
   const gas = 7000000
-  const userCount = 20
+  const userCount = 40
 
   console.log('accounts', JSON.stringify(accounts))
   const getPrivateKey = (address) => {
@@ -674,11 +674,21 @@ it('message: should be able to execute multi external calls: signer==operator, s
     for (let i=10+userCount/2; i<10+userCount; ++i) {
       sends.push([
         {
+          data: instance.contract.methods.erc20BalanceGT(token20.address, accounts[i], 100000).encodeABI(),
+          value: 0,
+          typeHash: '0x'.padEnd(66,'1'),
+          to: instance.address,
+          staticcall: true,
+          gasLimit: 0,
+          flow: 0x12, // on_success_stop , on_fail_continue
+        },
+        {
           data: token20.contract.methods.transfer(accounts[i], 5).encodeABI(),
           value: 0,
           typeHash: '0x'.padEnd(66,'1'),
           to: token20.address,
           gasLimit: 0,
+          // flow: 0x10, // on_success_stop
         },
         {
           data: token20.contract.methods.transfer(accounts[i+50], 5).encodeABI(),
@@ -686,6 +696,7 @@ it('message: should be able to execute multi external calls: signer==operator, s
           typeHash: '0x'.padEnd(66,'1'),
           to: token20.address,
           gasLimit: 0,
+          flow: 0, 
         },
         {
           data: token20.contract.methods.transfer(accounts[i+51], 5).encodeABI(),
@@ -693,6 +704,7 @@ it('message: should be able to execute multi external calls: signer==operator, s
           typeHash: '0x'.padEnd(66,'1'),
           to: token20.address,
           gasLimit: 0,
+          flow: 0,
         },
         // {
         //   data: instance.contract.methods.erc20BalanceGT(token20.address, accounts[i], 10000).encodeABI(),
@@ -793,7 +805,7 @@ it('message: should be able to execute multi external calls: signer==operator, s
     // console.log('sends', JSON.stringify(sends, null,2))
 
     const msgDataERC20 = sends.map((send, index) => ({
-        mcall: send.map(item => ({...item, /*eip712: false, sessionId: getSessionIdERC20(index, item.staticcall),*/ selector: item.data.slice(0, 10), data: '0x' + item.data.slice(10)})), 
+        mcall: send.map(item => ({...item, flags: (item.flow ? item.flow : 0) + (item.stataiccall ? 4*256 : 0), selector: item.data.slice(0, 10), data: '0x' + item.data.slice(10)})), 
         _hash: defaultAbiCoder.encode(
           ['(bytes32,address,uint256,uint256,uint40,uint40,uint256,uint256,bytes4,bytes)[]'],
           [send.map(item => ([ 

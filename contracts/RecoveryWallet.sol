@@ -44,14 +44,6 @@ contract RecoveryWallet is IStorage, Heritable {
         bytes data
     );
 
-    modifier onlyActiveState() {
-        require(
-            backup.state != BACKUP_STATE_ACTIVATED,
-            "Wallet: not active state"
-        );
-        _;
-    }
-
     function sendEther(address payable _to, uint256 _value)
         public
         onlyActiveOwner()

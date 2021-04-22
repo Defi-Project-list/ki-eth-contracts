@@ -27,13 +27,13 @@ contract Wallet is IStorage, Heritable {
         uint256 value
     );
 
-    modifier onlyActiveState() {
-        require(
-            backup.state != BACKUP_STATE_ACTIVATED,
-            "Wallet: not active state"
-        );
-        _;
-    }
+    // modifier onlyActiveState() {
+    //     require(
+    //         backup.state != BACKUP_STATE_ACTIVATED,
+    //         "Wallet: not active state"
+    //     );
+    //     _;
+    // }
 
     // function getBalance() public view returns (uint256) {
     //     return address(this).balance;

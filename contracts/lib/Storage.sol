@@ -12,6 +12,12 @@ abstract contract Storage is IStorage {
     uint8 public constant BACKUP_STATE_ENABLED = 2;
     uint8 public constant BACKUP_STATE_ACTIVATED = 3;
 
+    modifier onlyActiveState () {
+        require (backup.state != BACKUP_STATE_ACTIVATED, "not active state");
+        _;
+    }
+
+
     function uid() view external returns (bytes32) {
         return s_uid;
     }

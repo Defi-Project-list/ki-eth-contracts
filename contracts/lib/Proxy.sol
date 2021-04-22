@@ -10,17 +10,17 @@ contract Proxy is StorageBase {
         revert("should not accept ether directly");
     }
 
-    function call(address target, uint256 value, uint256 gas, bytes calldata data) public onlyCreator() {
+    function call(address target, uint256 value, /*uint256 gas,*/ bytes calldata data) public onlyCreator() {
       (bool success, bytes memory res) = 
-        target.call{gas: gas, value: value}(data);
+        target.call{value: value}(data);
       if (!success) {
         revert(_getRevertMsg(res));
       }
     }
 
-    function staticcall(address target, uint256 value, uint256 gas, bytes calldata data) public onlyCreator() {
+    function staticcall(address target, /* uint256 value, uint256 gas,*/ bytes calldata data) public onlyCreator() {
       (bool success, bytes memory res) = 
-        target.staticcall{gas: gas}(data);
+        target.staticcall(data);
       if (!success) {
         revert(_getRevertMsg(res));
       }

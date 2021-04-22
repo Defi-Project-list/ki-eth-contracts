@@ -17,6 +17,17 @@ contract FactoryProxy is FactoryStorage {
         // proxy = address(this);
     }
 
+    
+    uint256 private constant FLAG_EIP712  = 0x0100;
+    uint256 private constant FLAG_ORDERED = 0x0200;
+    uint256 private constant FLAG_STATICCALL = 0x0400;
+    uint256 private constant FLAG_FLOW = 0x00ff;
+
+    uint256 private constant ON_FAIL_STOP = 0x01;
+    uint256 private constant ON_FAIL_CONTINUE = 0x02;
+    uint256 private constant ON_SUCCESS_STOP = 0x10;
+    uint256 private constant ON_SUCCESS_REVERT = 0x20;
+    
     function setTarget(address _target) public multiSig2of3(0) {
         require(frozen != true, "frozen");
         require(_target != address(0), "no target");
@@ -77,7 +88,7 @@ contract FactoryProxy is FactoryStorage {
         bytes32 typeHash;
         address to;
         uint256 value;
-        // uint8 flags;
+        uint16 flags;
         uint32 gasLimit;
         bytes4 selector;
         bytes data;
@@ -183,7 +194,7 @@ contract FactoryProxy is FactoryStorage {
             if (i == 0) {
               require(sessionId >> 192 >= nonce >> 192, "Factory: group+nonce too low");
             } else {
-              if (sessionId & 0x0200 > 0) { // ordered
+              if (sessionId & FLAG_ORDERED > 0) { // ordered
                   require(uint40(maxNonce >> 192) < uint40(sessionId >> 192), "Factory: should be ordered");
               }
             }
@@ -199,7 +210,7 @@ contract FactoryProxy is FactoryStorage {
             address wallet = accounts_wallet[ecrecover(
                 _messageToRecover(
                     keccak256(abi.encode(TRANSFER_TYPEHASH, token, to, value, sessionId >> 8, afterTS, beforeTS, gasLimit, gasPriceLimit)),
-                    sessionId & 0x0100 > 0 // eip712
+                    sessionId & FLAG_EIP712 > 0 // eip712
                 ),
                 uint8(sessionId), // v
                 call.r,
@@ -208,8 +219,8 @@ contract FactoryProxy is FactoryStorage {
 
             require(wallet != address(0), "Factory: signer is not owner");
             (bool success, bytes memory res) = token == address(0) ?
-                wallet.call{gas: gasLimit>0 ? gasLimit: gasleft()}(abi.encodeWithSignature("transferEth(address,uint256)", to, value)):
-                wallet.call{gas: gasLimit>0 ? gasLimit: gasleft()}(abi.encodeWithSignature("transferERC20(address,address,uint256)", token, to, value));
+                wallet.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(abi.encodeWithSignature("transferEth(address,uint256)", to, value)):
+                wallet.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(abi.encodeWithSignature("transferERC20(address,address,uint256)", token, to, value));
             if (!success) {
                 revert(_getRevertMsg(res));
             }
@@ -245,7 +256,7 @@ contract FactoryProxy is FactoryStorage {
             if (i == 0) {
               require(sessionId >> 192 >= nonce >> 192, "Factory: group+nonce too low");
             } else {
-              if (sessionId & 0x0200 > 0) { // ordered
+              if (sessionId & FLAG_ORDERED > 0) { // ordered
                   require(uint40(maxNonce >> 192) < uint40(sessionId >> 192), "Factory: should be ordered");
               }
             }
@@ -263,7 +274,7 @@ contract FactoryProxy is FactoryStorage {
             address wallet = accounts_wallet[ecrecover(
                 _messageToRecover(
                     msgHash,
-                    sessionId & 0x0100 > 0 // eip712
+                    sessionId & FLAG_EIP712 > 0 // eip712
                 ),
                 uint8(sessionId), // v
                 call.r,
@@ -271,9 +282,9 @@ contract FactoryProxy is FactoryStorage {
             )].addr;
 
             require(wallet != address(0), "Factory: signer is not owner");
-            (bool success, bytes memory res) = sessionId & 0x0400 > 0 ? // staticcall
-                wallet.call{gas: gasLimit>0 ? gasLimit: gasleft()}(abi.encodeWithSignature("staticcall(address,uint256,uint256,bytes)", call.to, call.value, gasleft(), abi.encodePacked(call.selector, call.data))):
-                wallet.call{gas: gasLimit>0 ? gasLimit: gasleft()}(abi.encodeWithSignature("call(address,uint256,uint256,bytes)", call.to, call.value, gasleft(), abi.encodePacked(call.selector, call.data)));
+            (bool success, bytes memory res) = sessionId & FLAG_STATICCALL > 0 ?
+                wallet.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(abi.encodeWithSignature("staticcall(address,bytes)", call.to, abi.encodePacked(call.selector, call.data))):
+                wallet.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(abi.encodeWithSignature("call(address,uint256,bytes)", call.to, call.value, abi.encodePacked(call.selector, call.data)));
             if (!success) {
                 revert(_getRevertMsg(res));
             }
@@ -300,7 +311,7 @@ contract FactoryProxy is FactoryStorage {
             if (i == 0) {
               require(sessionId >> 192 >= nonce >> 192, "Factory: group+nonce too low");
             } else {
-              if (sessionId & 0x0200 > 0) { // ordered
+              if (sessionId & FLAG_ORDERED > 0) {
                   require(uint40(maxNonce >> 192) < uint40(sessionId >> 192), "Factory: should be ordered");
               }
             }
@@ -320,7 +331,6 @@ contract FactoryProxy is FactoryStorage {
                 if (j < mcalls.mcall.length-1) {
                   msgPre = abi.encodePacked(msgPre, msg2.length + 32*mcalls.mcall.length);
                 }
-                // msg = abi.encode(call.typeHash, to, call.value, sessionId >> 8, afterTS, beforeTS, gasPriceLimit, _selector(call.data), call.data[4:]);
             }
 
             bytes32 msgHash = keccak256(abi.encodePacked(msgPre, msg2));
@@ -329,7 +339,7 @@ contract FactoryProxy is FactoryStorage {
             address wallet = accounts_wallet[ecrecover(
                 _messageToRecover(
                     msgHash,
-                    sessionId & 0x0100 > 0 // eip712
+                    sessionId & FLAG_EIP712 > 0 // eip712
                 ),
                 mcalls.v,
                 mcalls.r,
@@ -341,12 +351,23 @@ contract FactoryProxy is FactoryStorage {
           for(uint256 j = 0; j < mcalls.mcall.length; j++) {
               MCall calldata call = mcalls.mcall[j];
               uint32 gasLimit = call.gasLimit;
-            (bool success, bytes memory res) = false ? // call.sessionId & 0x0400 > 0 ? // staticcall
-                wallet.call{gas: gasLimit > 0 ? gasLimit: gasleft()}(abi.encodeWithSignature("staticcall(address,uint256,uint256,bytes)", call.to, call.value, gasleft(), abi.encodePacked(call.selector, call.data))):
-                wallet.call{gas: gasLimit > 0 ? gasLimit: gasleft()}(abi.encodeWithSignature("call(address,uint256,uint256,bytes)", call.to, call.value, gasleft(), abi.encodePacked(call.selector, call.data)));
-            if (!success) {
-                revert(_getRevertMsg(res));
-            }
+              uint16 flags = call.flags;
+
+              (bool success, bytes memory res) = call.flags & FLAG_STATICCALL > 0 ?
+                  wallet.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(abi.encodeWithSignature("staticcall(address,bytes)", call.to, abi.encodePacked(call.selector, call.data))):
+                  wallet.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(abi.encodeWithSignature("call(address,uint256,bytes)", call.to, call.value, abi.encodePacked(call.selector, call.data)));
+              if (!success) {
+                  if (flags & ON_FAIL_CONTINUE > 0) {
+                    continue;
+                  } else if (flags & ON_FAIL_STOP > 0) {
+                    break;
+                  }
+                  revert(_getRevertMsg(res));
+              } else if (flags & ON_SUCCESS_STOP > 0) {
+                break;
+              } else if (flags & ON_SUCCESS_REVERT > 0) {
+                revert("Factory: revert on success");
+              }
           }
         }
         require(maxNonce < nonce + (1 << 216), "Factory: gourp+nonce too high");
