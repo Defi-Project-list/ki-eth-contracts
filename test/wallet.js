@@ -62,6 +62,11 @@ contract('Wallet', async accounts => {
     }
   }
 
+  const getSigner = (index) => {
+    return ZERO_ADDRESS
+    // return accounts[index]
+  }
+
   const logBalances = async () => {
     mlog.log(`user1: ${await web3.eth.getBalance(accounts[10+userCount/2])}`)
     mlog.log(`user2: ${await web3.eth.getBalance(accounts[11+userCount/2])}`)
@@ -418,7 +423,7 @@ contract('Wallet', async accounts => {
   it('message: should be able to execute batch of many external sends: signer==operator, sender==owner', async () => {
     await instance.cancelCall({ from: owner })
     const nonce = await instance.nonce()
-    const typeHash = '0xf728cfc064674dacd2ced2a03acd588dfd299d5e4716726c6d5ec364d16406eb'; // 0x'.padEnd(66,'0')
+    const typeHash = keccak256(toUtf8Bytes('batchTransfer(address token,address recipient,uint256 value,uint256 sessionId,uint40 after,uint40 before,uint32 gasLimit,uint64 gasPriceLimit)'))
 
     const sends = []
 
@@ -468,8 +473,7 @@ contract('Wallet', async accounts => {
       metaData,
       typeHash,
       data: [],
-      // signer: accounts[index+10],
-      signer: ZERO_ADDRESS,
+      signer: getSigner(index+10),
       sessionId: sessionIdERC20,
       // gasPriceLimit: 200,
       // eip712: 0,
@@ -484,8 +488,7 @@ contract('Wallet', async accounts => {
       typeHash,
       data: [],
       sessionId: sessionId,
-      // signer: accounts[index+10],
-      signer: ZERO_ADDRESS,
+      signer: getSigner(index+10),
       // gasPriceLimit: 200,
       // eip712: 0,
       token: ZERO_ADDRESS,
@@ -568,7 +571,7 @@ it('message: should be able to execute batch of many external calls: signer==ope
       ...await web3.eth.accounts.sign(web3.utils.sha3(item._hash), keys[index+10] /*getPrivateKey(owner)*/),
       sessionId: getSessionIdERC20(index),
       selector: item.data.slice(0,10),
-      signer: ZERO_ADDRESS,
+      signer: getSigner(index+10),
       data: '0x' + item.data.slice(10),
       _hash: undefined,
     })))).map(item=> ({...item, sessionId: item.sessionId + item.v.slice(2).padStart(2,'0') }))
@@ -641,7 +644,7 @@ it('message: should be able to execute batch of many external static calls: sign
       ...await web3.eth.accounts.sign(web3.utils.sha3(item._hash), keys[index+10] /*getPrivateKey(owner)*/),
       sessionId: getSessionIdERC20(index),
       selector: item.data.slice(0,10),
-      signer: ZERO_ADDRESS,
+      signer: getSigner(index+10),
       data: '0x' + item.data.slice(10),
       _hash: undefined,
     })))).map(item=> ({...item, sessionId: item.sessionId + item.v.slice(2).padStart(2,'0') }))
@@ -680,15 +683,15 @@ it('message: should be able to execute multi external calls: signer==operator, s
 
     for (let i=10+userCount/2; i<10+userCount; ++i) {
       sends.push([
-        {
-          data: instance.contract.methods.erc20BalanceGT(token20.address, accounts[i], 100000).encodeABI(),
-          value: 0,
-          typeHash: '0x'.padEnd(66,'1'),
-          to: instance.address,
-          staticcall: true,
-          gasLimit: 0,
-          flow: 0x12, // on_success_stop , on_fail_continue
-        },
+        // {
+        //   data: instance.contract.methods.erc20BalanceGT(token20.address, accounts[i], 100000).encodeABI(),
+        //   value: 0,
+        //   typeHash: '0x'.padEnd(66,'1'),
+        //   to: instance.address,
+        //   staticcall: true,
+        //   gasLimit: 0,
+        //   flow: 0x12, // on_success_stop , on_fail_continue
+        // },
         {
           data: token20.contract.methods.transfer(accounts[i], 5).encodeABI(),
           value: 0,
@@ -841,8 +844,7 @@ it('message: should be able to execute multi external calls: signer==operator, s
       ...item,
       ...await web3.eth.accounts.sign(web3.utils.sha3(item._hash), keys[index+10] /*getPrivateKey(owner)*/),
       sessionId: getSessionIdERC20(index),
-      // signer: accounts[index+10],
-      signer: ZERO_ADDRESS,
+      signer: getSigner(index+10),
       // _hash: undefined,
     })))) // .map(item=> ({...item, sessionId: item.sessionId + item.v.slice(2).padStart(2,'0') }))
 
@@ -933,41 +935,151 @@ it('message: should be able to execute multi external calls: signer==operator, s
       }
     }
 
-  mlog.log('typedData: ', JSON.stringify(typedData, null, 2))
-  const domainHash = TypedDataUtils.hashStruct(typedData, 'EIP712Domain', typedData.domain)
-  const domainHashHex = ethers.utils.hexlify(domainHash)
-  mlog.log('CHAIN_ID', await instance.CHAIN_ID())
-  mlog.log('DOMAIN_SEPARATOR', await instance.DOMAIN_SEPARATOR())
-  mlog.log('DOMAIN_SEPARATOR (calculated)', domainHashHex)
+    mlog.log('typedData: ', JSON.stringify(typedData, null, 2))
+    const domainHash = TypedDataUtils.hashStruct(typedData, 'EIP712Domain', typedData.domain)
+    const domainHashHex = ethers.utils.hexlify(domainHash)
+    mlog.log('CHAIN_ID', await instance.CHAIN_ID())
+    mlog.log('DOMAIN_SEPARATOR', await instance.DOMAIN_SEPARATOR())
+    mlog.log('DOMAIN_SEPARATOR (calculated)', domainHashHex)
 
-  const messageDigest = TypedDataUtils.encodeDigest(typedData)
-  const messageDigestHex = ethers.utils.hexlify(messageDigest)
-  let signingKey = new ethers.utils.SigningKey(getPrivateKey(owner));
-  const sig = signingKey.signDigest(messageDigest)
-  const rlp = ethers.utils.splitSignature(sig)
-  rlp.v = '0x' + rlp.v.toString(16)
- 
-  const messageHash = TypedDataUtils.hashStruct(typedData, typedData.primaryType, typedData.message)
-  const messageHashHex = ethers.utils.hexlify(messageHash)
-  mlog.log('messageHash (calculated)', messageHashHex)
-
-  const m = keccak256(toUtf8Bytes('executeCall(address activator,address to,uint256 value,uint256 nonce,bytes4 selector,address recipient,uint256 amount)'))
-  mlog.log('m (calculated)', m)
-
-  const m2 = TypedDataUtils.typeHash(typedData.types, 'executeCall')
-  const m2Hex = ethers.utils.hexZeroPad(ethers.utils.hexlify(m2), 32)
-  mlog.log('m2 (calculated)', m2Hex)
-
-  mlog.log('rlp', JSON.stringify(rlp))
-  mlog.log('recover', ethers.utils.recoverAddress(messageDigest, sig))
-
-  const balance = await token20.balanceOf(user1, { from: user1 })
-
-  const { receipt } = await instance.executeBatchCall([{ v: rlp.v, r: rlp.r, s: rlp.s, typeHash: m2Hex, to: token20.address, value: 0, metaData: { simple: false, staticcall: false, gasLimit: 0 }, data: data }], { from: activator })
-  const diff = (await token20.balanceOf(user1)).toNumber() - balance.toNumber()
-  assert.equal (diff, 5, 'user1 balance change')
-  mlog.pending(`ERC20 Transfer consumed ${JSON.stringify(receipt.gasUsed)} gas`)
-  })
+    const messageDigest = TypedDataUtils.encodeDigest(typedData)
+    const messageDigestHex = ethers.utils.hexlify(messageDigest)
+    let signingKey = new ethers.utils.SigningKey(getPrivateKey(owner));
+    const sig = signingKey.signDigest(messageDigest)
+    const rlp = ethers.utils.splitSignature(sig)
+    rlp.v = '0x' + rlp.v.toString(16)
   
+    const messageHash = TypedDataUtils.hashStruct(typedData, typedData.primaryType, typedData.message)
+    const messageHashHex = ethers.utils.hexlify(messageHash)
+    mlog.log('messageHash (calculated)', messageHashHex)
+
+    const m = keccak256(toUtf8Bytes('executeCall(address activator,address to,uint256 value,uint256 nonce,bytes4 selector,address recipient,uint256 amount)'))
+    mlog.log('m (calculated)', m)
+
+    const m2 = TypedDataUtils.typeHash(typedData.types, 'executeCall')
+    const m2Hex = ethers.utils.hexZeroPad(ethers.utils.hexlify(m2), 32)
+    mlog.log('m2 (calculated)', m2Hex)
+
+    mlog.log('rlp', JSON.stringify(rlp))
+    mlog.log('recover', ethers.utils.recoverAddress(messageDigest, sig))
+
+    const balance = await token20.balanceOf(user1, { from: user1 })
+
+    const { receipt } = await instance.executeBatchCall([{ v: rlp.v, r: rlp.r, s: rlp.s, typeHash: m2Hex, to: token20.address, value: 0, metaData: { simple: false, staticcall: false, gasLimit: 0 }, data: data }], { from: activator })
+    const diff = (await token20.balanceOf(user1)).toNumber() - balance.toNumber()
+    assert.equal (diff, 5, 'user1 balance change')
+    mlog.pending(`ERC20 Transfer consumed ${JSON.stringify(receipt.gasUsed)} gas`)
+  })
+
+
+  it('eip712: should be able to execute batch sends', async () => {
+    const tokens = 2
+    const data = token20.contract.methods.transfer(user1, 5).encodeABI()
+
+    // batchTransfer(address token,address to,uint256 value,uint256 sessionId,uint40 after,uint40 before,uint32 gasLimit,uint64 gasPriceLimit)
+
+    mlog.log('---> data', data)
+
+    const groupERC20        = '000008'
+    const tnonceERC20       = '0000000002'
+    const afterERC20        = '0000000000'
+    const beforeERC20       = 'ffffffffff'
+    const maxGasERC20       = '00000000'
+    const maxGasPriceERC20  = '00000000000000c8'
+    const eip712ERC20       = '10'
+    const sessionIdERC20    = `0x${groupERC20}${tnonceERC20}${afterERC20}${beforeERC20}${maxGasERC20}${maxGasPriceERC20}${eip712ERC20}`
+
+    const typedData = {
+      types: {
+        EIP712Domain: [
+          { name: "name",               type: "string" },
+          { name: "version",            type: "string" },
+          { name: "chainId",            type: "uint256" },
+          { name: "verifyingContract",  type: "address" },
+          { name: "salt",               type: "bytes32" }
+        ],
+        batchTransfer: [
+          { name: 'token',              type: 'address' },
+          { name: 'recipient',          type: 'address' },
+          { name: 'value',              type: 'uint256' },
+          { name: 'sessionId',          type: 'uint256' },
+          { name: 'after',              type: 'uint40'  },
+          { name: 'before',             type: 'uint40'  },
+          { name: 'gasLimit',           type: 'uint32'  },
+          { name: 'gasPriceLimit',      type: 'uint64'  },
+        ]
+      },
+      primaryType: 'batchTransfer',
+      domain: {
+        name: await factoryProxy.NAME(),
+        version: await factoryProxy.VERSION(),
+        chainId: '0x' + web3.utils.toBN(await factoryProxy.CHAIN_ID()).toString('hex'), // await web3.eth.getChainId(),
+        verifyingContract: factoryProxy.address,
+        salt: await factoryProxy.uid(),
+      },
+      message: {
+        token: token20.address,
+        recipient: user1,
+        value: '0',
+        sessionId: sessionIdERC20,
+        after: '0x' + afterERC20,
+        before: '0x' + beforeERC20,
+        gasLimit: '0x' + maxGasERC20,
+        gasPriceLimit: '0x' + maxGasPriceERC20,
+      }
+    }
+
+    mlog.log('typedData: ', JSON.stringify(typedData, null, 2))
+    const domainHash = TypedDataUtils.hashStruct(typedData, 'EIP712Domain', typedData.domain)
+    const domainHashHex = ethers.utils.hexlify(domainHash)
+    mlog.log('CHAIN_ID', await factoryProxy.CHAIN_ID())
+    mlog.log('DOMAIN_SEPARATOR', await factoryProxy.DOMAIN_SEPARATOR())
+    mlog.log('DOMAIN_SEPARATOR (calculated)', domainHashHex)
+
+    const messageDigest = TypedDataUtils.encodeDigest(typedData)
+    const messageDigestHex = ethers.utils.hexlify(messageDigest)
+    let signingKey = new ethers.utils.SigningKey(getPrivateKey(owner));
+    const sig = signingKey.signDigest(messageDigest)
+    const rlp = ethers.utils.splitSignature(sig)
+    rlp.v = '0x' + rlp.v.toString(16)
+  
+    const messageHash = TypedDataUtils.hashStruct(typedData, typedData.primaryType, typedData.message)
+    const messageHashHex = ethers.utils.hexlify(messageHash)
+    mlog.log('messageHash (calculated)', messageHashHex)
+
+    const m = keccak256(toUtf8Bytes('batchTransfer(address token,address recipient,uint256 value,uint256 sessionId,uint40 after,uint40 before,uint32 gasLimit,uint64 gasPriceLimit)'))
+    mlog.log('m (calculated)', m)
+
+    const m2 = TypedDataUtils.typeHash(typedData.types, 'batchTransfer')
+    const m2Hex = ethers.utils.hexZeroPad(ethers.utils.hexlify(m2), 32)
+    mlog.log('m2 (calculated)', m2Hex)
+
+    mlog.log('rlp', JSON.stringify(rlp))
+    mlog.log('recover', ethers.utils.recoverAddress(messageDigest, sig))
+
+    const balance = await token20.balanceOf(user1, { from: user1 })
+
+    const msgsERC20 = [{
+      ...typedData.message,
+      sessionId: sessionIdERC20 + rlp.v.slice(2).padStart(2,'0'),
+      signer: getSigner(10),
+      r: rlp.r,
+      s: rlp.s,
+      to: typedData.message.recipient,
+    }]
+
+    await logERC20Balances()
+
+    const { receipt: receiptERC20 } = await factoryProxy.batchTransfer(msgsERC20, 8, { from: activator, gasPrice: 200 })
+
+    mlog.pending(`ERC20 X ${msgsERC20.length} Transfers consumed ${JSON.stringify(receiptERC20.gasUsed)} gas (${JSON.stringify(receiptERC20.gasUsed/msgsERC20.length)} gas per call)`)
+
+    await logERC20Balances()
+
+    // const { receipt } = await instance.executeBatchCall([{ v: rlp.v, r: rlp.r, s: rlp.s, typeHash: m2Hex, to: token20.address, value: 0, metaData: { simple: false, staticcall: false, gasLimit: 0 }, data: data }], { from: activator })
+    // const diff = (await token20.balanceOf(user1)).toNumber() - balance.toNumber()
+    // assert.equal (diff, 5, 'user1 balance change')
+    // mlog.pending(`ERC20 Transfer consumed ${JSON.stringify(receipt.gasUsed)} gas`)
+  })
   
 });

@@ -39,6 +39,14 @@ abstract contract FactoryStorage is MultiSig {
     address internal _operator;
     address internal _activator;
     mapping(uint256 => uint256) internal s_nonce_group;
+
+    bytes32 public DOMAIN_SEPARATOR;
+    uint256 public CHAIN_ID;
+
+    bool public frozen;
+    bytes32 internal s_uid;
+
+
     // uint256 internal s_nonce;
 
     // storage end

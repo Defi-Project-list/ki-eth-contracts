@@ -13,13 +13,44 @@ contract FactoryProxy is FactoryStorage {
     using SignatureChecker for address;
     using ECDSA for bytes32;
 
-    bool public frozen;
+    uint8 public constant VERSION_NUMBER = 0x1;
+    string public constant NAME = "Kirobo OCW Manager";
+    string public constant VERSION = "1";
+
+    function uid() view external returns (bytes32) {
+        return s_uid;
+    }
 
     constructor(
         address owner1,
         address owner2,
         address owner3
     ) FactoryStorage(owner1, owner2, owner3) {
+        uint256 chainId;
+        assembly {
+            chainId := chainid()
+        }
+
+        s_uid = bytes32(
+            (uint256(VERSION_NUMBER) << 248) |
+                ((uint256(blockhash(block.number - 1)) << 192) >> 16) |
+                uint256(uint160(address(this)))
+        );
+
+        CHAIN_ID = chainId;
+
+        DOMAIN_SEPARATOR = keccak256(
+            abi.encode(
+                keccak256(
+                    "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract,bytes32 salt)"
+                ),
+                keccak256(bytes(NAME)),
+                keccak256(bytes(VERSION)),
+                chainId,
+                address(this),
+                s_uid
+            )
+        );
         // proxy = address(this);
     }
     
@@ -60,9 +91,12 @@ contract FactoryProxy is FactoryStorage {
 
     // keccak256("acceptTokens(address recipient,uint256 value,bytes32 secretHash)");
     bytes32 public constant TRANSFER_TYPEHASH = 0xf728cfc064674dacd2ced2a03acd588dfd299d5e4716726c6d5ec364d16406eb;
-    // keccak256("acceptTokens(address recipient,uint256 value,bytes32 secretHash)");
-    bytes32 public constant DOMAIN_SEPARATOR = 0xf728cfc064674dacd2ced2a03acd588dfd299d5e4716726c6d5ec364d16406eb;
 
+
+    bytes32 public constant BATCH_TRANSFER_TYPEHASH = keccak256(
+      "batchTransfer(address token,address recipient,uint256 value,uint256 sessionId,uint40 after,uint40 before,uint32 gasLimit,uint64 gasPriceLimit)"
+    );
+    
     // bytes4(keccak256("sendEther(address payable,uint256)"));
     bytes4 public constant TRANSFER_SELECTOR = 0xc61f08fd;
 
@@ -233,7 +267,7 @@ contract FactoryProxy is FactoryStorage {
             require(block.timestamp < beforeTS, "Factory: too late");
 
             bytes32 messageHash = _messageToRecover(
-                keccak256(abi.encode(TRANSFER_TYPEHASH, token, to, value, sessionId >> 8, afterTS, beforeTS, gasLimit, gasPriceLimit)),
+                keccak256(abi.encode(BATCH_TRANSFER_TYPEHASH, token, to, value, sessionId >> 8, afterTS, beforeTS, gasLimit, gasPriceLimit)),
                 sessionId & FLAG_EIP712 > 0
             );
 
@@ -394,7 +428,6 @@ contract FactoryProxy is FactoryStorage {
       }
     }
 
-
     function _getRevertMsg(bytes memory returnData)
         internal
         pure
@@ -409,10 +442,9 @@ contract FactoryProxy is FactoryStorage {
         return abi.decode(returnData, (string));
     }
 
-
     function _messageToRecover(bytes32 hashedUnsignedMessage, bool eip712)
         private
-        pure
+        view
         returns (bytes32)
     {
         if (eip712) {
