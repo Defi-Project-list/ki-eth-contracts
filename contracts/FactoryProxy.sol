@@ -4,12 +4,14 @@ pragma solidity ^0.8.0;
 pragma abicoder v2;
 
 import "openzeppelin-solidity/contracts/utils/cryptography/SignatureChecker.sol";
+import "openzeppelin-solidity/contracts/utils/cryptography/ECDSA.sol";
 import "./FactoryStorage.sol";
 // import "./Factory.sol";
 
 contract FactoryProxy is FactoryStorage {
 
     using SignatureChecker for address;
+    using ECDSA for bytes32;
 
     bool public frozen;
 
@@ -20,7 +22,6 @@ contract FactoryProxy is FactoryStorage {
     ) FactoryStorage(owner1, owner2, owner3) {
         // proxy = address(this);
     }
-
     
     uint256 private constant FLAG_EIP712  = 0x0100;
     uint256 private constant FLAG_ORDERED = 0x0200;
@@ -66,25 +67,23 @@ contract FactoryProxy is FactoryStorage {
     bytes4 public constant TRANSFER_SELECTOR = 0xc61f08fd;
 
     struct Transfer {
-        // uint8 v;
+        address signer;
         bytes32 r;
         bytes32 s;
         address token;
         address to;
         uint256 value;
         uint256 sessionId;
-        // uint256 gasPriceLimit;
-        // uint256 eip712;
     }
 
     struct Call {
-        // address signer;
         bytes32 r;
         bytes32 s;
         bytes32 typeHash;
         address to;
         uint256 value;
         uint256 sessionId;
+        address signer;
         bytes4 selector;
         bytes data;
     }
@@ -104,6 +103,7 @@ contract FactoryProxy is FactoryStorage {
         bytes32 r;
         bytes32 s;
         uint256 sessionId;
+        address signer;
         MCall[] mcall;
      }
 
@@ -179,6 +179,26 @@ contract FactoryProxy is FactoryStorage {
       }
     }
 
+    function _getWalletFromMessage(address signer, bytes32 messageHash, uint8 v, bytes32 r, bytes32 s) private view returns (address) {
+        if (signer == address(0)) {
+            if (v != 0) {
+                return accounts_wallet[messageHash.recover(
+                    v,
+                    r,
+                    s
+                )].addr;
+            } else {
+                return accounts_wallet[messageHash.recover(
+                    27 + uint8(uint256(s) >> 255),
+                    r,
+                    s & 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+                )].addr;
+            }
+        } else if (signer.isValidSignatureNow(messageHash, v !=0 ? abi.encodePacked(r, s, v): abi.encodePacked(r,s))) {
+            return accounts_wallet[signer].addr;
+        }
+        return address(0);
+    }
 
     function batchTransfer(Transfer[] calldata tr, uint24 nonceGroup) public {
       unchecked {
@@ -212,17 +232,14 @@ contract FactoryProxy is FactoryStorage {
             require(block.timestamp > afterTS, "Factory: too early");
             require(block.timestamp < beforeTS, "Factory: too late");
 
-            address wallet = accounts_wallet[ecrecover(
-                _messageToRecover(
-                    keccak256(abi.encode(TRANSFER_TYPEHASH, token, to, value, sessionId >> 8, afterTS, beforeTS, gasLimit, gasPriceLimit)),
-                    sessionId & FLAG_EIP712 > 0 // eip712
-                ),
-                uint8(sessionId), // v
-                call.r,
-                call.s
-            )].addr;
+            bytes32 messageHash = _messageToRecover(
+                keccak256(abi.encode(TRANSFER_TYPEHASH, token, to, value, sessionId >> 8, afterTS, beforeTS, gasLimit, gasPriceLimit)),
+                sessionId & FLAG_EIP712 > 0
+            );
 
+            address wallet = _getWalletFromMessage(call.signer, messageHash, uint8(sessionId) /*v*/, call.r, call.s);
             require(wallet != address(0), "Factory: signer is not owner");
+
             (bool success, bytes memory res) = token == address(0) ?
                 wallet.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(abi.encodeWithSignature("transferEth(address,uint256)", to, value)):
                 wallet.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(abi.encodeWithSignature("transferERC20(address,address,uint256)", token, to, value));
@@ -274,23 +291,20 @@ contract FactoryProxy is FactoryStorage {
             require(block.timestamp > afterTS, "Factory: too early");
             require(block.timestamp < beforeTS, "Factory: too late");
 
-            bytes32 msgHash = keccak256(abi.encode(call.typeHash, call.to, call.value, sessionId >> 8, afterTS, beforeTS, gasLimit, gasPriceLimit, call.selector, call.data));
+            bytes32 messageHash = keccak256(abi.encode(call.typeHash, call.to, call.value, sessionId >> 8, afterTS, beforeTS, gasLimit, gasPriceLimit, call.selector, call.data));
 
-
-            // signer != address(0) && signer.isValidSignatureNow(msgHash, abi.encodePacked(uint8(sessionId), callsr, call.s));
-
-            address wallet = accounts_wallet[
-              ecrecover(
+            address wallet = _getWalletFromMessage(
+                call.signer,
                 _messageToRecover(
-                    msgHash,
+                    messageHash,
                     sessionId & FLAG_EIP712 > 0
-                ),
-                uint8(sessionId), // v
+                ), 
+                uint8(sessionId) /*v*/,
                 call.r,
                 call.s
-            )].addr;
-
+            );
             require(wallet != address(0), "Factory: signer is not owner");
+
             (bool success, bytes memory res) = sessionId & FLAG_STATICCALL > 0 ?
                 wallet.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(abi.encodeWithSignature("staticcall(address,bytes)", call.to, abi.encodePacked(call.selector, call.data))):
                 wallet.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(abi.encodeWithSignature("call(address,uint256,bytes)", call.to, call.value, abi.encodePacked(call.selector, call.data)));
@@ -342,19 +356,15 @@ contract FactoryProxy is FactoryStorage {
                 }
             }
 
-            bytes32 msgHash = keccak256(abi.encodePacked(msgPre, msg2));
+            bytes32 messageHash = _messageToRecover(
+                keccak256(abi.encodePacked(msgPre, msg2)),
+                sessionId & FLAG_EIP712 > 0
+            );
+            
             // emit ErrorHandled(abi.encodePacked(msgPre, msg2));
             // return ;
-            address wallet = accounts_wallet[ecrecover(
-                _messageToRecover(
-                    msgHash,
-                    sessionId & FLAG_EIP712 > 0 // eip712
-                ),
-                mcalls.v,
-                mcalls.r,
-                mcalls.s
-            )].addr;
 
+            address wallet = _getWalletFromMessage(mcalls.signer, messageHash, mcalls.v, mcalls.r, mcalls.s);
             require(wallet != address(0), "Factory: signer is not owner");
 
           for(uint256 j = 0; j < mcalls.mcall.length; j++) {

@@ -468,6 +468,7 @@ contract('Wallet', async accounts => {
       metaData,
       typeHash,
       data: [],
+      // signer: accounts[index+10],
       signer: ZERO_ADDRESS,
       sessionId: sessionIdERC20,
       // gasPriceLimit: 200,
@@ -483,12 +484,14 @@ contract('Wallet', async accounts => {
       typeHash,
       data: [],
       sessionId: sessionId,
+      // signer: accounts[index+10],
       signer: ZERO_ADDRESS,
       // gasPriceLimit: 200,
       // eip712: 0,
       token: ZERO_ADDRESS,
       _hash: undefined,
     })))).map(item=> ({...item, sessionId: item.sessionId + item.v.slice(2).padStart(2,'0') }))
+    // .map(item => ({...item, vs: item._vs}))
 
     const balance = await token20.balanceOf(user1, { from: user1 })
     mlog.pending(`calling ${JSON.stringify(msgsERC20[0], null, 2)}`)
@@ -504,7 +507,7 @@ contract('Wallet', async accounts => {
     await logBalances()
     const { receipt: receiptEth } = await factoryProxy.batchTransfer(msgsEth, 1, { from: activator, gasPrice: 200 })
     // const { receipt: receiptEth } = await factoryProxy.batchEthTransfer(msgsEth, 0, false,{ from: activator, gasPrice: 200 })
-    mlog.pending(`Ether X ${msgsEth.length} Transfers consumed ${JSON.stringify(receiptEth.gasUsed)} gas (${JSON.stringify(receiptEth.gasUsed/msgsEth.length)} gas per call)`)
+    mlog.pending(`zxc Ether X ${msgsEth.length} Transfers consumed ${JSON.stringify(receiptEth.gasUsed)} gas (${JSON.stringify(receiptEth.gasUsed/msgsEth.length)} gas per call)`)
     await logBalances()
 
     await logERC20Balances()
@@ -516,7 +519,7 @@ contract('Wallet', async accounts => {
 
     // const diff = (await token20.balanceOf(user1)).toNumber() - balance.toNumber()
     // assert.equal (diff, 5, 'user1 balance change')
-    mlog.pending(`ERC20 X ${msgsERC20.length} Transfers consumed ${JSON.stringify(receiptERC20.gasUsed)} gas (${JSON.stringify(receiptERC20.gasUsed/msgsERC20.length)} gas per call)`)
+    mlog.pending(`zxc ERC20 X ${msgsERC20.length} Transfers consumed ${JSON.stringify(receiptERC20.gasUsed)} gas (${JSON.stringify(receiptERC20.gasUsed/msgsERC20.length)} gas per call)`)
 
     await logERC20Balances()
 
@@ -838,6 +841,8 @@ it('message: should be able to execute multi external calls: signer==operator, s
       ...item,
       ...await web3.eth.accounts.sign(web3.utils.sha3(item._hash), keys[index+10] /*getPrivateKey(owner)*/),
       sessionId: getSessionIdERC20(index),
+      // signer: accounts[index+10],
+      signer: ZERO_ADDRESS,
       // _hash: undefined,
     })))) // .map(item=> ({...item, sessionId: item.sessionId + item.v.slice(2).padStart(2,'0') }))
 
