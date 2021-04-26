@@ -282,7 +282,7 @@ contract FactoryProxy is FactoryStorage {
                 revert(_getRevertMsg(res));
             }
 
-            wallet.debt = uint88(tx.gasprice * (gas - gasleft() + 16000 + (24000/length))); // + (4000*gasPriceLimit/tx.gasprice)); // + uint88(4000*gasPriceLimit/tx.gasprice); // * tx.gasprice);
+            wallet.debt = uint88(/*tx.gasprice*/ 1 * (gas - gasleft() + 16000 + (24000/length))); // + (4000*gasPriceLimit/tx.gasprice)); // + uint88(4000*gasPriceLimit/tx.gasprice); // * tx.gasprice);
         }
         require(maxNonce < nonce + (1 << 216), "Factory: gourp+nonce too high");
         s_nonce_group[nonceGroup] = (maxNonce & 0x000000ffffffffff000000000000000000000000000000000000000000000000) + (1 << 192);
