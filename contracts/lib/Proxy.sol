@@ -11,6 +11,15 @@ contract Proxy is StorageBase {
     }
 
     function call(address target, uint256 value, /*uint256 gas,*/ bytes calldata data) public onlyCreator() {
+    //     target.call{value: value}(data);
+    //     target.call{value: value}(data);
+    //     target.call{value: value}(data);
+    //     target.call{value: value}(data);
+    //     target.call{value: value}(data);
+    //     target.call{value: value}(data);
+    //     target.call{value: value}(data);
+    //     target.call{value: value}(data);
+    //     target.call{value: value}(data);
       (bool success, bytes memory res) = 
         target.call{value: value}(data);
       if (!success) {

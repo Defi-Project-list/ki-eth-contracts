@@ -362,7 +362,7 @@ contract FactoryProxy is FactoryStorage {
                 revert(_getRevertMsg(res));
             }
             if (sessionId & FLAG_PAYMENT > 0) {
-                wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 16000 + (24000/length)));
+                wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 16000 + (32000/length))*110/100);
             }
         }
         require(maxNonce < nonce + (1 << 216), "Factory: gourp+nonce too high");
@@ -375,7 +375,8 @@ contract FactoryProxy is FactoryStorage {
         require(msg.sender == _activator, "Wallet: sender not allowed");
         uint256 nonce = s_nonce_group[nonceGroup] + (uint256(nonceGroup) << 232);
         uint256 maxNonce = 0;
-        for(uint256 i = 0; i < tr.length; i++) {
+        uint256 trLength = tr.length;
+        for(uint256 i = 0; i < trLength; i++) {
             uint256 gas = gasleft();
             MCalls calldata mcalls = tr[i];
             bytes memory msgPre = abi.encode(0x20, mcalls.mcall.length, 32*mcalls.mcall.length);
@@ -400,8 +401,8 @@ contract FactoryProxy is FactoryStorage {
             require(tx.gasprice <= gasPriceLimit, "Factory: gas price too high");
             require(block.timestamp > afterTS, "Factory: too early");
             require(block.timestamp < beforeTS, "Factory: too late");
-            
-            for(uint256 j = 0; j < mcalls.mcall.length; j++) {
+            uint256 length = mcalls.mcall.length;
+            for(uint256 j = 0; j < length; j++) {
                 MCall calldata call = mcalls.mcall[j];
                 address to = call.to;
                 msg2 = abi.encodePacked(msg2, abi.encode(call.typeHash, to, call.value, sessionId, afterTS, beforeTS, call.gasLimit, gasPriceLimit, call.selector, call.data));
@@ -421,7 +422,7 @@ contract FactoryProxy is FactoryStorage {
             Wallet storage wallet = _getWalletFromMessage(mcalls.signer, messageHash, mcalls.v, mcalls.r, mcalls.s);
             require(wallet.owner == true, "Factory: singer is not owner");
 
-            uint256 length = mcalls.mcall.length;
+            // uint256 length = mcalls.mcall.length;
             for(uint256 j = 0; j < length; j++) {
                 MCall calldata call = mcalls.mcall[j];
                 uint32 gasLimit = call.gasLimit;
@@ -444,7 +445,8 @@ contract FactoryProxy is FactoryStorage {
                 }
             }
             if (sessionId & FLAG_PAYMENT > 0) {
-              wallet.debt = uint88((gas - gasleft() + 60000/length)); // + 10000) * tx.gasprice);
+                wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 24000 + (24000/trLength))*110/100);
+                // wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 16000 + (32000/trLength))*110/100);
             }
         }
         require(maxNonce < nonce + (1 << 216), "Factory: gourp+nonce too high");
