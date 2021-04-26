@@ -16,7 +16,6 @@ contract Proxy is StorageBase {
       if (!success) {
         revert(_getRevertMsg(res));
       }
-      // debt += 1;
     }
 
     function staticcall(address target, /* uint256 value, uint256 gas,*/ bytes calldata data) public view onlyCreator() {

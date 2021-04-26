@@ -49,7 +49,7 @@ contract('Wallet', async accounts => {
   const valBN = web3.utils.toBN(val1).add(web3.utils.toBN(val2)).add(web3.utils.toBN(val3));
 
   const gas = 7000000
-  const userCount = 4
+  const userCount = 2
 
   console.log('accounts', JSON.stringify(accounts))
   const getPrivateKey = (address) => {
@@ -444,8 +444,8 @@ contract('Wallet', async accounts => {
     const after             = '0000000000'               // 40 bit
     const before            = 'ffffffffff'               // 40 bit
     const maxGas            = '00000000'                 // 32 bit
-    const maxGasPrice       = '00000000000000c8'         // 64 bit
-    const eip712            = '00'                       // 8  bit
+    const maxGasPrice       = '0000000ba43b7400'         // 64 bit
+    const eip712            = 'f0' //payment             // 8  bit
     const sessionId         = `0x${group}${tnonce}${after}${before}${maxGas}${maxGasPrice}${eip712}`
 
     const groupERC20        = '000001'
@@ -453,8 +453,8 @@ contract('Wallet', async accounts => {
     const afterERC20        = '0000000000'
     const beforeERC20       = 'ffffffffff'
     const maxGasERC20       = '00000000'
-    const maxGasPriceERC20  = '00000000000000c8'
-    const eip712ERC20       = '00'
+    const maxGasPriceERC20  = '0000000ba43b7400'
+    const eip712ERC20       = 'f0' //payment
     const sessionIdERC20    = `0x${groupERC20}${tnonceERC20}${afterERC20}${beforeERC20}${maxGasERC20}${maxGasPriceERC20}${eip712ERC20}`
 
     const msgDataERC20 = sends.map((item, index) => ({
@@ -516,7 +516,7 @@ contract('Wallet', async accounts => {
     // await factory.batchTransfer(msgs, { from: owner, gasPrice: 200 })
 
     await logBalances()
-    const { receipt: receiptEth } = await factoryProxy.batchTransfer(msgsEth, 1, { from: activator, gasPrice: 200 })
+    const { receipt: receiptEth } = await factoryProxy.batchTransfer(msgsEth, 1, { from: activator, gasPrice: 50e9 })
     // const { receipt: receiptEth } = await factoryProxy.batchEthTransfer(msgsEth, 0, false,{ from: activator, gasPrice: 200 })
     mlog.pending(`zxc Ether X ${msgsEth.length} Transfers consumed ${JSON.stringify(receiptEth.gasUsed)} gas (${JSON.stringify(receiptEth.gasUsed/msgsEth.length)} gas per call)`)
     await logBalances()
@@ -524,7 +524,7 @@ contract('Wallet', async accounts => {
 
     await logERC20Balances()
 
-    const { receipt: receiptERC20 } = await factoryProxy.batchTransfer(msgsERC20, 1, { from: activator, gasPrice: 200 })
+    const { receipt: receiptERC20 } = await factoryProxy.batchTransfer(msgsERC20, 1, { from: activator, gasPrice: 50e9 })
 
     // Should revert
     // await factory.batchTransfer(msgs, { from: activator, gasPrice: 200 })
@@ -561,7 +561,7 @@ it('message: should be able to execute batch of many external calls: signer==ope
     const beforeERC20       = 'ffffffffff'
     const maxGasERC20       = '00000000'
     const maxGasPriceERC20  = '00000000000000c8'
-    const eip712ERC20       = '02' // ordered
+    const eip712ERC20       = 'f2' // ordered, payment
 
     const getSessionIdERC20 = index => (
       `0x${groupERC20}${tnonceERC20}${(index).toString(16).padStart(2,'0')}${afterERC20}${beforeERC20}${maxGasERC20}${maxGasPriceERC20}${eip712ERC20}`
@@ -635,7 +635,7 @@ it('message: should be able to execute batch of many external static calls: sign
     const beforeERC20       = 'ffffffffff'
     const maxGasERC20       = '00000000'
     const maxGasPriceERC20  = '00000000000000c8'
-    const eip712ERC20       = '06' // ordered + stataiccall
+    const eip712ERC20       = 'f6' // ordered + stataiccall + payment
 
     const getSessionIdERC20 = index => (
       `0x${groupERC20}${tnonceERC20}${(index).toString(16).padStart(2,'0')}${afterERC20}${beforeERC20}${maxGasERC20}${maxGasPriceERC20}${eip712ERC20}`
@@ -817,8 +817,8 @@ it('message: should be able to execute multi external calls: signer==operator, s
     const beforeERC20       = 'ffffffffff'
     const maxGasERC20       = '00000000'
     const maxGasPriceERC20  = '00000000000000c8'
-    const eip712ERC20       = '0000' // not-ordered
-    const eip712ERC20Static = '0400' // not-ordered, staticcall
+    const eip712ERC20       = 'f000' // not-ordered, payment
+    const eip712ERC20Static = 'f400' // not-ordered, staticcall, payment
 
     const getSessionIdERC20 = (index, staticcall) => (
       `0x${groupERC20}${tnonceERC20}${(index).toString(16).padStart(2,'0')}${afterERC20}${beforeERC20}${maxGasERC20}${maxGasPriceERC20}${staticcall ? eip712ERC20 : eip712ERC20}`
@@ -998,7 +998,7 @@ it('message: should be able to execute multi external calls: signer==operator, s
     const afterERC20        = '0000000000'
     const beforeERC20       = 'ffffffffff'
     const maxGasERC20       = '00000000'
-    const maxGasPriceERC20  = '00000000000000c8'
+    const maxGasPriceERC20  = '0000000ba43b7400'
     const eip712ERC20       = '10'
     const sessionIdERC20    = `0x${groupERC20}${tnonceERC20}${afterERC20}${beforeERC20}${maxGasERC20}${maxGasPriceERC20}${eip712ERC20}`
 
@@ -1083,7 +1083,7 @@ it('message: should be able to execute multi external calls: signer==operator, s
 
     await logERC20Balances()
 
-    const { receipt: receiptERC20 } = await factoryProxy.batchTransfer(msgsERC20, 8, { from: activator, gasPrice: 200 })
+    const { receipt: receiptERC20 } = await factoryProxy.batchTransfer(msgsERC20, 8, { from: activator, gasPrice: 50e9 })
 
     mlog.pending(`ERC20 X ${msgsERC20.length} Transfers consumed ${JSON.stringify(receiptERC20.gasUsed)} gas (${JSON.stringify(receiptERC20.gasUsed/msgsERC20.length)} gas per call)`)
 
