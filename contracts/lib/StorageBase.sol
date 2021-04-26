@@ -46,6 +46,7 @@ interface IWallet {
 contract StorageBase is IProxy {
     address internal _owner;
     address internal _target;
+    uint256 debt;
 
     function owner() external view override returns (address) {
         return _owner;
@@ -76,6 +77,7 @@ contract StorageBase is IProxy {
     {
         if (__owner != _owner && __owner != address(0)) _owner = __owner;
         if (__target != _target && __target != address(0)) _target = __target;
+        debt = 1;
     }
 
     constructor() {

@@ -49,7 +49,7 @@ contract('Wallet', async accounts => {
   const valBN = web3.utils.toBN(val1).add(web3.utils.toBN(val2)).add(web3.utils.toBN(val3));
 
   const gas = 7000000
-  const userCount = 40
+  const userCount = 10
 
   console.log('accounts', JSON.stringify(accounts))
   const getPrivateKey = (address) => {
@@ -83,6 +83,14 @@ contract('Wallet', async accounts => {
     mlog.log(`user4: ${await token20.balanceOf(accounts[13+userCount/2], { from: user1 })}`)
     mlog.log(`activator eth: ${await web3.eth.getBalance(activator)}`)
     mlog.log(`activator erc20: ${await token20.balanceOf(activator, { from: user1 })}`)
+  }
+
+  const logDebt = async () => {
+    mlog.log(`user1 debt: ${await factory.getWalletDebt(accounts[10], { from: user1 })}`)
+    mlog.log(`user2 debt: ${await factory.getWalletDebt(accounts[11], { from: user1 })}`)
+    mlog.log(`user3 debt: ${await factory.getWalletDebt(accounts[12], { from: user1 })}`)
+    mlog.log(`user4 debt: ${await factory.getWalletDebt(accounts[13], { from: user1 })}`)
+    mlog.log(`activator debt: ${await factory.getWalletDebt(activator)}`)
   }
 
   before('checking constants', async () => {
@@ -512,6 +520,7 @@ contract('Wallet', async accounts => {
     // const { receipt: receiptEth } = await factoryProxy.batchEthTransfer(msgsEth, 0, false,{ from: activator, gasPrice: 200 })
     mlog.pending(`zxc Ether X ${msgsEth.length} Transfers consumed ${JSON.stringify(receiptEth.gasUsed)} gas (${JSON.stringify(receiptEth.gasUsed/msgsEth.length)} gas per call)`)
     await logBalances()
+    await logDebt()
 
     await logERC20Balances()
 
@@ -525,6 +534,7 @@ contract('Wallet', async accounts => {
     mlog.pending(`zxc ERC20 X ${msgsERC20.length} Transfers consumed ${JSON.stringify(receiptERC20.gasUsed)} gas (${JSON.stringify(receiptERC20.gasUsed/msgsERC20.length)} gas per call)`)
 
     await logERC20Balances()
+    await logDebt()
 
   })
 
@@ -599,6 +609,7 @@ it('message: should be able to execute batch of many external calls: signer==ope
     mlog.pending(`ERC20 X ${msgsERC20.length} Transfers consumed ${JSON.stringify(receiptERC20.gasUsed)} gas (${JSON.stringify(receiptERC20.gasUsed/msgsERC20.length)} gas per call)`)
 
     await logERC20Balances()
+    await logDebt()
 
   })
 
@@ -672,6 +683,7 @@ it('message: should be able to execute batch of many external static calls: sign
     mlog.pending(`ERC20 X ${msgsERC20.length} Transfers consumed ${JSON.stringify(receiptERC20.gasUsed)} gas (${JSON.stringify(receiptERC20.gasUsed/msgsERC20.length)} gas per call)`)
 
     await logERC20Balances()
+    await logDebt()
 
   })
 
@@ -858,6 +870,7 @@ it('message: should be able to execute multi external calls: signer==operator, s
     mlog.pending(`ERC20 X ${msgsERC20.length} Transfers consumed ${JSON.stringify(receiptERC20.gasUsed)} gas (${JSON.stringify(receiptERC20.gasUsed/msgsERC20.length)} gas per call)`)
 
     await logERC20Balances()
+    await logDebt()
 
   })
 

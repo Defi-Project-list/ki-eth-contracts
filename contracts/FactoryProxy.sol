@@ -213,25 +213,25 @@ contract FactoryProxy is FactoryStorage {
       }
     }
 
-    function _getWalletFromMessage(address signer, bytes32 messageHash, uint8 v, bytes32 r, bytes32 s) private view returns (address) {
+    function _getWalletFromMessage(address signer, bytes32 messageHash, uint8 v, bytes32 r, bytes32 s) private view returns (Wallet storage) {
         if (signer == address(0)) {
             if (v != 0) {
                 return accounts_wallet[messageHash.recover(
                     v,
                     r,
                     s
-                )].addr;
+                )];
             } else {
                 return accounts_wallet[messageHash.recover(
                     27 + uint8(uint256(s) >> 255),
                     r,
                     s & 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-                )].addr;
+                )];
             }
         } else if (signer.isValidSignatureNow(messageHash, v !=0 ? abi.encodePacked(r, s, v): abi.encodePacked(r,s))) {
-            return accounts_wallet[signer].addr;
+            return accounts_wallet[signer];
         }
-        return address(0);
+        revert("Factory: signer is not owner");
     }
 
     function batchTransfer(Transfer[] calldata tr, uint24 nonceGroup) public {
@@ -239,7 +239,9 @@ contract FactoryProxy is FactoryStorage {
         require(msg.sender == _activator, "Wallet: sender not allowed");
         uint256 nonce = s_nonce_group[nonceGroup] + (uint256(nonceGroup) << 232);
         uint256 maxNonce = 0;
-        for(uint256 i = 0; i < tr.length; i++) {
+        uint256 length = tr.length;
+        for(uint256 i = 0; i < length; i++) {
+            uint256 gas = gasleft();
             Transfer calldata call = tr[i];
             address to = call.to;
             uint256 value = call.value;
@@ -271,15 +273,16 @@ contract FactoryProxy is FactoryStorage {
                 sessionId & FLAG_EIP712 > 0
             );
 
-            address wallet = _getWalletFromMessage(call.signer, messageHash, uint8(sessionId) /*v*/, call.r, call.s);
-            require(wallet != address(0), "Factory: signer is not owner");
+            Wallet storage wallet = _getWalletFromMessage(call.signer, messageHash, uint8(sessionId) /*v*/, call.r, call.s);
 
             (bool success, bytes memory res) = token == address(0) ?
-                wallet.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(abi.encodeWithSignature("transferEth(address,uint256)", to, value)):
-                wallet.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(abi.encodeWithSignature("transferERC20(address,address,uint256)", token, to, value));
+                wallet.addr.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(abi.encodeWithSignature("transferEth(address,uint256)", to, value)):
+                wallet.addr.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(abi.encodeWithSignature("transferERC20(address,address,uint256)", token, to, value));
             if (!success) {
                 revert(_getRevertMsg(res));
             }
+
+            wallet.debt = uint88(tx.gasprice * (gas - gasleft() + 16000 + (24000/length))); // + (4000*gasPriceLimit/tx.gasprice)); // + uint88(4000*gasPriceLimit/tx.gasprice); // * tx.gasprice);
         }
         require(maxNonce < nonce + (1 << 216), "Factory: gourp+nonce too high");
         s_nonce_group[nonceGroup] = (maxNonce & 0x000000ffffffffff000000000000000000000000000000000000000000000000) + (1 << 192);
@@ -296,7 +299,10 @@ contract FactoryProxy is FactoryStorage {
         require(msg.sender == _activator, "Wallet: sender not allowed");
         uint256 nonce = s_nonce_group[nonceGroup] + (nonceGroup << 232);
         uint256 maxNonce = 0;
-        for(uint256 i = 0; i < tr.length; i++) {
+        uint256 length = tr.length;
+        for(uint256 i = 0; i < length; i++) {
+            uint256 gas = gasleft();
+
             Call calldata call = tr[i];
             // address to = call.to;
             // uint256 value = call.value;
@@ -327,7 +333,7 @@ contract FactoryProxy is FactoryStorage {
 
             bytes32 messageHash = keccak256(abi.encode(call.typeHash, call.to, call.value, sessionId >> 8, afterTS, beforeTS, gasLimit, gasPriceLimit, call.selector, call.data));
 
-            address wallet = _getWalletFromMessage(
+            Wallet storage wallet = _getWalletFromMessage(
                 call.signer,
                 _messageToRecover(
                     messageHash,
@@ -337,14 +343,14 @@ contract FactoryProxy is FactoryStorage {
                 call.r,
                 call.s
             );
-            require(wallet != address(0), "Factory: signer is not owner");
-
+            
             (bool success, bytes memory res) = sessionId & FLAG_STATICCALL > 0 ?
-                wallet.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(abi.encodeWithSignature("staticcall(address,bytes)", call.to, abi.encodePacked(call.selector, call.data))):
-                wallet.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(abi.encodeWithSignature("call(address,uint256,bytes)", call.to, call.value, abi.encodePacked(call.selector, call.data)));
+                wallet.addr.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(abi.encodeWithSignature("staticcall(address,bytes)", call.to, abi.encodePacked(call.selector, call.data))):
+                wallet.addr.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(abi.encodeWithSignature("call(address,uint256,bytes)", call.to, call.value, abi.encodePacked(call.selector, call.data)));
             if (!success) {
                 revert(_getRevertMsg(res));
             }
+            wallet.debt = uint88((gas - gasleft() + (60000/length))); // + 10000) * tx.gasprice);
         }
         require(maxNonce < nonce + (1 << 216), "Factory: gourp+nonce too high");
         s_nonce_group[nonceGroup] = (maxNonce & 0x000000ffffffffff000000000000000000000000000000000000000000000000) + (1 << 192);
@@ -357,6 +363,7 @@ contract FactoryProxy is FactoryStorage {
         uint256 nonce = s_nonce_group[nonceGroup] + (uint256(nonceGroup) << 232);
         uint256 maxNonce = 0;
         for(uint256 i = 0; i < tr.length; i++) {
+            uint256 gas = gasleft();
             MCalls calldata mcalls = tr[i];
             bytes memory msgPre = abi.encode(0x20, mcalls.mcall.length, 32*mcalls.mcall.length);
             bytes memory msg2;
@@ -398,30 +405,30 @@ contract FactoryProxy is FactoryStorage {
             // emit ErrorHandled(abi.encodePacked(msgPre, msg2));
             // return ;
 
-            address wallet = _getWalletFromMessage(mcalls.signer, messageHash, mcalls.v, mcalls.r, mcalls.s);
-            require(wallet != address(0), "Factory: signer is not owner");
+            Wallet storage wallet = _getWalletFromMessage(mcalls.signer, messageHash, mcalls.v, mcalls.r, mcalls.s);
+            uint256 length = mcalls.mcall.length;
+            for(uint256 j = 0; j < length; j++) {
+                MCall calldata call = mcalls.mcall[j];
+                uint32 gasLimit = call.gasLimit;
+                uint16 flags = call.flags;
 
-          for(uint256 j = 0; j < mcalls.mcall.length; j++) {
-              MCall calldata call = mcalls.mcall[j];
-              uint32 gasLimit = call.gasLimit;
-              uint16 flags = call.flags;
-
-              (bool success, bytes memory res) = call.flags & FLAG_STATICCALL > 0 ?
-                  wallet.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(abi.encodeWithSignature("staticcall(address,bytes)", call.to, abi.encodePacked(call.selector, call.data))):
-                  wallet.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(abi.encodeWithSignature("call(address,uint256,bytes)", call.to, call.value, abi.encodePacked(call.selector, call.data)));
-              if (!success) {
-                  if (flags & ON_FAIL_CONTINUE > 0) {
-                    continue;
-                  } else if (flags & ON_FAIL_STOP > 0) {
+                (bool success, bytes memory res) = call.flags & FLAG_STATICCALL > 0 ?
+                    wallet.addr.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(abi.encodeWithSignature("staticcall(address,bytes)", call.to, abi.encodePacked(call.selector, call.data))):
+                    wallet.addr.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(abi.encodeWithSignature("call(address,uint256,bytes)", call.to, call.value, abi.encodePacked(call.selector, call.data)));
+                if (!success) {
+                    if (flags & ON_FAIL_CONTINUE > 0) {
+                        continue;
+                    } else if (flags & ON_FAIL_STOP > 0) {
+                        break;
+                    }
+                    revert(_getRevertMsg(res));
+                } else if (flags & ON_SUCCESS_STOP > 0) {
                     break;
-                  }
-                  revert(_getRevertMsg(res));
-              } else if (flags & ON_SUCCESS_STOP > 0) {
-                break;
-              } else if (flags & ON_SUCCESS_REVERT > 0) {
-                revert("Factory: revert on success");
-              }
-          }
+                } else if (flags & ON_SUCCESS_REVERT > 0) {
+                    revert("Factory: revert on success");
+                }
+            }
+            wallet.debt = uint88((gas - gasleft() + 60000/length)); // + 10000) * tx.gasprice);
         }
         require(maxNonce < nonce + (1 << 216), "Factory: gourp+nonce too high");
         s_nonce_group[nonceGroup] = (maxNonce & 0x000000ffffffffff000000000000000000000000000000000000000000000000) + (1 << 192);

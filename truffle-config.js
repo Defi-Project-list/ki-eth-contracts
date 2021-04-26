@@ -104,12 +104,12 @@ module.exports = {
       settings: {
         optimizer: {
           enabled: true,
-          runs: 200   // Optimize for how many times you intend to run the code
+          runs: 999   // Optimize for how many times you intend to run the code
         },
       },
         optimizer: {
             enabled: true,
-            runs: 200
+            runs: 999
         }
     }
 };

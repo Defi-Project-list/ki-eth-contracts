@@ -19,6 +19,7 @@ abstract contract FactoryStorage is MultiSig {
     struct Wallet {
         address addr;
         bool owner;
+        uint88 debt;
     }
 
     struct UpgradeRequest {

@@ -226,6 +226,10 @@ contract Factory is FactoryStorage {
         return accounts_wallet[_account].addr;
     }
 
+    function getWalletDebt(address _account) public view returns (uint88) {
+        return accounts_wallet[_account].debt;
+    }
+
     function createWallet(bool _auto) public returns (address) {
         require(address(swProxy) != address(0), "no proxy");
         require(production_version_code != address(0), "no prod version"); //Must be here - ProxyLatest also needs it.
