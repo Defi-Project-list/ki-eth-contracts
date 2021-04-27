@@ -65,30 +65,30 @@ contract FactoryProxy is FactoryStorage {
     uint256 private constant ON_SUCCESS_STOP = 0x10;
     uint256 private constant ON_SUCCESS_REVERT = 0x20;
     
-    function setTarget(address _target) public multiSig2of3(0) {
-        require(frozen != true, "frozen");
-        require(_target != address(0), "no target");
-        target = _target;
+    function setTarget(address target) public multiSig2of3(0) {
+        require(s_frozen != true, "frozen");
+        require(target != address(0), "no target");
+        s_target = target;
     }
 
     function freezeTarget() public multiSig2of3(0) {
-        frozen = true;
+        s_frozen = true;
     }
 
     function operator() public view returns (address) {
-      return _operator;
+      return s_operator;
     }
 
     function activator() public view returns (address) {
-      return _activator;
+      return s_activator;
     }
 
     function managers() public view returns (address, address) {
-      return (_operator, _activator);
+      return (s_operator, s_activator);
     }
 
 
-    event ErrorHandled(bytes reason);
+    // event ErrorHandled(bytes reason);
 
     // keccak256("acceptTokens(address recipient,uint256 value,bytes32 secretHash)");
     bytes32 public constant TRANSFER_TYPEHASH = 0xf728cfc064674dacd2ced2a03acd588dfd299d5e4716726c6d5ec364d16406eb;
@@ -173,7 +173,7 @@ contract FactoryProxy is FactoryStorage {
     function batchEthTransfer(STransfer[] calldata tr, uint128 nonceGroup, bool eip712) public {
         // address refund = _activator;
         unchecked {
-        require(msg.sender == _activator, "Wallet: sender not allowed");
+        require(msg.sender == s_activator, "Wallet: sender not allowed");
         uint256 nonce = s_nonce_group[nonceGroup] + (uint256(nonceGroup) << 128);
         uint256 minNonce = type(uint256).max;
         uint256 maxNonce = 0;
@@ -199,7 +199,7 @@ contract FactoryProxy is FactoryStorage {
             if (minGasPrice > gasPriceLimit) {
                 minGasPrice = gasPriceLimit;
             }
-            address wallet = accounts_wallet[signer].addr;
+            address wallet = s_accounts_wallet[signer].addr;
             require(wallet != address(0), "Factory: signer is not owner");
             (bool success, bytes memory res) =
                 wallet.call(abi.encodeWithSignature("transferEth(address,uint256)", to, value));
@@ -217,27 +217,27 @@ contract FactoryProxy is FactoryStorage {
     function _getWalletFromMessage(address signer, bytes32 messageHash, uint8 v, bytes32 r, bytes32 s) private view returns (Wallet storage) {
         if (signer == address(0)) {
             if (v != 0) {
-                return accounts_wallet[messageHash.recover(
+                return s_accounts_wallet[messageHash.recover(
                     v,
                     r,
                     s
                 )];
             } else {
-                return accounts_wallet[messageHash.recover(
+                return s_accounts_wallet[messageHash.recover(
                     27 + uint8(uint256(s) >> 255),
                     r,
                     s & 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
                 )];
             }
         } else if (signer.isValidSignatureNow(messageHash, v !=0 ? abi.encodePacked(r, s, v): abi.encodePacked(r,s))) {
-            return accounts_wallet[signer];
+            return s_accounts_wallet[signer];
         }
         revert("Factory: signer has no ocw");
     }
 
     function batchTransfer(Transfer[] calldata tr, uint24 nonceGroup) public {
       unchecked {
-        require(msg.sender == _activator, "Wallet: sender not allowed");
+        require(msg.sender == s_activator, "Wallet: sender not allowed");
         uint256 nonce = s_nonce_group[nonceGroup] + (uint256(nonceGroup) << 232);
         uint256 maxNonce = 0;
         uint256 length = tr.length;
@@ -305,7 +305,7 @@ contract FactoryProxy is FactoryStorage {
     function batchCall(Call[] calldata tr, uint256 nonceGroup) public {
       // address refund = _activator;
       unchecked {
-        require(msg.sender == _activator, "Wallet: sender not allowed");
+        require(msg.sender == s_activator, "Wallet: sender not allowed");
         uint256 nonce = s_nonce_group[nonceGroup] + (nonceGroup << 232);
         uint256 maxNonce = 0;
         uint256 length = tr.length;
@@ -361,8 +361,13 @@ contract FactoryProxy is FactoryStorage {
             if (!success) {
                 revert(_getRevertMsg(res));
             }
-            if (sessionId & FLAG_PAYMENT > 0) {
-                wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 16000 + (32000/length))*110/100);
+            uint256 payment = sessionId & FLAG_PAYMENT;
+            if (payment > 0) {
+                if (payment == 0xf000) {
+                  wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 16000 + (32000/length))*110/100);
+                } else {
+                  wallet.debt = uint88((tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * (gas - gasleft() + 16000 + (32000/length))*110/100);
+                }
             }
         }
         require(maxNonce < nonce + (1 << 216), "Factory: gourp+nonce too high");
@@ -372,7 +377,7 @@ contract FactoryProxy is FactoryStorage {
 
     function batchMultiCall(MCalls[] calldata tr, uint256 nonceGroup) public {
       unchecked {
-        require(msg.sender == _activator, "Wallet: sender not allowed");
+        require(msg.sender == s_activator, "Wallet: sender not allowed");
         uint256 nonce = s_nonce_group[nonceGroup] + (uint256(nonceGroup) << 232);
         uint256 maxNonce = 0;
         uint256 trLength = tr.length;
@@ -498,7 +503,7 @@ contract FactoryProxy is FactoryStorage {
             calldatacopy(0x00, 0x00, calldatasize())
             let res := delegatecall(
                 gas(),
-                sload(target.slot),
+                sload(s_target.slot),
                 0x00,
                 calldatasize(),
                 0,

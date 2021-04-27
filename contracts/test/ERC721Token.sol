@@ -7,16 +7,16 @@ import "openzeppelin-solidity/contracts/token/ERC721/ERC721.sol";
 import "openzeppelin-solidity/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 
 contract ERC721Token is ERC721URIStorage {
-    uint256 private tokenId;
+    uint256 private s_tokenId;
 
     constructor(string memory name, string memory symbol)
         ERC721(name, symbol)
     {}
 
     function createTimeframe(string memory tokenURI) public returns (bool) {
-        tokenId += 1;
-        _mint(msg.sender, tokenId);
-        _setTokenURI(tokenId, tokenURI);
+        s_tokenId += 1;
+        _mint(msg.sender, s_tokenId);
+        _setTokenURI(s_tokenId, tokenURI);
         return true;
     }
 }

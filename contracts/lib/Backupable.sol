@@ -20,65 +20,65 @@ abstract contract Backupable is IStorage, StorageBase, Storage {
     event OwnershipReclaimed    (address indexed creator, address indexed owner, address indexed pendingOwner, uint8 state);
 
     modifier onlyActiveOwner () {
-        require (msg.sender == this.owner() && backup.state != BACKUP_STATE_ACTIVATED, "not active owner");
+        require (msg.sender == this.owner() && s_backup.state != BACKUP_STATE_ACTIVATED, "not active owner");
         _;
     }
 
     modifier onlyBackup () {
-        require (msg.sender == backup.wallet, "not backup");
+        require (msg.sender == s_backup.wallet, "not backup");
         _;
     }
 
     modifier eitherOwnerOrBackup () {
-        require (msg.sender == _owner || msg.sender == backup.wallet, "neither owner nor backup");
+        require (msg.sender == s_owner || msg.sender == s_backup.wallet, "neither owner nor backup");
         _;
     }
 
-    function setBackup (address _wallet, uint32 _timeout) public onlyActiveOwner {
-        require (_wallet != address(0), "no backup");
-        require (_wallet != _owner, "backup is owner");
+    function setBackup (address wallet, uint32 timeout) public onlyActiveOwner {
+        require (wallet != address(0), "no backup");
+        require (wallet != s_owner, "backup is owner");
 
-        if (backup.wallet != _wallet) {
-            if (backup.wallet != address(0)){
-                ICreator(this.creator()).removeWalletBackup(backup.wallet);
+        if (s_backup.wallet != wallet) {
+            if (s_backup.wallet != address(0)){
+                ICreator(this.creator()).removeWalletBackup(s_backup.wallet);
             }
-            backup.wallet = _wallet;
-            ICreator(this.creator()).addWalletBackup(_wallet);
-            if (backup.state != BACKUP_STATE_PENDING) backup.state = BACKUP_STATE_PENDING;
-            if (backup.timestamp != 0) backup.timestamp = 0;
+            s_backup.wallet = wallet;
+            ICreator(this.creator()).addWalletBackup(wallet);
+            if (s_backup.state != BACKUP_STATE_PENDING) s_backup.state = BACKUP_STATE_PENDING;
+            if (s_backup.timestamp != 0) s_backup.timestamp = 0;
         }
-        if (backup.timeout != _timeout) backup.timeout = _timeout;
-        if (backup.state == BACKUP_STATE_ENABLED) {
-            backup.timestamp = getBlockTimestamp();
+        if (s_backup.timeout != timeout) s_backup.timeout = timeout;
+        if (s_backup.state == BACKUP_STATE_ENABLED) {
+            s_backup.timestamp = getBlockTimestamp();
         }
-        emit BackupChanged (this.creator(), _owner, _wallet, _timeout, backup.timestamp, backup.state);
+        emit BackupChanged (this.creator(), s_owner, wallet, timeout, s_backup.timestamp, s_backup.state);
     }
 
     function removeBackup () public onlyOwner {
-        require (backup.wallet != address(0), "backup not exist");
+        require (s_backup.wallet != address(0), "backup not exist");
         _removeBackup ();
     }
 
     function _removeBackup () private {
-        address _backup = backup.wallet;
-        if (_backup != address(0)){
-            ICreator(this.creator()).removeWalletBackup(_backup);
-            backup.wallet = address(0);
+        address backup = s_backup.wallet;
+        if (backup != address(0)){
+            ICreator(this.creator()).removeWalletBackup(backup);
+            s_backup.wallet = address(0);
         }
-        if (backup.timeout != 0) backup.timeout = 0;
-        if (backup.timestamp != 0) backup.timestamp = 0;
-        if (backup.state != BACKUP_STATE_PENDING) backup.state = BACKUP_STATE_PENDING;
-        emit BackupRemoved (this.creator(), _owner, _backup, backup.state);
+        if (s_backup.timeout != 0) s_backup.timeout = 0;
+        if (s_backup.timestamp != 0) s_backup.timestamp = 0;
+        if (s_backup.state != BACKUP_STATE_PENDING) s_backup.state = BACKUP_STATE_PENDING;
+        emit BackupRemoved (this.creator(), s_owner, backup, s_backup.state);
     }
 
     function activateBackup () public {
-        require (backup.state == BACKUP_STATE_ENABLED, "backup not enabled");
-        require (backup.wallet != address(0), "backup not exist");
+        require (s_backup.state == BACKUP_STATE_ENABLED, "backup not enabled");
+        require (s_backup.wallet != address(0), "backup not exist");
         require (getBackupTimeLeft() == 0, "too early");
         //require (msg.sender == tx.origin);
         
-        if (backup.state != BACKUP_STATE_ACTIVATED) backup.state = BACKUP_STATE_ACTIVATED;
-        emit BackupActivated (this.creator(), backup.wallet, msg.sender, backup.state);
+        if (s_backup.state != BACKUP_STATE_ACTIVATED) s_backup.state = BACKUP_STATE_ACTIVATED;
+        emit BackupActivated (this.creator(), s_backup.wallet, msg.sender, s_backup.state);
 
         uint256 currentBalance = address(this).balance;
         address payable payee = IOracle(ICreator(this.creator()).oracle()).paymentAddress();
@@ -94,38 +94,38 @@ abstract contract Backupable is IStorage, StorageBase, Storage {
     }
 
     function getBackupState () public view returns (uint8) {
-        return backup.state;
+        return s_backup.state;
     }
 
     function getOwner () public view returns (address) {
-        return _owner;
+        return s_owner;
     }
 
     function getBackupWallet () public view returns (address) {
-        return backup.wallet;
+        return s_backup.wallet;
     }
 
     function isOwner () external view returns (bool) {
-        return (_owner == msg.sender);
+        return (s_owner == msg.sender);
     }
 
     function isBackup () external view returns (bool) {
-        return (backup.wallet == msg.sender);
+        return (s_backup.wallet == msg.sender);
     }
 
     function getBackupTimeout () public view returns (uint40) {
-        return backup.timeout;
+        return s_backup.timeout;
     }
 
     function getBackupTimestamp () public view returns (uint40) {
-        return backup.timestamp;
+        return s_backup.timestamp;
     }
 
-    function getBackupTimeLeft () public view returns (uint40 _res) {
+    function getBackupTimeLeft () public view returns (uint40 res) {
         unchecked { 
-          uint40 _timestamp = getBlockTimestamp();
-          if (backup.timestamp > 0 && _timestamp >= backup.timestamp && backup.timeout > _timestamp - backup.timestamp) {
-              _res = backup.timeout - (_timestamp - backup.timestamp);
+          uint40 timestamp = getBlockTimestamp();
+          if (s_backup.timestamp > 0 && timestamp >= s_backup.timestamp && s_backup.timeout > timestamp - s_backup.timestamp) {
+              res = s_backup.timeout - (timestamp - s_backup.timestamp);
           }
         }
     }
@@ -136,37 +136,37 @@ abstract contract Backupable is IStorage, StorageBase, Storage {
     }
 
     function claimOwnership () public onlyBackup {
-        require (backup.state == BACKUP_STATE_ACTIVATED, "backup not activated");
-        backup.state = BACKUP_STATE_PENDING;
-        emit OwnershipTransferred (this.creator(), _owner, backup.wallet, backup.state);
-        if (_owner != backup.wallet) ICreator(this.creator()).transferWalletOwnership(backup.wallet);
-        backup.wallet = address(0);
-        if (backup.timeout != 0) backup.timeout = 0;
-        if (backup.timestamp != 0) backup.timestamp = 0;
+        require (s_backup.state == BACKUP_STATE_ACTIVATED, "backup not activated");
+        s_backup.state = BACKUP_STATE_PENDING;
+        emit OwnershipTransferred (this.creator(), s_owner, s_backup.wallet, s_backup.state);
+        if (s_owner != s_backup.wallet) ICreator(this.creator()).transferWalletOwnership(s_backup.wallet);
+        s_backup.wallet = address(0);
+        if (s_backup.timeout != 0) s_backup.timeout = 0;
+        if (s_backup.timestamp != 0) s_backup.timestamp = 0;
     }
 
     function reclaimOwnership () public onlyOwner {
-        require (backup.state == BACKUP_STATE_ACTIVATED, "backup not activated");
-        backup.state = BACKUP_STATE_REGISTERED;
-        emit OwnershipReclaimed (this.creator(), _owner, backup.wallet, backup.state);
+        require (s_backup.state == BACKUP_STATE_ACTIVATED, "backup not activated");
+        s_backup.state = BACKUP_STATE_REGISTERED;
+        emit OwnershipReclaimed (this.creator(), s_owner, s_backup.wallet, s_backup.state);
     }
 
     function enable () public eitherOwnerOrBackup {
-        require(backup.state == BACKUP_STATE_REGISTERED, "backup not registered");
+        require(s_backup.state == BACKUP_STATE_REGISTERED, "backup not registered");
         uint40 timestamp = getBlockTimestamp();
-        backup.state = BACKUP_STATE_ENABLED;
-        backup.timestamp = timestamp;
-        emit BackupEnabled (this.creator(), backup.wallet, timestamp, backup.state);
+        s_backup.state = BACKUP_STATE_ENABLED;
+        s_backup.timestamp = timestamp;
+        emit BackupEnabled (this.creator(), s_backup.wallet, timestamp, s_backup.state);
     }
 
     function accept () public onlyBackup {
-        require(backup.state == BACKUP_STATE_PENDING, "backup not pending");
-        backup.state = BACKUP_STATE_REGISTERED;
-        emit BackupRegistered (this.creator(), backup.wallet, backup.state);
+        require(s_backup.state == BACKUP_STATE_PENDING, "backup not pending");
+        s_backup.state = BACKUP_STATE_REGISTERED;
+        emit BackupRegistered (this.creator(), s_backup.wallet, s_backup.state);
     }
 
     function decline () public onlyBackup {
-        require(backup.state == BACKUP_STATE_PENDING, "backup not pending");
+        require(s_backup.state == BACKUP_STATE_PENDING, "backup not pending");
         _removeBackup();
     }
 

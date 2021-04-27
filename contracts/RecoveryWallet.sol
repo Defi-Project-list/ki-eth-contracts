@@ -44,101 +44,98 @@ contract RecoveryWallet is IStorage, Heritable {
         bytes data
     );
 
-    function sendEther(address payable _to, uint256 _value)
+    function sendEther(address payable to, uint256 value)
         public
         onlyActiveOwner()
     {
-        require(_value > 0, "value == 0");
-        require(_value <= address(this).balance, "value > balance");
-        emit SentEther(this.creator(), address(this), _to, _value);
-        _to.transfer(_value);
+        require(value > 0, "value == 0");
+        require(value <= address(this).balance, "value > balance");
+        emit SentEther(this.creator(), address(this), to, value);
+        to.transfer(value);
     }
 
     function transfer20(
-        address _token,
-        address _to,
-        uint256 _value
+        address token,
+        address to,
+        uint256 value
     ) public onlyActiveOwner() {
-        require(_token != address(0), "_token is 0x0");
-        emit Transfer20(this.creator(), _token, address(this), _to, _value);
-        IERC20(_token).transfer(_to, _value);
+        require(token != address(0), "_token is 0x0");
+        emit Transfer20(this.creator(), token, address(this), to, value);
+        IERC20(token).transfer(to, value);
     }
 
     function transferFrom20(
-        address _token,
-        address _from,
-        address _to,
-        uint256 _value
+        address token,
+        address from,
+        address to,
+        uint256 value
     ) public onlyActiveOwner() {
-        require(_token != address(0), "_token is 0x0");
-        address from = _from == address(0) ? address(this) : address(_from);
-        emit Transfer20(this.creator(), _token, from, _to, _value);
-        IERC20(_token).transferFrom(_from, _to, _value);
+        require(token != address(0), "_token is 0x0");
+        address sender = from == address(0) ? address(this) : address(from);
+        emit Transfer20(this.creator(), token, sender, to, value);
+        IERC20(token).transferFrom(sender, to, value);
     }
 
     function transfer721(
-        address _token,
-        address _to,
-        uint256 _value
+        address token,
+        address to,
+        uint256 value
     ) public onlyActiveOwner() {
-        transferFrom721(_token, address(0), _to, _value);
+        transferFrom721(token, address(0), to, value);
     }
 
     function transferFrom721(
-        address _token,
-        address _from,
-        address _to,
-        uint256 _id
+        address token,
+        address from,
+        address to,
+        uint256 id
     ) public onlyActiveOwner() {
-        require(_token != address(0), "_token is 0x0");
-        address from = _from == address(0) ? address(this) : address(_from);
-        emit Transfer721(this.creator(), _token, from, _to, _id, "");
-        IERC721(_token).transferFrom(address(this), _to, _id);
+        require(token != address(0), "_token is 0x0");
+        emit Transfer721(this.creator(), token, from == address(0) ? address(this) : address(from), to, id, "");
+        IERC721(token).transferFrom(address(this), to, id);
     }
 
     function safeTransferFrom721(
-        address _token,
-        address _from,
-        address _to,
-        uint256 _id
+        address token,
+        address from,
+        address to,
+        uint256 id
     ) public onlyActiveOwner() {
-        require(_token != address(0), "_token is 0x0");
-        address from = _from == address(0) ? address(this) : address(_from);
-        emit Transfer721(this.creator(), _token, from, _to, _id, "");
-        IERC721(_token).safeTransferFrom(address(this), _to, _id);
+        require(token != address(0), "_token is 0x0");
+        emit Transfer721(this.creator(), token, from == address(0) ? address(this) : address(from), to, id, "");
+        IERC721(token).safeTransferFrom(address(this), to, id);
     }
 
     function safeTransferFrom721wData(
-        address _token,
-        address _from,
-        address _to,
-        uint256 _id,
-        bytes memory _data
+        address token,
+        address from,
+        address to,
+        uint256 id,
+        bytes memory data
     ) public onlyActiveOwner() {
-        require(_token != address(0), "_token is 0x0");
-        address from = _from == address(0) ? address(this) : address(_from);
-        emit Transfer721(this.creator(), _token, from, _to, _id, _data);
-        IERC721(_token).safeTransferFrom(address(this), _to, _id, _data);
+        require(token != address(0), "token is 0x0");
+        emit Transfer721(this.creator(), token, from == address(0) ? address(this) : address(from), to, id, data);
+        IERC721(token).safeTransferFrom(address(this), to, id, data);
     }
 
     function getBalance() public view returns (uint256) {
         return address(this).balance;
     }
 
-    function balanceOf20(address _token) public view returns (uint256) {
-        return IERC20(_token).balanceOf(address(this));
+    function balanceOf20(address token) public view returns (uint256) {
+        return IERC20(token).balanceOf(address(this));
     }
 
-    function balanceOf721(address _token) public view returns (uint256) {
-        return IERC721(_token).balanceOf(address(this));
+    function balanceOf721(address token) public view returns (uint256) {
+        return IERC721(token).balanceOf(address(this));
     }
 
-    function is20Safe(address _token) public view returns (bool) {
-        return IOracle(ICreator(this.creator()).oracle()).is20Safe(_token);
+    function is20Safe(address token) public view returns (bool) {
+        return IOracle(ICreator(this.creator()).oracle()).is20Safe(token);
     }
 
-    function is721Safe(address _token) public view returns (bool) {
-        return IOracle(ICreator(this.creator()).oracle()).is721Safe(_token);
+    function is721Safe(address token) public view returns (bool) {
+        return IOracle(ICreator(this.creator()).oracle()).is721Safe(token);
     }
 
     //function onERC721Received(address operator, address from, uint256 tokenId, bytes data) public returns (bytes4) {

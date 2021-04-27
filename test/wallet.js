@@ -49,7 +49,7 @@ contract('Wallet', async accounts => {
   const valBN = web3.utils.toBN(val1).add(web3.utils.toBN(val2)).add(web3.utils.toBN(val3));
 
   const gas = 7000000
-  const userCount = 120
+  const userCount = 20
 
   console.log('accounts', JSON.stringify(accounts))
   const getPrivateKey = (address) => {

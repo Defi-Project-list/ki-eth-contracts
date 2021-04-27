@@ -50,20 +50,20 @@ abstract contract FactoryOwnable is FactoryStorage {
 
     /**
      * @dev Allows the current owner to transfer control of the contract to a newOwner.
-     * @param _newOwner The address to transfer ownership to.
+     * @param newOwner The address to transfer ownership to.
      */
     function transferOwnership(
-        address _newOwner /*onlyOwner*/
+        address newOwner /*onlyOwner*/
     ) public pure virtual {
-        _transferOwnership(_newOwner);
+        _transferOwnership(newOwner);
     }
 
     /**
      * @dev Transfers control of the contract to a newOwner.
-     * @param _newOwner The address to transfer ownership to.
+     * @param newOwner The address to transfer ownership to.
      */
-    function _transferOwnership(address _newOwner) internal pure {
-        require(_newOwner != address(0), "no new owner");
+    function _transferOwnership(address newOwner) internal pure {
+        require(newOwner != address(0), "no new owner");
         // emit OwnershipTransferred(owner, _newOwner);
         // owner = _newOwner;
     }

@@ -10,13 +10,13 @@ import "./Storage2.sol";
 contract Wallet2 is IStorage, StorageBase, Storage, Storage2 {
     event ValueChanged(uint256 newValue);
 
-    function setValue(uint256 _value, uint256 _mul) public payable onlyOwner {
-        value = _value * _mul;
-        emit ValueChanged(value);
+    function setValue(uint256 value, uint256 mul) public payable onlyOwner {
+        s_value = value * mul;
+        emit ValueChanged(s_value);
     }
 
     function getValue() public view returns (uint256) {
-        return value;
+        return s_value;
     }
 
     // IStorage Implementation
@@ -28,10 +28,10 @@ contract Wallet2 is IStorage, StorageBase, Storage, Storage2 {
     }
 
     function removeOwner() public {
-        _owner = address(0);
+        s_owner = address(0);
     }
 
     function removeTarget() public {
-        _target = address(0);
+        s_target = address(0);
     }
 }

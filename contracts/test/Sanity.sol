@@ -4,13 +4,13 @@ pragma solidity ^0.8.0;
 pragma abicoder v1;
 
 contract Sanity {
-    string public name;
-    uint256 private value;
-    address public owner;
-    uint256 private cancelCount;
+    string public s_name;
+    uint256 private s_value;
+    address public s_owner;
+    uint256 private s_cancelCount;
 
     modifier ownerOnly {
-        if (msg.sender != owner) {
+        if (msg.sender != s_owner) {
             revert();
         }
         _;
@@ -20,27 +20,27 @@ contract Sanity {
     event ValueChanged(uint256 value);
 
     constructor() {
-        name = "Kirobo";
-        owner = msg.sender;
-        value = 100;
+        s_name = "Kirobo";
+        s_owner = msg.sender;
+        s_value = 100;
     }
 
     function getValue() public view returns (uint256) {
-        return value;
+        return s_value;
     }
 
-    function setValue(uint256 _value) public ownerOnly {
-        value = _value;
+    function setValue(uint256 value) public ownerOnly {
+        s_value = value;
         emit ValueChanged(value);
     }
 
-    function setName(string memory _name) public {
-        name = _name;
+    function setName(string memory name) public {
+        s_name = name;
         emit NameChanged(msg.sender, name);
     }
 
     function cancel() public {
-        ++cancelCount;
+        ++s_cancelCount;
         revert();
     }
 }

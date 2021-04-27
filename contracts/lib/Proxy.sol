@@ -35,31 +35,26 @@ contract Proxy is StorageBase {
       }
     }
 
-    function transferEth(/*address payable _refund,*/ address payable _to, uint256 _value)
+    function transferEth(address payable to, uint256 value)
         public
         onlyCreator()
     {
         (bool success, bytes memory res) = 
-            _to.call{gas: 20000, value: _value}("");
+            to.call{gas: 20000, value: value}("");
         if (!success) {
             revert(_getRevertMsg(res));
         }
-        // _refund.call{value: tx.gasprice * 5000, gas: 10000}("");
-        // _to.transfer(_value);
     }
 
-    function transferERC20(/*uint256 _refundValue, address _refundAddress,*/ address _token, address payable _to, uint256 _value)
+    function transferERC20(address token, address payable to, uint256 value)
         external
         onlyCreator()
     {
-        // uint256 gas = gasleft() + 40000;
         (bool success, bytes memory res) = 
-            _token.call{gas: 80000}(abi.encodeWithSignature("transfer(address,uint256)", _to, _value));
+            token.call{gas: 80000}(abi.encodeWithSignature("transfer(address,uint256)", to, value));
         if (!success) {
             revert(_getRevertMsg(res));
         }
-        // _token.call{gas: 80000}(abi.encodeWithSignature("transfer(address,uint256)", _refundAddress, _refundValue));
-        // _refund.call{value: tx.gasprice * (gas-gasleft()), gas: 10000}("");
     }
 
     function _getRevertMsg(bytes memory returnData)
@@ -82,7 +77,7 @@ contract Proxy is StorageBase {
             calldatacopy(0x00, 0x00, calldatasize())
             let res := delegatecall(
                 gas(),
-                sload(_target.slot),
+                sload(s_target.slot),
                 0x00,
                 calldatasize(),
                 0,

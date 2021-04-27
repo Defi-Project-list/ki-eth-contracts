@@ -4,13 +4,13 @@ pragma solidity ^0.8.0;
 pragma abicoder v1;
 
 interface ICreator {
-    function upgradeWallet(bytes8 _id) external;
+    function upgradeWallet(bytes8 id) external;
 
-    function transferWalletOwnership(address _newOwner) external;
+    function transferWalletOwnership(address newOwner) external;
 
-    function addWalletBackup(address _wallet) external;
+    function addWalletBackup(address wallet) external;
 
-    function removeWalletBackup(address _wallet) external;
+    function removeWalletBackup(address wallet) external;
 
     function getLatestVersion() external view returns (address);
 
@@ -22,7 +22,7 @@ interface ICreator {
 }
 
 interface IProxy {
-    function init(address _owner, address _target) external;
+    function init(address newOwner, address newTarget) external;
 
     function owner() external view returns (address);
 
@@ -44,16 +44,16 @@ interface IWallet {
 }
 
 contract StorageBase is IProxy {
-    address internal _owner;
-    address internal _target;
-    uint256 debt;
+    address internal s_owner;
+    address internal s_target;
+    uint256 s_debt;
 
     function owner() external view override returns (address) {
-        return _owner;
+        return s_owner;
     }
 
     function target() external view override returns (address) {
-        return _target;
+        return s_target;
     }
 
     function creator() external pure returns (address) {
@@ -66,25 +66,25 @@ contract StorageBase is IProxy {
     }
 
     modifier onlyOwner() {
-        require(msg.sender == _owner, "not owner");
+        require(msg.sender == s_owner, "not owner");
         _;
     }
 
-    function init(address __owner, address __target)
+    function init(address newOwner, address newTarget)
         external
         override
         onlyCreator()
     {
-        if (__owner != _owner && __owner != address(0)) _owner = __owner;
-        if (__target != _target && __target != address(0)) _target = __target;
-        debt = 1;
+        if (newOwner != s_owner && newOwner != address(0)) s_owner = newOwner;
+        if (newTarget != s_target && newTarget != address(0)) s_target = newTarget;
+        s_debt = 1;
     }
 
     constructor() {
-        _owner = msg.sender;
+        s_owner = msg.sender;
     }
 
-    function upgrade(bytes8 _version) public onlyOwner() {
-        ICreator(this.creator()).upgradeWallet(_version);
+    function upgrade(bytes8 version) public onlyOwner() {
+        ICreator(this.creator()).upgradeWallet(version);
     }
 }

@@ -10,38 +10,6 @@ contract ProxyLatest is StorageBase {
         revert("should not accept ether directly");
     }
 
-    function transferEth(address payable _to, uint256 _value)
-        public
-        onlyCreator()
-    {
-        _to.transfer(_value);
-    }
-
-    function transferERC20(address _token, address payable _to, uint256 _value)
-        external
-        onlyCreator()
-    {
-        (bool success, bytes memory res) = 
-            _token.call(abi.encodeWithSignature("transfer(address,uint256)", _to, _value));
-        if (!success) {
-            revert(_getRevertMsg(res));
-        }
-    }
-
-    function _getRevertMsg(bytes memory returnData)
-        internal
-        pure
-        returns (string memory)
-    {
-        if (returnData.length < 68)
-            return "Wallet: Transaction reverted silently";
-
-        assembly {
-            returnData := add(returnData, 0x04)
-        }
-        return abi.decode(returnData, (string));
-    }
-
     fallback() external payable {
         address latest = ICreator(this.creator()).getLatestVersion();
         // solium-disable-next-line security/no-inline-assembly

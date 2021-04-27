@@ -35,17 +35,17 @@ contract Wallet is IStorage, Heritable {
     //     _;
     // }
 
-    // function getBalance() public view returns (uint256) {
-    //     return address(this).balance;
-    // }
+    function getBalance() public view returns (uint256) {
+        return address(this).balance;
+    }
 
-    // function balanceOf20(address _token) public view returns (uint256) {
-    //     return IERC20(_token).balanceOf(address(this));
-    // }
+    function balanceOf20(address token) public view returns (uint256) {
+        return IERC20(token).balanceOf(address(this));
+    }
 
-    // function balanceOf721(address _token) public view returns (uint256) {
-    //     return IERC721(_token).balanceOf(address(this));
-    // }
+    function balanceOf721(address token) public view returns (uint256) {
+        return IERC721(token).balanceOf(address(this));
+    }
 
     // function is20Safe(address _token) public view returns (bool) {
     //     return IOracle(ICreator(this.creator()).oracle()).is20Safe(_token);
@@ -202,27 +202,27 @@ contract Wallet is IStorage, Heritable {
       address owner;  
     }
 
-    function generateMessage(Call calldata call, address activator, uint256 _nonce) public pure returns (bytes memory) {
-        return _generateMessage(call, activator, _nonce);
+    function generateMessage(Call calldata call, address activator, uint256 targetNonce) public pure returns (bytes memory) {
+        return _generateMessage(call, activator, targetNonce);
     }
 
-    function generateXXMessage(XCall calldata call, uint256 _nonce) public pure returns (bytes memory) {
-        return _generateXXMessage(call, _nonce);
+    function generateXXMessage(XCall calldata call, uint256 targetNonce) public pure returns (bytes memory) {
+        return _generateXXMessage(call, targetNonce);
     }
 
-    function _generateMessage(Call calldata call, address activator, uint256 _nonce) private pure returns (bytes memory) {
+    function _generateMessage(Call calldata call, address activator, uint256 targetNonce) private pure returns (bytes memory) {
         return
             call.metaData.simple ?
-                abi.encode(call.typeHash, activator, call.to, call.value, _nonce, call.metaData.staticcall ,call.metaData.gasLimit, keccak256(call.data)):
-                abi.encode(call.typeHash, activator, call.to, call.value, _nonce, call.metaData.staticcall, call.metaData.gasLimit, _selector(call.data), call.data[4:])
+                abi.encode(call.typeHash, activator, call.to, call.value, targetNonce, call.metaData.staticcall ,call.metaData.gasLimit, keccak256(call.data)):
+                abi.encode(call.typeHash, activator, call.to, call.value, targetNonce, call.metaData.staticcall, call.metaData.gasLimit, _selector(call.data), call.data[4:])
         ;
     }
 
-    function _generateXXMessage(XCall calldata call, uint256 _nonce) private pure returns (bytes memory) {
+    function _generateXXMessage(XCall calldata call, uint256 targetNonce) private pure returns (bytes memory) {
         return
             call.metaData.simple ?
-                abi.encode(call.typeHash, call.to, call.value, _nonce, call.metaData.staticcall ,call.metaData.gasLimit, keccak256(call.data)):
-                abi.encode(call.typeHash, call.to, call.value, _nonce, call.metaData.staticcall, call.metaData.gasLimit, _selector(call.data), call.data[4:])
+                abi.encode(call.typeHash, call.to, call.value, targetNonce, call.metaData.staticcall ,call.metaData.gasLimit, keccak256(call.data)):
+                abi.encode(call.typeHash, call.to, call.value, targetNonce, call.metaData.staticcall, call.metaData.gasLimit, _selector(call.data), call.data[4:])
         ;
     }
 
@@ -283,8 +283,8 @@ contract Wallet is IStorage, Heritable {
     function executeBatchCall(Call[] calldata tr) public payable onlyActiveState() {
       address creator = this.creator();
       (address operator, address activator) = ICreator(creator).managers();
-      uint32 nonce = s_nonce;
-      address owner = _owner;
+      uint32 currentNonce = s_nonce;
+      address owner = s_owner;
       require(msg.sender == activator || msg.sender == owner, "Wallet: sender not allowed");
           
       for(uint256 i = 0; i < tr.length; i++) {
@@ -294,7 +294,7 @@ contract Wallet is IStorage, Heritable {
         unchecked {  
           address signer = ecrecover(
             _messageToRecover(
-              keccak256(_generateMessage(call, msg.sender, nonce + i)),
+              keccak256(_generateMessage(call, msg.sender, currentNonce + i)),
               call.typeHash != bytes32(0)
             ),
             call.v,
@@ -313,7 +313,7 @@ contract Wallet is IStorage, Heritable {
         }
       }
       unchecked {  
-        s_nonce = nonce + uint32(tr.length);
+        s_nonce = currentNonce + uint32(tr.length);
       }
       emit BatchCall(creator, owner, operator, block.number);
     }
@@ -344,8 +344,8 @@ contract Wallet is IStorage, Heritable {
             call.r2,
             call.s2
           );
-          require(msg.sender == _owner || msg.sender == operator, "Wallet: sender is not owner nor operator");
-          require(signer1 == _owner, "Wallet: signer1 is not owner");
+          require(msg.sender == s_owner || msg.sender == operator, "Wallet: sender is not owner nor operator");
+          require(signer1 == s_owner, "Wallet: signer1 is not owner");
           require(signer2 == operator, "Wallet: signer2 is not operator");          
           require(call.to != signer1 && call.to != signer2 && call.to != address(this) && call.to != creator, "Wallet: reentrancy not allowed");
         }
@@ -357,7 +357,7 @@ contract Wallet is IStorage, Heritable {
         }
       }
       s_nonce = s_nonce + uint32(tr.length);
-      emit BatchCall(creator, _owner, operator, block.number);
+      emit BatchCall(creator, s_owner, operator, block.number);
     }
 
     function _getRevertMsg(bytes memory returnData)
@@ -405,24 +405,19 @@ contract Wallet is IStorage, Heritable {
     //     // }
     // }
 
-    function transfer(/*address payable refund,*/ address _token, address payable _to, uint256 _value)
+    function transfer(/*address payable refund,*/ address token, address payable to, uint256 value)
         public
         onlyCreator()
     {
-        if (_token == address(0)) {
-            _to.transfer(_value);
+        if (token == address(0)) {
+            to.transfer(value);
             //refund.transfer(tx.gasprice * 5000);
         } else {
             (bool success, bytes memory res) = 
-                _token.call{gas: 80000}(abi.encodeWithSignature("transfer(address,uint256)", _to, _value));
+                token.call{gas: 80000}(abi.encodeWithSignature("transfer(address,uint256)", to, value));
             if (!success) {
                 revert(_getRevertMsg(res));
             }
-            // (bool success2, bytes memory res2) = 
-            //     _token.call{gas: 80000}(abi.encodeWithSignature("transfer(address,uint256)", refund, 10));
-            // if (!success2) {
-            //     revert(_getRevertMsg(res2));
-            // }
         }
     }
 

@@ -13,7 +13,7 @@ abstract contract Storage is IStorage {
     uint8 public constant BACKUP_STATE_ACTIVATED = 3;
 
     modifier onlyActiveState () {
-        require (backup.state != BACKUP_STATE_ACTIVATED, "not active state");
+        require (s_backup.state != BACKUP_STATE_ACTIVATED, "not active state");
         _;
     }
 
@@ -31,7 +31,7 @@ abstract contract Storage is IStorage {
         uint16 filler;
     }
 
-    Backup internal backup;
+    Backup internal s_backup;
 
     // ------------- Heritable ---------
     uint256 internal constant MAX_HEIRS = 8;
@@ -52,8 +52,8 @@ abstract contract Storage is IStorage {
         uint16 filler;
     }
 
-    uint256 internal totalTransfered;
-    Inheritance internal inheritance;
+    uint256 internal s_totalTransfered;
+    Inheritance internal s_inheritance;
 
     bytes32 internal s_uid;
     uint32 internal s_nonce;
@@ -63,5 +63,5 @@ abstract contract Storage is IStorage {
     // address internal s_activator;
     
     // ------------- Trust ---------
-    // Trust internal trust;
+    // Trust internal s_trust;
 }

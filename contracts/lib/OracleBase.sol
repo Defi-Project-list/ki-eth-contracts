@@ -7,23 +7,23 @@ import "./IOracle.sol";
 import "./MultiSig.sol";
 
 abstract contract OracleBase is IOracle, MultiSig {
-    address payable internal payto;
+    address payable internal s_payto;
 
     function paymentAddress() public view override returns (address payable) {
-        return payto;
+        return s_payto;
     }
 
     function initialized() public view override returns (bool) {
-        require(payto != address(0), "payment address cannot be 0");
+        require(s_payto != address(0), "payment address cannot be 0");
         return true;
     }
 
-    function setPaymentAddress(address payable _payto)
+    function setPaymentAddress(address payable payto)
         public
         override
         multiSig2of3(0)
     {
-        require(_payto != address(0), "payment address cannot be 0");
-        payto = _payto;
+        require(payto != address(0), "payment address cannot be 0");
+        s_payto = payto;
     }
 }
