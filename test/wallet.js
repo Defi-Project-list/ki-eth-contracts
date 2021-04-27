@@ -49,7 +49,7 @@ contract('Wallet', async accounts => {
   const valBN = web3.utils.toBN(val1).add(web3.utils.toBN(val2)).add(web3.utils.toBN(val3));
 
   const gas = 7000000
-  const userCount = 20
+  const userCount = 120
 
   console.log('accounts', JSON.stringify(accounts))
   const getPrivateKey = (address) => {
@@ -1015,7 +1015,7 @@ it('message: should be able to execute multi external calls: signer==operator, s
     const beforeERC20       = 'ffffffffff'
     const maxGasERC20       = '00000000'
     const maxGasPriceERC20  = '0000000ba43b7400'
-    const eip712ERC20       = '10'
+    const eip712ERC20       = 'f1' // payment + eip712
     const sessionIdERC20    = `0x${groupERC20}${tnonceERC20}${afterERC20}${beforeERC20}${maxGasERC20}${maxGasPriceERC20}${eip712ERC20}`
 
     const typedData = {
@@ -1048,7 +1048,7 @@ it('message: should be able to execute multi external calls: signer==operator, s
       },
       message: {
         token: token20.address,
-        recipient: user1,
+        recipient: accounts[10+userCount/2],
         value: '0',
         sessionId: sessionIdERC20,
         after: '0x' + afterERC20,
@@ -1067,7 +1067,7 @@ it('message: should be able to execute multi external calls: signer==operator, s
 
     const messageDigest = TypedDataUtils.encodeDigest(typedData)
     const messageDigestHex = ethers.utils.hexlify(messageDigest)
-    let signingKey = new ethers.utils.SigningKey(getPrivateKey(owner));
+    let signingKey = new ethers.utils.SigningKey(keys[10]);
     const sig = signingKey.signDigest(messageDigest)
     const rlp = ethers.utils.splitSignature(sig)
     rlp.v = '0x' + rlp.v.toString(16)
@@ -1104,7 +1104,7 @@ it('message: should be able to execute multi external calls: signer==operator, s
     mlog.pending(`ERC20 X ${msgsERC20.length} Transfers consumed ${JSON.stringify(receiptERC20.gasUsed)} gas (${JSON.stringify(receiptERC20.gasUsed/msgsERC20.length)} gas per call)`)
 
     await logERC20Balances()
-
+    await logDebt()
     // const { receipt } = await instance.executeBatchCall([{ v: rlp.v, r: rlp.r, s: rlp.s, typeHash: m2Hex, to: token20.address, value: 0, metaData: { simple: false, staticcall: false, gasLimit: 0 }, data: data }], { from: activator })
     // const diff = (await token20.balanceOf(user1)).toNumber() - balance.toNumber()
     // assert.equal (diff, 5, 'user1 balance change')
