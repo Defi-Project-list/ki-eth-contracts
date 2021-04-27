@@ -445,7 +445,7 @@ contract FactoryProxy is FactoryStorage {
                 }
             }
             if (sessionId & FLAG_PAYMENT > 0) {
-                wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 24000 + (24000/trLength))*110/100);
+                wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 18000 + (30000/trLength))*110/100);
                 // wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 16000 + (32000/trLength))*110/100);
             }
         }
