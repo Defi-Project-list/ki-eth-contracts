@@ -7,6 +7,14 @@ import "./lib/MultiSig.sol";
 import "./lib/Proxy.sol";
 import "./lib/ProxyLatest.sol";
 
+interface ENS {
+    function resolver(bytes32 node) external view returns (Resolver);
+}
+
+interface Resolver {
+    function addr(bytes32 node) external view returns (address);
+}
+
 abstract contract FactoryStorage is MultiSig {
     address internal s_target;
 
@@ -46,6 +54,7 @@ abstract contract FactoryStorage is MultiSig {
     bool public s_frozen;
     bytes32 internal s_uid;
 
+    ENS internal s_ens;
 
     // uint256 internal s_nonce;
 

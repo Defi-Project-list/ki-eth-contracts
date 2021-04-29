@@ -8,6 +8,7 @@ import "openzeppelin-solidity/contracts/utils/cryptography/ECDSA.sol";
 import "./FactoryStorage.sol";
 // import "./Factory.sol";
 
+
 contract FactoryProxy is FactoryStorage {
 
     using SignatureChecker for address;
@@ -24,8 +25,11 @@ contract FactoryProxy is FactoryStorage {
     constructor(
         address owner1,
         address owner2,
-        address owner3
+        address owner3,
+        ENS ens
     ) FactoryStorage(owner1, owner2, owner3) {
+        s_ens = ens;
+        
         uint256 chainId;
         assembly {
             chainId := chainid()
@@ -52,6 +56,11 @@ contract FactoryProxy is FactoryStorage {
             )
         );
         // proxy = address(this);
+    }
+
+    function resolve(bytes32 node) internal view returns(address) {
+        Resolver resolver = s_ens.resolver(node);
+        return resolver.addr(node);
     }
     
     uint256 private constant FLAG_EIP712  = 0x0100;
