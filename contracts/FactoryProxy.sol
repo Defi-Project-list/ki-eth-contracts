@@ -25,10 +25,10 @@ contract FactoryProxy is FactoryStorage {
     constructor(
         address owner1,
         address owner2,
-        address owner3,
-        ENS ens
+        address owner3
+        // ENS ens
     ) FactoryStorage(owner1, owner2, owner3) {
-        s_ens = ens;
+        // s_ens = ens;
         
         uint256 chainId;
         assembly {

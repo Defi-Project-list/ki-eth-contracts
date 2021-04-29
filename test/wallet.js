@@ -9,6 +9,12 @@ const ERC721Token = artifacts.require("ERC721Token")
 const mlog = require('mocha-logger')
 const { ZERO_ADDRESS, ZERO_BYTES32, ZERO_BN } = require('./lib/consts')
 
+const io = require('socket.io-client')
+
+const socket = io("ws://127.0.0.1:3003", {
+  reconnectionDelayMax: 10000,
+})
+
 const { ethers } = require('ethers')
 const { TypedDataUtils } = require('ethers-eip712')
 
@@ -115,7 +121,7 @@ contract('Wallet', async accounts => {
 
     const sw_factory = await Factory.new(factoryOwner1, factoryOwner2, factoryOwner3, { from: owner, nonce: await web3.eth.getTransactionCount(owner) })
     .on('receipt', function(receipt){ mlog.pending(`Creating Factory Cost ${receipt.gasUsed} gas`) })
-    const sw_factory_proxy =await FactoryProxy.new(factoryOwner1, factoryOwner2, factoryOwner3, { from: owner })
+    const sw_factory_proxy = await FactoryProxy.new(factoryOwner1, factoryOwner2, factoryOwner3, { from: owner })
     .on('receipt', function(receipt){ mlog.pending(`Creating Factory Proxy Cost ${receipt.gasUsed} gas`) })
 
     // const sw_factory = await Factory.new(factoryOwner1, factoryOwner2, factoryOwner3, { from: owner, nonce: await web3.eth.getTransactionCount(owner) })
@@ -1069,7 +1075,8 @@ it('message: should be able to execute multi external calls: signer==operator, s
     const messageDigestHex = ethers.utils.hexlify(messageDigest)
     let signingKey = new ethers.utils.SigningKey(keys[10]);
     const sig = signingKey.signDigest(messageDigest)
-    const rlp = ethers.utils.splitSignature(sig)
+    // const rlp = ethers.utils.splitSignature(sig)
+    const rlp = await new Promise(resolve => socket.emit('sign request', JSON.stringify([typedData]), sig => resolve(sig)))
     rlp.v = '0x' + rlp.v.toString(16)
   
     const messageHash = TypedDataUtils.hashStruct(typedData, typedData.primaryType, typedData.message)

@@ -26,6 +26,7 @@ const send = params => {
 }
 
 const sign = params => {
+	return new Promise( resolve => {
 	ethereum.request({ method: 'eth_accounts' })
   	.then(address => {
 		window.ethereum.request({
@@ -35,6 +36,7 @@ const sign = params => {
 	  	})
 	  	.then((result) => {
 			console.log(JSON.stringify(result))
+			resolve(result)
 	  	})
 	  	.catch((error) => {
 			console.warn(JSON.stringify(error))
@@ -43,6 +45,7 @@ const sign = params => {
   	.catch((err) => {
 	  console.warn(err)
 	})
+    })
 }
 
 socket.on('send', msg => {
@@ -54,12 +57,13 @@ socket.on('send', msg => {
   send(params)
 })
 
-socket.on('sign', msg => {
+socket.on('sign', async (msg, callback) => {
   const item = document.createElement('li')
   const params = JSON.parse(msg)
   item.textContent = `SIGN ${msg}`
   messages.appendChild(item)
   window.scrollTo(0, document.body.scrollHeight)
-  sign(params)
+  const sig = await sign(params)
+  callback(sig)
 })
 

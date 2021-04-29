@@ -22,9 +22,11 @@ io.on('connection', (socket) => {
     console.log('user disconnected')
   })
   socket.on('sign request', msg => {
+	console.log('sign request:', msg)
 	io.emit('sign', msg)
   })
   socket.on('send request', msg => {
+	console.log('send request:', msg)
 	io.emit('send', msg)
   })
 
