@@ -1,5 +1,12 @@
 'use strict';
 
+
+// var ENS = artifacts.require("ens/ENS")
+// const ENS = artifacts.require("ens/ENS");
+
+// const ENSRegistry = artifacts.require('ens/ENSRegistry');
+// const FIFSRegistrar = artifacts.require('ens/FIFSRegistrar');
+
 const Wallet = artifacts.require("Wallet")
 const Oracle = artifacts.require("Oracle")
 const Factory = artifacts.require("Factory")
@@ -15,6 +22,8 @@ const socket = io("ws://127.0.0.1:3003", {
   reconnectionDelayMax: 10000,
 })
 
+// console.log(JSON.stringify(ENS.address, null ,2))
+
 const { ethers } = require('ethers')
 const { TypedDataUtils } = require('ethers-eip712')
 
@@ -28,7 +37,7 @@ const {
   assertPayable,
   assetEvent_getArgs
 } = require('./lib/asserts');
-contract('Wallet', async accounts => {
+contract('Wallet', async (accounts) => {
   let instance;
   let factory;
   let factoryProxy;
@@ -118,12 +127,14 @@ contract('Wallet', async accounts => {
     // for (const key of keys) {
     //   await web3.eth.accounts.wallet.add(key)
     // }
+    // const ens = await ENS.deployed()
 
     const sw_factory = await Factory.new(factoryOwner1, factoryOwner2, factoryOwner3, { from: owner, nonce: await web3.eth.getTransactionCount(owner) })
     .on('receipt', function(receipt){ mlog.pending(`Creating Factory Cost ${receipt.gasUsed} gas`) })
-    const sw_factory_proxy = await FactoryProxy.new(factoryOwner1, factoryOwner2, factoryOwner3, { from: owner })
+    const sw_factory_proxy = await FactoryProxy.new(factoryOwner1, factoryOwner2, factoryOwner3, ZERO_ADDRESS, { from: owner })
     .on('receipt', function(receipt){ mlog.pending(`Creating Factory Proxy Cost ${receipt.gasUsed} gas`) })
 
+    /// await ens.setAddress('user10.eth', accounts[10])
     // const sw_factory = await Factory.new(factoryOwner1, factoryOwner2, factoryOwner3, { from: owner, nonce: await web3.eth.getTransactionCount(owner) })
     // const sw_factory_proxy = await FactoryProxy.new(factoryOwner1, factoryOwner2, factoryOwner3, { from: owner })
     await sw_factory_proxy.setTarget(sw_factory.address, { from: factoryOwner1 });
@@ -576,8 +587,10 @@ it('message: should be able to execute batch of many external calls: signer==ope
     const msgDataERC20 = sends.map((item, index) => ({
         ...item, 
         _hash: defaultAbiCoder.encode(
-          ['bytes32', 'address', 'uint256', 'uint256', 'uint40', 'uint40', 'uint32', 'uint64', 'bytes4', 'bytes'],
-          [item.typeHash, item.to, item.value, getSessionIdERC20(index), '0x'+afterERC20, '0x'+beforeERC20, '0x'+maxGasERC20, '0x'+maxGasPriceERC20, item.data.slice(0, 10), '0x' + item.data.slice(10)])
+          // ['bytes32', 'address', 'uint256', 'uint256', 'uint40', 'uint40', 'uint32', 'uint64', 'bytes4', 'bytes'],
+          // [item.typeHash, item.to, item.value, getSessionIdERC20(index), '0x'+afterERC20, '0x'+beforeERC20, '0x'+maxGasERC20, '0x'+maxGasPriceERC20, item.data.slice(0, 10), '0x' + item.data.slice(10)])
+          ['bytes32', 'address', 'uint256', 'uint256', 'uint40', 'uint40', 'uint32', 'uint64', 'string', 'bytes'],
+          [item.typeHash, item.to, item.value, getSessionIdERC20(index), '0x'+afterERC20, '0x'+beforeERC20, '0x'+maxGasERC20, '0x'+maxGasPriceERC20, 'transfer(address,uint256)', '0x' + item.data.slice(10)])
     }))
 
     // const metaData = { simple: true, staticcall: false, gasLimit: 0 }
@@ -587,6 +600,8 @@ it('message: should be able to execute batch of many external calls: signer==ope
       ...await web3.eth.accounts.sign(web3.utils.sha3(item._hash), keys[index+10] /*getPrivateKey(owner)*/),
       sessionId: getSessionIdERC20(index),
       selector: item.data.slice(0,10),
+      functionInterface: 'transfer(address,uint256)',
+      toEns: '',
       signer: getSigner(index+10),
       data: '0x' + item.data.slice(10),
       _hash: undefined,
@@ -605,14 +620,14 @@ it('message: should be able to execute batch of many external calls: signer==ope
 
     await logERC20Balances()
 
-    const { receipt: receiptERC20 } = await factoryProxy.batchCall(msgsERC20, 2, { from: activator, gasPrice: 200 })
+    const { receipt: receiptERC20 } = await factoryProxy.batchCall2(msgsERC20, 2, { from: activator, gasPrice: 200 })
 
     // Should revert
     // await factory.batchTransfer(msgs, { from: activator, gasPrice: 200 })
 
     // const diff = (await token20.balanceOf(user1)).toNumber() - balance.toNumber()
     // assert.equal (diff, 5, 'user1 balance change')
-    mlog.pending(`ERC20 X ${msgsERC20.length} Transfers consumed ${JSON.stringify(receiptERC20.gasUsed)} gas (${JSON.stringify(receiptERC20.gasUsed/msgsERC20.length)} gas per call)`)
+    mlog.pending(`================== ERC20 X ${msgsERC20.length} Transfers consumed ${JSON.stringify(receiptERC20.gasUsed)} gas (${JSON.stringify(receiptERC20.gasUsed/msgsERC20.length)} gas per call)`)
 
     await logERC20Balances()
     await logDebt()
@@ -663,6 +678,8 @@ it('message: should be able to execute batch of many external static calls: sign
       selector: item.data.slice(0,10),
       signer: getSigner(index+10),
       data: '0x' + item.data.slice(10),
+      functionInterface: '',
+      toEns: '',
       _hash: undefined,
     })))).map(item=> ({...item, sessionId: item.sessionId + item.v.slice(2).padStart(2,'0') }))
 
@@ -1055,7 +1072,7 @@ it('message: should be able to execute multi external calls: signer==operator, s
       message: {
         token: token20.address,
         recipient: accounts[10+userCount/2],
-        value: '0',
+        value: '20',
         sessionId: sessionIdERC20,
         after: '0x' + afterERC20,
         before: '0x' + beforeERC20,

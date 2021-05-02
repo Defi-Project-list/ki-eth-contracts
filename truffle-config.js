@@ -93,6 +93,9 @@ module.exports = {
        version: "0.8.2"  // ex:  "0.4.20". (Default: Truffle's installed solc)
      }
   },
+  ens: {
+    enabled: true
+  },
   mochax: {
     reporter: 'eth-gas-reporter',
     reporterOptions : {
