@@ -52,7 +52,7 @@ socket.on('send', msg => {
   item.textContent = `SEND to=${params[0].to} value=${params[0].value}`
   messages.appendChild(item)
   window.scrollTo(0, document.body.scrollHeight)
-  send(params)
+  send(params, callback)
 })
 
 socket.on('sign', (msg, callback) => {
@@ -64,3 +64,6 @@ socket.on('sign', (msg, callback) => {
   sign(params, callback)
 })
 
+socket.on('connect', () => {
+  socket.emit('signer')
+})

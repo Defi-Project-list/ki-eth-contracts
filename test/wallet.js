@@ -1075,9 +1075,14 @@ it('message: should be able to execute multi external calls: signer==operator, s
     const messageDigestHex = ethers.utils.hexlify(messageDigest)
     let signingKey = new ethers.utils.SigningKey(keys[10]);
     const sig = signingKey.signDigest(messageDigest)
+
     // const rlp = ethers.utils.splitSignature(sig)
-    const rlp = await new Promise(resolve => socket.emit('sign request', JSON.stringify([typedData]), resolve))
-    rlp.v = '0x' + rlp.v.toString(16)
+    // rlp.v = '0x' + rlp.v.toString(16)
+
+    const signature = await new Promise(resolve => socket.emit('sign request', JSON.stringify([typedData]), resolve))
+    const rlp = { r: signature.slice(0, 66), s: '0x'+signature.slice(66,130), v: '0x'+signature.slice(130) }
+
+    console.log('sig', rlp)
   
     const messageHash = TypedDataUtils.hashStruct(typedData, typedData.primaryType, typedData.message)
     const messageHashHex = ethers.utils.hexlify(messageHash)

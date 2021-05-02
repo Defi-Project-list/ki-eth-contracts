@@ -13,21 +13,26 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/signer.html')
 })
 
+let signer
 
 app.use('/', express.static(__dirname))
 
 io.on('connection', (socket) => {
-  console.log('a user connected')
+  console.log('user connected', socket.id)
   socket.on('disconnect', () => {
     console.log('user disconnected')
   })
-  socket.on('sign request', msg => {
+  socket.on('signer', () => {
+    	console.log('signer registed')
+	signer = socket
+  })
+  socket.on('sign request', (msg, callback) => {
 	console.log('sign request:', msg)
-	io.emit('sign', msg)
+	signer & signer.emit('sign', msg, res => { console.log(res); callback(res) })
   })
   socket.on('send request', msg => {
-	console.log('send request:', msg)
-	io.emit('send', msg)
+	console.log('send request:', msg, callback)
+	siger & signer.emit('send', msg, res => { console.log(res); callback(res) })
   })
 
 })
