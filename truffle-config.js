@@ -69,7 +69,12 @@ module.exports = {
       //   return new HDWalletProvider(mnemonic, "http://127.0.0.1:8545/");
       // },
       network_id: "*",
-      gas
+      gas,
+      ens: {
+        registry: {
+          address: '0x194882C829ba3F56C7B7b99175435381d8Ac30B9',
+        },
+      },
     },
     development: {
       network_id: "*",

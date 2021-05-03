@@ -97,14 +97,14 @@ contract FactoryProxy is FactoryStorage {
     }
 
 
-    // event ErrorHandled(bytes reason);
+    event ErrorHandled(bytes reason);
 
     // keccak256("acceptTokens(address recipient,uint256 value,bytes32 secretHash)");
     bytes32 public constant TRANSFER_TYPEHASH = 0xf728cfc064674dacd2ced2a03acd588dfd299d5e4716726c6d5ec364d16406eb;
 
 
     bytes32 public constant BATCH_TRANSFER_TYPEHASH = keccak256(
-      "batchTransfer(address token,address recipient,uint256 value,uint256 sessionId,uint40 after,uint40 before,uint32 gasLimit,uint64 gasPriceLimit)"
+      "batchTransfer(address token_address,address recipient,uint256 token_amount,uint256 sessionId,uint40 after,uint40 before,uint32 gasLimit,uint64 gasPriceLimit)"
     );
     
     // bytes4(keccak256("sendEther(address payable,uint256)"));
@@ -325,23 +325,59 @@ contract FactoryProxy is FactoryStorage {
       return data[0] | (bytes4(data[1]) >> 8) | (bytes4(data[2]) >> 16) | (bytes4(data[3]) >> 24);
     }
 
+    function _encodeCall2(Call2 memory call) private returns (bytes32) {
+          emit ErrorHandled(abi.encode(
+                    call.typeHash,
+                    call.to,
+                    call.value,
+                    uint24(call.sessionId >> 232), // group
+                    uint40(call.sessionId >> 192), // nonce
+                    uint40(call.sessionId >> 152), // afterTS,
+                    uint40(call.sessionId >> 112), // beforeTS
+                    uint32(call.sessionId >> 80), // gasLimit
+                    uint64(call.sessionId >> 16), // gasPriceLimit,
+                    bool(call.sessionId & FLAG_STATICCALL > 0), // staticcall
+                    bool(call.sessionId & FLAG_ORDERED > 0), // ordered
+                    bool(call.sessionId & FLAG_PAYMENT > 0), // refund
+                    call.data,
+                    call.functionInterface
+            ));
+          return keccak256(abi.encode(
+                    call.typeHash,
+                    call.to,
+                    call.value,
+                    uint24(call.sessionId >> 232), // group
+                    uint40(call.sessionId >> 192), // nonce
+                    uint40(call.sessionId >> 152), // afterTS,
+                    uint40(call.sessionId >> 112), // beforeTS
+                    uint32(call.sessionId >> 80), // gasLimit
+                    uint64(call.sessionId >> 16), // gasPriceLimit,
+                    bool(call.sessionId & FLAG_STATICCALL > 0), // staticcall
+                    bool(call.sessionId & FLAG_ORDERED > 0), // ordered
+                    bool(call.sessionId & FLAG_PAYMENT > 0), // refund
+                    call.data,
+                    call.functionInterface
+            ));
+    }
+
+
     function batchCall2(Call2[] calldata tr, uint256 nonceGroup) public {
       unchecked {
         require(msg.sender == s_activator, "Wallet: sender not allowed");
         uint256 nonce = s_nonce_group[nonceGroup] + (nonceGroup << 232);
         uint256 maxNonce = 0;
-        uint256 length = tr.length;
-        for(uint256 i = 0; i < length; i++) {
+        // uint256 length = tr.length;
+        for(uint256 i = 0; i < tr.length; i++) {
             uint256 gas = gasleft();
 
             Call2 calldata call = tr[i];
             uint256 sessionId = call.sessionId;
-            uint256 gasLimit  = uint32(sessionId >> 80);
-            uint256 functionInterfaceLength = bytes(call.functionInterface).length;
-            address to = bytes(call.toEns).length > 0 ? resolve(keccak256(bytes(call.toEns))) : call.to;
-            if (call.to != address(0)) {
-              require(call.to == to, "Factory: ens do not match given address");
-            }
+            // uint256 gasLimit  = uint32(sessionId >> 80);
+            // uint256 functionInterfaceLength = bytes(call.functionInterface).length;
+            // address to = bytes(call.toEns).length > 0 ? resolve(keccak256(bytes(call.toEns))) : call.to;
+            // if (call.to != address(0)) {
+            //   require(call.to == to, "Factory: ens do not match given address");
+            // }
 
             if (i == 0) {
               require(sessionId >> 192 >= nonce >> 192, "Factory: group+nonce too low");
@@ -359,63 +395,75 @@ contract FactoryProxy is FactoryStorage {
             require(block.timestamp > uint40(sessionId >> 152) /*afterTS*/, "Factory: too early");
             require(block.timestamp < uint40(sessionId >> 112) /*beforeTS*/, "Factory: too late");
 
-            bytes32 messageHash = functionInterfaceLength > 2 ? 
-                keccak256(abi.encode(
-                    call.typeHash,
-                    to,
-                    call.value,
-                    sessionId >> 8,
-                    uint40(sessionId >> 152), // afterTS,
-                    uint40(sessionId >> 112), // beforeTS
-                    gasLimit,
-                    uint64(sessionId >> 16), // gasPriceLimit,
-                    call.functionInterface,
-                    call.data
-                ))
-                :
-                keccak256(abi.encode(
-                    call.typeHash,
-                    to,
-                    call.value,
-                    sessionId >> 8,
-                    uint40(sessionId >> 152), // afterTS,
-                    uint40(sessionId >> 112), // beforeTS
-                    gasLimit,
-                    uint64(sessionId >> 16), // gasPriceLimit,
-                    call.selector,
-                    call.data
-                ))
-                ;
+                // :
+                // keccak256(abi.encode(
+                //     call.typeHash,
+                //     to,
+                //     call.value,
+                //     nonceGroup,
+                //     uint40(sessionId >> 192), // nonce
+                //     uint40(sessionId >> 152), // afterTS,
+                //     uint40(sessionId >> 112), // beforeTS
+                //     gasLimit,
+                //     uint64(sessionId >> 16), // gasPriceLimit,
+                //     sessionId & FLAG_STATICCALL > 0, // staticcall
+                //     sessionId & FLAG_ORDERED > 0, // ordered
+                //     sessionId & FLAG_PAYMENT > 0, // refund
+                //     call.selector,
+                //     call.data
+                // ))
+                // ;
 
+            //     emit ErrorHandled(abi.encodePacked(keccak256(bytes(call.functionInterface)), keccak256("transfer(address,uint256)")));
+
+            // emit ErrorHandled(
+            //       abi.encode(
+            //           call.typeHash,
+            //           call.to,
+            //           call.value,
+            //           uint24(nonceGroup),
+            //           uint40(sessionId >> 192), // nonce
+            //           uint40(sessionId >> 152), // afterTS,
+            //           uint40(sessionId >> 112), // beforeTS
+            //           uint32(sessionId >> 80),
+            //           uint64(sessionId >> 16), // gasPriceLimit,
+            //           bool(sessionId & FLAG_STATICCALL > 0), // staticcall
+            //           bool(sessionId & FLAG_ORDERED > 0), // ordered
+            //           bool(sessionId & FLAG_PAYMENT > 0), // refund
+            //           call.data,
+            //           call.functionInterface
+            //     ));
+// return;
             Wallet storage wallet = _getWalletFromMessage(
                 call.signer,
                 _messageToRecover(
-                    messageHash,
+                    _encodeCall2(call), //messageHash,
                     sessionId & FLAG_EIP712 > 0
                 ), 
                 uint8(sessionId) /*v*/,
                 call.r,
                 call.s
             );
-            
+            // return;
             require(wallet.owner == true, "Factory: singer is not owner");
 
             (bool success, bytes memory res) = sessionId & FLAG_STATICCALL > 0 ?
-                wallet.addr.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(
-                  abi.encodeWithSignature("staticcall(address,bytes)", to, abi.encodePacked(
-                    functionInterfaceLength > 2 ? bytes4(keccak256(bytes(call.functionInterface))) : call.selector, call.data))):
-                wallet.addr.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(
-                  abi.encodeWithSignature("call(address,uint256,bytes)", to, call.value, abi.encodePacked(
-                    functionInterfaceLength > 2 ? bytes4(keccak256(bytes(call.functionInterface))) : call.selector, call.data)));
+                wallet.addr.call{gas: uint32(sessionId >> 80)==0 || uint32(sessionId >> 80) > gasleft() ? gasleft() : uint32(sessionId >> 80)}(
+                  abi.encodeWithSignature("staticcall(address,bytes)",
+                      call.to,
+                      abi.encodePacked(bytes4(keccak256(bytes(call.functionInterface))), call.data))):
+                wallet.addr.call{gas: uint32(sessionId >> 80)==0 || uint32(sessionId >> 80) > gasleft() ? gasleft() : uint32(sessionId >> 80)}(
+                  abi.encodeWithSignature("call(address,uint256,bytes)", call.to, call.value, abi.encodePacked(
+                    bytes4(keccak256(bytes(call.functionInterface))), call.data)));
             if (!success) {
                 revert(_getRevertMsg(res));
             }
             uint256 payment = sessionId & FLAG_PAYMENT;
             if (payment > 0) {
                 if (payment == 0xf000) {
-                  wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 16000 + (32000/length))*110/100);
+                  wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 16000 + (32000/tr.length))*110/100);
                 } else {
-                  wallet.debt = uint88((tx.gasprice + (uint64(sessionId >> 16) /*gasPriceLimit*/ - tx.gasprice) / 2) * (gas - gasleft() + 16000 + (32000/length))*110/100);
+                  wallet.debt = uint88((tx.gasprice + (uint64(sessionId >> 16) /*gasPriceLimit*/ - tx.gasprice) / 2) * (gas - gasleft() + 16000 + (32000/tr.length))*110/100);
                 }
             }
         }
