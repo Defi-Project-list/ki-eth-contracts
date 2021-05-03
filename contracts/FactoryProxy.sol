@@ -141,8 +141,8 @@ contract FactoryProxy is FactoryStorage {
         uint256 value;
         uint256 sessionId;
         address signer;
-        bytes4 selector;
-        string functionInterface;
+        // bytes4 selector;
+        bytes32 functionSignature;
         bytes data;
     }
 
@@ -339,8 +339,8 @@ contract FactoryProxy is FactoryStorage {
                     bool(call.sessionId & FLAG_STATICCALL > 0), // staticcall
                     bool(call.sessionId & FLAG_ORDERED > 0), // ordered
                     bool(call.sessionId & FLAG_PAYMENT > 0), // refund
-                    call.data,
-                    call.functionInterface
+                    call.functionSignature,
+                    call.data
             ));
           return keccak256(abi.encode(
                     call.typeHash,
@@ -355,8 +355,8 @@ contract FactoryProxy is FactoryStorage {
                     bool(call.sessionId & FLAG_STATICCALL > 0), // staticcall
                     bool(call.sessionId & FLAG_ORDERED > 0), // ordered
                     bool(call.sessionId & FLAG_PAYMENT > 0), // refund
-                    call.data,
-                    call.functionInterface
+                    call.functionSignature,
+                    call.data
             ));
     }
 
@@ -433,7 +433,6 @@ contract FactoryProxy is FactoryStorage {
             //           call.data,
             //           call.functionInterface
             //     ));
-// return;
             Wallet storage wallet = _getWalletFromMessage(
                 call.signer,
                 _messageToRecover(
@@ -451,10 +450,10 @@ contract FactoryProxy is FactoryStorage {
                 wallet.addr.call{gas: uint32(sessionId >> 80)==0 || uint32(sessionId >> 80) > gasleft() ? gasleft() : uint32(sessionId >> 80)}(
                   abi.encodeWithSignature("staticcall(address,bytes)",
                       call.to,
-                      abi.encodePacked(bytes4(keccak256(bytes(call.functionInterface))), call.data))):
+                      abi.encodePacked(bytes4(call.functionSignature), call.data))):
                 wallet.addr.call{gas: uint32(sessionId >> 80)==0 || uint32(sessionId >> 80) > gasleft() ? gasleft() : uint32(sessionId >> 80)}(
                   abi.encodeWithSignature("call(address,uint256,bytes)", call.to, call.value, abi.encodePacked(
-                    bytes4(keccak256(bytes(call.functionInterface))), call.data)));
+                    bytes4(call.functionSignature), call.data)));
             if (!success) {
                 revert(_getRevertMsg(res));
             }

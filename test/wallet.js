@@ -139,6 +139,8 @@ contract('Wallet', async (accounts) => {
     const m2Hex = ethers.utils.hexZeroPad(ethers.utils.hexlify(m2), 32)
     console.log('m2 (calculated)', m2Hex)
 
+    console.log('data:', ethers.utils.hexlify(TypedDataUtils.encodeData(typedData, 'batchCall', typedData.message)))
+
     mlog.log('rlp', JSON.stringify(rlp))
     // mlog.log('recover', ethers.utils.recoverAddress(messageDigest, sig))
     return rlp
@@ -1239,9 +1241,9 @@ it('eip712: should be able to execute batch of many external calls: signer==oper
           { name: 'ordered',            type: 'bool'    },
           { name: 'refund',             type: 'bool'    },
 //          { name: 'selector',           type: 'bytes4'  },
-          { name: 'method_data_offset',         type: 'uint256' },
           { name: 'method_signature',   type: 'string'  },
-          { name: 'method_data_legnth',         type: 'uint256' },
+          { name: 'method_data_offset',         type: 'uint256' },
+          { name: 'method_data_length',         type: 'uint256' },
           { name: 'to',                 type: 'address' },
           { name: 'token_amount',        type: 'uint256' },
         ]
@@ -1279,7 +1281,7 @@ it('eip712: should be able to execute batch of many external calls: signer==oper
         [':----']: '',
         ['method_signature']: 'transfer(address,uint256)',
         ['method_data_offset']: '0x1c0', // '480', // 13*32
-        ['method_data_legnth']: '0x40',
+        ['method_data_length']: '0x40',
         [':-----']: '',
         ['Contract\'s Method Data']: '',
         [':------']: '',
@@ -1310,9 +1312,10 @@ it('eip712: should be able to execute batch of many external calls: signer==oper
       typeHash: eip712typehash(typedData),
       sessionId: getSessionIdERC20(0),
       selector: item.data.slice(0,10),
-      functionInterface: 'transfer(address,uint256)',
+      functionSignature: web3.utils.sha3('transfer(address,uint256)'),
       toEns: '',
       value: '0',
+      to: token20.address,
       signer: getSigner(10),
       data: '0x' + item.data.slice(10),
       _hash: undefined,
