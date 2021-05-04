@@ -1313,7 +1313,7 @@ it('eip712: should be able to execute batch of many external calls: signer==oper
       sessionId: getSessionIdERC20(0),
       selector: item.data.slice(0,10),
       functionSignature: web3.utils.sha3('transfer(address,uint256)'),
-      toEns: '',
+      ensHash: '0x'.padEnd(66,'0'),
       value: '0',
       to: token20.address,
       signer: getSigner(10),

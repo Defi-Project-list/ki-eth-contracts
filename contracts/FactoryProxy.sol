@@ -137,11 +137,10 @@ contract FactoryProxy is FactoryStorage {
         bytes32 s;
         bytes32 typeHash;
         address to;
-        string toEns;
+        bytes32 ensHash;
         uint256 value;
         uint256 sessionId;
         address signer;
-        // bytes4 selector;
         bytes32 functionSignature;
         bytes data;
     }
@@ -325,10 +324,15 @@ contract FactoryProxy is FactoryStorage {
       return data[0] | (bytes4(data[1]) >> 8) | (bytes4(data[2]) >> 16) | (bytes4(data[3]) >> 24);
     }
 
+    function _ensToAddress(bytes32 ensHash, address expectedAddress) private returns (address) {
+          address result = ensHash != bytes32(0) ? resolve(ensHash) : expectedAddress;
+          return result;
+    }
+
     function _encodeCall2(Call2 memory call) private returns (bytes32) {
           emit ErrorHandled(abi.encode(
                     call.typeHash,
-                    call.to,
+                    _ensToAddress(call.ensHash, call.to),
                     call.value,
                     uint24(call.sessionId >> 232), // group
                     uint40(call.sessionId >> 192), // nonce
@@ -344,7 +348,7 @@ contract FactoryProxy is FactoryStorage {
             ));
           return keccak256(abi.encode(
                     call.typeHash,
-                    call.to,
+                    _ensToAddress(call.ensHash, call.to),
                     call.value,
                     uint24(call.sessionId >> 232), // group
                     uint40(call.sessionId >> 192), // nonce
