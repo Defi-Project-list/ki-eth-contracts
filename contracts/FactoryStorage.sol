@@ -55,6 +55,7 @@ abstract contract FactoryStorage is MultiSig {
     bytes32 internal s_uid;
 
     ENS internal s_ens;
+    mapping(bytes32 => address) internal s_local_ens;
 
     // uint256 internal s_nonce;
 

@@ -108,7 +108,11 @@ contract FactoryProxy is FactoryStorage {
     bytes32 public constant BATCH_TRANSFER_TYPEHASH = keccak256(
       "batchTransfer(address token_address,address recipient,uint256 token_amount,uint256 sessionId,uint40 after,uint40 before,uint32 gasLimit,uint64 gasPriceLimit)"
     );
-    
+
+    bytes32 public constant BATCH_CALL_TYPEHASH = keccak256(
+      "batchCall(address token,address to,uint256 value,uint256 sessionId,bytes data)"
+    );
+
     // bytes4(keccak256("sendEther(address payable,uint256)"));
     bytes4 public constant TRANSFER_SELECTOR = 0xc61f08fd;
 
@@ -125,7 +129,6 @@ contract FactoryProxy is FactoryStorage {
     struct Call {
         bytes32 r;
         bytes32 s;
-        bytes32 typeHash;
         address to;
         uint256 value;
         uint256 sessionId;
@@ -272,9 +275,9 @@ contract FactoryProxy is FactoryStorage {
             address token = call.token;
             uint256 sessionId = call.sessionId;
             uint256 afterTS = uint40(sessionId >> 152);
-            uint256 beforeTS  = uint40(sessionId >> 112);
-            uint256 gasLimit  = uint32(sessionId >> 80);
-            uint256 gasPriceLimit  = uint64(sessionId >> 16);
+            uint256 beforeTS = uint40(sessionId >> 112);
+            uint256 gasLimit = uint32(sessionId >> 80);
+            uint256 gasPriceLimit = uint64(sessionId >> 16);
 
             if (i == 0) {
               require(sessionId >> 192 >= nonce >> 192, "Factory: group+nonce too low");
@@ -322,36 +325,40 @@ contract FactoryProxy is FactoryStorage {
     }
 
     function _selector(bytes calldata data) private pure returns (bytes4) {
-      return data[0] | (bytes4(data[1]) >> 8) | (bytes4(data[2]) >> 16) | (bytes4(data[3]) >> 24);
+        return data[0] | (bytes4(data[1]) >> 8) | (bytes4(data[2]) >> 16) | (bytes4(data[3]) >> 24);
     }
 
     function _ensToAddress(bytes32 ensHash, address expectedAddress) private returns (address) {
-          address result = ensHash != bytes32(0) ? _resolve(ensHash) : expectedAddress;
-          if (expectedAddress != address(0)) {
-              require(expectedAddress == result, "Factory: ens address mismatch");
-          }
-          return result;
+        address result = ensHash != bytes32(0) ? _resolve(ensHash) : expectedAddress;
+        if (expectedAddress != address(0)) {
+            require(expectedAddress == result, "Factory: ens address mismatch");
+        }
+        return result;
+    }
+
+    function setLocalEns(string calldata ens, address dest) external {
+        s_local_ens[keccak256(abi.encodePacked("@",ens))] = dest;
     }
 
     function _encodeCall2(Call2 memory call) private returns (bytes32, address) {
-          call.to = _ensToAddress(call.ensHash, call.to);
-          return (keccak256(abi.encode(
-                    call.typeHash,
-                    call.to,
-                    call.value,
-                    uint24(call.sessionId >> 232), // group
-                    uint40(call.sessionId >> 192), // nonce
-                    uint40(call.sessionId >> 152), // afterTS,
-                    uint40(call.sessionId >> 112), // beforeTS
-                    uint32(call.sessionId >> 80), // gasLimit
-                    uint64(call.sessionId >> 16), // gasPriceLimit,
-                    bool(call.sessionId & FLAG_STATICCALL > 0), // staticcall
-                    bool(call.sessionId & FLAG_ORDERED > 0), // ordered
-                    bool(call.sessionId & FLAG_PAYMENT > 0), // refund
-                    call.functionSignature,
-                    call.data
-            )),
-            call.to);
+        call.to = _ensToAddress(call.ensHash, call.to);
+        return (keccak256(abi.encode(
+                  call.typeHash,
+                  call.to,
+                  call.value,
+                  uint24(call.sessionId >> 232), // group
+                  uint40(call.sessionId >> 192), // nonce
+                  uint40(call.sessionId >> 152), // afterTS,
+                  uint40(call.sessionId >> 112), // beforeTS
+                  uint32(call.sessionId >> 80), // gasLimit
+                  uint64(call.sessionId >> 16), // gasPriceLimit,
+                  bool(call.sessionId & FLAG_STATICCALL > 0), // staticcall
+                  bool(call.sessionId & FLAG_ORDERED > 0), // ordered
+                  bool(call.sessionId & FLAG_PAYMENT > 0), // refund
+                  call.functionSignature,
+                  call.data
+          )),
+          call.to);
     }
 
     function batchCall2(Call2[] calldata tr, uint256 nonceGroup) public {
@@ -462,7 +469,7 @@ contract FactoryProxy is FactoryStorage {
             require(block.timestamp > uint40(sessionId >> 152) /*afterTS*/, "Factory: too early");
             require(block.timestamp < uint40(sessionId >> 112) /*beforeTS*/, "Factory: too late");
 
-            bytes32 messageHash = keccak256(abi.encode(call.typeHash, to, value, sessionId >> 8, call.data));
+            bytes32 messageHash = keccak256(abi.encode(BATCH_CALL_TYPEHASH, to, value, sessionId >> 8, call.data));
 
             Wallet storage wallet = _getWalletFromMessage(
                 call.signer,

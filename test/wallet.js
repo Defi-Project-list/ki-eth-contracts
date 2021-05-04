@@ -64,7 +64,7 @@ contract('Wallet', async (accounts) => {
   const valBN = web3.utils.toBN(val1).add(web3.utils.toBN(val2)).add(web3.utils.toBN(val3));
 
   const gas = 7000000
-  const userCount = 120
+  const userCount = 2
 
   console.log('accounts', JSON.stringify(accounts))
   const getPrivateKey = (address) => {
@@ -214,6 +214,9 @@ contract('Wallet', async (accounts) => {
 
     await factory.setActivator(activator, { from: factoryOwner1 });
     await factory.setActivator(activator, { from: factoryOwner2 });
+
+    await factoryProxy.setLocalEns("token.kiro", token20.address, { from: factoryOwner1 });
+    await factoryProxy.setLocalEns("token.kiro", token20.address, { from: factoryOwner2 });
 
     mlog.log('web3      ', web3.version);
     mlog.log('token20   ', token20.address);
@@ -603,7 +606,10 @@ contract('Wallet', async (accounts) => {
 it('message: should be able to execute batch of many external calls: signer==operator, sender==owner', async () => {
     await instance.cancelCall({ from: owner })
     const nonce = await instance.nonce()
-    const typeHash = '0xf728cfc064674dacd2ced2a03acd588dfd299d5e4716726c6d5ec364d16406eb'; // 0x'.padEnd(66,'0')
+
+    const DOMAIN_SEPARATOR = (await factoryProxy.DOMAIN_SEPARATOR())
+    const typeHash = web3.utils.sha3('batchCall(address token,address to,uint256 value,uint256 sessionId,bytes data)')
+
 
     const sends = []
 
@@ -628,13 +634,11 @@ it('message: should be able to execute batch of many external calls: signer==ope
       `0x${groupERC20}${tnonceERC20}${(index).toString(16).padStart(2,'0')}${afterERC20}${beforeERC20}${maxGasERC20}${maxGasPriceERC20}${eip712ERC20}`
     )
 
-    const DOMAIN_SEPARATOR = (await factoryProxy.DOMAIN_SEPARATOR())
-
     const msgDataERC20 = sends.map((item, index) => ({
         ...item, 
         _hash: defaultAbiCoder.encode(
           ['bytes32', 'address', 'uint256', 'uint256', 'bytes'],
-          [item.typeHash, item.to, item.value, getSessionIdERC20(index), item.data])
+          [typeHash, item.to, item.value, getSessionIdERC20(index), item.data])
           // ['bytes32', 'address', 'uint256', 'uint256', 'uint40', 'uint40', 'uint32', 'uint64', 'bytes4', 'bytes'],
           // [item.typeHash, item.to, item.value, getSessionIdERC20(index), '0x'+afterERC20, '0x'+beforeERC20, '0x'+maxGasERC20, '0x'+maxGasPriceERC20, item.data.slice(0, 10), '0x' + item.data.slice(10)])
           // ['bytes32', 'address', 'uint256', 'uint256', 'uint40', 'uint40', 'uint32', 'uint64', 'string', 'bytes'],
@@ -685,7 +689,9 @@ it('message: should be able to execute batch of many external calls: signer==ope
 it('message: should be able to execute batch of many external static calls: signer==operator, sender==owner', async () => {
     await instance.cancelCall({ from: owner })
     const nonce = await instance.nonce()
-    const typeHash = '0xf728cfc064674dacd2ced2a03acd588dfd299d5e4716726c6d5ec364d16406eb'; // 0x'.padEnd(66,'0')
+
+    const DOMAIN_SEPARATOR = (await factoryProxy.DOMAIN_SEPARATOR())
+    const typeHash = web3.utils.sha3('batchCall(address token,address to,uint256 value,uint256 sessionId,bytes data)')
 
     const sends = []
 
@@ -709,7 +715,6 @@ it('message: should be able to execute batch of many external static calls: sign
     const getSessionIdERC20 = index => (
       `0x${groupERC20}${tnonceERC20}${(index).toString(16).padStart(2,'0')}${afterERC20}${beforeERC20}${maxGasERC20}${maxGasPriceERC20}${eip712ERC20}`
     )
-    const DOMAIN_SEPARATOR = (await factoryProxy.DOMAIN_SEPARATOR())
 
     const msgDataERC20 = sends.map((item, index) => ({
         ...item, 
@@ -719,7 +724,7 @@ it('message: should be able to execute batch of many external static calls: sign
           // ['bytes32', 'address', 'uint256', 'uint256', 'uint40', 'uint40', 'uint32', 'uint64', 'bytes4', 'bytes'],
           // [item.typeHash, item.to, item.value, getSessionIdERC20(index), '0x'+afterERC20, '0x'+beforeERC20, '0x'+maxGasERC20, '0x'+maxGasPriceERC20, item.data.slice(0, 10), '0x' + item.data.slice(10)])
           ['bytes32', 'address', 'uint256', 'uint256', 'bytes'],
-          [item.typeHash, item.to, item.value, getSessionIdERC20(index), item.data])
+          [typeHash, item.to, item.value, getSessionIdERC20(index), item.data])
     }))
 
     // const metaData = { simple: true, staticcall: false, gasLimit: 0 }
@@ -1224,32 +1229,32 @@ it('eip712: should be able to execute batch of many external calls: signer==oper
     const typedData = {
       types: {
         EIP712Domain: [
-          { name: "name",               type: "string" },
-          { name: "version",            type: "string" },
-          { name: "chainId",            type: "uint256" },
-          { name: "verifyingContract",  type: "address" },
-          { name: "salt",               type: "bytes32" }
+          { name: "name",                 type: "string"  },
+          { name: "version",              type: "string"  },
+          { name: "chainId",              type: "uint256" },
+          { name: "verifyingContract",    type: "address" },
+          { name: "salt",                 type: "bytes32" }
         ],
         batchCall: [
-          { name: 'token_address',   type: 'address' },
-          // { name: 'token ens',           type: 'string' },
-          { name: 'eth_value',           type: 'uint256' },
-          // { name: 'sessionId',          type: 'uint256' },
-          { name: 'group_id',           type: 'uint24'  },
-          { name: 'nonce',              type: 'uint40'  },
-          { name: 'signature_valid_from',          type: 'uint40'  },
-          { name: 'signature_expires_at',          type: 'uint40'  },
-          { name: 'gas_limit',           type: 'uint32'  },
+          { name: 'token_address',        type: 'address' },
+          { name: 'token_ens',            type: 'string'  },
+          { name: 'eth_value',            type: 'uint256' },
+          // { name: 'sessionId',         type: 'uint256' },
+          { name: 'group_id',             type: 'uint24'  },
+          { name: 'nonce',                type: 'uint40'  },
+          { name: 'signature_valid_from', type: 'uint40'  },
+          { name: 'signature_expires_at', type: 'uint40'  },
+          { name: 'gas_limit',            type: 'uint32'  },
           { name: 'gas_price_limit',      type: 'uint64'  },
-          { name: 'view_only',          type: 'bool'    },
-          { name: 'ordered',            type: 'bool'    },
-          { name: 'refund',             type: 'bool'    },
-//          { name: 'selector',           type: 'bytes4'  },
-          { name: 'method_signature',   type: 'string'  },
-          { name: 'method_data_offset',         type: 'uint256' },
-          { name: 'method_data_length',         type: 'uint256' },
-          { name: 'to',                 type: 'address' },
-          { name: 'token_amount',        type: 'uint256' },
+          { name: 'view_only',            type: 'bool'    },
+          { name: 'ordered',              type: 'bool'    },
+          { name: 'refund',               type: 'bool'    },
+          // { name: 'selector',          type: 'bytes4'  },
+          { name: 'method_signature',     type: 'string'  },
+          { name: 'method_data_offset',   type: 'uint256' },
+          { name: 'method_data_length',   type: 'uint256' },
+          { name: 'to',                   type: 'address' },
+          { name: 'token_amount',         type: 'uint256' },
         ]
       },
       primaryType: 'batchCall',
@@ -1263,7 +1268,7 @@ it('eip712: should be able to execute batch of many external calls: signer==oper
       message: {
         ['KIROBO PROTECTS YOU']: '👍',
         ['token_address']: token20.address,
-        ['token_ens']: '@token.usdt.eth',
+        ['token_ens']: '@token.kiro.eth',
         eth_value: '0',
         // sessionId: getSessionIdERC20(10),
 
