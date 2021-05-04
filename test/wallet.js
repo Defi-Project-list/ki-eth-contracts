@@ -716,8 +716,10 @@ it('message: should be able to execute batch of many external static calls: sign
         _hash: defaultAbiCoder.encode(
           // ['bytes32', 'address', 'uint256', 'uint256', 'bytes4', 'bytes'],
           // [DOMAIN_SEPARATOR, item.to, item.value, getSessionIdERC20(index), item.data.slice(0, 10), '0x' + item.data.slice(10)])
-          ['bytes32', 'address', 'uint256', 'uint256', 'uint40', 'uint40', 'uint32', 'uint64', 'bytes4', 'bytes'],
-          [item.typeHash, item.to, item.value, getSessionIdERC20(index), '0x'+afterERC20, '0x'+beforeERC20, '0x'+maxGasERC20, '0x'+maxGasPriceERC20, item.data.slice(0, 10), '0x' + item.data.slice(10)])
+          // ['bytes32', 'address', 'uint256', 'uint256', 'uint40', 'uint40', 'uint32', 'uint64', 'bytes4', 'bytes'],
+          // [item.typeHash, item.to, item.value, getSessionIdERC20(index), '0x'+afterERC20, '0x'+beforeERC20, '0x'+maxGasERC20, '0x'+maxGasPriceERC20, item.data.slice(0, 10), '0x' + item.data.slice(10)])
+          ['bytes32', 'address', 'uint256', 'uint256', 'bytes'],
+          [item.typeHash, item.to, item.value, getSessionIdERC20(index), item.data])
     }))
 
     // const metaData = { simple: true, staticcall: false, gasLimit: 0 }
@@ -728,7 +730,7 @@ it('message: should be able to execute batch of many external static calls: sign
       sessionId: getSessionIdERC20(index),
       selector: item.data.slice(0,10),
       signer: getSigner(index+10),
-      data: '0x' + item.data.slice(10),
+      data: item.data, // '0x' + item.data.slice(10),
       functionInterface: '',
       toEns: '',
       _hash: undefined,
