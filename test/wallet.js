@@ -633,8 +633,10 @@ it('message: should be able to execute batch of many external calls: signer==ope
     const msgDataERC20 = sends.map((item, index) => ({
         ...item, 
         _hash: defaultAbiCoder.encode(
-          ['bytes32', 'address', 'uint256', 'uint256', 'uint40', 'uint40', 'uint32', 'uint64', 'bytes4', 'bytes'],
-          [item.typeHash, item.to, item.value, getSessionIdERC20(index), '0x'+afterERC20, '0x'+beforeERC20, '0x'+maxGasERC20, '0x'+maxGasPriceERC20, item.data.slice(0, 10), '0x' + item.data.slice(10)])
+          ['bytes32', 'address', 'uint256', 'uint256', 'bytes'],
+          [item.typeHash, item.to, item.value, getSessionIdERC20(index), item.data])
+          // ['bytes32', 'address', 'uint256', 'uint256', 'uint40', 'uint40', 'uint32', 'uint64', 'bytes4', 'bytes'],
+          // [item.typeHash, item.to, item.value, getSessionIdERC20(index), '0x'+afterERC20, '0x'+beforeERC20, '0x'+maxGasERC20, '0x'+maxGasPriceERC20, item.data.slice(0, 10), '0x' + item.data.slice(10)])
           // ['bytes32', 'address', 'uint256', 'uint256', 'uint40', 'uint40', 'uint32', 'uint64', 'string', 'bytes'],
           // [item.typeHash, item.to, item.value, getSessionIdERC20(index), '0x'+afterERC20, '0x'+beforeERC20, '0x'+maxGasERC20, '0x'+maxGasPriceERC20, 'transfer(address,uint256)', '0x' + item.data.slice(10)])
     }))
@@ -649,7 +651,7 @@ it('message: should be able to execute batch of many external calls: signer==ope
       functionInterface: 'transfer(address,uint256)',
       toEns: '',
       signer: getSigner(index+10),
-      data: '0x' + item.data.slice(10),
+      data: item.data, // '0x' + item.data.slice(10),
       _hash: undefined,
     })))).map(item=> ({...item, sessionId: item.sessionId + item.v.slice(2).padStart(2,'0') }))
 

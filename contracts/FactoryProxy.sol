@@ -130,7 +130,6 @@ contract FactoryProxy is FactoryStorage {
         uint256 value;
         uint256 sessionId;
         address signer;
-        bytes4 selector;
         bytes data;
     }
 
@@ -388,6 +387,11 @@ contract FactoryProxy is FactoryStorage {
 
             Wallet storage wallet = _getWalletFromMessage(
                 call.signer,
+                // keccak256(abi.encodePacked(
+                //     "\x19\x01",
+                //     DOMAIN_SEPARATOR,
+                //     messageHash
+                // )),
                 _messageToRecover(
                     messageHash,
                     sessionId & FLAG_EIP712 > 0
@@ -427,7 +431,6 @@ contract FactoryProxy is FactoryStorage {
 
 
     function batchCall(Call[] calldata tr, uint256 nonceGroup) public {
-      // address refund = _activator;
       unchecked {
         require(msg.sender == s_activator, "Wallet: sender not allowed");
         uint256 nonce = s_nonce_group[nonceGroup] + (nonceGroup << 232);
@@ -437,16 +440,11 @@ contract FactoryProxy is FactoryStorage {
             uint256 gas = gasleft();
 
             Call calldata call = tr[i];
-            // address to = call.to;
-            // uint256 value = call.value;
-            // bytes4 selector = call.selector;
+            address to = call.to;
+            uint256 value = call.value;
             uint256 sessionId = call.sessionId;
-            // uint256 afterTS = uint40(sessionId >> 152);
-            // uint256 beforeTS  = uint40(sessionId >> 112);
             uint256 gasLimit  = uint32(sessionId >> 80);
             uint256 gasPriceLimit  = uint64(sessionId >> 16);
-
-            // emit ErrorHandled(abi.encode(sessionId >> 192, nonce >> 192));
 
             if (i == 0) {
               require(sessionId >> 192 >= nonce >> 192, "Factory: group+nonce too low");
@@ -464,7 +462,7 @@ contract FactoryProxy is FactoryStorage {
             require(block.timestamp > uint40(sessionId >> 152) /*afterTS*/, "Factory: too early");
             require(block.timestamp < uint40(sessionId >> 112) /*beforeTS*/, "Factory: too late");
 
-            bytes32 messageHash = keccak256(abi.encode(call.typeHash, call.to, call.value, sessionId >> 8, uint40(sessionId >> 152)/*afterTS*/, uint40(sessionId >> 112)/*beforeTS*/, gasLimit, gasPriceLimit, call.selector, call.data));
+            bytes32 messageHash = keccak256(abi.encode(call.typeHash, to, value, sessionId >> 8, call.data));
 
             Wallet storage wallet = _getWalletFromMessage(
                 call.signer,
@@ -480,8 +478,8 @@ contract FactoryProxy is FactoryStorage {
             require(wallet.owner == true, "Factory: singer is not owner");
 
             (bool success, bytes memory res) = sessionId & FLAG_STATICCALL > 0 ?
-                wallet.addr.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(abi.encodeWithSignature("staticcall(address,bytes)", call.to, abi.encodePacked(call.selector, call.data))):
-                wallet.addr.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(abi.encodeWithSignature("call(address,uint256,bytes)", call.to, call.value, abi.encodePacked(call.selector, call.data)));
+                wallet.addr.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(abi.encodeWithSignature("staticcall(address,bytes)", to, call.data)):
+                wallet.addr.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(abi.encodeWithSignature("call(address,uint256,bytes)", to, value, call.data));
             if (!success) {
                 revert(_getRevertMsg(res));
             }
