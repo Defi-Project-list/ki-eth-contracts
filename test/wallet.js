@@ -215,8 +215,8 @@ contract('Wallet', async (accounts) => {
     await factory.setActivator(activator, { from: factoryOwner1 });
     await factory.setActivator(activator, { from: factoryOwner2 });
 
-    await factoryProxy.setLocalEns("token.kiro", token20.address, { from: factoryOwner1 });
-    await factoryProxy.setLocalEns("token.kiro", token20.address, { from: factoryOwner2 });
+    await factoryProxy.setLocalEns("token.kiro.eth", token20.address, { from: factoryOwner1 });
+    await factoryProxy.setLocalEns("token.kiro.eth", token20.address, { from: factoryOwner2 });
 
     mlog.log('web3      ', web3.version);
     mlog.log('token20   ', token20.address);
@@ -1240,8 +1240,9 @@ it('eip712: should be able to execute batch of many external calls: signer==oper
           { name: 'token_ens',            type: 'string'  },
           { name: 'eth_value',            type: 'uint256' },
           // { name: 'sessionId',         type: 'uint256' },
-          { name: 'group_id',             type: 'uint24'  },
-          { name: 'nonce',                type: 'uint40'  },
+          // { name: 'group_id',             type: 'uint24'  },
+          // { name: 'nonce',                type: 'uint40'  },
+          { name: 'nonce',                type: 'uint64'  },
           { name: 'signature_valid_from', type: 'uint40'  },
           { name: 'signature_expires_at', type: 'uint40'  },
           { name: 'gas_limit',            type: 'uint32'  },
@@ -1275,8 +1276,8 @@ it('eip712: should be able to execute batch of many external calls: signer==oper
         [':-']: '',
         ['Transaction Limits']: '',
         [':--']: '',
-        ['group_id']: Number.parseInt('0x' + groupERC20),
-        nonce: Number.parseInt('0x' + tnonceERC20 + '00'),
+        // ['group_id']: Number.parseInt('0x' + groupERC20),
+        nonce: '0x' + groupERC20 + tnonceERC20 + '00', //Number.parseInt('0x' + tnonceERC20 + '00'),
         ordered: true,
         ['view_only']: false,
         refund: true,
@@ -1320,9 +1321,10 @@ it('eip712: should be able to execute batch of many external calls: signer==oper
       ...await eip712sign(factoryProxy, typedData, 10),
       typeHash: eip712typehash(typedData),
       sessionId: getSessionIdERC20(0),
-      selector: item.data.slice(0,10),
+      // selector: item.data.slice(0,10),
       functionSignature: web3.utils.sha3('transfer(address,uint256)'),
-      ensHash: '0x'.padEnd(66,'0'),
+      // ensHash: '0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470',
+      ensHash: web3.utils.sha3('@token.kiro.eth'),
       value: '0',
       to: token20.address,
       signer: getSigner(10),
@@ -1335,7 +1337,7 @@ it('eip712: should be able to execute batch of many external calls: signer==oper
 
     // const { receipt } = await instance.unsecuredBatchCall(msgs, {...msgs[0]}, { from: owner, value: 1 })
     
-    // Should revert
+    // Should revert 
     // await factory.batchTransfer(msgs, { from: activator, gasPrice: 201 })
 
     // Should revert
@@ -1455,6 +1457,147 @@ it('eip712: should be able to execute batch of many external calls: signer==oper
   //   assert.equal (diff, 5, 'user1 balance change')
   //   mlog.pending(`ERC20 Transfer consumed ${JSON.stringify(receipt.gasUsed)} gas`)
   // })
+
+
+it('EIP712: should be able to execute multi external calls: signer==operator, sender==owner', async () => {
+    await instance.cancelCall({ from: owner })
+    const nonce = await instance.nonce()
+
+    const sends = []
+
+    for (let i=10+userCount/2; i<10+userCount; ++i) {
+      sends.push([
+        // {
+        //   data: instance.contract.methods.erc20BalanceGT(token20.address, accounts[i], 100000).encodeABI(),
+        //   value: 0,
+        //   typeHash: '0x'.padEnd(66,'1'),
+        //   to: instance.address,
+        //   staticcall: true,
+        //   gasLimit: 0,
+        //   flow: 0x12, // on_success_stop , on_fail_continue
+        // },
+        {
+          data: token20.contract.methods.transfer(accounts[i], 5).encodeABI(),
+          value: 0,
+          typeHash: '0x'.padEnd(66,'1'),
+          to: token20.address,
+          gasLimit: 0,
+          // flow: 0x10, // on_success_stop
+        },
+        // {
+        //   data: token20.contract.methods.transfer(accounts[i+50], 5).encodeABI(),
+        //   value: 0,
+        //   typeHash: '0x'.padEnd(66,'1'),
+        //   to: token20.address,
+        //   gasLimit: 0,
+        //   flow: 0, 
+        // },
+        // {
+        //   data: token20.contract.methods.transfer(accounts[i+51], 5).encodeABI(),
+        //   value: 0,
+        //   typeHash: '0x'.padEnd(66,'1'),
+        //   to: token20.address,
+        //   gasLimit: 0,
+        //   flow: 0,
+        // },
+        // {
+        //   data: token20.contract.methods.transfer(accounts[i+52], 5).encodeABI(),
+        //   value: 0,
+        //   typeHash: '0x'.padEnd(66,'1'),
+        //   to: token20.address,
+        //   gasLimit: 0,
+        //   flow: 0, 
+        // },
+        // {
+        //   data: token20.contract.methods.transfer(accounts[i+53], 5).encodeABI(),
+        //   value: 0,
+        //   typeHash: '0x'.padEnd(66,'1'),
+        //   to: token20.address,
+        //   gasLimit: 0,
+        //   flow: 0,
+        // },
+        // {
+        //   data: instance.contract.methods.erc20BalanceGT(token20.address, accounts[i], 10000).encodeABI(),
+        //   value: 0,
+        //   typeHash: '0x'.padEnd(66,'1'),
+        //   to: instance.address,
+        //   staticcall: true,
+        //   gasLimit: 0,
+        // },
+        // {
+        //   data: token20.contract.methods.transfer(accounts[11+userCount/2], 3).encodeABI(),
+        //   value: 0,
+        //   typeHash: '0x'.padEnd(66,'1'),
+        //   to: token20.address,
+        //   gasLimit: 0,
+        // },
+      ])
+    }
+
+
+    const groupERC20        = '000008'
+    const tnonceERC20       = '00000002'
+    const afterERC20        = '0000000000'
+    const beforeERC20       = 'ffffffffff'
+    const maxGasERC20       = '00000000'
+    const maxGasPriceERC20  = '00000000000000c8'
+    const eip712ERC20       = 'f000' // not-ordered, payment
+    const eip712ERC20Static = 'f400' // not-ordered, staticcall, payment
+
+    const getSessionIdERC20 = (index, staticcall) => (
+      `0x${groupERC20}${tnonceERC20}${(index).toString(16).padStart(2,'0')}${afterERC20}${beforeERC20}${maxGasERC20}${maxGasPriceERC20}${staticcall ? eip712ERC20 : eip712ERC20}`
+    )
+
+    // console.log('sends', JSON.stringify(sends, null,2))
+
+    const msgDataERC20 = sends.map((send, index) => ({
+        mcall: send.map(item => ({...item, flags: (item.flow ? item.flow : 0) + (item.stataiccall ? 4*256 : 0), selector: item.data.slice(0, 10), data: '0x' + item.data.slice(10)})), 
+        _hash: defaultAbiCoder.encode(
+          ['(bytes32,address,uint256,uint256,uint40,uint40,uint256,uint256,bytes4,bytes)[]'],
+          [send.map(item => ([ 
+                item.typeHash,
+                item.to,
+                item.value,
+                getSessionIdERC20(index, item.staticcall),
+                '0x'+afterERC20,
+                '0x'+beforeERC20,
+                '0x'+maxGasERC20,
+                '0x'+maxGasPriceERC20,
+                item.data.slice(0, 10),
+                '0x' + item.data.slice(10),
+              ]))
+          ]
+        )
+          // ['bytes32','address','uint256','uint256','uint40','uint40','uint256','bytes4','bytes'],
+          // [item.typeHash, item.to, item.value, getSessionIdERC20(index), '0x'+afterERC20, '0x'+beforeERC20, '0x'+maxGasPriceERC20, item.data.slice(0, 10), '0x' + item.data.slice(10)])
+    }))
+
+
+    // console.log('msgDataERC20:', JSON.stringify(msgDataERC20, null, 2))
+    // const metaData = { simple: true, staticcall: false, gasLimit: 0 }
+
+    const msgsERC20 = (await Promise.all(msgDataERC20.map(async (item, index) => ({
+      ...item,
+      ...await web3.eth.accounts.sign(web3.utils.sha3(item._hash), keys[index+10] /*getPrivateKey(owner)*/),
+      sessionId: getSessionIdERC20(index),
+      signer: getSigner(index+10),
+      // _hash: undefined,
+    })))) // .map(item=> ({...item, sessionId: item.sessionId + item.v.slice(2).padStart(2,'0') }))
+
+    const balance = await token20.balanceOf(user1, { from: user1 })
+    // mlog.pending(`calling ${JSON.stringify(msgsERC20, null, 2)}`)
+
+    await logERC20Balances()
+
+    const { receipt: receiptERC20 } = /*tx =*/ await factoryProxy.batchMultiCall2(msgsERC20, 8, { from: activator, gasPrice: 200 }) // .catch(revertReason => console.log({ revertReason: JSON.stringify(revertReason, null ,2) }))
+
+    mlog.pending(`ERC20 X ${msgsERC20.length} Transfers consumed ${JSON.stringify(receiptERC20.gasUsed)} gas (${JSON.stringify(receiptERC20.gasUsed/msgsERC20.length)} gas per call)`)
+
+    await logERC20Balances()
+    await logDebt()
+
+  })
+
 
 
 });
