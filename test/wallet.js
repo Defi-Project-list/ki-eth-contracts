@@ -1485,17 +1485,17 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
         //   flow: 0x12, // on_success_stop , on_fail_continue
         // },
         {
-          data: token20.contract.methods.transfer(accounts[i], 5).encodeABI(),
+          data: token20.contract.methods.transfer(accounts[11], 5).encodeABI(),
           value: 0,
-          typeHash: '0x'.padEnd(66,'1'),
+          // typeHash: '0x'.padEnd(66,'1'),
           to: token20.address,
           gasLimit: 0,
           // flow: 0x10, // on_success_stop
         },
         {
-          data: token20.contract.methods.transfer(accounts[i+50], 5).encodeABI(),
+          data: token20.contract.methods.transfer(accounts[12], 5).encodeABI(),
           value: 0,
-          typeHash: '0x'.padEnd(66,'1'),
+          // typeHash: '0x'.padEnd(66,'1'),
           to: token20.address,
           gasLimit: 0,
           flow: 0, 
@@ -1549,8 +1549,8 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
     const beforeERC20       = 'ffffffffff'
     const maxGasERC20       = '00000000'
     const maxGasPriceERC20  = '00000000000000c8'
-    const eip712ERC20       = 'f000' // not-ordered, payment
-    const eip712ERC20Static = 'f400' // not-ordered, staticcall, payment
+    const eip712ERC20       = 'f100' // not-ordered, payment, eip712
+    const eip712ERC20Static = 'f500' // not-ordered, staticcall, payment, eip712
 
     const getSessionIdERC20 = (index, staticcall) => (
       `0x${groupERC20}${tnonceERC20}${(index).toString(16).padStart(2,'0')}${afterERC20}${beforeERC20}${maxGasERC20}${maxGasPriceERC20}${staticcall ? eip712ERC20 : eip712ERC20}`
@@ -1619,7 +1619,7 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
           gas_limit: Number.parseInt('0x' + maxGasERC20),
           gas_price_limit: Number.parseInt('0x' + maxGasPriceERC20),
           selector: '0x' + sends[0][0].data.slice(2,10),
-          method_data_offset: '0x1c0', // '480', // 13*32
+          method_data_offset: '0x1a0', // '480', // 13*32
           method_data_length: '0x40',
           to: accounts[11],
           token_amount: '5',
@@ -1632,9 +1632,9 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
           gas_limit: Number.parseInt('0x' + maxGasERC20),
           gas_price_limit: Number.parseInt('0x' + maxGasPriceERC20),
           selector: '0x' + sends[0][1].data.slice(2,10),
-          method_data_offset: '0x1c0', // '480', // 13*32
+          method_data_offset: '0x200', // '480', // 13*32
           method_data_length: '0x40',
-          to: accounts[11],
+          to: accounts[12],
           token_amount: '5',
       }}
     }
@@ -1644,23 +1644,30 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
     // console.log('sends', JSON.stringify(sends, null,2))
 
     const msgDataERC20 = sends.map((send, index) => ({
-        mcall: send.map(item => ({...item, flags: (item.flow ? item.flow : 0) + (item.stataiccall ? 4*256 : 0), selector: item.data.slice(0, 10), data: '0x' + item.data.slice(10)})), 
-        _hash: defaultAbiCoder.encode(
-          ['(bytes32,address,uint256,uint256,uint40,uint40,uint256,uint256,bytes4,bytes)[]'],
-          [send.map(item => ([ 
-                item.typeHash,
-                item.to,
-                item.value,
-                getSessionIdERC20(index, item.staticcall),
-                '0x'+afterERC20,
-                '0x'+beforeERC20,
-                '0x'+maxGasERC20,
-                '0x'+maxGasPriceERC20,
-                item.data.slice(0, 10),
-                '0x' + item.data.slice(10),
-              ]))
-          ]
-        )
+        mcall: send.map((item, index) => ({
+              ...item,
+              typeHash: TypedDataUtils.typeHash(typedData.types, 'transaction'+(index+1)),
+              flags: (item.flow ? item.flow : 0) + (item.stataiccall ? 4*256 : 0),
+              selector: item.data.slice(0, 10),
+              gasLimit: Number.parseInt('0x' + maxGasERC20),
+              data: '0x' + item.data.slice(10)})
+        ), 
+        // _hash: defaultAbiCoder.encode(
+        //   ['(bytes32,address,uint256,uint256,uint40,uint40,uint256,uint256,bytes4,bytes)[]'],
+        //   [send.map(item => ([ 
+        //         item.typeHash,
+        //         item.to,
+        //         item.value,
+        //         getSessionIdERC20(index, item.staticcall),
+        //         '0x'+afterERC20,
+        //         '0x'+beforeERC20,
+        //         '0x'+maxGasERC20,
+        //         '0x'+maxGasPriceERC20,
+        //         item.data.slice(0, 10),
+        //         '0x' + item.data.slice(10),
+        //       ]))
+        //   ]
+        // )
           // ['bytes32','address','uint256','uint256','uint40','uint40','uint256','bytes4','bytes'],
           // [item.typeHash, item.to, item.value, getSessionIdERC20(index), '0x'+afterERC20, '0x'+beforeERC20, '0x'+maxGasPriceERC20, item.data.slice(0, 10), '0x' + item.data.slice(10)])
     }))
@@ -1675,7 +1682,7 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
       ...await eip712sign(factoryProxy, typedData, 10),
       typeHash: eip712typehash(typedData),
       sessionId: getSessionIdERC20(index),
-      signer: getSigner(index+10),
+      signer: getSigner(10),
       // _hash: undefined,
     })))) // .map(item=> ({...item, sessionId: item.sessionId + item.v.slice(2).padStart(2,'0') }))
 
@@ -1684,7 +1691,7 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
 
     await logERC20Balances()
 
-    const { receipt: receiptERC20 } = /*tx =*/ await factoryProxy.batchMultiCall2(msgsERC20, 8, { from: activator, gasPrice: 200 }) // .catch(revertReason => console.log({ revertReason: JSON.stringify(revertReason, null ,2) }))
+    const { receipt: receiptERC20 } = tx = await factoryProxy.batchMultiCall2(msgsERC20, 8, { from: activator, gasPrice: 200 }) // .catch(revertReason => console.log({ revertReason: JSON.stringify(revertReason, null ,2) }))
 
     mlog.pending(`ERC20 X ${msgsERC20.length} Transfers consumed ${JSON.stringify(receiptERC20.gasUsed)} gas (${JSON.stringify(receiptERC20.gasUsed/msgsERC20.length)} gas per call)`)
 

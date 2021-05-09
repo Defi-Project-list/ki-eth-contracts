@@ -637,8 +637,8 @@ contract FactoryProxy is FactoryStorage {
                 sessionId & FLAG_EIP712 > 0
             );
             
-            // emit ErrorHandled(abi.encodePacked(msgPre, msg2));
-            // return ;
+            emit ErrorHandled(abi.encodePacked(msg2));
+            return ;
 
             Wallet storage wallet = _getWalletFromMessage(mcalls.signer, messageHash, mcalls.v, mcalls.r, mcalls.s);
             require(wallet.owner == true, "Factory: singer is not owner");
