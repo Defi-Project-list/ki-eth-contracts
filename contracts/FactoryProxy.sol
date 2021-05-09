@@ -183,6 +183,7 @@ contract FactoryProxy is FactoryStorage {
         uint8 v;
         bytes32 r;
         bytes32 s;
+        bytes32 typeHash;
         uint256 sessionId;
         address signer;
         MCall2[] mcall;
@@ -603,8 +604,7 @@ contract FactoryProxy is FactoryStorage {
         for(uint256 i = 0; i < trLength; i++) {
             uint256 gas = gasleft();
             MCalls2 calldata mcalls = tr[i];
-            bytes memory msgPre = abi.encode(0x20, mcalls.mcall.length, 32*mcalls.mcall.length);
-            bytes memory msg2;
+            bytes memory msg2 = abi.encode(mcalls.typeHash);
             uint256 sessionId = mcalls.sessionId;
             uint256 afterTS = uint40(sessionId >> 152);
             uint256 beforeTS  = uint40(sessionId >> 112);
@@ -629,14 +629,11 @@ contract FactoryProxy is FactoryStorage {
             for(uint256 j = 0; j < length; j++) {
                 MCall2 calldata call = mcalls.mcall[j];
                 address to = call.to;
-                msg2 = abi.encodePacked(msg2, abi.encode(call.typeHash, to, call.value, sessionId, afterTS, beforeTS, call.gasLimit, gasPriceLimit, call.selector, call.data));
-                if (j < mcalls.mcall.length-1) {
-                  msgPre = abi.encodePacked(msgPre, msg2.length + 32*mcalls.mcall.length);
-                }
+                msg2 = abi.encodePacked(msg2, keccak256(abi.encode(call.typeHash, to, call.value, sessionId, afterTS, beforeTS, call.gasLimit, gasPriceLimit, call.selector, call.data)));
             }
 
             bytes32 messageHash = _messageToRecover(
-                keccak256(abi.encodePacked(msgPre, msg2)),
+                keccak256(msg2),
                 sessionId & FLAG_EIP712 > 0
             );
             

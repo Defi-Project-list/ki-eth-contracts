@@ -145,9 +145,9 @@ contract('Wallet', async (accounts) => {
 
     }
     try {
-      console.log('data2:', ethers.utils.hexlify(TypedDataUtils.encodeData(typedData, 'transaction', typedData.message.transaction)))
+      console.log('data2:', ethers.utils.hexlify(TypedDataUtils.encodeData(typedData, 'transaction', typedData.message.transactions)))
     } catch (e) {
-
+      console.log(e)
     }
     mlog.log('rlp', JSON.stringify(rlp))
     // mlog.log('recover', ethers.utils.recoverAddress(messageDigest, sig))
@@ -1492,14 +1492,14 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
           gasLimit: 0,
           // flow: 0x10, // on_success_stop
         },
-        // {
-        //   data: token20.contract.methods.transfer(accounts[i+50], 5).encodeABI(),
-        //   value: 0,
-        //   typeHash: '0x'.padEnd(66,'1'),
-        //   to: token20.address,
-        //   gasLimit: 0,
-        //   flow: 0, 
-        // },
+        {
+          data: token20.contract.methods.transfer(accounts[i+50], 5).encodeABI(),
+          value: 0,
+          typeHash: '0x'.padEnd(66,'1'),
+          to: token20.address,
+          gasLimit: 0,
+          flow: 0, 
+        },
         // {
         //   data: token20.contract.methods.transfer(accounts[i+51], 5).encodeABI(),
         //   value: 0,
@@ -1556,6 +1556,91 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
       `0x${groupERC20}${tnonceERC20}${(index).toString(16).padStart(2,'0')}${afterERC20}${beforeERC20}${maxGasERC20}${maxGasPriceERC20}${staticcall ? eip712ERC20 : eip712ERC20}`
     )
 
+        const typedData = {
+      types: {
+        EIP712Domain: [
+          { name: "name",                 type: "string"  },
+          { name: "version",              type: "string"  },
+          { name: "chainId",              type: "uint256" },
+          { name: "verifyingContract",    type: "address" },
+          { name: "salt",                 type: "bytes32" },
+        ],
+        batchCall: [
+          { name: 'transaction_1',          type: 'transaction1'},
+          { name: 'transaction_2',          type: 'transaction2'},
+        ],
+        transaction1: [
+          { name: 'token_address',        type: 'address' },
+          { name: 'eth_value',            type: 'uint256' },
+          { name: 'sessionId',            type: 'uint256' },
+          { name: 'signature_valid_from', type: 'uint40'  },
+          { name: 'signature_expires_at', type: 'uint40'  },
+          { name: 'gas_limit',            type: 'uint32'  },
+          { name: 'gas_price_limit',      type: 'uint64'  },
+          { name: 'selector',             type: 'bytes4'  },
+          { name: 'method_data_offset',   type: 'uint256' },
+          { name: 'method_data_length',   type: 'uint256' },
+          { name: 'to',                   type: 'address' },
+          { name: 'token_amount',         type: 'uint256' },
+        ],
+        transaction2: [
+          { name: 'token_address',        type: 'address' },
+          { name: 'eth_value',            type: 'uint256' },
+          { name: 'sessionId',         type: 'uint256' },
+          { name: 'signature_valid_from', type: 'uint40'  },
+          { name: 'signature_expires_at', type: 'uint40'  },
+          { name: 'gas_limit',            type: 'uint32'  },
+          { name: 'gas_price_limit',      type: 'uint64'  },
+          { name: 'selector',             type: 'bytes4'  },
+          { name: 'method_data_offset',   type: 'uint256' },
+          { name: 'method_data_length',   type: 'uint256' },
+          { name: 'to',                   type: 'address' },
+          { name: 'token_amount',         type: 'uint256' },
+        ]
+
+      },
+      primaryType: 'batchCall',
+      domain: {
+        name: await factoryProxy.NAME(),
+        version: await factoryProxy.VERSION(),
+        chainId: '0x' + web3.utils.toBN(await factoryProxy.CHAIN_ID()).toString('hex'), // await web3.eth.getChainId(),
+        verifyingContract: factoryProxy.address,
+        salt: await factoryProxy.uid(),
+      },
+      message: { 
+        ['KIROBO PROTECTS YOU']: '👍',
+        ['MULTI PROTECTION']: '👍',
+        transaction_1: {
+          token_address: token20.address,
+          eth_value: '0',
+          sessionId: getSessionIdERC20(10, false),
+          signature_valid_from: Number.parseInt('0x' + afterERC20),
+          signature_expires_at: Number.parseInt('0x' + beforeERC20),
+          gas_limit: Number.parseInt('0x' + maxGasERC20),
+          gas_price_limit: Number.parseInt('0x' + maxGasPriceERC20),
+          selector: '0x' + sends[0][0].data.slice(2,10),
+          method_data_offset: '0x1c0', // '480', // 13*32
+          method_data_length: '0x40',
+          to: accounts[11],
+          token_amount: '5',
+      }, transaction_2: {
+          token_address: token20.address,
+          eth_value: '0',
+          sessionId: getSessionIdERC20(10, false),
+          signature_valid_from: Number.parseInt('0x' + afterERC20),
+          signature_expires_at: Number.parseInt('0x' + beforeERC20),
+          gas_limit: Number.parseInt('0x' + maxGasERC20),
+          gas_price_limit: Number.parseInt('0x' + maxGasPriceERC20),
+          selector: '0x' + sends[0][1].data.slice(2,10),
+          method_data_offset: '0x1c0', // '480', // 13*32
+          method_data_length: '0x40',
+          to: accounts[11],
+          token_amount: '5',
+      }}
+    }
+
+
+
     // console.log('sends', JSON.stringify(sends, null,2))
 
     const msgDataERC20 = sends.map((send, index) => ({
@@ -1586,7 +1671,9 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
 
     const msgsERC20 = (await Promise.all(msgDataERC20.map(async (item, index) => ({
       ...item,
-      ...await web3.eth.accounts.sign(web3.utils.sha3(item._hash), keys[index+10] /*getPrivateKey(owner)*/),
+      // ...await web3.eth.accounts.sign(web3.utils.sha3(item._hash), keys[index+10] /*getPrivateKey(owner)*/),
+      ...await eip712sign(factoryProxy, typedData, 10),
+      typeHash: eip712typehash(typedData),
       sessionId: getSessionIdERC20(index),
       signer: getSigner(index+10),
       // _hash: undefined,
@@ -1607,166 +1694,221 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
   })
 
 
-  it('eip712: should be able to execute batch of many external calls: signer==operator, sender==owner', async () => {
-    const sends = []
+  // it('eip712: should be able to execute batch of many external calls: signer==operator, sender==owner', async () => {
+  //   const sends = []
     
-    for (let i=10; i<11; ++i) {
-      sends.push({
-        data: token20.contract.methods.transfer(accounts[11], 5).encodeABI(),
-        value: 0,
-        // typeHash: '0x'.padEnd(66,'0'),
-        to: token20.address
-      })
-    }
+  //   for (let i=10; i<11; ++i) {
+  //     sends.push({
+  //       data: token20.contract.methods.transfer(accounts[11], 5).encodeABI(),
+  //       value: 0,
+  //       // typeHash: '0x'.padEnd(66,'0'),
+  //       to: token20.address
+  //     })
+  //   }
 
-    const groupERC20        = '000002'
-    const tnonceERC20       = '00000010'
-    const afterERC20        = '0000000000'
-    const beforeERC20       = 'ffffffffff'
-    const maxGasERC20       = '00000000'
-    const maxGasPriceERC20  = '00000000000000c8'
-    const eip712ERC20       = 'f3' // ordered, payment, eip712
+  //   const groupERC20        = '000002'
+  //   const tnonceERC20       = '00000010'
+  //   const afterERC20        = '0000000000'
+  //   const beforeERC20       = 'ffffffffff'
+  //   const maxGasERC20       = '00000000'
+  //   const maxGasPriceERC20  = '00000000000000c8'
+  //   const eip712ERC20       = 'f3' // ordered, payment, eip712
 
-    const getSessionIdERC20 = index => (
-      `0x${groupERC20}${tnonceERC20}${(index).toString(16).padStart(2,'0')}${afterERC20}${beforeERC20}${maxGasERC20}${maxGasPriceERC20}${eip712ERC20}`
-    )
+  //   const getSessionIdERC20 = index => (
+  //     `0x${groupERC20}${tnonceERC20}${(index).toString(16).padStart(2,'0')}${afterERC20}${beforeERC20}${maxGasERC20}${maxGasPriceERC20}${eip712ERC20}`
+  //   )
 
-    const typedData = {
-      types: {
-        EIP712Domain: [
-          { name: "name",                 type: "string"  },
-          { name: "version",              type: "string"  },
-          { name: "chainId",              type: "uint256" },
-          { name: "verifyingContract",    type: "address" },
-          { name: "salt",                 type: "bytes32" },
-        ],
-        batchCall: [
-          { name: 'transaction',          type: 'transaction[1]'},
-        ],
-        transaction: [
-          { name: 'token_address',        type: 'address' },
-          { name: 'token_ens',            type: 'string'  },
-          { name: 'eth_value',            type: 'uint256' },
-          // { name: 'sessionId',         type: 'uint256' },
-          // { name: 'group_id',             type: 'uint24'  },
-          // { name: 'nonce',                type: 'uint40'  },
-          { name: 'nonce',                type: 'uint64'  },
-          { name: 'signature_valid_from', type: 'uint40'  },
-          { name: 'signature_expires_at', type: 'uint40'  },
-          { name: 'gas_limit',            type: 'uint32'  },
-          { name: 'gas_price_limit',      type: 'uint64'  },
-          { name: 'view_only',            type: 'bool'    },
-          { name: 'ordered',              type: 'bool'    },
-          { name: 'refund',               type: 'bool'    },
-          // { name: 'selector',          type: 'bytes4'  },
-          { name: 'method_signature',     type: 'string'  },
-          { name: 'method_data_offset',   type: 'uint256' },
-          { name: 'method_data_length',   type: 'uint256' },
-          { name: 'to',                   type: 'address' },
-          { name: 'token_amount',         type: 'uint256' },
-        ]
-      },
-      primaryType: 'batchCall',
-      domain: {
-        name: await factoryProxy.NAME(),
-        version: await factoryProxy.VERSION(),
-        chainId: '0x' + web3.utils.toBN(await factoryProxy.CHAIN_ID()).toString('hex'), // await web3.eth.getChainId(),
-        verifyingContract: factoryProxy.address,
-        salt: await factoryProxy.uid(),
-      },
-      message: { transaction: [{
-        ['KIROBO PROTECTS YOU']: '👍',
-        ['MULTI PROTECTION']: '👍',
-        ['token_address']: token20.address,
-        ['token_ens']: '@token.kiro.eth',
-        eth_value: '0',
-        // sessionId: getSessionIdERC20(10),
+  //   const typedData = {
+  //     types: {
+  //       EIP712Domain: [
+  //         { name: "name",                 type: "string"  },
+  //         { name: "version",              type: "string"  },
+  //         { name: "chainId",              type: "uint256" },
+  //         { name: "verifyingContract",    type: "address" },
+  //         { name: "salt",                 type: "bytes32" },
+  //       ],
+  //       batchCall: [
+  //         { name: 'transaction1',          type: 'transaction1'},
+  //         { name: 'transaction2',          type: 'transaction2'},
+  //       ],
+  //       transaction1: [
+  //         { name: 'token_address',        type: 'address' },
+  //         { name: 'token_ens',            type: 'string'  },
+  //         { name: 'eth_value',            type: 'uint256' },
+  //         // { name: 'sessionId',         type: 'uint256' },
+  //         // { name: 'group_id',             type: 'uint24'  },
+  //         // { name: 'nonce',                type: 'uint40'  },
+  //         { name: 'nonce',                type: 'uint64'  },
+  //         { name: 'signature_valid_from', type: 'uint40'  },
+  //         { name: 'signature_expires_at', type: 'uint40'  },
+  //         { name: 'gas_limit',            type: 'uint32'  },
+  //         { name: 'gas_price_limit',      type: 'uint64'  },
+  //         { name: 'view_only',            type: 'bool'    },
+  //         { name: 'ordered',              type: 'bool'    },
+  //         { name: 'refund',               type: 'bool'    },
+  //         // { name: 'selector',          type: 'bytes4'  },
+  //         { name: 'method_signature',     type: 'string'  },
+  //         { name: 'method_data_offset',   type: 'uint256' },
+  //         { name: 'method_data_length',   type: 'uint256' },
+  //         { name: 'to',                   type: 'address' },
+  //         { name: 'token_amount',         type: 'uint256' },
+  //       ],
+  //       transaction2: [
+  //         { name: 'token_address',        type: 'address' },
+  //         { name: 'token_ens',            type: 'string'  },
+  //         { name: 'eth_value',            type: 'uint256' },
+  //         // { name: 'sessionId',         type: 'uint256' },
+  //         // { name: 'group_id',             type: 'uint24'  },
+  //         // { name: 'nonce',                type: 'uint40'  },
+  //         { name: 'nonce',                type: 'uint64'  },
+  //         { name: 'signature_valid_from', type: 'uint40'  },
+  //         { name: 'signature_expires_at', type: 'uint40'  },
+  //         { name: 'gas_limit',            type: 'uint32'  },
+  //         { name: 'gas_price_limit',      type: 'uint64'  },
+  //         { name: 'view_only',            type: 'bool'    },
+  //         { name: 'ordered',              type: 'bool'    },
+  //         { name: 'refund',               type: 'bool'    },
+  //         // { name: 'selector',          type: 'bytes4'  },
+  //         { name: 'method_signature',     type: 'string'  },
+  //         { name: 'method_data_offset',   type: 'uint256' },
+  //         { name: 'method_data_length',   type: 'uint256' },
+  //         { name: 'to',                   type: 'address' },
+  //         { name: 'token_amount',         type: 'uint256' },
+  //       ]
 
-        [':-']: '',
-        ['Transaction Limits']: '',
-        [':--']: '',
-        // ['group_id']: Number.parseInt('0x' + groupERC20),
-        nonce: '0x' + groupERC20 + tnonceERC20 + '00', //Number.parseInt('0x' + tnonceERC20 + '00'),
-        ordered: true,
-        ['view_only']: false,
-        refund: true,
-        ['signature_valid_from']: Number.parseInt('0x' + afterERC20),
-        ['signature_expires_at']: Number.parseInt('0x' + beforeERC20),
-        ['gas_limit']: Number.parseInt('0x' + maxGasERC20),
-        ['gas_price_limit']: Number.parseInt('0x' + maxGasPriceERC20),
-  //      selector: '0x' + data.slice(2,10),
-        [':---']: '',
-        ['Contract\'s Method Header']: '',
-        [':----']: '',
-        ['method_signature']: 'transfer(address,uint256)',
-        ['method_data_offset']: '0x1c0', // '480', // 13*32
-        ['method_data_length']: '0x40',
-        [':-----']: '',
-        ['Contract\'s Method Data']: '',
-        [':------']: '',
-        ['to']: accounts[11],
-        ['token_amount']: '5',
-      }]}
-    }
+  //     },
+  //     primaryType: 'batchCall',
+  //     domain: {
+  //       name: await factoryProxy.NAME(),
+  //       version: await factoryProxy.VERSION(),
+  //       chainId: '0x' + web3.utils.toBN(await factoryProxy.CHAIN_ID()).toString('hex'), // await web3.eth.getChainId(),
+  //       verifyingContract: factoryProxy.address,
+  //       salt: await factoryProxy.uid(),
+  //     },
+  //     message: { 
+  //       ['KIROBO PROTECTS YOU']: '👍',
+  //       ['MULTI PROTECTION']: '👍',
+  //       transaction1: {
+  //       ['token_address']: token20.address,
+  //       ['token_ens']: '@token.kiro.eth',
+  //       eth_value: '0',
+  //       // sessionId: getSessionIdERC20(10),
 
-    const DOMAIN_SEPARATOR = (await factoryProxy.DOMAIN_SEPARATOR())
+  //       [':-']: '',
+  //       ['Transaction Limits']: '',
+  //       [':--']: '',
+  //       // ['group_id']: Number.parseInt('0x' + groupERC20),
+  //       nonce: '0x' + groupERC20 + tnonceERC20 + '00', //Number.parseInt('0x' + tnonceERC20 + '00'),
+  //       ordered: true,
+  //       ['view_only']: false,
+  //       refund: true,
+  //       ['signature_valid_from']: Number.parseInt('0x' + afterERC20),
+  //       ['signature_expires_at']: Number.parseInt('0x' + beforeERC20),
+  //       ['gas_limit']: Number.parseInt('0x' + maxGasERC20),
+  //       ['gas_price_limit']: Number.parseInt('0x' + maxGasPriceERC20),
+  // //      selector: '0x' + data.slice(2,10),
+  //       [':---']: '',
+  //       ['Contract\'s Method Header']: '',
+  //       [':----']: '',
+  //       ['method_signature']: 'transfer(address,uint256)',
+  //       ['method_data_offset']: '0x1c0', // '480', // 13*32
+  //       ['method_data_length']: '0x40',
+  //       [':-----']: '',
+  //       ['Contract\'s Method Data']: '',
+  //       [':------']: '',
+  //       ['to']: accounts[11],
+  //       ['token_amount']: '5',
+  //     }, transaction2: {
+  //       ['token_address']: token20.address,
+  //       ['token_ens']: '@token.kiro.eth',
+  //       eth_value: '0',
+  //       // sessionId: getSessionIdERC20(10),
 
-    const msgDataERC20 = sends.map((item, index) => ({
-        ...item, 
-        // _hash: defaultAbiCoder.encode(
-        //   ['bytes32', 'address', 'uint256', 'uint256', 'uint40', 'uint40', 'uint32', 'uint64', 'bytes4', 'bytes'],
-        //   [item.typeHash, item.to, item.value, getSessionIdERC20(0), '0x'+afterERC20, '0x'+beforeERC20, '0x'+maxGasERC20, '0x'+maxGasPriceERC20, item.data.slice(0, 10), '0x' + item.data.slice(10)])
-        //   ['bytes32', 'address', 'uint256', 'uint256', 'uint40', 'uint40', 'uint32', 'uint64', 'bytes4', 'bytes'],
-        //   [item.typeHash, item.to, item.value, getSessionIdERC20(0), '0x'+afterERC20, '0x'+beforeERC20, '0x'+maxGasERC20, '0x'+maxGasPriceERC20, item.data.slice(0, 10), '0x' + item.data.slice(10)])
-          // ['bytes32', 'address', 'uint256', 'uint256', 'uint40', 'uint40', 'uint32', 'uint64', 'string', 'bytes'],
-          // [item.typeHash, item.to, item.value, getSessionIdERC20(index), '0x'+afterERC20, '0x'+beforeERC20, '0x'+maxGasERC20, '0x'+maxGasPriceERC20, 'transfer(address,uint256)', '0x' + item.data.slice(10)])
-    }))
+  //       [':-']: '',
+  //       ['Transaction Limits']: '',
+  //       [':--']: '',
+  //       // ['group_id']: Number.parseInt('0x' + groupERC20),
+  //       nonce: '0x' + groupERC20 + tnonceERC20 + '00', //Number.parseInt('0x' + tnonceERC20 + '00'),
+  //       ordered: true,
+  //       ['view_only']: false,
+  //       refund: true,
+  //       ['signature_valid_from']: Number.parseInt('0x' + afterERC20),
+  //       ['signature_expires_at']: Number.parseInt('0x' + beforeERC20),
+  //       ['gas_limit']: Number.parseInt('0x' + maxGasERC20),
+  //       ['gas_price_limit']: Number.parseInt('0x' + maxGasPriceERC20),
+  // //      selector: '0x' + data.slice(2,10),
+  //       [':---']: '',
+  //       ['Contract\'s Method Header']: '',
+  //       [':----']: '',
+  //       ['method_signature']: 'transfer(address,uint256)',
+  //       ['method_data_offset']: '0x1c0', // '480', // 13*32
+  //       ['method_data_length']: '0x40',
+  //       [':-----']: '',
+  //       ['Contract\'s Method Data']: '',
+  //       [':------']: '',
+  //       ['to']: accounts[11],
+  //       ['token_amount']: '5',
+  //     }}
+  //   }
 
-    // const metaData = { simple: true, staticcall: false, gasLimit: 0 }
+  //   const DOMAIN_SEPARATOR = (await factoryProxy.DOMAIN_SEPARATOR())
 
-    const msgsERC20 = (await Promise.all(msgDataERC20.map(async (item, index) => ({
-      ...item,
-      // ...await web3.eth.accounts.sign(web3.utils.sha3(item._hash), keys[index+10] /*getPrivateKey(owner)*/),
-      ...await eip712sign(factoryProxy, typedData, 10),
-      typeHash: eip712typehash(typedData),
-      sessionId: getSessionIdERC20(0),
-      // selector: item.data.slice(0,10),
-      functionSignature: web3.utils.sha3('transfer(address,uint256)'),
-      // ensHash: '0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470',
-      ensHash: web3.utils.sha3('@token.kiro.eth'),
-      value: '0',
-      to: token20.address,
-      signer: getSigner(10),
-      data: '0x' + item.data.slice(10),
-      _hash: undefined,
-    })))).map(item => ({...item, sessionId: item.sessionId + item.v.slice(2).padStart(2,'0') }))
+  //   const msgDataERC20 = sends.map((item, index) => ({
+  //       ...item, 
+  //       // _hash: defaultAbiCoder.encode(
+  //       //   ['bytes32', 'address', 'uint256', 'uint256', 'uint40', 'uint40', 'uint32', 'uint64', 'bytes4', 'bytes'],
+  //       //   [item.typeHash, item.to, item.value, getSessionIdERC20(0), '0x'+afterERC20, '0x'+beforeERC20, '0x'+maxGasERC20, '0x'+maxGasPriceERC20, item.data.slice(0, 10), '0x' + item.data.slice(10)])
+  //       //   ['bytes32', 'address', 'uint256', 'uint256', 'uint40', 'uint40', 'uint32', 'uint64', 'bytes4', 'bytes'],
+  //       //   [item.typeHash, item.to, item.value, getSessionIdERC20(0), '0x'+afterERC20, '0x'+beforeERC20, '0x'+maxGasERC20, '0x'+maxGasPriceERC20, item.data.slice(0, 10), '0x' + item.data.slice(10)])
+  //         // ['bytes32', 'address', 'uint256', 'uint256', 'uint40', 'uint40', 'uint32', 'uint64', 'string', 'bytes'],
+  //         // [item.typeHash, item.to, item.value, getSessionIdERC20(index), '0x'+afterERC20, '0x'+beforeERC20, '0x'+maxGasERC20, '0x'+maxGasPriceERC20, 'transfer(address,uint256)', '0x' + item.data.slice(10)])
+  //   }))
 
-    const balance = await token20.balanceOf(user1, { from: user1 })
-    mlog.pending(`calling ${JSON.stringify(msgsERC20[0], null, 2)}`)
+  //   // const metaData = { simple: true, staticcall: false, gasLimit: 0 }
 
-    // const { receipt } = await instance.unsecuredBatchCall(msgs, {...msgs[0]}, { from: owner, value: 1 })
+  //   const msgsERC20 = (await Promise.all(msgDataERC20.map(async (item, index) => ({
+  //     ...item,
+  //     // ...await web3.eth.accounts.sign(web3.utils.sha3(item._hash), keys[index+10] /*getPrivateKey(owner)*/),
+  //     ...await eip712sign(factoryProxy, typedData, 10),
+  //     typeHash: eip712typehash(typedData),
+  //     sessionId: getSessionIdERC20(0),
+  //     // selector: item.data.slice(0,10),
+  //     functionSignature: web3.utils.sha3('transfer(address,uint256)'),
+  //     // ensHash: '0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470',
+  //     ensHash: web3.utils.sha3('@token.kiro.eth'),
+  //     value: '0',
+  //     to: token20.address,
+  //     signer: getSigner(10),
+  //     data: '0x' + item.data.slice(10),
+  //     _hash: undefined,
+  //   })))).map(item => ({...item, sessionId: item.sessionId + item.v.slice(2).padStart(2,'0') }))
+
+  //   const balance = await token20.balanceOf(user1, { from: user1 })
+  //   mlog.pending(`calling ${JSON.stringify(msgsERC20[0], null, 2)}`)
+
+  //   // const { receipt } = await instance.unsecuredBatchCall(msgs, {...msgs[0]}, { from: owner, value: 1 })
     
-    // Should revert 
-    // await factory.batchTransfer(msgs, { from: activator, gasPrice: 201 })
+  //   // Should revert 
+  //   // await factory.batchTransfer(msgs, { from: activator, gasPrice: 201 })
 
-    // Should revert
-    // await factory.batchTransfer(msgs, { from: owner, gasPrice: 200 })
+  //   // Should revert
+  //   // await factory.batchTransfer(msgs, { from: owner, gasPrice: 200 })
 
-    await logERC20Balances()
+  //   await logERC20Balances()
 
-    const { receipt: receiptERC20 } = await factoryProxy.batchCall2(msgsERC20, 2, { from: activator, gasPrice: 200 })
+  //   const { receipt: receiptERC20 } = await factoryProxy.batchCall2(msgsERC20, 9, { from: activator, gasPrice: 200 })
 
-    // Should revert
-    // await factory.batchTransfer(msgs, { from: activator, gasPrice: 200 })
+  //   // Should revert
+  //   // await factory.batchTransfer(msgs, { from: activator, gasPrice: 200 })
 
-    // const diff = (await token20.balanceOf(user1)).toNumber() - balance.toNumber()
-    // assert.equal (diff, 5, 'user1 balance change')
-    mlog.pending(`================== ERC20 X ${msgsERC20.length} Transfers consumed ${JSON.stringify(receiptERC20.gasUsed)} gas (${JSON.stringify(receiptERC20.gasUsed/msgsERC20.length)} gas per call)`)
+  //   // const diff = (await token20.balanceOf(user1)).toNumber() - balance.toNumber()
+  //   // assert.equal (diff, 5, 'user1 balance change')
+  //   mlog.pending(`================== ERC20 X ${msgsERC20.length} Transfers consumed ${JSON.stringify(receiptERC20.gasUsed)} gas (${JSON.stringify(receiptERC20.gasUsed/msgsERC20.length)} gas per call)`)
 
-    await logERC20Balances()
-    await logDebt()
+  //   await logERC20Balances()
+  //   await logDebt()
 
-  })
+  // })
 
 
 
