@@ -78,7 +78,7 @@ contract('Wallet', async (accounts) => {
   }
 
   const getSigner = (index) => {
-    return ZERO_ADDRESS // accounts[index]
+    return accounts[index]
   }
 
   const logBalances = async () => {
@@ -317,6 +317,14 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
           gasLimit: 0,
           flow: 0, 
         },
+        {
+          data: token20.contract.methods.transfer(accounts[13], 12).encodeABI(),
+          value: 0,
+          // typeHash: '0x'.padEnd(66,'1'),
+          to: token20.address,
+          gasLimit: 0,
+          flow: 0, 
+        },
         // {
         //   data: token20.contract.methods.transfer(accounts[i+51], 5).encodeABI(),
         //   value: 0,
@@ -385,6 +393,7 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
         batchCall: [
           { name: 'transaction_1',          type: 'transaction1'},
           { name: 'transaction_2',          type: 'transaction2'},
+          { name: 'transaction_3',          type: 'transaction3'},
         ],
         transaction1: [
           { name: 'token_address',        type: 'address' },
@@ -413,8 +422,21 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
           { name: 'method_data_length',   type: 'uint256' },
           { name: 'to',                   type: 'address' },
           { name: 'token_amount',         type: 'uint256' },
-        ]
-
+        ],
+        transaction3: [
+          { name: 'token_address',        type: 'address' },
+          { name: 'eth_value',            type: 'uint256' },
+          { name: 'sessionId',            type: 'uint256' },
+          { name: 'signature_valid_from', type: 'uint40'  },
+          { name: 'signature_expires_at', type: 'uint40'  },
+          { name: 'gas_limit',            type: 'uint32'  },
+          { name: 'gas_price_limit',      type: 'uint64'  },
+          { name: 'selector',             type: 'bytes4'  },
+          { name: 'method_data_offset',   type: 'uint256' },
+          { name: 'method_data_length',   type: 'uint256' },
+          { name: 'to',                   type: 'address' },
+          { name: 'token_amount',         type: 'uint256' },
+        ],
       },
       primaryType: 'batchCall',
       domain: {
@@ -440,7 +462,9 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
           method_data_length: '0x40',
           to: accounts[11],
           token_amount: '5',
-      }, transaction_2: {
+      },
+        ['------------------------------------']: '', 
+        transaction_2: {
           token_address: token20.address,
           eth_value: '0',
           sessionId: getSessionIdERC20(10, false),
@@ -453,6 +477,21 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
           method_data_length: '0x40',
           to: accounts[12],
           token_amount: '5',
+      }, 
+        ['-------------------------------------']: '', 
+        transaction_3: {
+          token_address: token20.address,
+          eth_value: '0',
+          sessionId: getSessionIdERC20(10, false),
+          signature_valid_from: Number.parseInt('0x' + afterERC20),
+          signature_expires_at: Number.parseInt('0x' + beforeERC20),
+          gas_limit: Number.parseInt('0x' + maxGasERC20),
+          gas_price_limit: Number.parseInt('0x' + maxGasPriceERC20),
+          selector: '0x' + sends[0][1].data.slice(2,10),
+          method_data_offset: '0x140', // '480', // 13*32
+          method_data_length: '0x40',
+          to: accounts[13],
+          token_amount: '12',
       }}
     }
 
