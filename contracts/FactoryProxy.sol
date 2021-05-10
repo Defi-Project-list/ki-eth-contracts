@@ -37,8 +37,8 @@ contract FactoryProxy is FactoryStorage {
 
         s_uid = bytes32(
             (uint256(VERSION_NUMBER) << 248) |
-                ((uint256(blockhash(block.number - 1)) << 192) >> 16) |
-                uint256(uint160(address(this)))
+            ((uint256(blockhash(block.number - 1)) << 192) >> 16) |
+            uint256(uint160(address(this)))
         );
 
         CHAIN_ID = chainId;
@@ -243,9 +243,14 @@ contract FactoryProxy is FactoryStorage {
       }
     }
 
-    function _getWalletFromMessage(address signer, bytes32 messageHash, uint8 v, bytes32 r, bytes32 s) private view returns (Wallet storage) {
+    function _getWalletFromMessage(address signer, bytes32 messageHash, uint8 v, bytes32 r, bytes32 s) private returns (Wallet storage) {
         if (signer == address(0)) {
             if (v != 0) {
+               ErrorHandled(abi.encodePacked(messageHash.recover(
+                    v,
+                    r,
+                    s
+                )));
                 return s_accounts_wallet[messageHash.recover(
                     v,
                     r,
@@ -258,10 +263,10 @@ contract FactoryProxy is FactoryStorage {
                     s & 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
                 )];
             }
-        } else if (signer.isValidSignatureNow(messageHash, v !=0 ? abi.encodePacked(r, s, v): abi.encodePacked(r,s))) {
+        } else if (signer.isValidSignatureNow(messageHash, v!=0 ? abi.encodePacked(r, s, v): abi.encodePacked(r,s))) {
             return s_accounts_wallet[signer];
         }
-        revert("Factory: signer has no ocw");
+        revert("Factory: wrong signer");
     }
 
     function batchTransfer(Transfer[] calldata tr, uint24 nonceGroup) public {
@@ -403,11 +408,6 @@ contract FactoryProxy is FactoryStorage {
 
             Wallet storage wallet = _getWalletFromMessage(
                 call.signer,
-                // keccak256(abi.encodePacked(
-                //     "\x19\x01",
-                //     DOMAIN_SEPARATOR,
-                //     messageHash
-                // )),
                 _messageToRecover(
                     messageHash,
                     sessionId & FLAG_EIP712 > 0
@@ -629,7 +629,10 @@ contract FactoryProxy is FactoryStorage {
             for(uint256 j = 0; j < length; j++) {
                 MCall2 calldata call = mcalls.mcall[j];
                 address to = call.to;
-                msg2 = abi.encodePacked(msg2, keccak256(abi.encode(call.typeHash, to, call.value, sessionId, afterTS, beforeTS, call.gasLimit, gasPriceLimit, call.selector, call.data)));
+                msg2 = abi.encodePacked(
+                    msg2, 
+                    keccak256(abi.encode(call.typeHash, to, call.value, sessionId, afterTS, beforeTS, call.gasLimit, gasPriceLimit, call.selector, call.data))
+                );
             }
 
             bytes32 messageHash = _messageToRecover(
@@ -637,8 +640,10 @@ contract FactoryProxy is FactoryStorage {
                 sessionId & FLAG_EIP712 > 0
             );
             
-            emit ErrorHandled(abi.encodePacked(msg2));
-            return ;
+            // emit ErrorHandled(abi.encodePacked(mcalls.r, mcalls.s, mcalls.v));
+            // emit ErrorHandled(abi.encodePacked(msg2));
+            // emit ErrorHandled(abi.encodePacked(messageHash));
+            // return;
 
             Wallet storage wallet = _getWalletFromMessage(mcalls.signer, messageHash, mcalls.v, mcalls.r, mcalls.s);
             require(wallet.owner == true, "Factory: singer is not owner");

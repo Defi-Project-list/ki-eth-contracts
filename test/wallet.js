@@ -108,12 +108,12 @@ contract('Wallet', async (accounts) => {
     mlog.log(`activator debt: ${await factory.getWalletDebt(activator)}`)
   }
   
-  const eip712sign = async (instance, typedData, account) => {
+  const eip712sign = async (inst, typedData, account) => {
     mlog.log('typedData: ', JSON.stringify(typedData, null, 2))
     const domainHash = TypedDataUtils.hashStruct(typedData, 'EIP712Domain', typedData.domain)
     const domainHashHex = ethers.utils.hexlify(domainHash)
-    mlog.log('CHAIN_ID', await instance.CHAIN_ID())
-    mlog.log('DOMAIN_SEPARATOR', await instance.DOMAIN_SEPARATOR())
+    mlog.log('CHAIN_ID', await inst.CHAIN_ID())
+    mlog.log('DOMAIN_SEPARATOR', await inst.DOMAIN_SEPARATOR())
     mlog.log('DOMAIN_SEPARATOR (calculated)', domainHashHex)
 
     const messageDigest = TypedDataUtils.encodeDigest(typedData)
@@ -125,6 +125,18 @@ contract('Wallet', async (accounts) => {
     // const rlp = ethers.utils.splitSignature(sig)
     // rlp.v = '0x' + rlp.v.toString(16)
   
+
+    try {
+    console.log('data:', ethers.utils.hexlify(TypedDataUtils.encodeData(typedData, 'batchCall', typedData.message)))
+    } catch (e) {
+
+    }
+    // try {
+    //   console.log('data2:', ethers.utils.hexlify(TypedDataUtils.encodeData(typedData, 'transaction', typedData.message.transactions)))
+    // } catch (e) {
+    //   console.log(e)
+    // }
+
     const signature = await new Promise(resolve => socket.emit('sign request', JSON.stringify([typedData]), resolve))
     const rlp = { r: signature.slice(0, 66), s: '0x'+signature.slice(66,130), v: '0x'+signature.slice(130) }
 
@@ -139,16 +151,6 @@ contract('Wallet', async (accounts) => {
     const m2Hex = ethers.utils.hexZeroPad(ethers.utils.hexlify(m2), 32)
     console.log('m2 (calculated)', m2Hex)
 
-    try {
-    console.log('data:', ethers.utils.hexlify(TypedDataUtils.encodeData(typedData, 'batchCall', typedData.message)))
-    } catch (e) {
-
-    }
-    try {
-      console.log('data2:', ethers.utils.hexlify(TypedDataUtils.encodeData(typedData, 'transaction', typedData.message.transactions)))
-    } catch (e) {
-      console.log(e)
-    }
     mlog.log('rlp', JSON.stringify(rlp))
     // mlog.log('recover', ethers.utils.recoverAddress(messageDigest, sig))
     return rlp
@@ -1586,7 +1588,7 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
         transaction2: [
           { name: 'token_address',        type: 'address' },
           { name: 'eth_value',            type: 'uint256' },
-          { name: 'sessionId',         type: 'uint256' },
+          { name: 'sessionId',            type: 'uint256' },
           { name: 'signature_valid_from', type: 'uint40'  },
           { name: 'signature_expires_at', type: 'uint40'  },
           { name: 'gas_limit',            type: 'uint32'  },
