@@ -172,6 +172,7 @@ contract FactoryProxy is FactoryStorage {
      struct MCall2 {
         bytes32 typeHash;
         address to;
+        bytes32 ensHash;
         uint256 value;
         uint16 flags;
         uint32 gasLimit;
@@ -370,6 +371,23 @@ contract FactoryProxy is FactoryStorage {
                   bool(call.sessionId & FLAG_ORDERED > 0), // ordered
                   bool(call.sessionId & FLAG_PAYMENT > 0), // refund
                   call.functionSignature,
+                  call.data
+          )),
+          _ensToAddress(call.ensHash, call.to));
+    }
+
+    function _encodeMCall2(MCall2 memory call, uint256 sessionId) private returns (bytes32, address) {
+        return (keccak256(abi.encode(
+                  call.typeHash,
+                  call.to,
+                  call.ensHash,
+                  call.value,
+                  sessionId,
+                  uint40(sessionId >> 152), // afterTS,
+                  uint40(sessionId >> 112), // beforeTS
+                  call.gasLimit,
+                  uint64(sessionId >> 16), // gasPriceLim
+                  call.selector,
                   call.data
           )),
           _ensToAddress(call.ensHash, call.to));
@@ -626,26 +644,33 @@ contract FactoryProxy is FactoryStorage {
             require(block.timestamp > afterTS, "Factory: too early");
             require(block.timestamp < beforeTS, "Factory: too late");
             uint256 length = mcalls.mcall.length;
+            address[] memory toList = new address[](length);
             for(uint256 j = 0; j < length; j++) {
                 MCall2 calldata call = mcalls.mcall[j];
-                address to = call.to;
+                (bytes32 messageHash, address to) = _encodeMCall2(call, sessionId);
                 msg2 = abi.encodePacked(
                     msg2, 
-                    keccak256(abi.encode(call.typeHash, to, call.value, sessionId, afterTS, beforeTS, call.gasLimit, gasPriceLimit, call.selector, call.data))
+                    messageHash
                 );
+                toList[j] = to;
             }
 
-            bytes32 messageHash = _messageToRecover(
-                keccak256(msg2),
-                sessionId & FLAG_EIP712 > 0
+            Wallet storage wallet = _getWalletFromMessage(
+                mcalls.signer,
+                _messageToRecover(
+                    keccak256(msg2),
+                    sessionId & FLAG_EIP712 > 0
+                ), 
+                mcalls.v,
+                mcalls.r,
+                mcalls.s
             );
-            
+
             // emit ErrorHandled(abi.encodePacked(mcalls.r, mcalls.s, mcalls.v));
             // emit ErrorHandled(abi.encodePacked(msg2));
             // emit ErrorHandled(abi.encodePacked(messageHash));
             // return;
 
-            Wallet storage wallet = _getWalletFromMessage(mcalls.signer, messageHash, mcalls.v, mcalls.r, mcalls.s);
             require(wallet.owner == true, "Factory: singer is not owner");
 
             // uint256 length = mcalls.mcall.length;
@@ -653,10 +678,11 @@ contract FactoryProxy is FactoryStorage {
                 MCall2 calldata call = mcalls.mcall[j];
                 uint32 gasLimit = call.gasLimit;
                 uint16 flags = call.flags;
+                address to = toList[j];
 
                 (bool success, bytes memory res) = call.flags & FLAG_STATICCALL > 0 ?
-                    wallet.addr.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(abi.encodeWithSignature("staticcall(address,bytes)", call.to, abi.encodePacked(call.selector, call.data))):
-                    wallet.addr.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(abi.encodeWithSignature("call(address,uint256,bytes)", call.to, call.value, abi.encodePacked(call.selector, call.data)));
+                    wallet.addr.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(abi.encodeWithSignature("staticcall(address,bytes)", toList[j], abi.encodePacked(call.selector, call.data))):
+                    wallet.addr.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(abi.encodeWithSignature("call(address,uint256,bytes)", toList[j], call.value, abi.encodePacked(call.selector, call.data)));
                 if (!success) {
                     if (flags & ON_FAIL_CONTINUE > 0) {
                         continue;

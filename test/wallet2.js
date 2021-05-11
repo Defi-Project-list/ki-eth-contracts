@@ -397,6 +397,7 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
         ],
         transaction1: [
           { name: 'token_address',        type: 'address' },
+          { name: 'token_ens',            type: 'string'  },
           { name: 'eth_value',            type: 'uint256' },
           { name: 'sessionId',            type: 'uint256' },
           { name: 'signature_valid_from', type: 'uint40'  },
@@ -411,6 +412,7 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
         ],
         transaction2: [
           { name: 'token_address',        type: 'address' },
+          { name: 'token_ens',            type: 'string'  },
           { name: 'eth_value',            type: 'uint256' },
           { name: 'sessionId',            type: 'uint256' },
           { name: 'signature_valid_from', type: 'uint40'  },
@@ -425,6 +427,7 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
         ],
         transaction3: [
           { name: 'token_address',        type: 'address' },
+          { name: 'token_ens',            type: 'string'  },
           { name: 'eth_value',            type: 'uint256' },
           { name: 'sessionId',            type: 'uint256' },
           { name: 'signature_valid_from', type: 'uint40'  },
@@ -451,6 +454,7 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
         ['MULTI PROTECTION']: '👍',
         transaction_1: {
           token_address: token20.address,
+          token_ens: '@token.kiro.eth',
           eth_value: '0',
           sessionId: getSessionIdERC20(10, false),
           signature_valid_from: Number.parseInt('0x' + afterERC20),
@@ -458,14 +462,15 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
           gas_limit: Number.parseInt('0x' + maxGasERC20),
           gas_price_limit: Number.parseInt('0x' + maxGasPriceERC20),
           selector: '0x' + sends[0][0].data.slice(2,10),
-          method_data_offset: '0x140', // '480', // 13*32
+          method_data_offset: '0x160', // '480', // 13*32
           method_data_length: '0x40',
           to: accounts[11],
           token_amount: '5',
       },
-        ['------------------------------------']: '', 
+        ['------------------------------------']: '',
         transaction_2: {
           token_address: token20.address,
+          token_ens: '@token.kiro.eth',
           eth_value: '0',
           sessionId: getSessionIdERC20(10, false),
           signature_valid_from: Number.parseInt('0x' + afterERC20),
@@ -473,7 +478,7 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
           gas_limit: Number.parseInt('0x' + maxGasERC20),
           gas_price_limit: Number.parseInt('0x' + maxGasPriceERC20),
           selector: '0x' + sends[0][1].data.slice(2,10),
-          method_data_offset: '0x140', // '480', // 13*32
+          method_data_offset: '0x160', // '480', // 13*32
           method_data_length: '0x40',
           to: accounts[12],
           token_amount: '5',
@@ -481,6 +486,7 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
         ['-------------------------------------']: '', 
         transaction_3: {
           token_address: token20.address,
+          token_ens: '@token.kiro.eth',
           eth_value: '0',
           sessionId: getSessionIdERC20(10, false),
           signature_valid_from: Number.parseInt('0x' + afterERC20),
@@ -488,7 +494,7 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
           gas_limit: Number.parseInt('0x' + maxGasERC20),
           gas_price_limit: Number.parseInt('0x' + maxGasPriceERC20),
           selector: '0x' + sends[0][1].data.slice(2,10),
-          method_data_offset: '0x140', // '480', // 13*32
+          method_data_offset: '0x160', // '480', // 13*32
           method_data_length: '0x40',
           to: accounts[13],
           token_amount: '12',
@@ -506,6 +512,7 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
               flags: (item.flow ? item.flow : 0) + (item.stataiccall ? 4*256 : 0),
               selector: item.data.slice(0, 10),
               gasLimit: Number.parseInt('0x' + maxGasERC20),
+              ensHash: web3.utils.sha3('@token.kiro.eth'),
               data: '0x' + item.data.slice(10)})
         ), 
         // _hash: defaultAbiCoder.encode(
