@@ -176,7 +176,7 @@ contract FactoryProxy is FactoryStorage {
         uint256 value;
         uint16 flags;
         uint32 gasLimit;
-        bytes4 selector;
+        bytes32 functionSignature;
         bytes data;
      }
 
@@ -387,7 +387,7 @@ contract FactoryProxy is FactoryStorage {
                   uint40(sessionId >> 112), // beforeTS
                   call.gasLimit,
                   uint64(sessionId >> 16), // gasPriceLim
-                  call.selector,
+                  call.functionSignature,
                   call.data
           )),
           _ensToAddress(call.ensHash, call.to));
@@ -681,8 +681,8 @@ contract FactoryProxy is FactoryStorage {
                 address to = toList[j];
 
                 (bool success, bytes memory res) = call.flags & FLAG_STATICCALL > 0 ?
-                    wallet.addr.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(abi.encodeWithSignature("staticcall(address,bytes)", toList[j], abi.encodePacked(call.selector, call.data))):
-                    wallet.addr.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(abi.encodeWithSignature("call(address,uint256,bytes)", toList[j], call.value, abi.encodePacked(call.selector, call.data)));
+                    wallet.addr.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(abi.encodeWithSignature("staticcall(address,bytes)", toList[j], abi.encodePacked(bytes4(call.functionSignature), call.data))):
+                    wallet.addr.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(abi.encodeWithSignature("call(address,uint256,bytes)", toList[j], call.value, abi.encodePacked(bytes4(call.functionSignature), call.data)));
                 if (!success) {
                     if (flags & ON_FAIL_CONTINUE > 0) {
                         continue;
