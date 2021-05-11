@@ -114,6 +114,10 @@ contract FactoryProxy is FactoryStorage {
       "batchCall(address token,address to,uint256 value,uint256 sessionId,bytes data)"
     );
 
+    bytes32 public constant BATCH_MULTICALL_TYPEHASH = keccak256(
+      "limits(address token,address to,uint256 value,uint256 sessionId,bytes data)"
+    );
+
     // bytes4(keccak256("sendEther(address payable,uint256)"));
     bytes4 public constant TRANSFER_SELECTOR = 0xc61f08fd;
 
@@ -185,6 +189,7 @@ contract FactoryProxy is FactoryStorage {
         bytes32 r;
         bytes32 s;
         bytes32 typeHash;
+        bytes32 limitsTypeHash;
         uint256 sessionId;
         address signer;
         MCall2[] mcall;
@@ -376,17 +381,13 @@ contract FactoryProxy is FactoryStorage {
           _ensToAddress(call.ensHash, call.to));
     }
 
-    function _encodeMCall2(MCall2 memory call, uint256 sessionId) private returns (bytes32, address) {
+    function _encodeMCall2(MCall2 memory call) private returns (bytes32, address) {
         return (keccak256(abi.encode(
                   call.typeHash,
                   call.to,
                   call.ensHash,
                   call.value,
-                  sessionId,
-                  uint40(sessionId >> 152), // afterTS,
-                  uint40(sessionId >> 112), // beforeTS
                   call.gasLimit,
-                  uint64(sessionId >> 16), // gasPriceLim
                   call.functionSignature,
                   call.data
           )),
@@ -622,11 +623,11 @@ contract FactoryProxy is FactoryStorage {
         for(uint256 i = 0; i < trLength; i++) {
             uint256 gas = gasleft();
             MCalls2 calldata mcalls = tr[i];
-            bytes memory msg2 = abi.encode(mcalls.typeHash);
             uint256 sessionId = mcalls.sessionId;
             uint256 afterTS = uint40(sessionId >> 152);
             uint256 beforeTS  = uint40(sessionId >> 112);
             uint256 gasPriceLimit  = uint64(sessionId >> 16);
+            bytes memory msg2 = abi.encode(mcalls.typeHash, keccak256(abi.encode(mcalls.limitsTypeHash, sessionId, afterTS, beforeTS, gasPriceLimit)));
 
             if (i == 0) {
               require(sessionId >> 192 >= nonce >> 192, "Factory: group+nonce too low");
@@ -647,13 +648,17 @@ contract FactoryProxy is FactoryStorage {
             address[] memory toList = new address[](length);
             for(uint256 j = 0; j < length; j++) {
                 MCall2 calldata call = mcalls.mcall[j];
-                (bytes32 messageHash, address to) = _encodeMCall2(call, sessionId);
+                (bytes32 messageHash, address to) = _encodeMCall2(call);
                 msg2 = abi.encodePacked(
                     msg2, 
                     messageHash
                 );
                 toList[j] = to;
             }
+
+            // emit ErrorHandled(abi.encodePacked(mcalls.r, mcalls.s, mcalls.v));
+            // emit ErrorHandled(abi.encodePacked(msg2));
+            // return;
 
             Wallet storage wallet = _getWalletFromMessage(
                 mcalls.signer,
@@ -665,11 +670,6 @@ contract FactoryProxy is FactoryStorage {
                 mcalls.r,
                 mcalls.s
             );
-
-            // emit ErrorHandled(abi.encodePacked(mcalls.r, mcalls.s, mcalls.v));
-            // emit ErrorHandled(abi.encodePacked(msg2));
-            // emit ErrorHandled(abi.encodePacked(messageHash));
-            // return;
 
             require(wallet.owner == true, "Factory: singer is not owner");
 
