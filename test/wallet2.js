@@ -310,12 +310,11 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
           // flow: 0x10, // on_success_stop
         },
         {
-          data: token20.contract.methods.transfer(accounts[12], 5).encodeABI(),
-          value: 0,
+          data: '',
+          value: 10,
           // typeHash: '0x'.padEnd(66,'1'),
-          to: token20.address,
+          to: accounts[11],
           gasLimit: 0,
-          flow: 0, 
         },
         {
           data: token20.contract.methods.transfer(accounts[13], 12).encodeABI(),
@@ -323,7 +322,6 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
           // typeHash: '0x'.padEnd(66,'1'),
           to: token20.address,
           gasLimit: 0,
-          flow: 0, 
         },
         // {
         //   data: token20.contract.methods.transfer(accounts[i+51], 5).encodeABI(),
@@ -420,8 +418,8 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
           { name: 'token_amount',         type: 'uint256' },
         ],
         transaction2: [
-          { name: 'token_address',        type: 'address' },
-          { name: 'token_ens',            type: 'string'  },
+          { name: 'to',                   type: 'address' },
+          { name: 'to_ens',               type: 'string'  },
           { name: 'eth_value',            type: 'uint256' },
           { name: 'gas_limit',            type: 'uint32'  },
           { name: 'view_only',            type: 'bool'    },
@@ -429,11 +427,6 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
           { name: 'stop_on_fail',         type: 'bool'    },
           { name: 'stop_on_success',      type: 'bool'    },
           { name: 'revert_on_success',    type: 'bool'    },
-          { name: 'method_interface',     type: 'string'  },
-          { name: 'method_data_offset',   type: 'uint256' },
-          { name: 'method_data_length',   type: 'uint256' },
-          { name: 'to',                   type: 'address' },
-          { name: 'token_amount',         type: 'uint256' },
         ],
         transaction3: [
           { name: 'token_address',        type: 'address' },
@@ -490,21 +483,16 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
       },
         ['------------------------------------']: '',
         transaction_2: {
-          token_address: token20.address,
-          token_ens: '@token.kiro.eth',
-          eth_value: '0',
+          to: accounts[11],
+          to_ens: '',
+          eth_value: '10',
           gas_limit: Number.parseInt('0x' + maxGasERC20),
           view_only: false,
           continue_on_fail: false,
           stop_on_fail: false,
           stop_on_success: false,
           revert_on_success: false,
-          method_interface: 'transfer(address,uint256)',
-          method_data_offset: '0x180', // '480', // 13*32
-          method_data_length: '0x40',
-          to: accounts[12],
-          token_amount: '5',
-      }, 
+        }, 
         ['-------------------------------------']: '', 
         transaction_3: {
           token_address: token20.address,
@@ -534,10 +522,10 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
               typeHash: TypedDataUtils.typeHash(typedData.types, 'transaction'+(index+1)),
               flags: (item.flow ? item.flow : 0) + (item.stataiccall ? 4*256 : 0),
               // selector: item.data.slice(0, 10),
-              functionSignature: web3.utils.sha3('transfer(address,uint256)'),
+              functionSignature: item.data.length > 0 ? web3.utils.sha3('transfer(address,uint256)') : '0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470',
               gasLimit: Number.parseInt('0x' + maxGasERC20),
-              ensHash: web3.utils.sha3('@token.kiro.eth'),
-              data: '0x' + item.data.slice(10)})
+              ensHash: item.data.length > 0 ? web3.utils.sha3('@token.kiro.eth'): '0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470',
+              data: item.data.length > 0 ? '0x' + item.data.slice(10): '0x'})
         ), 
         // _hash: defaultAbiCoder.encode(
         //   ['(bytes32,address,uint256,uint256,uint40,uint40,uint256,uint256,bytes4,bytes)[]'],
@@ -578,12 +566,14 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
     // mlog.pending(`calling ${JSON.stringify(msgsERC20, null, 2)}`)
 
     await logERC20Balances()
+    await logBalances()
 
     const { receipt: receiptERC20 } = await factoryProxy.batchMultiCall2(msgsERC20, 8, { from: activator, gasPrice: 200 }) // .catch(revertReason => console.log({ revertReason: JSON.stringify(revertReason, null ,2) }))
 
     mlog.pending(`ERC20 X ${msgsERC20.length} Transfers consumed ${JSON.stringify(receiptERC20.gasUsed)} gas (${JSON.stringify(receiptERC20.gasUsed/msgsERC20.length)} gas per call)`)
 
     await logERC20Balances()
+    await logBalances()
     await logDebt()
 
   })
