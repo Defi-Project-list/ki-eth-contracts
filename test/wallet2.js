@@ -369,16 +369,15 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
 
 
     const groupERC20        = '000008'
-    const tnonceERC20       = '00000002'
+    const tnonceERC20       = '0000000200'
     const afterERC20        = '0000000000'
     const beforeERC20       = 'ffffffffff'
     const maxGasERC20       = '00000000'
     const maxGasPriceERC20  = '00000000000000c8'
     const eip712ERC20       = 'f100' // not-ordered, payment, eip712
-    const eip712ERC20Static = 'f500' // not-ordered, staticcall, payment, eip712
 
     const getSessionIdERC20 = (index, staticcall) => (
-      `0x${groupERC20}${tnonceERC20}${(index).toString(16).padStart(2,'0')}${afterERC20}${beforeERC20}${maxGasERC20}${maxGasPriceERC20}${staticcall ? eip712ERC20 : eip712ERC20}`
+      `0x${groupERC20}${tnonceERC20}${afterERC20}${beforeERC20}${maxGasERC20}${maxGasPriceERC20}${eip712ERC20}`
     )
 
         const typedData = {
@@ -397,8 +396,9 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
           { name: 'transaction_3',          type: 'transaction3'},
         ],
         limits: [
-          { name: 'sessionId',            type: 'uint256' },
-          { name: 'nonce',                type: 'uint256' }
+          { name: 'nonce',                type: 'uint64' },
+          { name: 'ordered',              type: 'bool' },
+          { name: 'refund',               type: 'bool' },
           { name: 'signature_valid_from', type: 'uint40'  },
           { name: 'signature_expires_at', type: 'uint40'  },
           { name: 'gas_price_limit',      type: 'uint64'  },
@@ -464,7 +464,9 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
         ['KIROBO PROTECTS YOU']: '👍',
         ['MULTI PROTECTION']: '👍',
         limits: {
-          sessionId: getSessionIdERC20(10, false),
+          nonce: '0x' + groupERC20 + tnonceERC20,
+          ordered: false,
+          refund: true,
           signature_valid_from: Number.parseInt('0x' + afterERC20),
           signature_expires_at: Number.parseInt('0x' + beforeERC20),
           gas_price_limit: Number.parseInt('0x' + maxGasPriceERC20),

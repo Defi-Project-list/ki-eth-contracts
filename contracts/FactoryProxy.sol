@@ -627,7 +627,9 @@ contract FactoryProxy is FactoryStorage {
             uint256 afterTS = uint40(sessionId >> 152);
             uint256 beforeTS  = uint40(sessionId >> 112);
             uint256 gasPriceLimit  = uint64(sessionId >> 16);
-            bytes memory msg2 = abi.encode(mcalls.typeHash, keccak256(abi.encode(mcalls.limitsTypeHash, sessionId, afterTS, beforeTS, gasPriceLimit)));
+            bool refund = sessionId & FLAG_PAYMENT > 0;
+            bool ordered = sessionId & FLAG_ORDERED > 0;
+            bytes memory msg2 = abi.encode(mcalls.typeHash, keccak256(abi.encode(mcalls.limitsTypeHash, uint64(sessionId >> 192), ordered, refund, afterTS, beforeTS, gasPriceLimit)));
 
             if (i == 0) {
               require(sessionId >> 192 >= nonce >> 192, "Factory: group+nonce too low");
@@ -651,7 +653,7 @@ contract FactoryProxy is FactoryStorage {
                 // (bytes32 messageHash, address to) = _encodeMCall2(call);
                 uint16 flags = call.flags;
                 msg2 = abi.encodePacked(
-                    msg2, 
+                    msg2,
                     // messageHash
                     keccak256(abi.encode(
                         call.typeHash,
