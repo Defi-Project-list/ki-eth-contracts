@@ -649,10 +649,24 @@ contract FactoryProxy is FactoryStorage {
             for(uint256 j = 0; j < length; j++) {
                 MCall2 calldata call = mcalls.mcall[j];
                 // (bytes32 messageHash, address to) = _encodeMCall2(call);
+                uint16 flags = call.flags;
                 msg2 = abi.encodePacked(
                     msg2, 
                     // messageHash
-                    keccak256(abi.encode(call.typeHash, call.to, call.ensHash, call.value, call.gasLimit, call.functionSignature, call.data))
+                    keccak256(abi.encode(
+                        call.typeHash,
+                        call.to,
+                        call.ensHash,
+                        call.value,
+                        call.gasLimit,
+                        flags & FLAG_STATICCALL,
+                        flags & ON_FAIL_CONTINUE,
+                        flags & ON_FAIL_STOP,
+                        flags & ON_SUCCESS_STOP,
+                        flags & ON_SUCCESS_REVERT,
+                        call.functionSignature,
+                        call.data
+                    ))
                 );
                 // toList[j] = to;
             }
@@ -681,7 +695,7 @@ contract FactoryProxy is FactoryStorage {
                 uint16 flags = call.flags;
                 address to = _ensToAddress(call.ensHash, call.to); // toList[j];
 
-                (bool success, bytes memory res) = call.flags & FLAG_STATICCALL > 0 ?
+                (bool success, bytes memory res) = flags & FLAG_STATICCALL > 0 ?
                     wallet.addr.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(abi.encodeWithSignature("staticcall(address,bytes)", to, abi.encodePacked(bytes4(call.functionSignature), call.data))):
                     wallet.addr.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(abi.encodeWithSignature("call(address,uint256,bytes)", to, call.value, abi.encodePacked(bytes4(call.functionSignature), call.data)));
                 if (!success) {
