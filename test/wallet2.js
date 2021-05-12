@@ -398,6 +398,7 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
         ],
         limits: [
           { name: 'sessionId',            type: 'uint256' },
+          { name: 'nonce',                type: 'uint256' }
           { name: 'signature_valid_from', type: 'uint40'  },
           { name: 'signature_expires_at', type: 'uint40'  },
           { name: 'gas_price_limit',      type: 'uint64'  },
