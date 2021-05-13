@@ -197,7 +197,7 @@ contract FactoryProxy is FactoryStorage {
 
      struct MSCall2 {
         bytes32 typeHash;
-        address from;
+        address signer;
         address to;
         bytes32 ensHash;
         uint256 value;
@@ -207,15 +207,18 @@ contract FactoryProxy is FactoryStorage {
         bytes data;
      }
 
+     struct Signature {
+       uint8 v;
+       bytes32 r;
+       bytes32 s;
+     }
+
      struct MSCalls2 {
-        uint8 v;
-        bytes32 r;
-        bytes32 s;
         bytes32 typeHash;
         bytes32 limitsTypeHash;
         uint256 sessionId;
-        address signer;
         MSCall2[] mcall;
+        Signature[] signatures;
      }
 
     struct STransfer {
@@ -272,7 +275,7 @@ contract FactoryProxy is FactoryStorage {
       }
     }
 
-    function _getWalletFromMessage(address signer, bytes32 messageHash, uint8 v, bytes32 r, bytes32 s) private returns (Wallet storage) {
+    function _getWalletFromMessage(address signer, bytes32 messageHash, uint8 v, bytes32 r, bytes32 s) private view returns (Wallet storage) {
         if (signer == address(0)) {
             if (v != 0) {
                 return s_accounts_wallet[messageHash.recover(
@@ -291,6 +294,21 @@ contract FactoryProxy is FactoryStorage {
             return s_accounts_wallet[signer];
         }
         revert("Factory: wrong signer");
+    }
+
+    function _addressFromMessageAndSignature(bytes32 messageHash, uint8 v, bytes32 r, bytes32 s) private view returns (address) {
+        if (v != 0) {
+            return messageHash.recover(
+                v,
+                r,
+                s
+            );
+        }
+        return messageHash.recover(
+            27 + uint8(uint256(s) >> 255),
+            r,
+            s & 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+        );
     }
 
     function batchTransfer(Transfer[] calldata tr, uint24 nonceGroup) public {
@@ -786,7 +804,18 @@ contract FactoryProxy is FactoryStorage {
             uint256 gasPriceLimit  = uint64(sessionId >> 16);
             bool refund = sessionId & FLAG_PAYMENT > 0;
             bool ordered = sessionId & FLAG_ORDERED > 0;
-            bytes memory msg2 = abi.encode(mcalls.typeHash, keccak256(abi.encode(mcalls.limitsTypeHash, uint64(sessionId >> 192), ordered, refund, afterTS, beforeTS, gasPriceLimit)));
+            bytes memory msg2 = abi.encode(
+                mcalls.typeHash,
+                keccak256(abi.encode(
+                    mcalls.limitsTypeHash,
+                    uint64(sessionId >> 192),
+                    ordered,
+                    refund,
+                    afterTS,
+                    beforeTS,
+                    gasPriceLimit
+                ))
+            );
 
             if (i == 0) {
               require(sessionId >> 192 >= nonce >> 192, "Factory: group+nonce too low");
@@ -805,6 +834,7 @@ contract FactoryProxy is FactoryStorage {
             require(block.timestamp < beforeTS, "Factory: too late");
             uint256 length = mcalls.mcall.length;
             // address[] memory toList = new address[](length);
+
             for(uint256 j = 0; j < length; j++) {
                 MSCall2 calldata call = mcalls.mcall[j];
                 bytes32 functionSignature = call.functionSignature;
@@ -816,6 +846,7 @@ contract FactoryProxy is FactoryStorage {
                     functionSignature != 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470 ?
                         keccak256(abi.encode(
                             call.typeHash,
+                            call.signer,
                             call.to,
                             call.ensHash,
                             call.value,
@@ -830,6 +861,7 @@ contract FactoryProxy is FactoryStorage {
                         )):
                         keccak256(abi.encode(
                             call.typeHash,
+                            call.signer,
                             call.to,
                             call.ensHash,
                             call.value,
@@ -848,21 +880,37 @@ contract FactoryProxy is FactoryStorage {
             // emit ErrorHandled(abi.encodePacked(msg2));
             // return;
 
-            Wallet storage wallet = _getWalletFromMessage(
-                mcalls.signer,
-                _messageToRecover(
-                    keccak256(msg2),
-                    sessionId & FLAG_EIP712 > 0
-                ), 
-                mcalls.v,
-                mcalls.r,
-                mcalls.s
+            bytes32 messageToRecover = _messageToRecover(
+                keccak256(msg2),
+                sessionId & FLAG_EIP712 > 0
             );
 
-            require(wallet.owner == true, "Factory: singer is not owner");
+            address[] memory signers = new address[](length);
 
-            // uint256 length = mcalls.mcall.length;
-            for(uint256 j = 0; j < length; j++) {
+            for(uint256 s = 0; s < mcalls.signatures.length; ++s) {
+                Signature calldata signature = mcalls.signatures[s];
+                for(uint256 j = 0; j < length; j++) {
+                    MSCall2 calldata call = mcalls.mcall[j];
+                    address signer = _addressFromMessageAndSignature(
+                        messageToRecover,
+                        signature.v,
+                        signature.r,
+                        signature.s
+                    );
+                    if (signer == call.signer) { //  && signers[j] == address(0)) {
+                        signers[j] = signer;
+                    }
+                }
+            }
+
+          //  emit ErrorHandled(abi.encodePacked(signers));
+          //  return;
+          
+           for(uint256 j = 0; j < length; j++) {
+                address signer = signers[j];
+                require(signer != address(0), "Factory: signer missing");
+                Wallet storage wallet = s_accounts_wallet[signer];
+                require(wallet.owner == true, "Factory: signer is not owner");
                 MSCall2 calldata call = mcalls.mcall[j];
                 uint32 gasLimit = call.gasLimit;
                 uint16 flags = call.flags;
@@ -899,10 +947,10 @@ contract FactoryProxy is FactoryStorage {
                 } else if (flags & ON_SUCCESS_REVERT > 0) {
                     revert("Factory: revert on success");
                 }
-            }
-            if (sessionId & FLAG_PAYMENT > 0) {
-                wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 18000 + (30000/trLength))*110/100);
-                // wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 16000 + (32000/trLength))*110/100);
+                // if (refund) {
+                //     wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 18000 + (30000/trLength))*110/100);
+                //     // wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 16000 + (32000/trLength))*110/100);
+                // }
             }
         }
         require(maxNonce < nonce + (1 << 216), "Factory: gourp+nonce too high");
