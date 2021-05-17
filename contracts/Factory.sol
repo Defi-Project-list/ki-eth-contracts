@@ -1,12 +1,37 @@
 // SPDX-License-Identifier: UNLICENSED
 
 pragma solidity ^0.8.0;
-pragma abicoder v1;
+pragma abicoder v2;
 
 import "./FactoryStorage.sol";
 import "./lib/IOracle.sol";
 
 contract Factory is FactoryStorage {
+
+    struct MSCall {
+        bytes32 typeHash;
+        address signer;
+        address to;
+        uint256 value;
+        uint16 flags;
+        uint32 gasLimit;
+        bytes data;
+     }
+
+     struct Signature {
+       uint8 v;
+       bytes32 r;
+       bytes32 s;
+     }
+
+     struct MSCalls {
+        bytes32 typeHash;
+        bytes32 limitsTypeHash;
+        uint256 sessionId;
+        MSCall[] mcall;
+        Signature[] signatures;
+     }
+
     event WalletCreated(
         address indexed wallet,
         bytes8 indexed version,
@@ -276,6 +301,145 @@ contract Factory is FactoryStorage {
     function setActivator(address newActivator) public  multiSig2of3(0) {
       s_activator = newActivator;
     }
+
+
+    function batchMultiSigCall(MSCalls[] calldata tr, uint256 nonceGroup) public {
+      unchecked {
+        require(msg.sender == s_activator, "Wallet: sender not allowed");
+        uint256 nonce = s_nonce_group[nonceGroup] + (uint256(nonceGroup) << 232);
+        uint256 maxNonce = 0;
+        uint256 trLength = tr.length;
+        for(uint256 i = 0; i < trLength; i++) {
+            uint256 gas = gasleft();
+            MSCalls calldata mcalls = tr[i];
+            uint256 sessionId = mcalls.sessionId;
+            // uint256 afterTS = uint40(sessionId >> 152);
+            // uint256 beforeTS  = uint40(sessionId >> 112);
+            // uint256 gasPriceLimit  = uint64(sessionId >> 16);
+            // bool refund = sessionId & FLAG_PAYMENT > 0;
+            // bool ordered = sessionId & FLAG_ORDERED > 0;
+            bytes memory msg2 = abi.encode(
+                mcalls.typeHash,
+                keccak256(abi.encode(
+                    mcalls.limitsTypeHash,
+                    sessionId
+                ))
+            );
+
+            if (i == 0) {
+              require(sessionId >> 192 >= nonce >> 192, "Factory: group+nonce too low");
+            } else {
+              if (sessionId & FLAG_ORDERED > 0) {
+                  require(uint40(maxNonce >> 192) < uint40(sessionId >> 192), "Factory: should be ordered");
+              }
+            }
+
+            if (maxNonce < sessionId) {
+                maxNonce = sessionId;
+            }
+
+            require(tx.gasprice <= uint64(sessionId >> 16) /*gasPriceLimit*/, "Factory: gas price too high");
+            require(block.timestamp > uint40(sessionId >> 152) /*afterTS*/, "Factory: too early");
+            require(block.timestamp < uint40(sessionId >> 112) /*beforeTS*/, "Factory: too late");
+            uint256 length = mcalls.mcall.length;
+            // address[] memory toList = new address[](length);
+
+            for(uint256 j = 0; j < length; j++) {
+                MSCall calldata call = mcalls.mcall[j];
+                msg2 = abi.encodePacked(
+                    msg2,
+                    keccak256(abi.encode(
+                        call.typeHash,
+                        call.signer,
+                        call.to,
+                        call.value,
+                        call.gasLimit,
+                        call.flags,
+                        call.data
+                    ))
+                );
+            }
+
+            // emit ErrorHandled(abi.encodePacked(mcalls.r, mcalls.s, mcalls.v));
+            // emit ErrorHandled(abi.encodePacked(msg2));
+            // return;
+
+            bytes32 messageToRecover = _messageToRecover(
+                keccak256(msg2),
+                sessionId & FLAG_EIP712 > 0
+            );
+
+            address[] memory signers = new address[](length);
+
+            for(uint256 s = 0; s < mcalls.signatures.length; ++s) {
+                Signature calldata signature = mcalls.signatures[s];
+                for(uint256 j = 0; j < length; j++) {
+                    MSCall calldata call = mcalls.mcall[j];
+                    address signer = _addressFromMessageAndSignature(
+                        messageToRecover,
+                        signature.v,
+                        signature.r,
+                        signature.s
+                    );
+                    if (signer == call.signer) { //  && signers[j] == address(0)) {
+                        signers[j] = signer;
+                    }
+                }
+            }
+
+          //  emit ErrorHandled(abi.encodePacked(signers));
+          //  return;
+          
+           for(uint256 j = 0; j < length; j++) {
+                // address signer = signers[j];
+                require(signers[j] != address(0), "Factory: signer missing");
+                Wallet storage wallet = s_accounts_wallet[signers[j]];
+                require(wallet.owner == true, "Factory: signer is not owner");
+                MSCall calldata call = mcalls.mcall[j];
+                // uint32 gasLimit = call.gasLimit;
+                // uint16 flags = call.flags;
+                address to = call.to;
+                // bytes32 functionSignature = call.functionSignature;
+
+                (bool success, bytes memory res) = call.flags & FLAG_STATICCALL > 0 ?
+                    wallet.addr.call{gas: call.gasLimit==0 || call.gasLimit > gasleft() ? gasleft() : call.gasLimit}(
+                        abi.encodeWithSignature(
+                            "staticcall(address,bytes)",
+                            to,
+                            call.data
+                        )
+                    ) :
+                    wallet.addr.call{gas: call.gasLimit==0 || call.gasLimit > gasleft() ? gasleft() : call.gasLimit}(
+                        abi.encodeWithSignature(
+                            "call(address,uint256,bytes)",
+                            to,
+                            call.value,
+                            call.data
+                        )
+                    );
+                if (!success) {
+                    if (call.flags & ON_FAIL_CONTINUE > 0) {
+                        continue;
+                    } else if (call.flags & ON_FAIL_STOP > 0) {
+                        break;
+                    }
+                    revert(_getRevertMsg(res));
+                } else if (call.flags & ON_SUCCESS_STOP > 0) {
+                    break;
+                } else if (call.flags & ON_SUCCESS_REVERT > 0) {
+                    revert("Factory: revert on success");
+                }
+                if (sessionId & FLAG_PAYMENT > 0 /*refund*/) {
+                    wallet.debt = uint88((tx.gasprice + (uint64(sessionId >> 16)/*gasPriceLimit*/ - tx.gasprice) / 2) * (gas - gasleft() + 18000 + (30000/trLength))*110/100);
+                    // wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 16000 + (32000/trLength))*110/100);
+                }
+            }
+        }
+        require(maxNonce < nonce + (1 << 216), "Factory: gourp+nonce too high");
+        s_nonce_group[nonceGroup] = (maxNonce & 0x000000ffffffffff000000000000000000000000000000000000000000000000) + (1 << 192);
+      }
+    }
+
 
     /*
     receive () external payable {

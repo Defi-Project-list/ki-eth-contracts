@@ -6,7 +6,7 @@ let server
 // let mnemonic = "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat";
 let mnemonic = "pelican bench orchard wisdom honey deputy donate suspect airport sail quick decade";
 // let mnemonic = "front assume robust donkey senior economy maple enhance click bright game alcohol";
-const gas = 12000000;
+const gas = 12500000;
 
 // const ganache = require('ganache-cli');
 const devNetwork = {

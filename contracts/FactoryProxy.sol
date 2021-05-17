@@ -3,16 +3,15 @@
 pragma solidity ^0.8.0;
 pragma abicoder v2;
 
-import "openzeppelin-solidity/contracts/utils/cryptography/SignatureChecker.sol";
-import "openzeppelin-solidity/contracts/utils/cryptography/ECDSA.sol";
+// import "openzeppelin-solidity/contracts/utils/cryptography/SignatureChecker.sol";
+// import "openzeppelin-solidity/contracts/utils/cryptography/ECDSA.sol";
 import "./FactoryStorage.sol";
 // import "./Factory.sol";
 
-
 contract FactoryProxy is FactoryStorage {
 
-    using SignatureChecker for address;
-    using ECDSA for bytes32;
+    // using SignatureChecker for address;
+    // using ECDSA for bytes32;
 
     uint8 public constant VERSION_NUMBER = 0x1;
     string public constant NAME = "Kirobo OCW Manager";
@@ -57,25 +56,6 @@ contract FactoryProxy is FactoryStorage {
         );
         // proxy = address(this);
     }
-
-    function _resolve(bytes32 node) internal view returns(address result) {
-        require(address(s_ens) != address(0), "Factory: ens not defined");
-        Resolver resolver = s_ens.resolver(node);
-        require(address(resolver) != address(0), "Factory: resolver not found");
-        result = resolver.addr(node);
-        require(result != address(0), "Factory: ens address not found");
-    }
-    
-    uint256 private constant FLAG_EIP712  = 0x0100;
-    uint256 private constant FLAG_ORDERED = 0x0200;
-    uint256 private constant FLAG_STATICCALL = 0x0400;
-    uint256 private constant FLAG_PAYMENT = 0xf000;
-    uint256 private constant FLAG_FLOW = 0x00ff;
-
-    uint256 private constant ON_FAIL_STOP = 0x01;
-    uint256 private constant ON_FAIL_CONTINUE = 0x02;
-    uint256 private constant ON_SUCCESS_STOP = 0x10;
-    uint256 private constant ON_SUCCESS_REVERT = 0x20;
     
     function setTarget(address target) public multiSig2of3(0) {
         require(s_frozen != true, "frozen");
@@ -215,11 +195,11 @@ contract FactoryProxy is FactoryStorage {
         bytes32 typeHash;
         bytes32 limitsTypeHash;
         uint256 sessionId;
-        MSCall2[] mcall;
+        MSCall[] mcall;
         Signature[] signatures;
      }
 
-     struct MSCall2 {
+    struct MSCall2 {
         bytes32 typeHash;
         address signer;
         address to;
@@ -231,7 +211,7 @@ contract FactoryProxy is FactoryStorage {
         bytes data;
      }
 
-     struct MSCalls2 {
+    struct MSCalls2 {
         bytes32 typeHash;
         bytes32 limitsTypeHash;
         uint256 sessionId;
@@ -293,41 +273,41 @@ contract FactoryProxy is FactoryStorage {
       }
     }
 
-    function _getWalletFromMessage(address signer, bytes32 messageHash, uint8 v, bytes32 r, bytes32 s) private view returns (Wallet storage) {
-        if (signer == address(0)) {
-            if (v != 0) {
-                return s_accounts_wallet[messageHash.recover(
-                    v,
-                    r,
-                    s
-                )];
-            } else {
-                return s_accounts_wallet[messageHash.recover(
-                    27 + uint8(uint256(s) >> 255),
-                    r,
-                    s & 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-                )];
-            }
-        } else if (signer.isValidSignatureNow(messageHash, v!=0 ? abi.encodePacked(r, s, v): abi.encodePacked(r,s))) {
-            return s_accounts_wallet[signer];
-        }
-        revert("Factory: wrong signer");
-    }
+    // function _getWalletFromMessage(address signer, bytes32 messageHash, uint8 v, bytes32 r, bytes32 s) private view returns (Wallet storage) {
+    //     if (signer == address(0)) {
+    //         if (v != 0) {
+    //             return s_accounts_wallet[messageHash.recover(
+    //                 v,
+    //                 r,
+    //                 s
+    //             )];
+    //         } else {
+    //             return s_accounts_wallet[messageHash.recover(
+    //                 27 + uint8(uint256(s) >> 255),
+    //                 r,
+    //                 s & 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+    //             )];
+    //         }
+    //     } else if (signer.isValidSignatureNow(messageHash, v!=0 ? abi.encodePacked(r, s, v): abi.encodePacked(r,s))) {
+    //         return s_accounts_wallet[signer];
+    //     }
+    //     revert("Factory: wrong signer");
+    // }
 
-    function _addressFromMessageAndSignature(bytes32 messageHash, uint8 v, bytes32 r, bytes32 s) private view returns (address) {
-        if (v != 0) {
-            return messageHash.recover(
-                v,
-                r,
-                s
-            );
-        }
-        return messageHash.recover(
-            27 + uint8(uint256(s) >> 255),
-            r,
-            s & 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-        );
-    }
+    // function _addressFromMessageAndSignature(bytes32 messageHash, uint8 v, bytes32 r, bytes32 s) private pure returns (address) {
+    //     if (v != 0) {
+    //         return messageHash.recover(
+    //             v,
+    //             r,
+    //             s
+    //         );
+    //     }
+    //     return messageHash.recover(
+    //         27 + uint8(uint256(s) >> 255),
+    //         r,
+    //         s & 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+    //     );
+    // }
 
     function batchTransfer(Transfer[] calldata tr, uint24 nonceGroup) public {
       unchecked {
@@ -396,25 +376,25 @@ contract FactoryProxy is FactoryStorage {
         return data[0] | (bytes4(data[1]) >> 8) | (bytes4(data[2]) >> 16) | (bytes4(data[3]) >> 24);
     }
 
-    function _ensToAddress(bytes32 ensHash, address expectedAddress) private view returns (address result) {
-        if (ensHash == 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470 || ensHash == bytes32(0)) {
-          return expectedAddress;
-        }
-        result = s_local_ens[ensHash];
-        if (result == address(0)) {
-          result = _resolve(ensHash);
-        }
-        if (expectedAddress != address(0)) {
-            require(result == expectedAddress, "Factory: ens address mismatch");
-        }
-        require(result != address(0), "Factory: ens address not found");
-    }
+    // function _ensToAddress(bytes32 ensHash, address expectedAddress) private view returns (address result) {
+    //     if (ensHash == 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470 || ensHash == bytes32(0)) {
+    //       return expectedAddress;
+    //     }
+    //     result = s_local_ens[ensHash];
+    //     if (result == address(0)) {
+    //       result = _resolve(ensHash);
+    //     }
+    //     if (expectedAddress != address(0)) {
+    //         require(result == expectedAddress, "Factory: ens address mismatch");
+    //     }
+    //     require(result != address(0), "Factory: ens address not found");
+    // }
 
     function setLocalEns(string calldata ens, address dest) external {
         s_local_ens[keccak256(abi.encodePacked("@",ens))] = dest;
     }
 
-    function _encodeCall2(Call2 memory call) private returns (bytes32, address) {
+    function _encodeCall2(Call2 memory call) private view returns (bytes32, address) {
         return (keccak256(abi.encode(
                   call.typeHash,
                   call.to,
@@ -807,7 +787,7 @@ contract FactoryProxy is FactoryStorage {
       }
     }
 
-    // function batchMultiSigCall(MSCalls[] calldata tr, uint256 nonceGroup) public {
+    // function batchMultiSigCallx(MSCalls[] calldata tr, uint256 nonceGroup) public {
     //   unchecked {
     //     require(msg.sender == s_activator, "Wallet: sender not allowed");
     //     uint256 nonce = s_nonce_group[nonceGroup] + (uint256(nonceGroup) << 232);
@@ -849,7 +829,7 @@ contract FactoryProxy is FactoryStorage {
     //         // address[] memory toList = new address[](length);
 
     //         for(uint256 j = 0; j < length; j++) {
-    //             MSCall2 calldata call = mcalls.mcall[j];
+    //             MSCall calldata call = mcalls.mcall[j];
     //             msg2 = abi.encodePacked(
     //                 msg2,
     //                 keccak256(abi.encode(
@@ -878,7 +858,7 @@ contract FactoryProxy is FactoryStorage {
     //         for(uint256 s = 0; s < mcalls.signatures.length; ++s) {
     //             Signature calldata signature = mcalls.signatures[s];
     //             for(uint256 j = 0; j < length; j++) {
-    //                 MSCall2 calldata call = mcalls.mcall[j];
+    //                 MSCall calldata call = mcalls.mcall[j];
     //                 address signer = _addressFromMessageAndSignature(
     //                     messageToRecover,
     //                     signature.v,
@@ -899,10 +879,10 @@ contract FactoryProxy is FactoryStorage {
     //             require(signers[j] != address(0), "Factory: signer missing");
     //             Wallet storage wallet = s_accounts_wallet[signers[j]];
     //             require(wallet.owner == true, "Factory: signer is not owner");
-    //             MSCall2 calldata call = mcalls.mcall[j];
+    //             MSCall calldata call = mcalls.mcall[j];
     //             // uint32 gasLimit = call.gasLimit;
     //             // uint16 flags = call.flags;
-    //             address to = _ensToAddress(call.ensHash, call.to); // toList[j];
+    //             address to = call.to; // toList[j];
     //             // bytes32 functionSignature = call.functionSignature;
 
     //             (bool success, bytes memory res) = call.flags & FLAG_STATICCALL > 0 ?
@@ -910,7 +890,7 @@ contract FactoryProxy is FactoryStorage {
     //                     abi.encodeWithSignature(
     //                         "staticcall(address,bytes)",
     //                         to,
-    //                         abi.encodePacked(bytes4(call.functionSignature), call.data)
+    //                         call.data
     //                     )
     //                 ) :
     //                 wallet.addr.call{gas: call.gasLimit==0 || call.gasLimit > gasleft() ? gasleft() : call.gasLimit}(
@@ -918,9 +898,7 @@ contract FactoryProxy is FactoryStorage {
     //                         "call(address,uint256,bytes)",
     //                         to,
     //                         call.value,
-    //                         call.functionSignature == 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470 ? 
-    //                             bytes('') : 
-    //                             abi.encodePacked(bytes4(call.functionSignature), call.data)
+    //                         call.data
     //                     )
     //                 );
     //             if (!success) {
@@ -947,211 +925,212 @@ contract FactoryProxy is FactoryStorage {
     // }
 
     function batchMultiSigCall2(MSCalls2[] calldata tr, uint256 nonceGroup) public {
-      unchecked {
-        require(msg.sender == s_activator, "Wallet: sender not allowed");
-        uint256 nonce = s_nonce_group[nonceGroup] + (uint256(nonceGroup) << 232);
-        uint256 maxNonce = 0;
-        uint256 trLength = tr.length;
-        for(uint256 i = 0; i < trLength; i++) {
-            uint256 gas = gasleft();
-            MSCalls2 calldata mcalls = tr[i];
-            uint256 sessionId = mcalls.sessionId;
-            // uint256 afterTS = uint40(sessionId >> 152);
-            // uint256 beforeTS  = uint40(sessionId >> 112);
-            // uint256 gasPriceLimit  = uint64(sessionId >> 16);
-            // bool refund = sessionId & FLAG_PAYMENT > 0;
-            // bool ordered = sessionId & FLAG_ORDERED > 0;
-            bytes memory msg2 = abi.encode(
-                mcalls.typeHash,
-                keccak256(abi.encode(
-                    mcalls.limitsTypeHash,
-                    uint64(sessionId >> 192),
-                    sessionId & FLAG_ORDERED > 0, // ordered
-                    sessionId & FLAG_PAYMENT > 0, // refund
-                    uint40(sessionId >> 152), // afterTS
-                    uint40(sessionId >> 112), // beforeTS
-                    uint64(sessionId >> 16) // gasPriceLimit
-                ))
-            );
-
-            if (i == 0) {
-              require(sessionId >> 192 >= nonce >> 192, "Factory: group+nonce too low");
-            } else {
-              if (sessionId & FLAG_ORDERED > 0) {
-                  require(uint40(maxNonce >> 192) < uint40(sessionId >> 192), "Factory: should be ordered");
-              }
-            }
-
-            if (maxNonce < sessionId) {
-                maxNonce = sessionId;
-            }
-
-            require(tx.gasprice <= uint64(sessionId >> 16) /*gasPriceLimit*/, "Factory: gas price too high");
-            require(block.timestamp > uint40(sessionId >> 152) /*afterTS*/, "Factory: too early");
-            require(block.timestamp < uint40(sessionId >> 112) /*beforeTS*/, "Factory: too late");
-            uint256 length = mcalls.mcall.length;
-            // address[] memory toList = new address[](length);
-
-            for(uint256 j = 0; j < length; j++) {
-                MSCall2 calldata call = mcalls.mcall[j];
-                // bytes32 functionSignature = call.functionSignature;
-                // (bytes32 messageHash, address to) = _encodeMCall2(call);
-                uint16 flags = call.flags;
-                msg2 = abi.encodePacked(
-                    msg2,
-                    // messageHash
-                    call.functionSignature != 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470 ?
-                        keccak256(abi.encode(
-                            call.typeHash,
-                            call.signer,
-                            call.to,
-                            call.ensHash,
-                            call.value,
-                            call.gasLimit,
-                            flags & FLAG_STATICCALL,
-                            flags & ON_FAIL_CONTINUE,
-                            flags & ON_FAIL_STOP,
-                            flags & ON_SUCCESS_STOP,
-                            flags & ON_SUCCESS_REVERT,
-                            call.functionSignature,
-                            call.data
-                        )):
-                        keccak256(abi.encode(
-                            call.typeHash,
-                            call.signer,
-                            call.to,
-                            call.ensHash,
-                            call.value,
-                            call.gasLimit,
-                            flags & FLAG_STATICCALL,
-                            flags & ON_FAIL_CONTINUE,
-                            flags & ON_FAIL_STOP,
-                            flags & ON_SUCCESS_STOP,
-                            flags & ON_SUCCESS_REVERT
-                        ))
+        unchecked {
+            require(msg.sender == s_activator, "Wallet: sender not allowed");
+            uint256 nonce = s_nonce_group[nonceGroup] + (uint256(nonceGroup) << 232);
+            uint256 maxNonce = 0;
+            uint256 trLength = tr.length;
+            for(uint256 i = 0; i < trLength; i++) {
+                uint256 gas = gasleft();
+                MSCalls2 calldata mcalls = tr[i];
+                uint256 sessionId = mcalls.sessionId;
+                // uint256 afterTS = uint40(sessionId >> 152);
+                // uint256 beforeTS  = uint40(sessionId >> 112);
+                // uint256 gasPriceLimit  = uint64(sessionId >> 16);
+                // bool refund = sessionId & FLAG_PAYMENT > 0;
+                // bool ordered = sessionId & FLAG_ORDERED > 0;
+                bytes memory msg2 = abi.encode(
+                    mcalls.typeHash,
+                    keccak256(abi.encode(
+                        mcalls.limitsTypeHash,
+                        uint64(sessionId >> 192),
+                        sessionId & FLAG_ORDERED > 0, // ordered
+                        sessionId & FLAG_PAYMENT > 0, // refund
+                        uint40(sessionId >> 152), // afterTS
+                        uint40(sessionId >> 112), // beforeTS
+                        uint64(sessionId >> 16) // gasPriceLimit
+                    ))
                 );
-                // toList[j] = to;
-            }
 
-            // emit ErrorHandled(abi.encodePacked(mcalls.r, mcalls.s, mcalls.v));
-            // emit ErrorHandled(abi.encodePacked(msg2));
-            // return;
+                if (i == 0) {
+                require(sessionId >> 192 >= nonce >> 192, "Factory: group+nonce too low");
+                } else {
+                if (sessionId & FLAG_ORDERED > 0) {
+                    require(uint40(maxNonce >> 192) < uint40(sessionId >> 192), "Factory: should be ordered");
+                }
+                }
 
-            bytes32 messageToRecover = _messageToRecover(
-                keccak256(msg2),
-                sessionId & FLAG_EIP712 > 0
-            );
+                if (maxNonce < sessionId) {
+                    maxNonce = sessionId;
+                }
 
-            address[] memory signers = new address[](length);
+                require(tx.gasprice <= uint64(sessionId >> 16) /*gasPriceLimit*/, "Factory: gas price too high");
+                require(block.timestamp > uint40(sessionId >> 152) /*afterTS*/, "Factory: too early");
+                require(block.timestamp < uint40(sessionId >> 112) /*beforeTS*/, "Factory: too late");
+                uint256 length = mcalls.mcall.length;
+                // address[] memory toList = new address[](length);
 
-            for(uint256 s = 0; s < mcalls.signatures.length; ++s) {
-                Signature calldata signature = mcalls.signatures[s];
                 for(uint256 j = 0; j < length; j++) {
                     MSCall2 calldata call = mcalls.mcall[j];
-                    address signer = _addressFromMessageAndSignature(
-                        messageToRecover,
-                        signature.v,
-                        signature.r,
-                        signature.s
+                    // bytes32 functionSignature = call.functionSignature;
+                    // (bytes32 messageHash, address to) = _encodeMCall2(call);
+                    uint16 flags = call.flags;
+                    msg2 = abi.encodePacked(
+                        msg2,
+                        // messageHash
+                        call.functionSignature != 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470 ?
+                            keccak256(abi.encode(
+                                call.typeHash,
+                                call.signer,
+                                call.to,
+                                call.ensHash,
+                                call.value,
+                                call.gasLimit,
+                                flags & FLAG_STATICCALL,
+                                flags & ON_FAIL_CONTINUE,
+                                flags & ON_FAIL_STOP,
+                                flags & ON_SUCCESS_STOP,
+                                flags & ON_SUCCESS_REVERT,
+                                call.functionSignature,
+                                call.data
+                            )):
+                            keccak256(abi.encode(
+                                call.typeHash,
+                                call.signer,
+                                call.to,
+                                call.ensHash,
+                                call.value,
+                                call.gasLimit,
+                                flags & FLAG_STATICCALL,
+                                flags & ON_FAIL_CONTINUE,
+                                flags & ON_FAIL_STOP,
+                                flags & ON_SUCCESS_STOP,
+                                flags & ON_SUCCESS_REVERT
+                            ))
                     );
-                    if (signer == call.signer) { //  && signers[j] == address(0)) {
-                        signers[j] = signer;
-                    }
+                    // toList[j] = to;
                 }
-            }
 
-          //  emit ErrorHandled(abi.encodePacked(signers));
-          //  return;
-          
-           for(uint256 j = 0; j < length; j++) {
-                // address signer = signers[j];
-                require(signers[j] != address(0), "Factory: signer missing");
-                Wallet storage wallet = s_accounts_wallet[signers[j]];
-                require(wallet.owner == true, "Factory: signer is not owner");
-                MSCall2 calldata call = mcalls.mcall[j];
-                // uint32 gasLimit = call.gasLimit;
-                // uint16 flags = call.flags;
-                address to = _ensToAddress(call.ensHash, call.to); // toList[j];
-                // bytes32 functionSignature = call.functionSignature;
+                // emit ErrorHandled(abi.encodePacked(mcalls.r, mcalls.s, mcalls.v));
+                // emit ErrorHandled(abi.encodePacked(msg2));
+                // return;
 
-                (bool success, bytes memory res) = call.flags & FLAG_STATICCALL > 0 ?
-                    wallet.addr.call{gas: call.gasLimit==0 || call.gasLimit > gasleft() ? gasleft() : call.gasLimit}(
-                        abi.encodeWithSignature(
-                            "staticcall(address,bytes)",
-                            to,
-                            abi.encodePacked(bytes4(call.functionSignature), call.data)
-                        )
-                    ) :
-                    wallet.addr.call{gas: call.gasLimit==0 || call.gasLimit > gasleft() ? gasleft() : call.gasLimit}(
-                        abi.encodeWithSignature(
-                            "call(address,uint256,bytes)",
-                            to,
-                            call.value,
-                            call.functionSignature == 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470 ? 
-                                bytes('') : 
-                                abi.encodePacked(bytes4(call.functionSignature), call.data)
-                        )
-                    );
-                if (!success) {
-                    if (call.flags & ON_FAIL_CONTINUE > 0) {
-                        continue;
-                    } else if (call.flags & ON_FAIL_STOP > 0) {
-                        break;
-                    }
-                    revert(_getRevertMsg(res));
-                } else if (call.flags & ON_SUCCESS_STOP > 0) {
-                    break;
-                } else if (call.flags & ON_SUCCESS_REVERT > 0) {
-                    revert("Factory: revert on success");
-                }
-                if (sessionId & FLAG_PAYMENT > 0) {
-                    wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 18000 + (30000/trLength))*110/100);
-                    // wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 16000 + (32000/trLength))*110/100);
-                }
-            }
-        }
-        require(maxNonce < nonce + (1 << 216), "Factory: gourp+nonce too high");
-        s_nonce_group[nonceGroup] = (maxNonce & 0x000000ffffffffff000000000000000000000000000000000000000000000000) + (1 << 192);
-      }
-    }
-
-    function _getRevertMsg(bytes memory returnData)
-        internal
-        pure
-        returns (string memory)
-    {
-        if (returnData.length < 68)
-            return "Wallet: Transaction reverted silently";
-
-        assembly {
-            returnData := add(returnData, 0x04)
-        }
-        return abi.decode(returnData, (string));
-    }
-
-    function _messageToRecover(bytes32 hashedUnsignedMessage, bool eip712)
-        private
-        view
-        returns (bytes32)
-    {
-        if (eip712) {
-            return
-                keccak256(
-                    abi.encodePacked(
-                        "\x19\x01",
-                        DOMAIN_SEPARATOR,
-                        hashedUnsignedMessage
-                    )
+                bytes32 messageToRecover = _messageToRecover(
+                    keccak256(msg2),
+                    sessionId & FLAG_EIP712 > 0
                 );
+
+                address[] memory signers = new address[](length);
+
+                for(uint256 s = 0; s < mcalls.signatures.length; ++s) {
+                    Signature calldata signature = mcalls.signatures[s];
+                    for(uint256 j = 0; j < length; j++) {
+                        MSCall2 calldata call = mcalls.mcall[j];
+                        address signer = _addressFromMessageAndSignature(
+                            messageToRecover,
+                            signature.v,
+                            signature.r,
+                            signature.s
+                        );
+                        if (signer == call.signer) { //  && signers[j] == address(0)) {
+                            signers[j] = signer;
+                        }
+                    }
+                }
+
+            //  emit ErrorHandled(abi.encodePacked(signers));
+            //  return;
+            
+            for(uint256 j = 0; j < length; j++) {
+                    // address signer = signers[j];
+                    require(signers[j] != address(0), "Factory: signer missing");
+                    Wallet storage wallet = s_accounts_wallet[signers[j]];
+                    require(wallet.owner == true, "Factory: signer is not owner");
+                    MSCall2 calldata call = mcalls.mcall[j];
+                    // uint32 gasLimit = call.gasLimit;
+                    // uint16 flags = call.flags;
+                    address to = _ensToAddress(call.ensHash, call.to); // toList[j];
+                    // bytes32 functionSignature = call.functionSignature;
+
+                    (bool success, bytes memory res) = call.flags & FLAG_STATICCALL > 0 ?
+                        wallet.addr.call{gas: call.gasLimit==0 || call.gasLimit > gasleft() ? gasleft() : call.gasLimit}(
+                            abi.encodeWithSignature(
+                                "staticcall(address,bytes)",
+                                to,
+                                abi.encodePacked(bytes4(call.functionSignature), call.data)
+                            )
+                        ) :
+                        wallet.addr.call{gas: call.gasLimit==0 || call.gasLimit > gasleft() ? gasleft() : call.gasLimit}(
+                            abi.encodeWithSignature(
+                                "call(address,uint256,bytes)",
+                                to,
+                                call.value,
+                                call.functionSignature == 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470 ? 
+                                    bytes('') : 
+                                    abi.encodePacked(bytes4(call.functionSignature), call.data)
+                            )
+                        );
+                    if (!success) {
+                        if (call.flags & ON_FAIL_CONTINUE > 0) {
+                            continue;
+                        } else if (call.flags & ON_FAIL_STOP > 0) {
+                            break;
+                        }
+                        revert(_getRevertMsg(res));
+                    } else if (call.flags & ON_SUCCESS_STOP > 0) {
+                        break;
+                    } else if (call.flags & ON_SUCCESS_REVERT > 0) {
+                        revert("Factory: revert on success");
+                    }
+                    if (sessionId & FLAG_PAYMENT > 0) {
+                        // wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 18000 + (30000/trLength))*110/100);
+                        wallet.debt = uint88((tx.gasprice + (uint64(sessionId >> 16) - tx.gasprice) / 2) * (gas - gasleft() + 18000 + (30000/trLength))*110/100);
+                        // wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 16000 + (32000/trLength))*110/100);
+                    }
+                }
+            }
+            require(maxNonce < nonce + (1 << 216), "Factory: gourp+nonce too high");
+            s_nonce_group[nonceGroup] = (maxNonce & 0x000000ffffffffff000000000000000000000000000000000000000000000000) + (1 << 192);
         }
-        return
-            keccak256(
-                abi.encodePacked(
-                    "\x19Ethereum Signed Message:\n32",
-                    hashedUnsignedMessage
-                )
-            );
     }
+
+    // function _getRevertMsg(bytes memory returnData)
+    //     private
+    //     pure
+    //     returns (string memory)
+    // {
+    //     if (returnData.length < 68)
+    //         return "Wallet: Transaction reverted silently";
+
+    //     assembly {
+    //         returnData := add(returnData, 0x04)
+    //     }
+    //     return abi.decode(returnData, (string));
+    // }
+
+    // function _messageToRecover(bytes32 hashedUnsignedMessage, bool eip712)
+    //     private
+    //     view
+    //     returns (bytes32)
+    // {
+    //     if (eip712) {
+    //         return
+    //             keccak256(
+    //                 abi.encodePacked(
+    //                     "\x19\x01",
+    //                     DOMAIN_SEPARATOR,
+    //                     hashedUnsignedMessage
+    //                 )
+    //             );
+    //     }
+    //     return
+    //         keccak256(
+    //             abi.encodePacked(
+    //                 "\x19Ethereum Signed Message:\n32",
+    //                 hashedUnsignedMessage
+    //             )
+    //         );
+    // }
 
     fallback() external {
         // solium-disable-next-line security/no-inline-assembly
