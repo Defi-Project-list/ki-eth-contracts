@@ -659,8 +659,8 @@ contract FactoryProxy is FactoryStorage {
             MCalls2 calldata mcalls = tr[i];
             uint256 sessionId = mcalls.sessionId;
             uint256 afterTS = uint40(sessionId >> 152);
-            uint256 beforeTS  = uint40(sessionId >> 112);
-            uint256 gasPriceLimit  = uint64(sessionId >> 16);
+            uint256 beforeTS = uint40(sessionId >> 112);
+            uint256 gasPriceLimit = uint64(sessionId >> 16);
             bool refund = sessionId & FLAG_PAYMENT > 0;
             bool ordered = sessionId & FLAG_ORDERED > 0;
             bytes memory msg2 = abi.encode(mcalls.typeHash, keccak256(abi.encode(mcalls.limitsTypeHash, uint64(sessionId >> 192), ordered, refund, afterTS, beforeTS, gasPriceLimit)));
