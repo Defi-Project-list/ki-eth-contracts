@@ -229,49 +229,49 @@ contract FactoryProxy is FactoryStorage {
         uint256 gasPriceLimit;
     }
 
-    function batchEthTransfer(STransfer[] calldata tr, uint128 nonceGroup, bool eip712) public {
-        // address refund = _activator;
-        unchecked {
-        require(msg.sender == s_activator, "Wallet: sender not allowed");
-        uint256 nonce = s_nonce_group[nonceGroup] + (uint256(nonceGroup) << 128);
-        uint256 minNonce = type(uint256).max;
-        uint256 maxNonce = 0;
-        uint256 minGasPrice = type(uint256).max;
-        for(uint256 i = 0; i < tr.length; i++) {
-            STransfer calldata call = tr[i];
-            uint256 sessionId = call.sessionId;
-            uint256 gasPriceLimit = call.gasPriceLimit;
-            address to = call.to;
-            uint256 value = call.value;
-            address signer = ecrecover(
-                _messageToRecover(keccak256(abi.encode(TRANSFER_TYPEHASH, to, value, sessionId, gasPriceLimit)), eip712),
-                call.v,
-                call.r,
-                call.s
-            );
-            if (maxNonce < sessionId) {
-                maxNonce = sessionId;
-            }
-            if (minNonce > sessionId) {
-                minNonce = sessionId;
-            }
-            if (minGasPrice > gasPriceLimit) {
-                minGasPrice = gasPriceLimit;
-            }
-            address wallet = s_accounts_wallet[signer].addr;
-            require(wallet != address(0), "Factory: signer is not owner");
-            (bool success, bytes memory res) =
-                wallet.call(abi.encodeWithSignature("transferEth(address,uint256)", to, value));
-            if (!success) {
-                revert(_getRevertMsg(res));
-            }
-        }
-        require(minGasPrice >= tx.gasprice, "Factory: gas price too high");
-        require(minNonce >= nonce, "Factory: nonce too low");
-        require(maxNonce < nonce + 100000, "Factory: nonce too high");
-        s_nonce_group[nonceGroup] = (maxNonce >> 128) + 1;
-      }
-    }
+    // function batchEthTransfer(STransfer[] calldata tr, uint128 nonceGroup, bool eip712) public {
+    //     // address refund = _activator;
+    //     unchecked {
+    //     require(msg.sender == s_activator, "Wallet: sender not allowed");
+    //     uint256 nonce = s_nonce_group[nonceGroup] + (uint256(nonceGroup) << 128);
+    //     uint256 minNonce = type(uint256).max;
+    //     uint256 maxNonce = 0;
+    //     uint256 minGasPrice = type(uint256).max;
+    //     for(uint256 i = 0; i < tr.length; i++) {
+    //         STransfer calldata call = tr[i];
+    //         uint256 sessionId = call.sessionId;
+    //         uint256 gasPriceLimit = call.gasPriceLimit;
+    //         address to = call.to;
+    //         uint256 value = call.value;
+    //         address signer = ecrecover(
+    //             _messageToRecover(keccak256(abi.encode(TRANSFER_TYPEHASH, to, value, sessionId, gasPriceLimit)), eip712),
+    //             call.v,
+    //             call.r,
+    //             call.s
+    //         );
+    //         if (maxNonce < sessionId) {
+    //             maxNonce = sessionId;
+    //         }
+    //         if (minNonce > sessionId) {
+    //             minNonce = sessionId;
+    //         }
+    //         if (minGasPrice > gasPriceLimit) {
+    //             minGasPrice = gasPriceLimit;
+    //         }
+    //         address wallet = s_accounts_wallet[signer].addr;
+    //         require(wallet != address(0), "Factory: signer is not owner");
+    //         (bool success, bytes memory res) =
+    //             wallet.call(abi.encodeWithSignature("transferEth(address,uint256)", to, value));
+    //         if (!success) {
+    //             revert(_getRevertMsg(res));
+    //         }
+    //     }
+    //     require(minGasPrice >= tx.gasprice, "Factory: gas price too high");
+    //     require(minNonce >= nonce, "Factory: nonce too low");
+    //     require(maxNonce < nonce + 100000, "Factory: nonce too high");
+    //     s_nonce_group[nonceGroup] = (maxNonce >> 128) + 1;
+    //   }
+    // }
 
     // function _getWalletFromMessage(address signer, bytes32 messageHash, uint8 v, bytes32 r, bytes32 s) private view returns (Wallet storage) {
     //     if (signer == address(0)) {
@@ -315,6 +315,7 @@ contract FactoryProxy is FactoryStorage {
         uint256 nonce = s_nonce_group[nonceGroup] + (uint256(nonceGroup) << 232);
         uint256 maxNonce = 0;
         uint256 length = tr.length;
+        uint256 constGas = (21000 + msg.data.length * 8) / length;
         for(uint256 i = 0; i < length; i++) {
             uint256 gas = gasleft();
             Transfer calldata call = tr[i];
@@ -322,10 +323,10 @@ contract FactoryProxy is FactoryStorage {
             uint256 value = call.value;
             address token = call.token;
             uint256 sessionId = call.sessionId;
-            uint256 afterTS = uint40(sessionId >> 152);
-            uint256 beforeTS = uint40(sessionId >> 112);
+            // uint256 afterTS = uint40(sessionId >> 152);
+            // uint256 beforeTS = uint40(sessionId >> 112);
             uint256 gasLimit = uint32(sessionId >> 80);
-            uint256 gasPriceLimit = uint64(sessionId >> 16);
+            // uint256 gasPriceLimit = uint64(sessionId >> 16);
 
             if (i == 0) {
               require(sessionId >> 192 >= nonce >> 192, "Factory: group+nonce too low");
@@ -339,12 +340,22 @@ contract FactoryProxy is FactoryStorage {
                 maxNonce = sessionId;
             }
 
-            require(tx.gasprice <= gasPriceLimit, "Factory: gas price too high");
-            require(block.timestamp > afterTS, "Factory: too early");
-            require(block.timestamp < beforeTS, "Factory: too late");
+            require(tx.gasprice <= uint64(sessionId >> 16) /*gasPriceLimit*/, "Factory: gas price too high");
+            require(block.timestamp > uint40(sessionId >> 152) /*afterTS*/, "Factory: too early");
+            require(block.timestamp < uint32(sessionId >> 112) /*beforeTS*/, "Factory: too late");
 
             bytes32 messageHash = _messageToRecover(
-                keccak256(abi.encode(BATCH_TRANSFER_TYPEHASH, token, to, value, sessionId >> 8, afterTS, beforeTS, gasLimit, gasPriceLimit)),
+                keccak256(abi.encode(
+                    BATCH_TRANSFER_TYPEHASH,
+                    token,
+                    to,
+                    value,
+                    sessionId >> 8,
+                    uint40(sessionId >> 152), //afterTS,
+                    uint40(sessionId >> 112), //beforeTS,
+                    gasLimit,
+                    uint64(sessionId >> 16))
+                ),
                 sessionId & FLAG_EIP712 > 0
             );
 
@@ -360,7 +371,8 @@ contract FactoryProxy is FactoryStorage {
             }
 
             if (sessionId & FLAG_PAYMENT > 0) {
-                wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 16000 + (24000/length)));
+                wallet.debt += _calcRefund(wallet.debt, gas, constGas, uint64(sessionId >> 16), sessionId & FLAG_PAYMENT);
+                // wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 16000 + (24000/length)));
             }
         }
         require(maxNonce < nonce + (1 << 216), "Factory: gourp+nonce too high");
@@ -434,6 +446,7 @@ contract FactoryProxy is FactoryStorage {
         uint256 nonce = s_nonce_group[nonceGroup] + (nonceGroup << 232);
         uint256 maxNonce = 0;
         uint256 length = tr.length;
+        uint256 constGas = (21000 + msg.data.length * 16) / length;
         for(uint256 i = 0; i < length; i++) {
             uint256 gas = gasleft();
 
@@ -485,11 +498,12 @@ contract FactoryProxy is FactoryStorage {
             }
             uint256 payment = sessionId & FLAG_PAYMENT;
             if (payment > 0) {
-                if (payment == 0xf000) {
-                  wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 16000 + (32000/length))*110/100);
-                } else {
-                  wallet.debt = uint88((tx.gasprice + (uint64(sessionId >> 16) /*gasPriceLimit*/ - tx.gasprice) / 2) * (gas - gasleft() + 16000 + (32000/length))*110/100);
-                }
+              wallet.debt += _calcRefund(wallet.debt, gas, constGas, uint64(sessionId >> 16), sessionId & FLAG_PAYMENT);
+                // if (payment == 0xf000) {
+                //   wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 16000 + (32000/length))*110/100);
+                // } else {
+                //   wallet.debt = uint88((tx.gasprice + (uint64(sessionId >> 16) /*gasPriceLimit*/ - tx.gasprice) / 2) * (gas - gasleft() + 16000 + (32000/length))*110/100);
+                // }
             }
         }
         require(maxNonce < nonce + (1 << 216), "Factory: group+nonce too high");
@@ -503,6 +517,7 @@ contract FactoryProxy is FactoryStorage {
         uint256 nonce = s_nonce_group[nonceGroup] + (nonceGroup << 232);
         uint256 maxNonce = 0;
         uint256 length = tr.length;
+        uint256 constGas = (21000 + msg.data.length * 8) / length;
         for(uint256 i = 0; i < length; i++) {
             uint256 gas = gasleft();
 
@@ -511,7 +526,7 @@ contract FactoryProxy is FactoryStorage {
             uint256 value = call.value;
             uint256 sessionId = call.sessionId;
             uint256 gasLimit  = uint32(sessionId >> 80);
-            uint256 gasPriceLimit  = uint64(sessionId >> 16);
+            // uint256 gasPriceLimit  = uint64(sessionId >> 16);
 
             if (i == 0) {
               require(sessionId >> 192 >= nonce >> 192, "Factory: group+nonce too low");
@@ -525,7 +540,7 @@ contract FactoryProxy is FactoryStorage {
                 maxNonce = sessionId;
             }
 
-            require(tx.gasprice <= gasPriceLimit, "Factory: gas price too high");
+            require(tx.gasprice <= uint64(sessionId >> 16) /*gasPriceLimit*/, "Factory: gas price too high");
             require(block.timestamp > uint40(sessionId >> 152) /*afterTS*/, "Factory: too early");
             require(block.timestamp < uint40(sessionId >> 112) /*beforeTS*/, "Factory: too late");
 
@@ -552,11 +567,12 @@ contract FactoryProxy is FactoryStorage {
             }
             uint256 payment = sessionId & FLAG_PAYMENT;
             if (payment > 0) {
-                if (payment == 0xf000) {
-                  wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 16000 + (32000/length))*110/100);
-                } else {
-                  wallet.debt = uint88((tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * (gas - gasleft() + 16000 + (32000/length))*110/100);
-                }
+                wallet.debt += _calcRefund(wallet.debt, gas, constGas, uint64(sessionId >> 16), sessionId & FLAG_PAYMENT);
+                // if (payment == 0xf000) {
+                //   wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 16000 + (32000/length))*110/100);
+                // } else {
+                //   wallet.debt = uint88((tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * (gas - gasleft() + 16000 + (32000/length))*110/100);
+                // }
             }
         }
         require(maxNonce < nonce + (1 << 216), "Factory: gourp+nonce too high");
@@ -570,6 +586,7 @@ contract FactoryProxy is FactoryStorage {
         uint256 nonce = s_nonce_group[nonceGroup] + (uint256(nonceGroup) << 232);
         uint256 maxNonce = 0;
         uint256 trLength = tr.length;
+        uint256 constGas = (21000 + msg.data.length * 8) / trLength;
         for(uint256 i = 0; i < trLength; i++) {
             uint256 gas = gasleft();
             MCalls calldata mcalls = tr[i];
@@ -639,7 +656,10 @@ contract FactoryProxy is FactoryStorage {
                 }
             }
             if (sessionId & FLAG_PAYMENT > 0) {
-                wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 18000 + (30000/trLength))*110/100);
+                wallet.debt += _calcRefund(wallet.debt, gas, constGas, gasPriceLimit, sessionId & FLAG_PAYMENT);
+                // wallet.debt = (wallet.debt > 0  ? uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + constGas + 5000)):
+                // uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + constGas + 22100))) * 110 / 100;
+                // wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 18000 + (30000/trLength))*110/100);
                 // wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 16000 + (32000/trLength))*110/100);
             }
         }
@@ -650,10 +670,14 @@ contract FactoryProxy is FactoryStorage {
 
     function batchMultiCall2(MCalls2[] calldata tr, uint256 nonceGroup) public {
       unchecked {
+
         require(msg.sender == s_activator, "Wallet: sender not allowed");
         uint256 nonce = s_nonce_group[nonceGroup] + (uint256(nonceGroup) << 232);
         uint256 maxNonce = 0;
         uint256 trLength = tr.length;
+        uint256 constGas = (21000 + msg.data.length * 8) / trLength;
+        // emit ErrorHandled(abi.encode(gasleft(), msg.data.length, constGas));
+        // return;
         for(uint256 i = 0; i < trLength; i++) {
             uint256 gas = gasleft();
             MCalls2 calldata mcalls = tr[i];
@@ -778,13 +802,23 @@ contract FactoryProxy is FactoryStorage {
                 }
             }
             if (sessionId & FLAG_PAYMENT > 0) {
-                wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 18000 + (30000/trLength))*110/100);
-                // wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 16000 + (32000/trLength))*110/100);
+                wallet.debt += _calcRefund(wallet.debt, gas, constGas, gasPriceLimit, sessionId & FLAG_PAYMENT);
+                //  (wallet.debt > 0  ? 
+                //   uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + constGas + 5000) * 110 / 100):
+                //   uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + constGas + 22100)) * 110 / 100);
+                  // // wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 18000 + (30000/trLength))*110/100);
+                  // wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 16000 + (32000/trLength))*110/100);
             }
         }
         require(maxNonce < nonce + (1 << 216), "Factory: gourp+nonce too high");
         s_nonce_group[nonceGroup] = (maxNonce & 0x000000ffffffffff000000000000000000000000000000000000000000000000) + (1 << 192);
       }
+    }
+
+    function _calcRefund(uint256 debt, uint256 gas, uint256 constGas, uint256 gasPriceLimit, uint256 payment) private view returns (uint88) {
+        return (debt > 0  ? 
+                  uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + constGas + 5000) * 110 / 100):
+                  uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + constGas + 22100)) * 110 / 100);
     }
 
     // function batchMultiSigCallx(MSCalls[] calldata tr, uint256 nonceGroup) public {
