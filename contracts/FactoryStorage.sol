@@ -196,7 +196,8 @@ abstract contract FactoryStorage is MultiSig {
         return
             keccak256(
                 abi.encodePacked(
-                    "\x19Ethereum Signed Message:\n32",
+                    "\x19Ethereum Signed Message:\n64",
+                    DOMAIN_SEPARATOR,
                     hashedUnsignedMessage
                 )
             );

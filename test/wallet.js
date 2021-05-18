@@ -64,7 +64,7 @@ contract('Wallet', async (accounts) => {
   const valBN = web3.utils.toBN(val1).add(web3.utils.toBN(val2)).add(web3.utils.toBN(val3));
 
   const gas = 7000000
-  const userCount = 120
+  const userCount = 2
 
   console.log('accounts', JSON.stringify(accounts))
   const getPrivateKey = (address) => {
@@ -505,8 +505,8 @@ contract('Wallet', async (accounts) => {
   it('message: should be able to execute batch of many external sends: signer==operator, sender==owner', async () => {
     await instance.cancelCall({ from: owner })
     const nonce = await instance.nonce()
-    const typeHash = keccak256(toUtf8Bytes('batchTransfer(address token_address,address recipient,uint256 token_amount,uint256 sessionId,uint40 after,uint40 before,uint32 gasLimit,uint64 gasPriceLimit)'))
-
+    // const typeHash = keccak256(toUtf8Bytes('batchTransfer(address token_address,address recipient,uint256 token_amount,uint256 sessionId,uint40 after,uint40 before,uint32 gasLimit,uint64 gasPriceLimit)'))
+    const typeHash = keccak256(toUtf8Bytes('batchTransfer(address token_address,address recipient,uint256 token_amount,uint256 sessionId)'))
     const sends = []
 
     for (let i=10+userCount/2; i<10+userCount; ++i) {
@@ -531,27 +531,30 @@ contract('Wallet', async (accounts) => {
     const eip712ERC20       = 'f0' //payment
     const sessionIdERC20    = `0x${groupERC20}${tnonceERC20}${afterERC20}${beforeERC20}${maxGasERC20}${maxGasPriceERC20}${eip712ERC20}`
 
+    const DOMAIN_SEPARATOR = (await factoryProxy.DOMAIN_SEPARATOR())
+    const BATCH_TRANSFER_PACKED_HASH = web3.utils.sha3('batchTransferPacked')
+
     const msgDataERC20 = sends.map((item, index) => ({
         ...item, 
         _hash: defaultAbiCoder.encode(
-          ['bytes32', 'address', 'address', 'uint256', 'uint256', 'uint40', 'uint40', 'uint32', 'uint64'/*, 'bool', 'uint32', 'bytes32'*/],
-          [typeHash, token20.address, item.to, item.value, sessionIdERC20, '0x'+afterERC20, '0x'+beforeERC20, '0x'+maxGasERC20, '0x'+maxGasPriceERC20 /*, +nonce.toString()+index,*/ /*false, 0, keccak256(toUtf8Bytes('')) */])
+          ['bytes32', 'bytes32', 'address', 'address', 'uint256', 'uint256'], // , 'uint40', 'uint40', 'uint32', 'uint64'/*, 'bool', 'uint32', 'bytes32'*/],
+          [typeHash, BATCH_TRANSFER_PACKED_HASH, token20.address, item.to, item.value, sessionIdERC20]) //, '0x'+afterERC20, '0x'+beforeERC20, '0x'+maxGasERC20, '0x'+maxGasPriceERC20 /*, +nonce.toString()+index,*/ /*false, 0, keccak256(toUtf8Bytes('')) */])
     }))
 
     const msgDataEth = sends.map((item, index) => ({
-      ...item, 
+      ...item,  
       _hash: defaultAbiCoder.encode(
-        ['bytes32', 'address', 'address', 'uint256', 'uint256', 'uint256', 'uint256', 'uint256', 'uint256'/*, 'bool', 'uint32', 'bytes32'*/],
+        ['bytes32', 'bytes32', 'address', 'address', 'uint256', 'uint256'], //, 'uint256', 'uint256', 'uint256', 'uint256'/*, 'bool', 'uint32', 'bytes32'*/],
         // ['bytes32', /*'address',*/ 'address', 'uint256', 'uint256', 'uint256'/*, 'bool', 'uint32', 'bytes32'*/],
         // [typeHash, /*ZERO_ADDRESS,*/ item.to, item.value, 10 + index, 200 /*, +nonce.toString()+index,*/ /*false, 0, keccak256(toUtf8Bytes('')) */])
-        [typeHash, ZERO_ADDRESS, item.to, item.value, sessionId, '0x'+after, '0x'+before, '0x'+maxGas, '0x'+maxGasPrice /*, +nonce.toString()+index,*/ /*false, 0, keccak256(toUtf8Bytes('')) */])
+        [typeHash, BATCH_TRANSFER_PACKED_HASH, ZERO_ADDRESS, item.to, item.value, sessionId]) //, '0x'+after, '0x'+before, '0x'+maxGas, '0x'+maxGasPrice /*, +nonce.toString()+index,*/ /*false, 0, keccak256(toUtf8Bytes('')) */])
   }))
 
     const metaData = { simple: true, staticcall: false, gasLimit: 0 }
 
     const msgsERC20 = (await Promise.all(msgDataERC20.map(async (item, index) => ({
       ...item,
-      ...await web3.eth.accounts.sign(web3.utils.sha3(item._hash), keys[index+10] /*getPrivateKey(owner)*/),
+      ...await web3.eth.accounts.sign(DOMAIN_SEPARATOR + web3.utils.sha3(item._hash).slice(2), keys[index+10] /*getPrivateKey(owner)*/),
       metaData,
       typeHash,
       data: [],
@@ -565,7 +568,7 @@ contract('Wallet', async (accounts) => {
 
     const msgsEth = (await Promise.all(msgDataEth.map(async (item, index) => ({
       ...item,
-      ...await web3.eth.accounts.sign(web3.utils.sha3(item._hash), keys[index+10]), //getPrivateKey(owner)),
+      ...await web3.eth.accounts.sign(DOMAIN_SEPARATOR + web3.utils.sha3(item._hash).slice(2), keys[index+10]), //getPrivateKey(owner)),
       metaData,
       typeHash,
       data: [],
@@ -590,7 +593,7 @@ contract('Wallet', async (accounts) => {
     // await factory.batchTransfer(msgs, { from: owner, gasPrice: 200 })
 
     await logBalances()
-    const { receipt: receiptEth } = await factoryProxy.batchTransfer(msgsEth, 1, { from: activator, gasPrice: 50e9 })
+    const { receipt: receiptEth } = await factory.batchTransferPacked(msgsEth, 1, typeHash, { from: activator, gasPrice: 50e9 })
     // const { receipt: receiptEth } = await factoryProxy.batchEthTransfer(msgsEth, 0, false,{ from: activator, gasPrice: 200 })
     mlog.pending(`zxc Ether X ${msgsEth.length} Transfers consumed ${JSON.stringify(receiptEth.gasUsed)} gas (${JSON.stringify(receiptEth.gasUsed/msgsEth.length)} gas per call)`)
     await logBalances()
@@ -598,7 +601,7 @@ contract('Wallet', async (accounts) => {
 
     await logERC20Balances()
 
-    const { receipt: receiptERC20 } = await factoryProxy.batchTransfer(msgsERC20, 1, { from: activator, gasPrice: 50e9 })
+    const { receipt: receiptERC20 } = await factory.batchTransferPacked(msgsERC20, 1, typeHash, { from: activator, gasPrice: 50e9 })
 
     // Should revert
     // await factory.batchTransfer(msgs, { from: activator, gasPrice: 200 })
