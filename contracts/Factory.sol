@@ -339,7 +339,6 @@ contract Factory is FactoryStorage {
       s_activator = newActivator;
     }
 
-
     // Batch Call: External Contract Functions
     function batchCallPacked(Call[] calldata tr, uint256 nonceGroup) public {
       unchecked {
@@ -639,8 +638,8 @@ contract Factory is FactoryStorage {
 
     function _calcRefund(uint256 debt, uint256 gas, uint256 constGas, uint256 gasPriceLimit, uint256 payment) private view returns (uint88) {
         return (debt > 0  ? 
-                  uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft()) * 110 / 100 + constGas + 5000):
-                  uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft()) * 110 / 100 + constGas + 5000));
+                  uint88((tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * ((gas - gasleft()) * 110 / 100 + constGas + 5000)):
+                  uint88((tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * ((gas - gasleft()) * 110 / 100 + constGas + 5000)));
                   // uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + constGas + 15000) /*22100))*/ * 110 / 100 ));
     }
 

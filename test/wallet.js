@@ -593,7 +593,7 @@ contract('Wallet', async (accounts) => {
     // await factory.batchTransfer(msgs, { from: owner, gasPrice: 200 })
 
     await logBalances()
-    const { receipt: receiptEth } = await factory.batchTransferPacked(msgsEth, 1, typeHash, { from: activator, gasPrice: 50e9 })
+    const { receipt: receiptEth } = await factoryProxy.batchTransferPacked(msgsEth, 1, typeHash, { from: activator, gasPrice: 50e9 })
     // const { receipt: receiptEth } = await factoryProxy.batchEthTransfer(msgsEth, 0, false,{ from: activator, gasPrice: 200 })
     mlog.pending(`zxc Ether X ${msgsEth.length} Transfers consumed ${JSON.stringify(receiptEth.gasUsed)} gas (${JSON.stringify(receiptEth.gasUsed/msgsEth.length)} gas per call)`)
     await logBalances()
@@ -601,7 +601,7 @@ contract('Wallet', async (accounts) => {
 
     await logERC20Balances()
 
-    const { receipt: receiptERC20 } = await factory.batchTransferPacked(msgsERC20, 1, typeHash, { from: activator, gasPrice: 50e9 })
+    const { receipt: receiptERC20 } = await factoryProxy.batchTransferPacked(msgsERC20, 1, typeHash, { from: activator, gasPrice: 50e9 })
 
     // Should revert
     // await factory.batchTransfer(msgs, { from: activator, gasPrice: 200 })
