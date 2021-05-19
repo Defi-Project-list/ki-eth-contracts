@@ -12,9 +12,26 @@ contract Factory is FactoryStorage {
       "batchTransfer(address token_address,address recipient,uint256 token_amount,uint256 sessionId,uint40 after,uint40 before,uint32 gasLimit,uint64 gasPriceLimit)"
     );
 
-    bytes32 public constant BATCH_CALL_TYPEHASH = keccak256(
+    bytes32 public constant BATCH_CALL_PACKED_TYPEHASH = keccak256(
       "batchCall(address token,address to,uint256 value,uint256 sessionId,bytes data)"
     );
+
+    bytes32 public constant BATCH_MULTI_CALL_TYPEHASH = keccak256(
+      "batchMultiCall(address token,address to,uint256 value,uint256 sessionId,bytes data)"
+    );
+
+    bytes32 public constant BATCH_MULTI_SIG_CALL_LIST_TYPEHASH = keccak256(
+      "batchMultiCall(address token,address to,uint256 value,uint256 sessionId,bytes data)"
+    );
+
+    bytes32 public constant BATCH_MULTI_SIG_CALL_LIMITS_TYPEHASH = keccak256(
+      "batchMultiCall(address token,address to,uint256 value,uint256 sessionId,bytes data)"
+    );
+
+    bytes32 public constant BATCH_MULTI_SIG_CALL_TYPEHASH = keccak256(
+      "batchMultiCall(address token,address to,uint256 value,uint256 sessionId,bytes data)"
+    );
+
 
     struct Call {
         bytes32 r;
@@ -27,12 +44,10 @@ contract Factory is FactoryStorage {
     }
 
      struct MCall {
-        bytes32 typeHash;
         address to;
         uint256 value;
         uint16 flags;
         uint32 gasLimit;
-        bytes4 selector;
         bytes data;
      }
 
@@ -46,7 +61,6 @@ contract Factory is FactoryStorage {
      }
 
     struct MSCall {
-        bytes32 typeHash;
         address signer;
         address to;
         uint256 value;
@@ -62,8 +76,6 @@ contract Factory is FactoryStorage {
      }
 
      struct MSCalls {
-        bytes32 typeHash;
-        bytes32 limitsTypeHash;
         uint256 sessionId;
         MSCall[] mcall;
         Signature[] signatures;
@@ -373,7 +385,7 @@ contract Factory is FactoryStorage {
             require(block.timestamp > uint40(sessionId >> 152) /*afterTS*/, "Factory: too early");
             require(block.timestamp < uint40(sessionId >> 112) /*beforeTS*/, "Factory: too late");
 
-            bytes32 messageHash = keccak256(abi.encode(BATCH_CALL_TYPEHASH, to, value, sessionId >> 8, call.data));
+            bytes32 messageHash = keccak256(abi.encode(BATCH_CALL_PACKED_TYPEHASH, to, value, sessionId >> 8, call.data));
 
             Wallet storage wallet = _getWalletFromMessage(
                 call.signer,
@@ -446,7 +458,7 @@ contract Factory is FactoryStorage {
             for(uint256 j = 0; j < length; j++) {
                 MCall calldata call = mcalls.mcall[j];
                 address to = call.to;
-                msg2 = abi.encodePacked(msg2, abi.encode(call.typeHash, to, call.value, sessionId, afterTS, beforeTS, call.gasLimit, gasPriceLimit, call.selector, call.data));
+                msg2 = abi.encodePacked(msg2, abi.encode(BATCH_MULTI_CALL_TYPEHASH, to, call.value, sessionId, call.data));
                 if (j < mcalls.mcall.length-1) {
                   msgPre = abi.encodePacked(msgPre, msg2.length + 32*mcalls.mcall.length);
                 }
@@ -470,8 +482,8 @@ contract Factory is FactoryStorage {
                 uint16 flags = call.flags;
 
                 (bool success, bytes memory res) = call.flags & FLAG_STATICCALL > 0 ?
-                    wallet.addr.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(abi.encodeWithSignature("staticcall(address,bytes)", call.to, abi.encodePacked(call.selector, call.data))):
-                    wallet.addr.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(abi.encodeWithSignature("call(address,uint256,bytes)", call.to, call.value, abi.encodePacked(call.selector, call.data)));
+                    wallet.addr.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(abi.encodeWithSignature("staticcall(address,bytes)", call.to, call.data)):
+                    wallet.addr.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(abi.encodeWithSignature("call(address,uint256,bytes)", call.to, call.value, call.data));
                 if (!success) {
                     if (flags & ON_FAIL_CONTINUE > 0) {
                         continue;
@@ -515,9 +527,9 @@ contract Factory is FactoryStorage {
             // bool refund = sessionId & FLAG_PAYMENT > 0;
             // bool ordered = sessionId & FLAG_ORDERED > 0;
             bytes memory msg2 = abi.encode(
-                mcalls.typeHash,
+                BATCH_MULTI_SIG_CALL_LIST_TYPEHASH,
                 keccak256(abi.encode(
-                    mcalls.limitsTypeHash,
+                    BATCH_MULTI_SIG_CALL_LIMITS_TYPEHASH,
                     sessionId
                 ))
             );
@@ -545,7 +557,7 @@ contract Factory is FactoryStorage {
                 msg2 = abi.encodePacked(
                     msg2,
                     keccak256(abi.encode(
-                        call.typeHash,
+                        BATCH_MULTI_SIG_CALL_TYPEHASH,
                         call.signer,
                         call.to,
                         call.value,

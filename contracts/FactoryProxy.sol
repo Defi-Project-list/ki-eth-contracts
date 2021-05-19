@@ -88,14 +88,15 @@ contract FactoryProxy is FactoryStorage {
       "limits(address token,address to,uint256 value,uint256 sessionId,bytes data)"
     );
 
-    bytes32 public constant BATCH_TRANSFER_PACKED_HASH = keccak256(
-      "batchTransferPacked"
+    bytes32 public constant BATCH_TRANSFER_PACKED_TYPEHASH = keccak256(
+      "batchTransferPacked()"
     );
 
     // bytes4(keccak256("sendEther(address payable,uint256)"));
     bytes4 public constant TRANSFER_SELECTOR = 0xc61f08fd;
 
     struct Transfer {
+        bytes32 typeHash;
         address signer;
         bytes32 r;
         bytes32 s;
@@ -199,7 +200,7 @@ contract FactoryProxy is FactoryStorage {
     }
 
     // Batch Transfers: ETH & ERC20 Tokens
-    function batchTransfer(Transfer[] calldata tr, uint24 nonceGroup, bytes32 typeHash) public {
+    function batchTransfer(Transfer[] calldata tr, uint24 nonceGroup) public {
       unchecked {
         require(msg.sender == s_activator, "Wallet: sender not allowed");
         uint256 nonce = s_nonce_group[nonceGroup] + (uint256(nonceGroup) << 232);
@@ -231,7 +232,7 @@ contract FactoryProxy is FactoryStorage {
             require(block.timestamp < uint32(sessionId >> 112) /*beforeTS*/, "Factory: too late");
 
             bytes32 message = keccak256(abi.encode(
-                    typeHash,
+                    call.typeHash,
                     BATCH_TRANSFER_HASH,
                     call.token,
                     to,
@@ -304,8 +305,7 @@ contract FactoryProxy is FactoryStorage {
 
             bytes32 messageHash = _messageToRecover(
                 keccak256(abi.encode(
-                    typeHash,
-                    BATCH_TRANSFER_PACKED_HASH,
+                    BATCH_TRANSFER_PACKED_TYPEHASH,
                     token,
                     to,
                     value,
@@ -628,7 +628,7 @@ contract FactoryProxy is FactoryStorage {
                             )):
                             keccak256(abi.encode(
                                 call.typeHash,
-                                BATCH_MULTI_SIG_CALL_HASH,
+                                // BATCH_MULTI_SIG_CALL_HASH,
                                 call.signer,
                                 call.to,
                                 call.ensHash,
@@ -728,10 +728,11 @@ contract FactoryProxy is FactoryStorage {
     }
 
     function _calcRefund(uint256 debt, uint256 gas, uint256 constGas, uint256 gasPriceLimit, uint256 payment) private view returns (uint88) {
-        return (debt > 0  ? 
-                  uint88((tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * ((gas - gasleft()) * 110 / 100 + constGas + 5000)):
-                  uint88((tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * ((gas - gasleft()) * 110 / 100 + constGas + 5000)));
-                  // uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + constGas + 15000) /*22100))*/ * 110 / 100 ));
+        return uint88((gas - gasleft()) * 110 / 100 + constGas + 5000);
+        // return (debt > 0  ? 
+        //           uint88((tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * ((gas - gasleft()) * 110 / 100 + constGas + 5000)):
+        //           uint88((tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * ((gas - gasleft()) * 110 / 100 + constGas + 5000)));
+        //           // uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + constGas + 15000) /*22100))*/ * 110 / 100 ));
     }
 
     function _encodeCall(Call memory call) internal view returns (bytes32 messageHash, address to) {
