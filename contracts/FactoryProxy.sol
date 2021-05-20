@@ -730,7 +730,7 @@ contract FactoryProxy is FactoryStorage {
     }
 
     function _calcRefund(uint256 debt, uint256 gas, uint256 constGas, uint256 gasPriceLimit, uint256 payment) private view returns (uint88) {
-        return uint88((gas - gasleft()) * 110 / 100 + constGas + 5000);
+        return uint88((gas - gasleft()) * 110 / 100 + constGas + 8000);
         // return (debt > 0  ? 
         //           uint88((tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * ((gas - gasleft()) * 110 / 100 + constGas + 5000)):
         //           uint88((tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * ((gas - gasleft()) * 110 / 100 + constGas + 5000)));

@@ -86,28 +86,62 @@ contract Factory is FactoryStorage {
         bytes8 indexed version,
         address indexed owner
     );
-    event WalletUpgraded(address indexed wallet, bytes8 indexed version);
-    event WalletUpgradeRequested(address indexed wallet, bytes8 indexed version);
-    event WalletUpgradeDismissed(address indexed wallet, bytes8 indexed version);
+
+    event WalletUpgraded(
+      address indexed wallet,
+      bytes8 indexed version
+    );
+
+    event WalletUpgradeRequested(
+      address indexed wallet,
+      bytes8 indexed version
+    );
+
+    event WalletUpgradeDismissed(
+      address indexed wallet,
+      bytes8 indexed version
+    );
+
     event WalletConfigurationRestored(
         address indexed wallet,
         bytes8 indexed version,
         address indexed owner
     );
+
     event WalletOwnershipRestored(
         address indexed wallet,
         address indexed owner
     );
+
     event WalletVersionRestored(
         address indexed wallet,
         bytes8 indexed version,
         address indexed owner
     );
+
+    event WalletOwnershipTransfered(
+        address indexed wallet,
+        address indexed owner,
+        address indexed newOwner
+    );
+
+    event WalletBakcupCreated(
+        address indexed wallet,
+        address indexed owner,
+        address indexed backup
+    );
+
+    event WalletBackupRemoved(
+        address indexed wallet,
+        address indexed backup
+    );
+
     event VersionAdded(
         bytes8 indexed version,
         address indexed code,
         address indexed oracle
     );
+
     event VersionDeployed(
         bytes8 indexed version,
         address indexed code,
@@ -150,6 +184,7 @@ contract Factory is FactoryStorage {
         sp_sw.owner = false;
         sp_sw.addr = address(0);
         IProxy(msg.sender).init(newOwner, address(0));
+        emit WalletOwnershipTransfered(sp_sw.addr, curOwner, newOwner);
     }
 
     function addWalletBackup(address backup) external {
@@ -161,6 +196,7 @@ contract Factory is FactoryStorage {
         require(msg.sender == sp_sw_owner.addr, "not wallet");
         require(sp_sw_owner.owner == true, "no wallet owner");
         sp_sw.addr = msg.sender;
+        emit WalletBakcupCreated(sp_sw.addr, owner, backup);
     }
 
     function removeWalletBackup(address backup) external {
@@ -169,6 +205,7 @@ contract Factory is FactoryStorage {
         require(sp_sw.addr == msg.sender, "not wallet");
         require(sp_sw.owner == false, "wallet backup not exist");
         sp_sw.addr = address(0);
+        emit WalletBackupRemoved(sp_sw.addr, backup);
     }
 
     function upgradeWalletRequest(bytes8 version) external {
