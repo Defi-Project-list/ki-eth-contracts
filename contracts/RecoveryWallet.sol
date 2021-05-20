@@ -3,10 +3,9 @@
 pragma solidity ^0.8.0;
 pragma abicoder v1;
 
-//import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
 import "openzeppelin-solidity/contracts/token/ERC721/IERC721.sol";
-import "openzeppelin-solidity/contracts/token/ERC721/IERC721Receiver.sol";
+import "openzeppelin-solidity/contracts/utils/cryptography/SignatureChecker.sol";
 
 import "./lib/IOracle.sol";
 import "./lib/Heritable.sol";
@@ -14,7 +13,7 @@ import "./lib/Heritable.sol";
 // import "./Trust.sol";
 
 contract RecoveryWallet is IStorage, Heritable {
-    //using SafeMath for uint256;
+    using SignatureChecker for address;
 
     uint8 public constant VERSION_NUMBER = 0x1;
     string public constant NAME = "Kirobo OCW";
@@ -139,14 +138,14 @@ contract RecoveryWallet is IStorage, Heritable {
     }
 
     //function onERC721Received(address operator, address from, uint256 tokenId, bytes data) public returns (bytes4) {
-    function onERC721Received(
-        address,
-        address,
-        uint256,
-        bytes memory
-    ) public pure returns (bytes4) {
-        return this.onERC721Received.selector;
-    }
+    // function onERC721Received(
+    //     address,
+    //     address,
+    //     uint256,
+    //     bytes memory
+    // ) public pure returns (bytes4) {
+    //     return this.onERC721Received.selector;
+    // }
 
     // function createTrust(
     //     address _wallet,
@@ -211,7 +210,24 @@ contract RecoveryWallet is IStorage, Heritable {
         return bytes8("REC-0.1");
     }
 
-    fallback() external {}
+    // function isValidSignature(bytes32 msgHash, bytes memory signature) external view onlyActiveState() returns (bytes4) {
+    //     require(s_owner.isValidSignatureNow(msgHash, signature), "Wallet: signer is not owner");
+    //     return SELECTOR_IS_VALID_SIGNATURE;
+    // }
+
+    fallback() external {
+        if(
+            msg.sig == SELECTOR_ON_ERC721_RECEIVED ||
+            msg.sig == SELECTOR_ON_ERC1155_RECEIVED ||
+            msg.sig == SELECTOR_ON_ERC1155_BATCH_RECEIVED
+        ) 
+        {
+            assembly {                
+                calldatacopy(0, 0, 0x04)
+                return (0, 0x20)
+            }
+        }
+    }
 
     receive() external payable {
         require(false, "Wallet: not aceepting ether");

@@ -17,7 +17,6 @@ abstract contract Storage is IStorage {
         _;
     }
 
-
     function uid() view external returns (bytes32) {
         return s_uid;
     }
@@ -64,4 +63,5 @@ abstract contract Storage is IStorage {
     
     // ------------- Trust ---------
     // Trust internal s_trust;
+
 }

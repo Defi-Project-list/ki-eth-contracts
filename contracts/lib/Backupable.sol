@@ -5,9 +5,10 @@ pragma abicoder v1;
 
 import "./StorageBase.sol";
 import "./Storage.sol";
+import "./Interface.sol";
 import "./IOracle.sol";
 
-abstract contract Backupable is IStorage, StorageBase, Storage {
+abstract contract Backupable is IStorage, StorageBase, Storage, Interface {
 
     event BackupChanged         (address indexed creator, address indexed owner, address indexed wallet,
     uint32 timeout, uint40 timestamp, uint8 state);
