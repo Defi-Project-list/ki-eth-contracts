@@ -233,15 +233,17 @@ contract FactoryProxy is FactoryStorage {
 
             bytes32 message = keccak256(abi.encode(
                     call.typeHash,
-                    BATCH_TRANSFER_HASH,
+                    // BATCH_TRANSFER_HASH,
                     call.token,
-                    to,
+                    call.tokenEnsHash,
+                    call.to,
+                    call.toEnsHash,
                     call.value,
-                    uint64(call.sessionId >> 192), // group + nonce
-                    uint40(call.sessionId >> 152), // afterTS,
-                    uint40(call.sessionId >> 112), // beforeTS
-                    uint32(call.sessionId >> 80), // gasLimit
-                    uint64(call.sessionId >> 16) // gasPriceLimit,
+                    uint64(sessionId >> 192), // group + nonce
+                    uint40(sessionId >> 152), // afterTS,
+                    uint40(sessionId >> 112), // beforeTS
+                    uint32(sessionId >> 80), // gasLimit
+                    uint64(sessionId >> 16) // gasPriceLimit,
                 ));
 
             bytes32 messageHash = _messageToRecover(
