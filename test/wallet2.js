@@ -586,6 +586,8 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
     await instance.cancelCall({ from: owner })
     const nonce = await instance.nonce()
 
+    const multiSig = false
+
     const sends = []
 
     for (let i=10+userCount/2; i<10+userCount; ++i) {
@@ -608,6 +610,15 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
           signer: getSigner(10),
           // flow: 0x10, // on_success_stop
         },
+        (multiSig ? 
+        {
+          data: '',
+          value: 0,
+          // typeHash: '0x'.padEnd(66,'1'),
+          to: ZERO_ADDRESS,
+          gasLimit: 0,
+          signer: getSigner(11),
+        }:
         {
           data: '',
           value: 10,
@@ -615,7 +626,7 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
           to: accounts[12],
           gasLimit: 0,
           signer: getSigner(11),
-        },
+        }),
         {
           data: token20.contract.methods.transfer(accounts[13], 12).encodeABI(),
           value: 0,
@@ -679,7 +690,7 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
       `0x${groupERC20}${tnonceERC20}${afterERC20}${beforeERC20}${maxGasERC20}${maxGasPriceERC20}${eip712ERC20}`
     )
 
-        const typedData = {
+    const typedData = {
       types: {
         EIP712Domain: [
           { name: "name",                 type: "string"  },
@@ -718,18 +729,6 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
           { name: 'method_data_length',   type: 'uint256' },
           { name: 'to',                   type: 'address' },
           { name: 'token_amount',         type: 'uint256' },
-        ],
-        transaction2: [
-          { name: 'signer',               type: 'address' },
-          { name: 'to',                   type: 'address' },
-          { name: 'to_ens',               type: 'string'  },
-          { name: 'eth_value',            type: 'uint256' },
-          { name: 'gas_limit',            type: 'uint32'  },
-          { name: 'view_only',            type: 'bool'    },
-          { name: 'continue_on_fail',     type: 'bool'    },
-          { name: 'stop_on_fail',         type: 'bool'    },
-          { name: 'stop_on_success',      type: 'bool'    },
-          { name: 'revert_on_success',    type: 'bool'    },
         ],
         transaction3: [
           { name: 'signer',               type: 'address' },
@@ -770,7 +769,7 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
         },
         ['-----------------------------------']: '',
         transaction_1: {
-          signer: getSigner(10),
+          signer: getSigner(10), 
           token_address: token20.address,
           token_ens: '@token.kiro.eth',
           eth_value: '0',
@@ -789,9 +788,9 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
         ['------------------------------------']: '',
         transaction_2: {
           signer: getSigner(11),
-          to: accounts[12],
+          to: multiSig ? ZERO_ADDRESS: accounts[12],
           to_ens: '',
-          eth_value: '10',
+          eth_value: multiSig ? '0': '10',
           gas_limit: Number.parseInt('0x' + maxGasERC20),
           view_only: false,
           continue_on_fail: false,
@@ -820,6 +819,26 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
     }
 
 
+if (multiSig) {
+  typedData.types.transaction2 =
+    [
+      { name: 'signer',               type: 'address' },
+    ];
+} else {
+  typedData.types.transaction2 =
+    [
+      { name: 'signer',               type: 'address' },
+      { name: 'to',                   type: 'address' },
+      { name: 'to_ens',               type: 'string'  },
+      { name: 'eth_value',            type: 'uint256' },
+      { name: 'gas_limit',            type: 'uint32'  },
+      { name: 'view_only',            type: 'bool'    },
+      { name: 'continue_on_fail',     type: 'bool'    },
+      { name: 'stop_on_fail',         type: 'bool'    },
+      { name: 'stop_on_success',      type: 'bool'    },
+      { name: 'revert_on_success',    type: 'bool'    },
+    ];
+}
 
     // console.log('sends', JSON.stringify(sends, null,2))
 

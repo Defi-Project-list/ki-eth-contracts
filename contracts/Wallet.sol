@@ -261,7 +261,7 @@ contract Wallet is IStorage, Heritable {
     // }
 
     // keccak256("acceptTokens(address recipient,uint256 value,bytes32 secretHash)");
-    bytes32 public constant ACCEPT_TYPEHASH = 0xf728cfc064674dacd2ced2a03acd588dfd299d5e4716726c6d5ec364d16406eb;
+    // bytes32 public constant ACCEPT_TYPEHASH = 0xf728cfc064674dacd2ced2a03acd588dfd299d5e4716726c6d5ec364d16406eb;
 
 
 

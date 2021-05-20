@@ -628,6 +628,7 @@ contract FactoryProxy is FactoryStorage {
                                 call.functionSignature,
                                 call.data
                             )):
+                        call.to != address(0) ?                            
                             keccak256(abi.encode(
                                 call.typeHash,
                                 // BATCH_MULTI_SIG_CALL_HASH,
@@ -641,7 +642,12 @@ contract FactoryProxy is FactoryStorage {
                                 flags & ON_FAIL_STOP,
                                 flags & ON_SUCCESS_STOP,
                                 flags & ON_SUCCESS_REVERT
+                            )):
+                            keccak256(abi.encode(
+                                call.typeHash,
+                                call.signer
                             ))
+
                     );
                     // toList[j] = to;
                 }
@@ -679,9 +685,12 @@ contract FactoryProxy is FactoryStorage {
             for(uint256 j = 0; j < length; j++) {
                     // address signer = signers[j];
                     require(signers[j] != address(0), "Factory: signer missing");
+                    MSCall calldata call = mcalls.mcall[j];
+                    if (call.to == address(0)) {
+                        continue;
+                    }
                     Wallet storage wallet = s_accounts_wallet[signers[j]];
                     require(wallet.owner == true, "Factory: signer is not owner");
-                    MSCall calldata call = mcalls.mcall[j];
                     // uint32 gasLimit = call.gasLimit;
                     // uint16 flags = call.flags;
                     address to = _ensToAddress(call.ensHash, call.to); // toList[j];
