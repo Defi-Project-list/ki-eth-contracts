@@ -8,18 +8,128 @@ pragma abicoder v2;
 import "./FactoryStorage.sol";
 // import "./Factory.sol";
 
+struct Signature {
+    bytes32 r;
+    bytes32 s;
+    uint8 v;
+}
+
+struct Transfer {
+    bytes32 typeHash;
+    address signer;
+    bytes32 r;
+    bytes32 s;
+    address token;
+    bytes32 tokenEnsHash;
+    address to;
+    bytes32 toEnsHash;
+    uint256 value;
+    uint256 sessionId;
+}
+
+struct PTransfer {
+    address signer;
+    bytes32 r;
+    bytes32 s;
+    address token;
+    address to;
+    uint256 value;
+    uint256 sessionId;
+}
+
+struct Call {
+    bytes32 r;
+    bytes32 s;
+    bytes32 typeHash;
+    address to;
+    bytes32 ensHash;
+    uint256 value;
+    uint256 sessionId;
+    address signer;
+    bytes32 functionSignature;
+    bytes data;
+}
+
+  struct MCall {
+    bytes32 typeHash;
+    bytes32 ensHash;
+    uint256 value;
+    bytes32 functionSignature;
+    address to;
+    uint32 gasLimit;
+    uint16 flags;
+    bytes data;
+  }
+
+  struct MCalls {
+    bytes32 r;
+    bytes32 s;
+    bytes32 typeHash;
+    bytes32 limitsTypeHash;
+    uint256 sessionId;
+    address signer;
+    uint8 v;
+    MCall[] mcall;
+  }
+
+struct MSCall {
+    bytes32 typeHash;
+    bytes32 ensHash;
+    bytes32 functionSignature;
+    uint256 value;
+    address signer;
+    uint32 gasLimit;
+    uint16 flags;
+    address to;
+    bytes data;
+  }
+
+struct MSCalls {
+    bytes32 typeHash;
+    bytes32 limitsTypeHash;
+    uint256 sessionId;
+    MSCall[] mcall;
+    Signature[] signatures;
+  }
+
 contract FactoryProxy is FactoryStorage {
 
-    // using SignatureChecker for address;
-    // using ECDSA for bytes32;
-
     uint8 public constant VERSION_NUMBER = 0x1;
+    
     string public constant NAME = "Kirobo OCW Manager";
+    
     string public constant VERSION = "1";
 
-    function uid() view external returns (bytes32) {
-        return s_uid;
-    }
+    bytes32 public constant TRANSFER_TYPEHASH = 0xf728cfc064674dacd2ced2a03acd588dfd299d5e4716726c6d5ec364d16406eb;
+
+    bytes32 public constant BATCH_MULTICALL_TYPEHASH = keccak256(
+      "limits(address token,address to,uint256 value,uint256 sessionId,bytes data)"
+    );
+
+    bytes32 public constant BATCH_TRANSFER_PACKED_TYPEHASH = keccak256(
+      "batchTransferPacked()"
+    );
+
+    // bytes4(keccak256("sendEther(address payable,uint256)"));
+    bytes4 public constant TRANSFER_SELECTOR = 0xc61f08fd;
+
+    bytes32 public constant BATCH_TRANSFER_HASH = keccak256(
+      "batchTransfer"
+    );
+
+    bytes32 public constant BATCH_CALL_HASH = keccak256(
+      "batchCall"
+    );
+
+    bytes32 public constant BATCH_MULTI_CALL_HASH = keccak256(
+      "batchMultiCall"
+    );
+
+    bytes32 public constant BATCH_MULTI_SIG_CALL_HASH = keccak256(
+      "batchMultiSigCall"
+    );
+
+    // event ErrorHandled(bytes reason);
 
     constructor(
         address owner1,
@@ -56,7 +166,26 @@ contract FactoryProxy is FactoryStorage {
         );
         // proxy = address(this);
     }
-    
+
+    fallback() external {
+        assembly {
+            calldatacopy(0x00, 0x00, calldatasize())
+            let res := delegatecall(
+                gas(),
+                sload(s_target.slot),
+                0x00,
+                calldatasize(),
+                0,
+                0
+            )
+            returndatacopy(0x00, 0x00, returndatasize())
+            if res {
+                return(0x00, returndatasize())
+            }
+            revert(0x00, returndatasize())
+        }
+    }
+
     function setTarget(address target) external multiSig2of3(0) {
         require(s_frozen != true, "frozen");
         require(target != address(0), "no target");
@@ -66,134 +195,6 @@ contract FactoryProxy is FactoryStorage {
     function freezeTarget() external multiSig2of3(0) {
         s_frozen = true;
     }
-
-    function operator() public view returns (address) {
-      return s_operator;
-    }
-
-    function activator() public view returns (address) {
-      return s_activator;
-    }
-
-    function managers() public view returns (address, address) {
-      return (s_operator, s_activator);
-    }
-
-    event ErrorHandled(bytes reason);
-
-    // keccak256("acceptTokens(address recipient,uint256 value,bytes32 secretHash)");
-    bytes32 public constant TRANSFER_TYPEHASH = 0xf728cfc064674dacd2ced2a03acd588dfd299d5e4716726c6d5ec364d16406eb;
-
-    bytes32 public constant BATCH_MULTICALL_TYPEHASH = keccak256(
-      "limits(address token,address to,uint256 value,uint256 sessionId,bytes data)"
-    );
-
-    bytes32 public constant BATCH_TRANSFER_PACKED_TYPEHASH = keccak256(
-      "batchTransferPacked()"
-    );
-
-    // bytes4(keccak256("sendEther(address payable,uint256)"));
-    bytes4 public constant TRANSFER_SELECTOR = 0xc61f08fd;
-
-    struct Transfer {
-        bytes32 typeHash;
-        address signer;
-        bytes32 r;
-        bytes32 s;
-        address token;
-        bytes32 tokenEnsHash;
-        address to;
-        bytes32 toEnsHash;
-        uint256 value;
-        uint256 sessionId;
-    }
-
-    struct PTransfer {
-        address signer;
-        bytes32 r;
-        bytes32 s;
-        address token;
-        address to;
-        uint256 value;
-        uint256 sessionId;
-    }
-
-    struct Call {
-        bytes32 r;
-        bytes32 s;
-        bytes32 typeHash;
-        address to;
-        bytes32 ensHash;
-        uint256 value;
-        uint256 sessionId;
-        address signer;
-        bytes32 functionSignature;
-        bytes data;
-    }
-
-     struct MCall {
-        bytes32 typeHash;
-        address to;
-        bytes32 ensHash;
-        uint256 value;
-        uint16 flags;
-        uint32 gasLimit;
-        bytes32 functionSignature;
-        bytes data;
-     }
-
-     struct MCalls {
-        uint8 v;
-        bytes32 r;
-        bytes32 s;
-        bytes32 typeHash;
-        bytes32 limitsTypeHash;
-        uint256 sessionId;
-        address signer;
-        MCall[] mcall;
-     }
-
-     struct Signature {
-       uint8 v;
-       bytes32 r;
-       bytes32 s;
-     }
-
-    struct MSCall {
-        bytes32 typeHash;
-        address signer;
-        address to;
-        bytes32 ensHash;
-        uint256 value;
-        uint16 flags;
-        uint32 gasLimit;
-        bytes32 functionSignature;
-        bytes data;
-     }
-
-    struct MSCalls {
-        bytes32 typeHash;
-        bytes32 limitsTypeHash;
-        uint256 sessionId;
-        MSCall[] mcall;
-        Signature[] signatures;
-     }
-
-    bytes32 public constant BATCH_TRANSFER_HASH = keccak256(
-      "batchTransfer"
-    );
-
-    bytes32 public constant BATCH_CALL_HASH = keccak256(
-      "batchCall"
-    );
-
-    bytes32 public constant BATCH_MULTI_CALL_HASH = keccak256(
-      "batchMultiCall"
-    );
-
-    bytes32 public constant BATCH_MULTI_SIG_CALL_HASH = keccak256(
-      "batchMultiSigCall"
-    );
 
     function setLocalEns(string calldata ens, address dest) external {
         s_local_ens[keccak256(abi.encodePacked("@",ens))] = dest;
@@ -738,6 +739,22 @@ contract FactoryProxy is FactoryStorage {
         }
     }
 
+    function uid() view external returns (bytes32) {
+        return s_uid;
+    }
+
+    function operator() external view returns (address) {
+      return s_operator;
+    }
+
+    function activator() external view returns (address) {
+      return s_activator;
+    }
+
+    function managers() external view returns (address, address) {
+      return (s_operator, s_activator);
+    }
+
     function _calcRefund(uint256 debt, uint256 gas, uint256 constGas, uint256 gasPriceLimit, uint256 payment) private view returns (uint88) {
         return uint88((gas - gasleft()) * 110 / 100 + constGas + 8000);
         // return (debt > 0  ? 
@@ -746,7 +763,7 @@ contract FactoryProxy is FactoryStorage {
         //           // uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + constGas + 15000) /*22100))*/ * 110 / 100 ));
     }
 
-    function _encodeCall(Call memory call) internal view returns (bytes32 messageHash, address to) {
+    function _encodeCall(Call memory call) private view returns (bytes32 messageHash, address to) {
         to = _ensToAddress(call.ensHash, call.to);
         messageHash = call.functionSignature != 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470 ?
             keccak256(abi.encode(
@@ -798,23 +815,4 @@ contract FactoryProxy is FactoryStorage {
           _ensToAddress(call.ensHash, call.to));
     }
 
-    fallback() external {
-        // solium-disable-next-line security/no-inline-assembly
-        assembly {
-            calldatacopy(0x00, 0x00, calldatasize())
-            let res := delegatecall(
-                gas(),
-                sload(s_target.slot),
-                0x00,
-                calldatasize(),
-                0,
-                0
-            )
-            returndatacopy(0x00, 0x00, returndatasize())
-            if res {
-                return(0x00, returndatasize())
-            }
-            revert(0x00, returndatasize())
-        }
-    }
 }

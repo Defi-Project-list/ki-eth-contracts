@@ -54,16 +54,6 @@ contract Wallet is IStorage, Heritable {
     //     return IOracle(ICreator(this.creator()).oracle()).is721Safe(_token);
     // }
 
-    //function onERC721Received(address operator, address from, uint256 tokenId, bytes data) public returns (bytes4) {
-    // function onERC721Received(
-    //     address,
-    //     address,
-    //     uint256,
-    //     bytes memory
-    // ) public pure returns (bytes4) {
-    //     return this.onERC721Received.selector;
-    // }
-
     // function createTrust(
     //     address _wallet,
     //     uint40 _start,
@@ -72,8 +62,8 @@ contract Wallet is IStorage, Heritable {
     //     uint256 _amount,
     //     bool _cancelable
     // ) public payable {
-    //     require(trust == Trust(payable(0)));
-    //     trust = (new Trust){value: _amount * _times}(
+    //     require(s_trust == Trust(payable(0)));
+    //     s_trust = (new Trust){value: _amount * _times}(
     //         payable(_wallet),
     //         _start,
     //         _period,
@@ -84,13 +74,13 @@ contract Wallet is IStorage, Heritable {
     // }
 
     // function destroyTrust() public {
-    //     require(trust != Trust(payable(0)));
-    //     trust.destroy();
-    //     trust = Trust(payable(0));
+    //     require(s_trust != Trust(payable(0)));
+    //     s_trust.destroy();
+    //     s_trust = Trust(payable(0));
     // }
 
     // function getTrust() public view returns (Trust) {
-    //     return trust;
+    //     return s_trust;
     // }
 
     // IStorage Implementation

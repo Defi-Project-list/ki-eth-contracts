@@ -54,7 +54,7 @@ abstract contract Storage is IStorage {
     uint256 public CHAIN_ID;
     
     // ------------- Trust ---------
-    // Trust internal s_trust;
+    Trust internal s_trust;
 
     modifier onlyActiveState () {
         require (s_backup.state != BACKUP_STATE_ACTIVATED, "not active state");

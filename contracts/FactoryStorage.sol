@@ -9,6 +9,17 @@ import "./lib/ProxyLatest.sol";
 import "openzeppelin-solidity/contracts/utils/cryptography/SignatureChecker.sol";
 import "openzeppelin-solidity/contracts/utils/cryptography/ECDSA.sol";
 
+struct Wallet {
+    address addr;
+    bool owner;
+    uint88 debt;
+}
+
+struct UpgradeRequest {
+    bytes8 version;
+    uint256 validAt;
+}
+
 interface ENS {
     function resolver(bytes32 node) external view returns (Resolver);
 }
@@ -24,20 +35,10 @@ abstract contract FactoryStorage is MultiSig {
     address internal s_target;
 
     Proxy internal s_swProxy;
+    
     ProxyLatest internal s_swProxyLatest;
 
     bytes8 public constant LATEST = bytes8("latest");
-
-    struct Wallet {
-        address addr;
-        bool owner;
-        uint88 debt;
-    }
-
-    struct UpgradeRequest {
-        bytes8 version;
-        uint256 validAt;
-    }
 
     mapping(address => Wallet) internal s_accounts_wallet;
     mapping(address => bytes8) internal s_wallets_version;
@@ -62,15 +63,6 @@ abstract contract FactoryStorage is MultiSig {
     ENS internal s_ens;
     mapping(bytes32 => address) internal s_local_ens;
 
-    // uint256 internal s_nonce;
-
-    // storage end
-
-    // modifier onlyProxy () {
-    //     require (msg.sender == proxy, "not proxy");
-    //     _;
-    // }
-
     uint256 internal constant FLAG_EIP712  = 0x0100;
     uint256 internal constant FLAG_ORDERED = 0x0200;
     uint256 internal constant FLAG_STATICCALL = 0x0400;
@@ -91,17 +83,16 @@ abstract contract FactoryStorage is MultiSig {
         s_swProxy = new Proxy();
         s_swProxyLatest = new ProxyLatest();
         s_versions_code[LATEST] = address(s_swProxyLatest);
-        // s_nonce = 1;
-        s_nonce_group[0] = 1;
-        s_nonce_group[1] = 1;
-        s_nonce_group[2] = 1;
-        s_nonce_group[3] = 1;
-        s_nonce_group[4] = 1;
-        s_nonce_group[5] = 1;
-        s_nonce_group[6] = 1;
-        s_nonce_group[7] = 1;
-        s_nonce_group[8] = 1;
-        s_nonce_group[9] = 1;
+        s_nonce_group[0] = 1; // TODO: remove for production
+        s_nonce_group[1] = 1; // TODO: remove for production
+        s_nonce_group[2] = 1; // TODO: remove for production
+        s_nonce_group[3] = 1; // TODO: remove for production
+        s_nonce_group[4] = 1; // TODO: remove for production
+        s_nonce_group[5] = 1; // TODO: remove for production
+        s_nonce_group[6] = 1; // TODO: remove for production
+        s_nonce_group[7] = 1; // TODO: remove for production
+        s_nonce_group[8] = 1; // TODO: remove for production
+        s_nonce_group[9] = 1; // TODO: remove for production
     }
 
     function _resolve(bytes32 node) internal view returns(address result) {
@@ -127,7 +118,10 @@ abstract contract FactoryStorage is MultiSig {
         require(result != address(0), "Factory: ens address not found");
     }
 
-    function _getWalletFromMessage(address signer, bytes32 messageHash, uint8 v, bytes32 r, bytes32 s) internal view returns (Wallet storage) {
+    function _getWalletFromMessage(address signer, bytes32 messageHash, uint8 v, bytes32 r, bytes32 s)
+        internal view
+        returns (Wallet storage)
+    {
         if (signer == address(0)) {
             if (v != 0) {
                 return s_accounts_wallet[messageHash.recover(
@@ -148,7 +142,10 @@ abstract contract FactoryStorage is MultiSig {
         revert("Factory: wrong signer");
     }
 
-    function _addressFromMessageAndSignature(bytes32 messageHash, uint8 v, bytes32 r, bytes32 s) internal pure returns (address) {
+    function _addressFromMessageAndSignature(bytes32 messageHash, uint8 v, bytes32 r, bytes32 s)
+        internal pure 
+        returns (address)
+    {
         if (v != 0) {
             return messageHash.recover(
                 v,
@@ -162,7 +159,6 @@ abstract contract FactoryStorage is MultiSig {
             s & 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
         );
     }
-
 
     function _getRevertMsg(bytes memory returnData)
         internal
@@ -202,7 +198,6 @@ abstract contract FactoryStorage is MultiSig {
                 )
             );
     }
-
 
     // function migrate() public onlyProxy() {
     //     if (address(swProxy) == address(0x00)){

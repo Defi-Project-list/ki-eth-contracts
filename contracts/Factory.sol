@@ -6,6 +6,54 @@ pragma abicoder v2;
 import "./FactoryStorage.sol";
 import "./lib/IOracle.sol";
 
+struct Signature {
+    uint8 v;
+    bytes32 r;
+    bytes32 s;
+}
+
+struct Call {
+    bytes32 r;
+    bytes32 s;
+    address to;
+    uint256 value;
+    uint256 sessionId;
+    address signer;
+    bytes data;
+}
+
+struct MCall {
+    uint256 value;
+    address to;
+    uint32 gasLimit;
+    uint16 flags;
+    bytes data;
+}
+
+struct MCalls {
+    bytes32 r;
+    bytes32 s;
+    uint256 sessionId;
+    address signer;
+    uint8 v;
+    MCall[] mcall;
+}
+
+struct MSCall {
+    uint256 value;
+    address signer;
+    uint32 gasLimit;
+    uint16 flags;
+    address to;
+    bytes data;
+}
+
+struct MSCalls {
+    uint256 sessionId;
+    MSCall[] mcall;
+    Signature[] signatures;
+}
+
 contract Factory is FactoryStorage {
 
     bytes32 public constant BATCH_TRANSFER_TYPEHASH = keccak256(
@@ -31,55 +79,6 @@ contract Factory is FactoryStorage {
     bytes32 public constant BATCH_MULTI_SIG_CALL_TYPEHASH = keccak256(
       "batchMultiCall(address token,address to,uint256 value,uint256 sessionId,bytes data)"
     );
-
-
-    struct Call {
-        bytes32 r;
-        bytes32 s;
-        address to;
-        uint256 value;
-        uint256 sessionId;
-        address signer;
-        bytes data;
-    }
-
-     struct MCall {
-        address to;
-        uint256 value;
-        uint16 flags;
-        uint32 gasLimit;
-        bytes data;
-     }
-
-     struct MCalls {
-        uint8 v;
-        bytes32 r;
-        bytes32 s;
-        uint256 sessionId;
-        address signer;
-        MCall[] mcall;
-     }
-
-    struct MSCall {
-        address signer;
-        address to;
-        uint256 value;
-        uint16 flags;
-        uint32 gasLimit;
-        bytes data;
-     }
-
-     struct Signature {
-       uint8 v;
-       bytes32 r;
-       bytes32 s;
-     }
-
-     struct MSCalls {
-        uint256 sessionId;
-        MSCall[] mcall;
-        Signature[] signatures;
-     }
 
     event WalletCreated(
         address indexed wallet,
@@ -154,22 +153,34 @@ contract Factory is FactoryStorage {
         address owner3
     ) FactoryStorage(owner1, owner2, owner3) {}
 
-    function _createWallet(address creator, address target)
-        private
-        returns (address result)
-    {
-        bytes memory code =
-            hex"60998061000d6000396000f30036601657341560145734602052336001602080a25b005b6000805260046000601c376302d05d3f6000511415604b5773dadadadadadadadadadadadadadadadadadadada602052602080f35b366000803760008036600073bebebebebebebebebebebebebebebebebebebebe5af415608f57341560855734602052600051336002602080a35b3d6000803e3d6000f35b3d6000803e3d6000fd"; //log3-event-ids-address-funcid-opt (-2,-2) (min: 22440)
-        bytes20 creatorBytes = bytes20(creator);
-        bytes20 targetBytes = bytes20(target);
-        for (uint256 i = 0; i < 20; i++) {
-            code[61 + i] = creatorBytes[i];
-            code[101 + i] = targetBytes[i];
+    /*
+    receive () external payable {
+      if (msg.value > 0) {
+        emit GotEther(msg.sender, msg.value);
+      }
+    }
+    */
+
+    fallback() external {
+        /*
+        bytes8 _version = wallets_version[msg.sender];
+        if (_version == LATEST) {
+            _version = production_version;
         }
+        address _oracle = versions_oracle[_version];
+       */
+        //require(_oracle != address(0), "no oracle code");
+        /*
         // solium-disable-next-line security/no-inline-assembly
         assembly {
-            result := create(0, add(code, 0x20), mload(code))
-        }
+                calldatacopy(0x00, 0x00, calldatasize)
+                //let res := call(gas, sload(oracle_slot), callvalue, 0x00, calldatasize, 0, 0)
+                let res := staticcall(gas, sload(_oracle), 0x00, calldatasize, 0, 0)
+                returndatacopy(0x00, 0x00, returndatasize)
+                if res { return(0x00, returndatasize) }
+                revert(0x00, returndatasize)
+            }
+            */
     }
 
     function transferWalletOwnership(address newOwner) external {
@@ -261,7 +272,7 @@ contract Factory is FactoryStorage {
     }
 
     function addVersion(address target, address targetOracle)
-        public
+        external
         multiSig2of3(0)
     {
         require(target != address(0), "no version");
@@ -280,7 +291,7 @@ contract Factory is FactoryStorage {
         emit VersionAdded(version, code, targetOracle);
     }
 
-    function deployVersion(bytes8 version) public multiSig2of3(0) {
+    function deployVersion(bytes8 version) external multiSig2of3(0) {
         address code = s_versions_code[version];
         require(code != address(0), "version not exist");
         address oracleAddress = s_versions_oracle[version];
@@ -291,7 +302,7 @@ contract Factory is FactoryStorage {
         emit VersionDeployed(version, code, oracleAddress);
     }
 
-    function restoreWalletConfiguration() public {
+    function restoreWalletConfiguration() external {
         Wallet storage sp_sw = s_accounts_wallet[msg.sender];
         require(sp_sw.addr != address(0), "no wallet");
         require(sp_sw.owner == true, "not wallet owner");
@@ -305,7 +316,7 @@ contract Factory is FactoryStorage {
         emit WalletConfigurationRestored(sp_sw.addr, version, msg.sender);
     }
 
-    function restoreWalletOwnership() public {
+    function restoreWalletOwnership() external {
         Wallet storage sp_sw = s_accounts_wallet[msg.sender];
         require(sp_sw.addr != address(0), "no wallet");
         require(sp_sw.owner == true, "not wallet owner");
@@ -314,7 +325,7 @@ contract Factory is FactoryStorage {
         emit WalletOwnershipRestored(sp_sw.addr, msg.sender);
     }
 
-    function restoreWalletVersion() public {
+    function restoreWalletVersion() external {
         Wallet storage sp_sw = s_accounts_wallet[msg.sender];
         require(sp_sw.addr != address(0), "no wallet");
         require(sp_sw.owner == true, "not wallet owner");
@@ -329,19 +340,19 @@ contract Factory is FactoryStorage {
         emit WalletVersionRestored(sp_sw.addr, version, msg.sender);
     }
 
-    function getLatestVersion() public view returns (address) {
+    function getLatestVersion() external view returns (address) {
         return s_production_version_code;
     }
 
-    function getWallet(address account) public view returns (address) {
+    function getWallet(address account) external view returns (address) {
         return s_accounts_wallet[account].addr;
     }
 
-    function getWalletDebt(address account) public view returns (uint88) {
+    function getWalletDebt(address account) external view returns (uint88) {
         return s_accounts_wallet[account].debt;
     }
 
-    function createWallet(bool autoMode) public returns (address) {
+    function createWallet(bool autoMode) external returns (address) {
         require(address(s_swProxy) != address(0), "no proxy");
         require(s_production_version_code != address(0), "no prod version"); //Must be here - ProxyLatest also needs it.
         Wallet storage sp_sw = s_accounts_wallet[msg.sender];
@@ -372,7 +383,7 @@ contract Factory is FactoryStorage {
         return sp_sw.addr;
     }
 
-    function oracle() public view returns (address oracleAddress) {
+    function oracle() external view returns (address oracleAddress) {
         bytes8 version = s_wallets_version[msg.sender];
         if (version == LATEST) {
             version = s_production_version;
@@ -380,16 +391,16 @@ contract Factory is FactoryStorage {
         oracleAddress = s_versions_oracle[version];
     }
 
-    function setOperator(address newOperator) public  multiSig2of3(0) {
+    function setOperator(address newOperator) external multiSig2of3(0) {
       s_operator = newOperator;
     }
 
-    function setActivator(address newActivator) public  multiSig2of3(0) {
+    function setActivator(address newActivator) external multiSig2of3(0) {
       s_activator = newActivator;
     }
 
     // Batch Call: External Contract Functions
-    function batchCallPacked(Call[] calldata tr, uint256 nonceGroup) public {
+    function batchCallPacked(Call[] calldata tr, uint256 nonceGroup) external {
       unchecked {
         require(msg.sender == s_activator, "Wallet: sender not allowed");
         uint256 nonce = s_nonce_group[nonceGroup] + (nonceGroup << 232);
@@ -459,7 +470,7 @@ contract Factory is FactoryStorage {
     }
 
     // Batch Call: Multi External Contract Functions
-    function batchMultiCallPacked(MCalls[] calldata tr, uint256 nonceGroup) public {
+    function batchMultiCallPacked(MCalls[] calldata tr, uint256 nonceGroup) external {
       unchecked {
         require(msg.sender == s_activator, "Wallet: sender not allowed");
         uint256 nonce = s_nonce_group[nonceGroup] + (uint256(nonceGroup) << 232);
@@ -548,7 +559,7 @@ contract Factory is FactoryStorage {
     }
 
     // Batch Call: Multi Signature, Multi External Contract Functions
-    function batchMultiSigCallPacked(MSCalls[] calldata tr, uint256 nonceGroup) public {
+    function batchMultiSigCallPacked(MSCalls[] calldata tr, uint256 nonceGroup) external {
       unchecked {
         require(msg.sender == s_activator, "Wallet: sender not allowed");
         uint256 nonce = s_nonce_group[nonceGroup] + (uint256(nonceGroup) << 232);
@@ -685,41 +696,32 @@ contract Factory is FactoryStorage {
       }
     }
 
-    function _calcRefund(uint256 debt, uint256 gas, uint256 constGas, uint256 gasPriceLimit, uint256 payment) private view returns (uint88) {
+    function _calcRefund(uint256 debt, uint256 gas, uint256 constGas, uint256 gasPriceLimit, uint256 payment)
+        private view
+        returns (uint88)
+    {
         return (debt > 0  ? 
                   uint88((tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * ((gas - gasleft()) * 110 / 100 + constGas + 5000)):
                   uint88((tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * ((gas - gasleft()) * 110 / 100 + constGas + 5000)));
                   // uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + constGas + 15000) /*22100))*/ * 110 / 100 ));
     }
 
-
-    /*
-    receive () external payable {
-      if (msg.value > 0) {
-        emit GotEther(msg.sender, msg.value);
-      }
-    }
-    */
-
-    fallback() external {
-        /*
-        bytes8 _version = wallets_version[msg.sender];
-        if (_version == LATEST) {
-            _version = production_version;
+    function _createWallet(address creator, address target)
+        private
+        returns (address result)
+    {
+        bytes memory code =
+            hex"60998061000d6000396000f30036601657341560145734602052336001602080a25b005b6000805260046000601c376302d05d3f6000511415604b5773dadadadadadadadadadadadadadadadadadadada602052602080f35b366000803760008036600073bebebebebebebebebebebebebebebebebebebebe5af415608f57341560855734602052600051336002602080a35b3d6000803e3d6000f35b3d6000803e3d6000fd"; //log3-event-ids-address-funcid-opt (-2,-2) (min: 22440)
+        bytes20 creatorBytes = bytes20(creator);
+        bytes20 targetBytes = bytes20(target);
+        for (uint256 i = 0; i < 20; i++) {
+            code[61 + i] = creatorBytes[i];
+            code[101 + i] = targetBytes[i];
         }
-        address _oracle = versions_oracle[_version];
-       */
-        //require(_oracle != address(0), "no oracle code");
-        /*
         // solium-disable-next-line security/no-inline-assembly
         assembly {
-                calldatacopy(0x00, 0x00, calldatasize)
-                //let res := call(gas, sload(oracle_slot), callvalue, 0x00, calldatasize, 0, 0)
-                let res := staticcall(gas, sload(_oracle), 0x00, calldatasize, 0, 0)
-                returndatacopy(0x00, 0x00, returndatasize)
-                if res { return(0x00, returndatasize) }
-                revert(0x00, returndatasize)
-            }
-            */
+            result := create(0, add(code, 0x20), mload(code))
+        }
     }
+
 }
