@@ -103,31 +103,15 @@ contract FactoryProxy is FactoryStorage {
     bytes32 public constant TRANSFER_TYPEHASH = 0xf728cfc064674dacd2ced2a03acd588dfd299d5e4716726c6d5ec364d16406eb;
 
     bytes32 public constant BATCH_MULTICALL_TYPEHASH = keccak256(
-      "limits(address token,address to,uint256 value,uint256 sessionId,bytes data)"
+        "limits(address token,address to,uint256 value,uint256 sessionId,bytes data)"
     );
 
     bytes32 public constant BATCH_TRANSFER_PACKED_TYPEHASH = keccak256(
-      "batchTransferPacked()"
+        "batchTransferPacked()"
     );
 
     // bytes4(keccak256("sendEther(address payable,uint256)"));
     bytes4 public constant TRANSFER_SELECTOR = 0xc61f08fd;
-
-    bytes32 public constant BATCH_TRANSFER_HASH = keccak256(
-      "batchTransfer"
-    );
-
-    bytes32 public constant BATCH_CALL_HASH = keccak256(
-      "batchCall"
-    );
-
-    bytes32 public constant BATCH_MULTI_CALL_HASH = keccak256(
-      "batchMultiCall"
-    );
-
-    bytes32 public constant BATCH_MULTI_SIG_CALL_HASH = keccak256(
-      "batchMultiSigCall"
-    );
 
     // event ErrorHandled(bytes reason);
 
@@ -234,7 +218,6 @@ contract FactoryProxy is FactoryStorage {
 
             bytes32 message = keccak256(abi.encode(
                     call.typeHash,
-                    // BATCH_TRANSFER_HASH,
                     call.token,
                     call.tokenEnsHash,
                     call.to,
@@ -632,7 +615,6 @@ contract FactoryProxy is FactoryStorage {
                         call.to != address(0) ?                            
                             keccak256(abi.encode(
                                 call.typeHash,
-                                // BATCH_MULTI_SIG_CALL_HASH,
                                 call.signer,
                                 call.to,
                                 call.ensHash,
@@ -768,7 +750,6 @@ contract FactoryProxy is FactoryStorage {
         messageHash = call.functionSignature != 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470 ?
             keccak256(abi.encode(
                   call.typeHash,
-                  // BATCH_CALL_HASH,
                   call.to,
                   call.ensHash,
                   call.value,
@@ -786,7 +767,6 @@ contract FactoryProxy is FactoryStorage {
             )):
             keccak256(abi.encode(
                   call.typeHash,
-                  // BATCH_CALL_HASH,
                   call.to,
                   call.ensHash,
                   call.value,
