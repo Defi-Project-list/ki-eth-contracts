@@ -57,13 +57,13 @@ contract FactoryProxy is FactoryStorage {
         // proxy = address(this);
     }
     
-    function setTarget(address target) public multiSig2of3(0) {
+    function setTarget(address target) external multiSig2of3(0) {
         require(s_frozen != true, "frozen");
         require(target != address(0), "no target");
         s_target = target;
     }
 
-    function freezeTarget() public multiSig2of3(0) {
+    function freezeTarget() external multiSig2of3(0) {
         s_frozen = true;
     }
 
@@ -200,7 +200,7 @@ contract FactoryProxy is FactoryStorage {
     }
 
     // Batch Transfers: ETH & ERC20 Tokens
-    function batchTransfer(Transfer[] calldata tr, uint24 nonceGroup) public {
+    function batchTransfer(Transfer[] calldata tr, uint24 nonceGroup) external {
       unchecked {
         require(msg.sender == s_activator, "Wallet: sender not allowed");
         uint256 nonce = s_nonce_group[nonceGroup] + (uint256(nonceGroup) << 232);
@@ -273,7 +273,7 @@ contract FactoryProxy is FactoryStorage {
     }
 
     // Batch Transfers: ETH & ERC20 Tokens
-    function batchTransferPacked(PTransfer[] calldata tr, uint24 nonceGroup, bytes32 typeHash) public {
+    function batchTransferPacked(PTransfer[] calldata tr, uint24 nonceGroup, bytes32 typeHash) external {
       unchecked {
         require(msg.sender == s_activator, "Wallet: sender not allowed");
         uint256 nonce = s_nonce_group[nonceGroup] + (uint256(nonceGroup) << 232);
@@ -338,7 +338,7 @@ contract FactoryProxy is FactoryStorage {
     }
 
     // Batch Call: External Contract Functions
-    function batchCall(Call[] calldata tr, uint256 nonceGroup) public {
+    function batchCall(Call[] calldata tr, uint256 nonceGroup) external {
       unchecked {
         require(msg.sender == s_activator, "Wallet: sender not allowed");
         uint256 nonce = s_nonce_group[nonceGroup] + (nonceGroup << 232);
@@ -410,7 +410,7 @@ contract FactoryProxy is FactoryStorage {
     }
 
     // Batch Call: Multi External Contract Functions
-    function batchMultiCall(MCalls[] calldata tr, uint256 nonceGroup) public {
+    function batchMultiCall(MCalls[] calldata tr, uint256 nonceGroup) external {
       unchecked {
 
         require(msg.sender == s_activator, "Wallet: sender not allowed");
@@ -558,7 +558,7 @@ contract FactoryProxy is FactoryStorage {
     }
 
     // Batch Call: Multi Signature, Multi External Contract Functions
-    function batchMultiSigCall(MSCalls[] calldata tr, uint256 nonceGroup) public {
+    function batchMultiSigCall(MSCalls[] calldata tr, uint256 nonceGroup) external {
         unchecked {
             require(msg.sender == s_activator, "Wallet: sender not allowed");
             uint256 nonce = s_nonce_group[nonceGroup] + (uint256(nonceGroup) << 232);

@@ -8,6 +8,7 @@ const Oracle = artifacts.require("RecoveryOracle");
 const Wallet2 = artifacts.require("Wallet2");
 const Oracle2 = artifacts.require("Oracle2");
 const Sender = artifacts.require("Sender");
+const { ZERO_ADDRESS } = require('./lib/consts');
 const mlog = require('mocha-logger');
 const {
   assertRevert,
@@ -40,7 +41,7 @@ contract('FactoryProxy', async accounts => {
 
   before('setup contract for the test', async () => {
     const sw_factory = await Factory.new(owner, user1, user2, { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
-    const sw_factory_proxy = await FactoryProxy.new(owner, user1, user2, { from: owner });
+    const sw_factory_proxy = await FactoryProxy.new(owner, user1, user2, ZERO_ADDRESS, { from: owner });
     await sw_factory_proxy.setTarget(sw_factory.address, { from: owner });
     await sw_factory_proxy.setTarget(sw_factory.address, { from: user1 });
     instance = await Factory.at(sw_factory_proxy.address, { from: owner });

@@ -7,6 +7,7 @@ const FactoryProxy = artifacts.require("FactoryProxy");
 const ERC20Token = artifacts.require("ERC20Token");
 const ERC721Token = artifacts.require("ERC721Token");
 const mlog = require('mocha-logger');
+const { ZERO_ADDRESS } = require('./lib/consts');
 
 const { ethers } = require('ethers')
 
@@ -60,7 +61,7 @@ contract('RecoveryWallet', async accounts => {
   
   before('setup contract for the test', async () => {
     const sw_factory = await Factory.new(factoryOwner1, factoryOwner2, factoryOwner3, { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
-    const sw_factory_proxy = await FactoryProxy.new(factoryOwner1, factoryOwner2, factoryOwner3, { from: owner });
+    const sw_factory_proxy = await FactoryProxy.new(factoryOwner1, factoryOwner2, factoryOwner3, ZERO_ADDRESS, { from: owner });
     await sw_factory_proxy.setTarget(sw_factory.address, { from: factoryOwner1 });
     await sw_factory_proxy.setTarget(sw_factory.address, { from: factoryOwner2 });
     factory = await Factory.at(sw_factory_proxy.address, { from: factoryOwner3 });
