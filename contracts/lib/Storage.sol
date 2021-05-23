@@ -7,19 +7,11 @@ import "./StorageBase.sol";
 import "../Trust.sol";
 
 abstract contract Storage is IStorage {
+
     uint8 public constant BACKUP_STATE_PENDING = 0;
     uint8 public constant BACKUP_STATE_REGISTERED = 1;
     uint8 public constant BACKUP_STATE_ENABLED = 2;
     uint8 public constant BACKUP_STATE_ACTIVATED = 3;
-
-    modifier onlyActiveState () {
-        require (s_backup.state != BACKUP_STATE_ACTIVATED, "not active state");
-        _;
-    }
-
-    function uid() view external returns (bytes32) {
-        return s_uid;
-    }
 
     // ------------- Backupable ---------
     struct Backup {
@@ -54,14 +46,23 @@ abstract contract Storage is IStorage {
     uint256 internal s_totalTransfered;
     Inheritance internal s_inheritance;
 
+    // ------------- Generic ---------
+
     bytes32 internal s_uid;
     uint32 internal s_nonce;
     bytes32 public DOMAIN_SEPARATOR;
     uint256 public CHAIN_ID;
-    // address internal s_operator;
-    // address internal s_activator;
     
     // ------------- Trust ---------
     // Trust internal s_trust;
+
+    modifier onlyActiveState () {
+        require (s_backup.state != BACKUP_STATE_ACTIVATED, "not active state");
+        _;
+    }
+
+    function uid() view external returns (bytes32) {
+        return s_uid;
+    }
 
 }

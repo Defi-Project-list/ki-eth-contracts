@@ -3,11 +3,9 @@
 pragma solidity ^0.8.0;
 pragma abicoder v1;
 
-// import "../../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "./Backupable.sol";
 
 abstract contract Heritable is Backupable {
-    // using SafeMath for uint256;
 
     event InheritanceActivated    (address indexed creator, address indexed activator, address[] wallets);
     event InheritanceChanged      (address indexed creator, address indexed owner, uint40 timeout, uint40 timestamp);
@@ -15,7 +13,7 @@ abstract contract Heritable is Backupable {
     event InheritanceHeirsChanged (address indexed creator, address indexed owner, address[] wallets, uint16[] bps);
     event InheritancePayment      (address indexed creator, address indexed payee, uint256 amount, bool reward);
 
-    function setInheritance (uint32 timeout) public onlyActiveOwner() {
+    function setInheritance (uint32 timeout) external onlyActiveOwner() {
         require (s_inheritance.activated == false, "inheritance activated");
 
         uint40 timestamp = getBlockTimestamp();
@@ -27,7 +25,7 @@ abstract contract Heritable is Backupable {
         emit InheritanceChanged(this.creator(), msg.sender, timeout, timestamp);
     }
 
-    function clearInheritance () public onlyActiveOwner() {
+    function clearInheritance () external onlyActiveOwner() {
         emit InheritanceRemoved(this.creator(), msg.sender);
 
         if (s_inheritance.timeout != uint32(0)) s_inheritance.timeout = uint32(0);
@@ -44,7 +42,7 @@ abstract contract Heritable is Backupable {
         }
     }
 
-    function setHeirs (address payable[] memory wallets, uint16[] memory bps) public onlyActiveOwner() {
+    function setHeirs (address payable[] memory wallets, uint16[] memory bps) external onlyActiveOwner() {
         require (s_inheritance.activated == false, "inheritance activated");
         require (wallets.length <= MAX_HEIRS, "too many heirs");
         require (wallets.length == bps.length, "heirs and bps don't match");
@@ -80,55 +78,7 @@ abstract contract Heritable is Backupable {
         emit InheritanceHeirsChanged(this.creator(), msg.sender, walletList, bpsList);
     }
 
-    function getTotalBPS () public view returns (uint256 total) {
-        for (uint256 i = 0; i < s_inheritance.heirs.length; i++) {
-            if (s_inheritance.heirs[i].wallet == address(0)) {
-                break;
-            }
-            total += s_inheritance.heirs[i].bps;
-        }
-        return total;
-    }
-
-    function getTotalTransfered () public view returns (uint256 total) {
-        return s_totalTransfered;
-    }
-
-    function getHeirs () public view returns (bytes32[MAX_HEIRS] memory heirs) {
-        for (uint256 i = 0; i < s_inheritance.heirs.length; i++) {
-            Heir storage sp_heir = s_inheritance.heirs[i];
-            if (sp_heir.wallet == address(0)) {
-                break;
-            }
-            heirs[i] = bytes32 ((uint256(uint160(address(sp_heir.wallet))) << 96) + (sp_heir.sent ? uint256(1) << 88 : 0) + (uint256(sp_heir.bps) << 72));
-        }
-    }
-
-    function getInheritanceTimeLeft () public view returns (uint40 res) {
-        uint40 timestamp = getBlockTimestamp();
-        if (s_inheritance.timestamp > 0 && timestamp >= s_inheritance.timestamp && s_inheritance.timeout > timestamp - s_inheritance.timestamp
-        ) {
-            res = s_inheritance.timeout - (timestamp - s_inheritance.timestamp);
-        }
-    }
-
-    function isInheritanceActivated () public view returns (bool) {
-        return (s_inheritance.activated == true);
-    }
-
-    function isInheritanceEnabled () public view returns (bool) {
-        return (s_inheritance.enabled == true);
-    }
-
-    function getInheritanceTimeout () public view returns (uint40) {
-        return s_inheritance.timeout;
-    }
-
-    function getInheritanceTimestamp () public view returns (uint40) {
-        return s_inheritance.timestamp;
-    }
-
-    function activateInheritance () public {
+    function activateInheritance () external {
         require (s_inheritance.enabled == true, "inheritance is not enabled");
         require (s_inheritance.activated == false, "inheritance is activated");
         require (getInheritanceTimeLeft() == 0, "too early");
@@ -166,6 +116,54 @@ abstract contract Heritable is Backupable {
             wallets[inx] = sp_heir.wallet;
         }
         emit InheritanceActivated(this.creator(), msg.sender, wallets);
+    }
+
+    function getTotalBPS () external view returns (uint256 total) {
+        for (uint256 i = 0; i < s_inheritance.heirs.length; i++) {
+            if (s_inheritance.heirs[i].wallet == address(0)) {
+                break;
+            }
+            total += s_inheritance.heirs[i].bps;
+        }
+        return total;
+    }
+
+    function getTotalTransfered () external view returns (uint256 total) {
+        return s_totalTransfered;
+    }
+
+    function getHeirs () external view returns (bytes32[MAX_HEIRS] memory heirs) {
+        for (uint256 i = 0; i < s_inheritance.heirs.length; i++) {
+            Heir storage sp_heir = s_inheritance.heirs[i];
+            if (sp_heir.wallet == address(0)) {
+                break;
+            }
+            heirs[i] = bytes32 ((uint256(uint160(address(sp_heir.wallet))) << 96) + (sp_heir.sent ? uint256(1) << 88 : 0) + (uint256(sp_heir.bps) << 72));
+        }
+    }
+
+    function isInheritanceActivated () external view returns (bool) {
+        return (s_inheritance.activated == true);
+    }
+
+    function isInheritanceEnabled () external view returns (bool) {
+        return (s_inheritance.enabled == true);
+    }
+
+    function getInheritanceTimeout () external view returns (uint40) {
+        return s_inheritance.timeout;
+    }
+
+    function getInheritanceTimestamp () external view returns (uint40) {
+        return s_inheritance.timestamp;
+    }
+
+    function getInheritanceTimeLeft () public view returns (uint40 res) {
+        uint40 timestamp = getBlockTimestamp();
+        if (s_inheritance.timestamp > 0 && timestamp >= s_inheritance.timestamp && s_inheritance.timeout > timestamp - s_inheritance.timestamp
+        ) {
+            res = s_inheritance.timeout - (timestamp - s_inheritance.timestamp);
+        }
     }
 
 }

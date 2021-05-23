@@ -16,26 +16,26 @@ contract Oracle is OracleBase {
     ) MultiSig(owner1, owner2, owner3) {}
 
     function update20(address token, bool safe)
-        public
+        external
         payable
         multiSig2of3(msg.value)
     {
         s_tokens_20[token] = safe;
     }
 
-    function update721(address token, bool safe) public multiSig2of3(0) {
+    function update721(address token, bool safe) external multiSig2of3(0) {
         s_tokens_721[token] = safe;
     }
 
-    function is20Safe(address token) public view override returns (bool) {
+    function is20Safe(address token) external view override returns (bool) {
         return s_tokens_20[token];
     }
 
-    function is721Safe(address token) public view override returns (bool) {
+    function is721Safe(address token) external view override returns (bool) {
         return s_tokens_721[token];
     }
 
-    function version() public pure override returns (bytes8) {
+    function version() external pure override returns (bytes8) {
         return bytes8("1.2.1");
     }
 
