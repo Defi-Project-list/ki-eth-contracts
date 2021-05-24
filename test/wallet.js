@@ -148,7 +148,7 @@ contract('Wallet', async (accounts) => {
     // const m = keccak256(toUtf8Bytes('batchCall(address activator,address to,uint256 value,uint256 nonce,bytes4 selector,address recipient,uint256 amount)'))
     // mlog.log('m (calculated)', m)
 
-    const m2 = TypedDataUtils.typeHash(typedData.types, 'batchCall')
+    const m2 = TypedDataUtils.typeHash(typedData.types, 'BatchCall')
     const m2Hex = ethers.utils.hexZeroPad(ethers.utils.hexlify(m2), 32)
     console.log('m2 (calculated)', m2Hex)
 
@@ -1261,21 +1261,21 @@ it('eip712: should be able to execute batch of many external calls: signer==oper
           { name: "verifyingContract",    type: "address" },
           { name: "salt",                 type: "bytes32" }
         ],
-        batchCall: [
-          { name: 'transaction',          type: 'transaction' },
+        BatchCall: [
+          { name: 'transaction',          type: 'Transaction' },
           { name: 'method_signature',     type: 'string'  },
           { name: 'method_data_offset',   type: 'uint256' },
           { name: 'method_data_length',   type: 'uint256' },
           { name: 'to',                   type: 'address' },
           { name: 'token_amount',         type: 'uint256' },
         ],
-        transaction: [
-          { name: 'contract_address',     type: 'address' },
-          { name: 'contract_ens',         type: 'string'  },
+        Transaction: [
+          { name: 'call_address',         type: 'address' },
+          { name: 'call_ens',             type: 'string'  },
           { name: 'eth_value',            type: 'uint256' },
           { name: 'nonce',                type: 'uint64'  },
-          { name: 'signature_valid_from', type: 'uint40'  },
-          { name: 'signature_expires_at', type: 'uint40'  },
+          { name: 'valid_from',           type: 'uint40'  },
+          { name: 'expires_at',           type: 'uint40'  },
           { name: 'gas_limit',            type: 'uint32'  },
           { name: 'gas_price_limit',      type: 'uint64'  },
           { name: 'view_only',            type: 'bool'    },
@@ -1283,7 +1283,7 @@ it('eip712: should be able to execute batch of many external calls: signer==oper
           { name: 'refund',               type: 'bool'    },
         ],
       },
-      primaryType: 'batchCall',
+      primaryType: 'BatchCall',
       domain: {
         name: await factoryProxy.NAME(),
         version: await factoryProxy.VERSION(),
@@ -1294,8 +1294,8 @@ it('eip712: should be able to execute batch of many external calls: signer==oper
       message: {
         ['KIROBO PROTECTS YOU']: '👍',
         transaction: {
-        contract_address: token20.address,
-        contract_ens: '@token.kiro.eth',
+        call_address: token20.address,
+        call_ens: '@token.kiro.eth',
         eth_value: '0',
         // sessionId: getSessionIdERC20(10),
 
@@ -1305,12 +1305,12 @@ it('eip712: should be able to execute batch of many external calls: signer==oper
         // ['group_id']: Number.parseInt('0x' + groupERC20),
         nonce: '0x' + groupERC20 + tnonceERC20 + '00', //Number.parseInt('0x' + tnonceERC20 + '00'),
         ordered: true,
+        view_only: false,
         refund: true,
-        ['view_only']: false,
-        ['signature_valid_from']: Number.parseInt('0x' + afterERC20),
-        ['signature_expires_at']: Number.parseInt('0x' + beforeERC20),
-        ['gas_limit']: Number.parseInt('0x' + maxGasERC20),
-        ['gas_price_limit']: Number.parseInt('0x' + maxGasPriceERC20),
+        valid_from: Number.parseInt('0x' + afterERC20),
+        expires_at: Number.parseInt('0x' + beforeERC20),
+        gas_limit: Number.parseInt('0x' + maxGasERC20),
+        gas_price_limit: Number.parseInt('0x' + maxGasPriceERC20),
         },
   //      selector: '0x' + data.slice(2,10),
         [':---']: '',
@@ -1348,7 +1348,7 @@ it('eip712: should be able to execute batch of many external calls: signer==oper
       ...await eip712sign(factoryProxy, typedData, 10),
       typeHash: eip712typehash(typedData),
       // paramsTypeHash: ethers.utils.hexZeroPad(TypedDataUtils.typeHash(typedData.types, 'params'), 32),
-      transactionTypeHash: ethers.utils.hexZeroPad(TypedDataUtils.typeHash(typedData.types, 'transaction'), 32),
+      // transactionTypeHash: ethers.utils.hexZeroPad(TypedDataUtils.typeHash(typedData.types, 'Transaction'), 32),
       sessionId: getSessionIdERC20(0),
       // selector: item.data.slice(0,10),
       functionSignature: web3.utils.sha3('transfer(address,uint256)'),

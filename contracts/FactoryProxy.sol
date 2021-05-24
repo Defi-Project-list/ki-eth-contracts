@@ -103,7 +103,7 @@ contract FactoryProxy is FactoryStorage {
     bytes32 public constant TRANSFER_TYPEHASH = 0xf728cfc064674dacd2ced2a03acd588dfd299d5e4716726c6d5ec364d16406eb;
 
     bytes32 public constant BATCH_CALL_TRANSACTION_TYPEHASH = keccak256(
-        "transaction(address contract_address,string contract_ens,uint256 eth_value,uint64 nonce,uint40 signature_valid_from,uint40 signature_expires_at,uint32 gas_limit,uint64 gas_price_limit,bool view_only,bool ordered,bool refund)"
+        "Transaction(address call_address,string call_ens,uint256 eth_value,uint64 nonce,uint40 valid_from,uint40 expires_at,uint32 gas_limit,uint64 gas_price_limit,bool view_only,bool ordered,bool refund)"
     );
 
     bytes32 public constant BATCH_TRANSFER_PACKED_TYPEHASH = keccak256(
