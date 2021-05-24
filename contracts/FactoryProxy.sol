@@ -102,8 +102,8 @@ contract FactoryProxy is FactoryStorage {
 
     bytes32 public constant TRANSFER_TYPEHASH = 0xf728cfc064674dacd2ced2a03acd588dfd299d5e4716726c6d5ec364d16406eb;
 
-    bytes32 public constant BATCH_MULTICALL_TYPEHASH = keccak256(
-        "limits(address token,address to,uint256 value,uint256 sessionId,bytes data)"
+    bytes32 public constant BATCH_CALL_TRANSACTION_TYPEHASH = keccak256(
+        "transaction(address contract_address,string contract_ens,uint256 eth_value,uint64 nonce,uint40 signature_valid_from,uint40 signature_expires_at,uint32 gas_limit,uint64 gas_price_limit,bool view_only,bool ordered,bool refund)"
     );
 
     bytes32 public constant BATCH_TRANSFER_PACKED_TYPEHASH = keccak256(
@@ -113,7 +113,7 @@ contract FactoryProxy is FactoryStorage {
     // bytes4(keccak256("sendEther(address payable,uint256)"));
     bytes4 public constant TRANSFER_SELECTOR = 0xc61f08fd;
 
-    // event ErrorHandled(bytes reason);
+    event ErrorHandled(bytes reason);
 
     constructor(
         address owner1,
@@ -745,40 +745,44 @@ contract FactoryProxy is FactoryStorage {
         //           // uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + constGas + 15000) /*22100))*/ * 110 / 100 ));
     }
 
-    function _encodeCall(Call memory call) private view returns (bytes32 messageHash, address to) {
+    function _calcCallTransactionHash(Call memory call) private pure returns (bytes32) {
+        return keccak256(abi.encode(
+                BATCH_CALL_TRANSACTION_TYPEHASH,
+                call.to,
+                call.ensHash,
+                call.value,
+                uint64(call.sessionId >> 192), // group + nonce
+                uint40(call.sessionId >> 152), // afterTS,
+                uint40(call.sessionId >> 112), // beforeTS
+                uint32(call.sessionId >> 80), // gasLimit
+                uint64(call.sessionId >> 16), // gasPriceLimit,
+                bool(call.sessionId & FLAG_STATICCALL > 0), // staticcall
+                bool(call.sessionId & FLAG_ORDERED > 0), // ordered
+                bool(call.sessionId & FLAG_PAYMENT > 0) // refund
+        ));
+    }
+
+    function _encodeCall(Call memory call) private /*view*/ returns (bytes32 messageHash, address to) {
         to = _ensToAddress(call.ensHash, call.to);
+ 
+        // emit ErrorHandled(abi.encode(BATCH_CALL_TRANSACTION_TYPEHASH));
+        // emit ErrorHandled(abi.encode(
+        //         call.typeHash,
+        //         _calcCallTransactionHash(call),
+        //         call.functionSignature,
+        //         call.data
+        //     ));
+
         messageHash = call.functionSignature != 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470 ?
             keccak256(abi.encode(
-                  call.typeHash,
-                  call.to,
-                  call.ensHash,
-                  call.value,
-                  // uint24(call.sessionId >> 232), // group
-                  uint64(call.sessionId >> 192), // group + nonce
-                  uint40(call.sessionId >> 152), // afterTS,
-                  uint40(call.sessionId >> 112), // beforeTS
-                  uint32(call.sessionId >> 80), // gasLimit
-                  uint64(call.sessionId >> 16), // gasPriceLimit,
-                  bool(call.sessionId & FLAG_STATICCALL > 0), // staticcall
-                  bool(call.sessionId & FLAG_ORDERED > 0), // ordered
-                  bool(call.sessionId & FLAG_PAYMENT > 0), // refund
-                  call.functionSignature,
-                  call.data
+                call.typeHash,
+                _calcCallTransactionHash(call),
+                call.functionSignature,
+                call.data
             )):
             keccak256(abi.encode(
-                  call.typeHash,
-                  call.to,
-                  call.ensHash,
-                  call.value,
-                  // uint24(call.sessionId >> 232), // group
-                  uint64(call.sessionId >> 192), // group + nonce
-                  uint40(call.sessionId >> 152), // afterTS,
-                  uint40(call.sessionId >> 112), // beforeTS
-                  uint32(call.sessionId >> 80), // gasLimit
-                  uint64(call.sessionId >> 16), // gasPriceLimit,
-                  bool(call.sessionId & FLAG_STATICCALL > 0), // staticcall
-                  bool(call.sessionId & FLAG_ORDERED > 0), // ordered
-                  bool(call.sessionId & FLAG_PAYMENT > 0) // refund
+                call.typeHash,
+                _calcCallTransactionHash(call)
             ));
     }
 

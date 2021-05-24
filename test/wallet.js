@@ -1096,7 +1096,7 @@ it('message: should be able to execute multi external calls: signer==operator, s
     const tokens = 2
     const data = token20.contract.methods.transfer(user1, 5).encodeABI()
 
-    const BATCH_TRANSFER_HASH = await factoryProxy.BATCH_TRANSFER_HASH()
+    // const BATCH_TRANSFER_HASH = await factoryProxy.BATCH_TRANSFER_HASH()
     // batchTransfer(address token,address to,uint256 value,uint256 sessionId,uint40 after,uint40 before,uint32 gasLimit,uint64 gasPriceLimit)
 
     mlog.log('---> data', data)
@@ -1262,12 +1262,17 @@ it('eip712: should be able to execute batch of many external calls: signer==oper
           { name: "salt",                 type: "bytes32" }
         ],
         batchCall: [
-          { name: 'token_address',        type: 'address' },
-          { name: 'token_ens',            type: 'string'  },
+          { name: 'transaction',          type: 'transaction' },
+          { name: 'method_signature',     type: 'string'  },
+          { name: 'method_data_offset',   type: 'uint256' },
+          { name: 'method_data_length',   type: 'uint256' },
+          { name: 'to',                   type: 'address' },
+          { name: 'token_amount',         type: 'uint256' },
+        ],
+        transaction: [
+          { name: 'contract_address',     type: 'address' },
+          { name: 'contract_ens',         type: 'string'  },
           { name: 'eth_value',            type: 'uint256' },
-          // { name: 'sessionId',         type: 'uint256' },
-          // { name: 'group_id',             type: 'uint24'  },
-          // { name: 'nonce',                type: 'uint40'  },
           { name: 'nonce',                type: 'uint64'  },
           { name: 'signature_valid_from', type: 'uint40'  },
           { name: 'signature_expires_at', type: 'uint40'  },
@@ -1276,13 +1281,7 @@ it('eip712: should be able to execute batch of many external calls: signer==oper
           { name: 'view_only',            type: 'bool'    },
           { name: 'ordered',              type: 'bool'    },
           { name: 'refund',               type: 'bool'    },
-          // { name: 'selector',          type: 'bytes4'  },
-          { name: 'method_signature',     type: 'string'  },
-          { name: 'method_data_offset',   type: 'uint256' },
-          { name: 'method_data_length',   type: 'uint256' },
-          { name: 'to',                   type: 'address' },
-          { name: 'token_amount',         type: 'uint256' },
-        ]
+        ],
       },
       primaryType: 'batchCall',
       domain: {
@@ -1294,8 +1293,9 @@ it('eip712: should be able to execute batch of many external calls: signer==oper
       },
       message: {
         ['KIROBO PROTECTS YOU']: '👍',
-        ['token_address']: token20.address,
-        ['token_ens']: '@token.kiro.eth',
+        transaction: {
+        contract_address: token20.address,
+        contract_ens: '@token.kiro.eth',
         eth_value: '0',
         // sessionId: getSessionIdERC20(10),
 
@@ -1305,24 +1305,25 @@ it('eip712: should be able to execute batch of many external calls: signer==oper
         // ['group_id']: Number.parseInt('0x' + groupERC20),
         nonce: '0x' + groupERC20 + tnonceERC20 + '00', //Number.parseInt('0x' + tnonceERC20 + '00'),
         ordered: true,
-        ['view_only']: false,
         refund: true,
+        ['view_only']: false,
         ['signature_valid_from']: Number.parseInt('0x' + afterERC20),
         ['signature_expires_at']: Number.parseInt('0x' + beforeERC20),
         ['gas_limit']: Number.parseInt('0x' + maxGasERC20),
         ['gas_price_limit']: Number.parseInt('0x' + maxGasPriceERC20),
+        },
   //      selector: '0x' + data.slice(2,10),
         [':---']: '',
         ['Contract\'s Method Header']: '',
         [':----']: '',
-        ['method_signature']: 'transfer(address,uint256)',
-        ['method_data_offset']: '0x1c0', // '480', // 13*32
-        ['method_data_length']: '0x40',
+        method_signature: 'transfer(address,uint256)',
+        method_data_offset: '0x80', // '0x1c0', // '480', // 13*32
+        method_data_length: '0x40',
         [':-----']: '',
         ['Contract\'s Method Data']: '',
         [':------']: '',
-        ['to']: accounts[11],
-        ['token_amount']: '5',
+        to: accounts[11],
+        token_amount: '5',
       }
     }
 
@@ -1346,6 +1347,8 @@ it('eip712: should be able to execute batch of many external calls: signer==oper
       // ...await web3.eth.accounts.sign(web3.utils.sha3(item._hash), keys[index+10] /*getPrivateKey(owner)*/),
       ...await eip712sign(factoryProxy, typedData, 10),
       typeHash: eip712typehash(typedData),
+      // paramsTypeHash: ethers.utils.hexZeroPad(TypedDataUtils.typeHash(typedData.types, 'params'), 32),
+      transactionTypeHash: ethers.utils.hexZeroPad(TypedDataUtils.typeHash(typedData.types, 'transaction'), 32),
       sessionId: getSessionIdERC20(0),
       // selector: item.data.slice(0,10),
       functionSignature: web3.utils.sha3('transfer(address,uint256)'),

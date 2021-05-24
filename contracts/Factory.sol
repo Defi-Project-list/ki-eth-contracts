@@ -69,11 +69,11 @@ contract Factory is FactoryStorage {
     );
 
     bytes32 public constant BATCH_MULTI_SIG_CALL_LIST_TYPEHASH = keccak256(
-      "batchMultiCall(address token,address to,uint256 value,uint256 sessionId,bytes data)"
+      "batchMultiSigCallList(address token,address to,uint256 value,uint256 sessionId,bytes data)"
     );
 
     bytes32 public constant BATCH_MULTI_SIG_CALL_LIMITS_TYPEHASH = keccak256(
-      "batchMultiCall(address token,address to,uint256 value,uint256 sessionId,bytes data)"
+      "batchMultiSigCallLimits(address token,address to,uint256 value,uint256 sessionId,bytes data)"
     );
 
     bytes32 public constant BATCH_MULTI_SIG_CALL_TYPEHASH = keccak256(
