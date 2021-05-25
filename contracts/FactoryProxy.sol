@@ -3,10 +3,7 @@
 pragma solidity ^0.8.0;
 pragma abicoder v2;
 
-// import "openzeppelin-solidity/contracts/utils/cryptography/SignatureChecker.sol";
-// import "openzeppelin-solidity/contracts/utils/cryptography/ECDSA.sol";
 import "./FactoryStorage.sol";
-// import "./Factory.sol";
 
 struct Signature {
     bytes32 r;
@@ -113,10 +110,7 @@ contract FactoryProxy is FactoryStorage {
         "BatchTransferPacked(address token,address to,uint256 value,uint256 sessionId)"
     );
 
-    // bytes4(keccak256("sendEther(address payable,uint256)"));
-    bytes4 public constant TRANSFER_SELECTOR = 0xc61f08fd;
-
-    event ErrorHandled(bytes reason);
+    // event ErrorHandled(bytes reason);
 
     constructor(
         address owner1,

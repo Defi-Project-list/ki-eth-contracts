@@ -56,28 +56,24 @@ struct MSCalls {
 
 contract Factory is FactoryStorage {
 
-    bytes32 public constant BATCH_TRANSFER_TYPEHASH = keccak256(
-      "batchTransfer(address token_address,address recipient,uint256 token_amount,uint256 sessionId,uint40 after,uint40 before,uint32 gasLimit,uint64 gasPriceLimit)"
-    );
-
     bytes32 public constant BATCH_CALL_PACKED_TYPEHASH = keccak256(
-      "batchCall(address token,address to,uint256 value,uint256 sessionId,bytes data)"
+      "BatchCallPacked(address to,uint256 value,uint256 sessionId,bytes data)"
     );
 
     bytes32 public constant BATCH_MULTI_CALL_TYPEHASH = keccak256(
-      "batchMultiCall(address token,address to,uint256 value,uint256 sessionId,bytes data)"
-    );
-
-    bytes32 public constant BATCH_MULTI_SIG_CALL_LIST_TYPEHASH = keccak256(
-      "batchMultiSigCallList(address token,address to,uint256 value,uint256 sessionId,bytes data)"
-    );
-
-    bytes32 public constant BATCH_MULTI_SIG_CALL_LIMITS_TYPEHASH = keccak256(
-      "batchMultiSigCallLimits(address token,address to,uint256 value,uint256 sessionId,bytes data)"
+      "BatchMultiCallPacked(address to,uint256 value,uint256 sessionId,bytes data)"
     );
 
     bytes32 public constant BATCH_MULTI_SIG_CALL_TYPEHASH = keccak256(
-      "batchMultiCall(address token,address to,uint256 value,uint256 sessionId,bytes data)"
+      "BatchMultiSigCall(Limits limits,Transaction transaction)Limits(uint256 sessionId)Transaction(address signer,address to,uint256 value,uint32 gasLimit,uint16 flags,bytes data)"
+    );
+
+    bytes32 public constant BATCH_MULTI_SIG_CALL_LIMITS_TYPEHASH = keccak256(
+      "Limits(uint256 sessionId)"
+    );
+
+    bytes32 public constant BATCH_MULTI_SIG_CALL_TRANSACTION_TYPEHASH = keccak256(
+      "Transaction(address signer,address to,uint256 value,uint32 gasLimit,uint16 flags,bytes data)"
     );
 
     event WalletCreated(
@@ -575,7 +571,7 @@ contract Factory is FactoryStorage {
             // bool refund = sessionId & FLAG_PAYMENT > 0;
             // bool ordered = sessionId & FLAG_ORDERED > 0;
             bytes memory msg2 = abi.encode(
-                BATCH_MULTI_SIG_CALL_LIST_TYPEHASH,
+                BATCH_MULTI_SIG_CALL_TYPEHASH,
                 keccak256(abi.encode(
                     BATCH_MULTI_SIG_CALL_LIMITS_TYPEHASH,
                     sessionId
@@ -605,7 +601,7 @@ contract Factory is FactoryStorage {
                 msg2 = abi.encodePacked(
                     msg2,
                     keccak256(abi.encode(
-                        BATCH_MULTI_SIG_CALL_TYPEHASH,
+                        BATCH_MULTI_SIG_CALL_TRANSACTION_TYPEHASH,
                         call.signer,
                         call.to,
                         call.value,
