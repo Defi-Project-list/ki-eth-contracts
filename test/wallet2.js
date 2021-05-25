@@ -127,11 +127,9 @@ contract('Wallet', async (accounts) => {
     // rlp.v = '0x' + rlp.v.toString(16)
   
 
-    try {
-      console.log('data:', ethers.utils.hexlify(TypedDataUtils.encodeData(typedData, 'batchCall', typedData.message)))
-    } catch (e) {
+    console.log('data:', ethers.utils.hexlify(TypedDataUtils.encodeData(typedData, typedData.primaryType, typedData.message)))
+    // console.log('data:2', ethers.utils.hexlify(TypedDataUtils.encodeData(typedData, "Limits", typedData.limits)))
 
-    }
     // try {
     //   console.log('data2:', ethers.utils.hexlify(TypedDataUtils.encodeData(typedData, 'transaction', typedData.message.transactions)))
     // } catch (e) {
@@ -148,13 +146,13 @@ contract('Wallet', async (accounts) => {
     // const m = keccak256(toUtf8Bytes('batchCall(address activator,address to,uint256 value,uint256 nonce,bytes4 selector,address recipient,uint256 amount)'))
     // mlog.log('m (calculated)', m)
 
-    const m2 = TypedDataUtils.typeHash(typedData.types, 'batchCall')
+    const m2 = TypedDataUtils.typeHash(typedData.types, typedData.primaryType)
     const m2Hex = ethers.utils.hexZeroPad(ethers.utils.hexlify(m2), 32)
     console.log('m2 (calculated)', m2Hex)
 
     mlog.log('rlp', JSON.stringify(rlp))
     mlog.log('recover', ethers.utils.recoverAddress(messageDigest, signature))
-    await utils.sleep(10*1000)
+    await utils.sleep(10 * 1000)
     return rlp
 }
 
@@ -304,6 +302,7 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
         //   gasLimit: 0,
         //   flow: 0x12, // on_success_stop , on_fail_continue
         // },
+//1
         {
           data: token20.contract.methods.transfer(accounts[11], 5).encodeABI(),
           value: 0,
@@ -312,13 +311,23 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
           gasLimit: 0,
           // flow: 0x10, // on_success_stop
         },
-        {
-          data: '',
-          value: 10,
-          // typeHash: '0x'.padEnd(66,'1'),
-          to: accounts[11],
-          gasLimit: 0,
-        },
+        // {
+        //   data: token20.contract.methods.transfer(accounts[11], 5).encodeABI(),
+        //   value: 0,
+        //   // typeHash: '0x'.padEnd(66,'1'),
+        //   to: token20.address,
+        //   gasLimit: 0,
+        //   // flow: 0x10, // on_success_stop
+        // },
+//2
+        // {
+        //   data: '',
+        //   value: 10,
+        //   // typeHash: '0x'.padEnd(66,'1'),
+        //   to: accounts[11],
+        //   gasLimit: 0,
+        // },
+//3        
         {
           data: token20.contract.methods.transfer(accounts[13], 12).encodeABI(),
           value: 0,
@@ -390,65 +399,44 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
           { name: "verifyingContract",    type: "address" },
           { name: "salt",                 type: "bytes32" },
         ],
-        batchCall: [
-          { name: 'limits',                 type: 'limits'},
-          { name: 'transaction_1',          type: 'transaction1'},
-          { name: 'transaction_2',          type: 'transaction2'},
-          { name: 'transaction_3',          type: 'transaction3'},
+        BatchMultiCall: [
+          { name: 'limits',               type: 'Limits'},
+          { name: 'transaction_1',        type: 'TokenTransfer' },
+          // { name: 'transaction_2',        type: 'EthTransfer' }, //TODO: check is there is bug/limit in metamsk
+          { name: 'transaction_3',        type: 'TokenTransfer' }, 
         ],
-        limits: [
-          { name: 'nonce',                type: 'uint64' },
-          { name: 'ordered',              type: 'bool' },
-          { name: 'refund',               type: 'bool' },
-          { name: 'signature_valid_from', type: 'uint40'  },
-          { name: 'signature_expires_at', type: 'uint40'  },
-          { name: 'gas_price_limit',      type: 'uint64'  },
+        Limits: [
+          { name: 'nonce',                type: 'uint64'      },
+          { name: 'ordered',              type: 'bool'        },
+          { name: 'refund',               type: 'bool'        },
+          { name: 'valid_from',           type: 'uint40'      },
+          { name: 'expires_at',           type: 'uint40'      },
+          { name: 'gas_price_limit',      type: 'uint64'      },
         ],
-        transaction1: [
-          { name: 'token_address',        type: 'address' },
-          { name: 'token_ens',            type: 'string'  },
-          { name: 'eth_value',            type: 'uint256' },
-          { name: 'gas_limit',            type: 'uint32'  },
-          { name: 'view_only',            type: 'bool'    },
-          { name: 'continue_on_fail',     type: 'bool'    },
-          { name: 'stop_on_fail',         type: 'bool'    },
-          { name: 'stop_on_success',      type: 'bool'    },
-          { name: 'revert_on_success',    type: 'bool'    },
-          { name: 'method_interface',     type: 'string'  },
-          { name: 'method_data_offset',   type: 'uint256' },
-          { name: 'method_data_length',   type: 'uint256' },
-          { name: 'to',                   type: 'address' },
-          { name: 'token_amount',         type: 'uint256' },
+        Transaction: [
+          { name: 'call_address',         type: 'address'     },
+          { name: 'call_ens',             type: 'string'      },
+          { name: 'eth_value',            type: 'uint256'     },
+          { name: 'gas_limit',            type: 'uint32'      },
+          { name: 'view_only',            type: 'bool'        },
+          { name: 'continue_on_fail',     type: 'bool'        },
+          { name: 'stop_on_fail',         type: 'bool'        },
+          { name: 'stop_on_success',      type: 'bool'        },
+          { name: 'revert_on_success',    type: 'bool'        },
+          { name: 'method_interface',     type: 'string'      },        
         ],
-        transaction2: [
-          { name: 'to',                   type: 'address' },
-          { name: 'to_ens',               type: 'string'  },
-          { name: 'eth_value',            type: 'uint256' },
-          { name: 'gas_limit',            type: 'uint32'  },
-          { name: 'view_only',            type: 'bool'    },
-          { name: 'continue_on_fail',     type: 'bool'    },
-          { name: 'stop_on_fail',         type: 'bool'    },
-          { name: 'stop_on_success',      type: 'bool'    },
-          { name: 'revert_on_success',    type: 'bool'    },
+        TokenTransfer: [
+          { name: 'details',              type: 'Transaction' },
+          { name: 'method_params_offset', type: 'uint256'     },
+          { name: 'method_params_length', type: 'uint256'     },
+          { name: 'to',                   type: 'address'     },
+          { name: 'token_amount',         type: 'uint256'     },
         ],
-        transaction3: [
-          { name: 'token_address',        type: 'address' },
-          { name: 'token_ens',            type: 'string'  },
-          { name: 'eth_value',            type: 'uint256' },
-          { name: 'gas_limit',            type: 'uint32'  },
-          { name: 'view_only',            type: 'bool'    },
-          { name: 'continue_on_fail',     type: 'bool'    },
-          { name: 'stop_on_fail',         type: 'bool'    },
-          { name: 'stop_on_success',      type: 'bool'    },
-          { name: 'revert_on_success',    type: 'bool'    },
-          { name: 'method_interface',     type: 'string'  },
-          { name: 'method_data_offset',   type: 'uint256' },
-          { name: 'method_data_length',   type: 'uint256' },
-          { name: 'to',                   type: 'address' },
-          { name: 'token_amount',         type: 'uint256' },
+        EthTransfer: [
+          { name: 'details',              type: 'Transaction' },
         ],
       },
-      primaryType: 'batchCall',
+      primaryType: 'BatchMultiCall',
       domain: {
         name: await factoryProxy.NAME(),
         version: await factoryProxy.VERSION(),
@@ -463,53 +451,78 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
           nonce: '0x' + groupERC20 + tnonceERC20,
           ordered: false,
           refund: true,
-          signature_valid_from: Number.parseInt('0x' + afterERC20),
-          signature_expires_at: Number.parseInt('0x' + beforeERC20),
+          valid_from: Number.parseInt('0x' + afterERC20),
+          expires_at: Number.parseInt('0x' + beforeERC20),
           gas_price_limit: Number.parseInt('0x' + maxGasPriceERC20),
         },
         ['-----------------------------------']: '',
         transaction_1: {
-          token_address: token20.address,
-          token_ens: '@token.kiro.eth',
-          eth_value: '0',
-          view_only: false,
-          continue_on_fail: false,
-          stop_on_fail: false,
-          stop_on_success: false,
-          revert_on_success: false,
-          gas_limit: Number.parseInt('0x' + maxGasERC20),
-          method_interface: 'transfer(address,uint256)',
-          method_data_offset: '0x180', // '480', // 13*32
-          method_data_length: '0x40',
+          details: {
+            call_address: token20.address,
+            call_ens: '@token.kiro.eth',
+            eth_value: '0',
+            view_only: false,
+            continue_on_fail: false,
+            stop_on_fail: false,
+            stop_on_success: false,
+            revert_on_success: false,
+            gas_limit: Number.parseInt('0x' + maxGasERC20),
+            method_interface: 'transfer(address,uint256)',
+          },
+          method_params_offset: '0x60', //'0x180', // '480', // 13*32
+          method_params_length: '0x40',
           to: accounts[11],
           token_amount: '5',
       },
         ['------------------------------------']: '',
-        transaction_2: {
-          to: accounts[11],
-          to_ens: '',
+      //   transaction_2: {
+      //     details: {
+      //       call_address: token20.address,
+      //       call_ens: '@token.kiro.eth',
+      //       eth_value: '0',
+      //       view_only: false,
+      //       continue_on_fail: false,
+      //       stop_on_fail: false,
+      //       stop_on_success: false,
+      //       revert_on_success: false,
+      //       gas_limit: Number.parseInt('0x' + maxGasERC20),
+      //       method_interface: 'transfer(address,uint256)',
+      //     },
+      //     method_params_offset: '0x60', //'0x180', // '480', // 13*32
+      //     method_params_length: '0x40',
+      //     to: accounts[11],
+      //     token_amount: '5',
+      // },
+      transaction_2: {
+        details: {
+          call_address: accounts[11],
+          call_ens: '',
           eth_value: '10',
-          gas_limit: Number.parseInt('0x' + maxGasERC20),
           view_only: false,
           continue_on_fail: false,
           stop_on_fail: false,
           stop_on_success: false,
           revert_on_success: false,
-        }, 
+          gas_limit: Number.parseInt('0x' + maxGasERC20),
+          method_interface: '',
+        }
+      }, 
         ['-------------------------------------']: '', 
         transaction_3: {
-          token_address: token20.address,
-          token_ens: '@token.kiro.eth',
-          eth_value: '0',
-          gas_limit: Number.parseInt('0x' + maxGasERC20),
-          view_only: false,
-          continue_on_fail: false,
-          stop_on_fail: false,
-          stop_on_success: false,
-          revert_on_success: false,
-          method_interface: 'transfer(address,uint256)',
-          method_data_offset: '0x180', // '480', // 13*32
-          method_data_length: '0x40',
+          details: {
+            call_address: token20.address,
+            call_ens: '@token.kiro.eth',
+            eth_value: '0',
+            gas_limit: Number.parseInt('0x' + maxGasERC20),
+            view_only: false,
+            continue_on_fail: false,
+            stop_on_fail: false,
+            stop_on_success: false,
+            revert_on_success: false,
+            method_interface: 'transfer(address,uint256)',
+          },
+          method_params_offset: '0x60', // '0x180', // '480', // 13*32
+          method_params_length: '0x40',
           to: accounts[13],
           token_amount: '12',
       }}
@@ -522,9 +535,8 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
     const msgDataERC20 = sends.map((send, index) => ({
         mcall: send.map((item, index) => ({
               ...item,
-              typeHash: TypedDataUtils.typeHash(typedData.types, 'transaction'+(index+1)),
+              typeHash: TypedDataUtils.typeHash(typedData.types, typedData.types.BatchMultiCall[index+1].type),
               flags: (item.flow ? item.flow : 0) + (item.stataiccall ? 4*256 : 0),
-              // selector: item.data.slice(0, 10),
               functionSignature: item.data.length > 0 ? web3.utils.sha3('transfer(address,uint256)') : '0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470',
               gasLimit: Number.parseInt('0x' + maxGasERC20),
               ensHash: item.data.length > 0 ? web3.utils.sha3('@token.kiro.eth'): '0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470',
@@ -559,7 +571,7 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
       // ...await web3.eth.accounts.sign(web3.utils.sha3(item._hash), keys[index+10] /*getPrivateKey(owner)*/),
       ...await eip712sign(factoryProxy, typedData, 10),
       typeHash: eip712typehash(typedData),
-      limitsTypeHash: TypedDataUtils.typeHash(typedData.types, 'limits'),
+      limitsTypeHash: TypedDataUtils.typeHash(typedData.types, 'Limits'),
       sessionId: getSessionIdERC20(10, false),
       signer: getSigner(10),
       // _hash: undefined,
@@ -582,7 +594,7 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
   })
 
 
-it('EIP712: should be able to execute multi external calls: signer==operator, sender==owner', async () => {
+it('EIP712: should be able to execute multi sig external calls: signer==operator, sender==owner', async () => {
     await instance.cancelCall({ from: owner })
     const nonce = await instance.nonce()
 
@@ -700,17 +712,17 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
           { name: "salt",                 type: "bytes32" },
         ],
         batchCall: [
-          { name: 'limits',                 type: 'limits'},
+          { name: 'limits',                 type: 'Limits'},
           { name: 'transaction_1',          type: 'transaction1'},
           { name: 'transaction_2',          type: 'transaction2'},
           { name: 'transaction_3',          type: 'transaction3'},
         ],
-        limits: [
-          { name: 'nonce',                type: 'uint64' },
-          { name: 'ordered',              type: 'bool' },
-          { name: 'refund',               type: 'bool' },
-          { name: 'signature_valid_from', type: 'uint40'  },
-          { name: 'signature_expires_at', type: 'uint40'  },
+        Limits: [
+          { name: 'nonce',                type: 'uint64'  },
+          { name: 'ordered',              type: 'bool'    },
+          { name: 'refund',               type: 'bool'    },
+          { name: 'valid_from',           type: 'uint40'  },
+          { name: 'expires_at',           type: 'uint40'  },
           { name: 'gas_price_limit',      type: 'uint64'  },
         ],
         transaction1: [
@@ -763,8 +775,8 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
           nonce: '0x' + groupERC20 + tnonceERC20,
           ordered: false,
           refund: true,
-          signature_valid_from: Number.parseInt('0x' + afterERC20),
-          signature_expires_at: Number.parseInt('0x' + beforeERC20),
+          valid_from: Number.parseInt('0x' + afterERC20),
+          expires_at: Number.parseInt('0x' + beforeERC20),
           gas_price_limit: Number.parseInt('0x' + maxGasPriceERC20),
         },
         ['-----------------------------------']: '',
@@ -885,7 +897,7 @@ if (multiSig) {
           {...await eip712sign(factoryProxy, typedData, 11)},
       ],
       typeHash: eip712typehash(typedData),
-      limitsTypeHash: TypedDataUtils.typeHash(typedData.types, 'limits'),
+      limitsTypeHash: TypedDataUtils.typeHash(typedData.types, 'Limits'),
       sessionId: getSessionIdERC20(10, false),
       // signer: getSigner(10),
       // _hash: undefined,

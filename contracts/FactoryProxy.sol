@@ -61,7 +61,6 @@ struct Call {
     bytes32 r;
     bytes32 s;
     bytes32 typeHash;
-    bytes32 limitsTypeHash;
     uint256 sessionId;
     address signer;
     uint8 v;
@@ -82,7 +81,6 @@ struct MSCall {
 
 struct MSCalls {
     bytes32 typeHash;
-    bytes32 limitsTypeHash;
     uint256 sessionId;
     MSCall[] mcall;
     Signature[] signatures;
@@ -101,7 +99,19 @@ contract FactoryProxy is FactoryStorage {
     );
 
     bytes32 public constant BATCH_CALL_TRANSACTION_TYPEHASH = keccak256(
-        "Transaction(address call_address,string call_ens,uint256 eth_value,uint64 nonce,uint40 valid_from,uint40 expires_at,uint32 gas_limit,uint64 gas_price_limit,bool view_only,bool ordered,bool refund)"
+        "Transaction(address call_address,string call_ens,uint256 eth_value,uint64 nonce,uint40 valid_from,uint40 expires_at,uint32 gas_limit,uint64 gas_price_limit,bool view_only,bool ordered,bool refund,string method_interface)"
+    );
+
+    bytes32 public constant BATCH_MULTI_CALL_LIMITS_TYPEHASH = keccak256(
+        "Limits(uint64 nonce,bool ordered,bool refund,uint40 valid_from,uint40 expires_at,uint64 gas_price_limit)"
+    );
+
+    bytes32 public constant BATCH_MULTI_CALL_TRANSACTION_TYPEHASH = keccak256(
+        "Transaction(address call_address,string call_ens,uint256 eth_value,uint32 gas_limit,bool view_only,bool continue_on_fail,bool stop_on_fail,bool stop_on_success,bool revert_on_success,string method_interface)"
+    );
+
+    bytes32 public constant BATCH_MULTI_SIG_CALL_LIMITS_TYPEHASH = keccak256(
+        "Limits(uint64 nonce,bool ordered,bool refund,uint40 valid_from,uint40 expires_at,uint64 gas_price_limit)"
     );
 
     bytes32 public constant BATCH_TRANSFER_PACKED_TYPEHASH = keccak256(
@@ -244,7 +254,7 @@ contract FactoryProxy is FactoryStorage {
     }
 
     // Batch Transfers: ETH & ERC20 Tokens
-    function batchTransferPacked(PTransfer[] calldata tr, uint24 nonceGroup, bytes32 typeHash) external {
+    function batchTransferPacked(PTransfer[] calldata tr, uint24 nonceGroup) external {
       unchecked {
         require(msg.sender == s_activator, "Wallet: sender not allowed");
         uint256 nonce = s_nonce_group[nonceGroup] + (uint256(nonceGroup) << 232);
@@ -400,7 +410,18 @@ contract FactoryProxy is FactoryStorage {
             uint256 gasPriceLimit = uint64(sessionId >> 16);
             bool refund = sessionId & FLAG_PAYMENT > 0;
             bool ordered = sessionId & FLAG_ORDERED > 0;
-            bytes memory msg2 = abi.encode(mcalls.typeHash, keccak256(abi.encode(mcalls.limitsTypeHash, uint64(sessionId >> 192), ordered, refund, afterTS, beforeTS, gasPriceLimit)));
+            bytes memory msg2 = abi.encode(
+                mcalls.typeHash,
+                keccak256(abi.encode(
+                    BATCH_MULTI_CALL_LIMITS_TYPEHASH,
+                    uint64(sessionId >> 192),
+                    ordered,
+                    refund,
+                    afterTS,
+                    beforeTS,
+                    gasPriceLimit
+                ))
+            );
 
             if (i == 0) {
               require(sessionId >> 192 >= nonce >> 192, "Factory: group+nonce too low");
@@ -423,34 +444,32 @@ contract FactoryProxy is FactoryStorage {
                 MCall calldata call = mcalls.mcall[j];
                 bytes32 functionSignature = call.functionSignature;
                 uint16 flags = call.flags;
+
+                bytes32 transactionHash = keccak256(abi.encode(
+                    BATCH_MULTI_CALL_TRANSACTION_TYPEHASH,
+                    call.to,
+                    call.ensHash,
+                    call.value,
+                    call.gasLimit,
+                    flags & FLAG_STATICCALL,
+                    flags & ON_FAIL_CONTINUE,
+                    flags & ON_FAIL_STOP,
+                    flags & ON_SUCCESS_STOP,
+                    flags & ON_SUCCESS_REVERT,
+                    call.functionSignature                  
+                ));
+
                 msg2 = abi.encodePacked(
                     msg2,
                     functionSignature != 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470 ?
                         keccak256(abi.encode(
                             call.typeHash,
-                            call.to,
-                            call.ensHash,
-                            call.value,
-                            call.gasLimit,
-                            flags & FLAG_STATICCALL,
-                            flags & ON_FAIL_CONTINUE,
-                            flags & ON_FAIL_STOP,
-                            flags & ON_SUCCESS_STOP,
-                            flags & ON_SUCCESS_REVERT,
-                            call.functionSignature,
+                            transactionHash,
                             call.data
                         )):
                         keccak256(abi.encode(
                             call.typeHash,
-                            call.to,
-                            call.ensHash,
-                            call.value,
-                            call.gasLimit,
-                            flags & FLAG_STATICCALL,
-                            flags & ON_FAIL_CONTINUE,
-                            flags & ON_FAIL_STOP,
-                            flags & ON_SUCCESS_STOP,
-                            flags & ON_SUCCESS_REVERT
+                            transactionHash
                         ))
                 );
             }
@@ -544,7 +563,7 @@ contract FactoryProxy is FactoryStorage {
                 bytes memory msg2 = abi.encode(
                     mcalls.typeHash,
                     keccak256(abi.encode(
-                        mcalls.limitsTypeHash,
+                        BATCH_MULTI_SIG_CALL_LIMITS_TYPEHASH,
                         uint64(sessionId >> 192),
                         sessionId & FLAG_ORDERED > 0, // ordered
                         sessionId & FLAG_PAYMENT > 0, // refund
@@ -764,26 +783,18 @@ contract FactoryProxy is FactoryStorage {
                 uint64(call.sessionId >> 16), // gasPriceLimit,
                 bool(call.sessionId & FLAG_STATICCALL > 0), // staticcall
                 bool(call.sessionId & FLAG_ORDERED > 0), // ordered
-                bool(call.sessionId & FLAG_PAYMENT > 0) // refund
+                bool(call.sessionId & FLAG_PAYMENT > 0), // refund
+                call.functionSignature
         ));
     }
 
     function _encodeCall(Call memory call) private view returns (bytes32 messageHash, address to) {
         to = _ensToAddress(call.ensHash, call.to);
  
-        // emit ErrorHandled(abi.encode(BATCH_CALL_TRANSACTION_TYPEHASH));
-        // emit ErrorHandled(abi.encode(
-        //         call.typeHash,
-        //         _calcCallTransactionHash(call),
-        //         call.functionSignature,
-        //         call.data
-        //     ));
-
         messageHash = call.functionSignature != 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470 ?
             keccak256(abi.encode(
                 call.typeHash,
                 _calcCallTransactionHash(call),
-                call.functionSignature,
                 call.data
             )):
             keccak256(abi.encode(

@@ -595,7 +595,7 @@ contract('Wallet', async (accounts) => {
     // await factory.batchTransfer(msgs, { from: owner, gasPrice: 200 })
 
     await logBalances()
-    const { receipt: receiptEth } = await factoryProxy.batchTransferPacked(msgsEth, 1, typeHash, { from: activator, gasPrice: 50e9 })
+    const { receipt: receiptEth } = await factoryProxy.batchTransferPacked(msgsEth, 1, { from: activator, gasPrice: 50e9 })
     // const { receipt: receiptEth } = await factoryProxy.batchEthTransfer(msgsEth, 0, false,{ from: activator, gasPrice: 200 })
     mlog.pending(`zxc Ether X ${msgsEth.length} Transfers consumed ${JSON.stringify(receiptEth.gasUsed)} gas (${JSON.stringify(receiptEth.gasUsed/msgsEth.length)} gas per call)`)
     await logBalances()
@@ -603,7 +603,7 @@ contract('Wallet', async (accounts) => {
 
     await logERC20Balances()
 
-    const { receipt: receiptERC20 } = await factoryProxy.batchTransferPacked(msgsERC20, 1, typeHash, { from: activator, gasPrice: 50e9 })
+    const { receipt: receiptERC20 } = await factoryProxy.batchTransferPacked(msgsERC20, 1, { from: activator, gasPrice: 50e9 })
 
     // Should revert
     // await factory.batchTransfer(msgs, { from: activator, gasPrice: 200 })
@@ -1268,9 +1268,8 @@ it('eip712: should be able to execute batch of many external calls: signer==oper
         ],
         BatchCall: [
           { name: 'transaction',          type: 'Transaction' },
-          { name: 'method_signature',     type: 'string'  },
-          { name: 'method_data_offset',   type: 'uint256' },
-          { name: 'method_data_length',   type: 'uint256' },
+          { name: 'method_params_offset', type: 'uint256' },
+          { name: 'method_params_length', type: 'uint256' },
           { name: 'to',                   type: 'address' },
           { name: 'token_amount',         type: 'uint256' },
         ],
@@ -1286,6 +1285,7 @@ it('eip712: should be able to execute batch of many external calls: signer==oper
           { name: 'view_only',            type: 'bool'    },
           { name: 'ordered',              type: 'bool'    },
           { name: 'refund',               type: 'bool'    },
+          { name: 'method_interface',     type: 'string'  },
         ],
       },
       primaryType: 'BatchCall',
@@ -1316,14 +1316,14 @@ it('eip712: should be able to execute batch of many external calls: signer==oper
         expires_at: Number.parseInt('0x' + beforeERC20),
         gas_limit: Number.parseInt('0x' + maxGasERC20),
         gas_price_limit: Number.parseInt('0x' + maxGasPriceERC20),
+        method_interface: 'transfer(address,uint256)',
         },
   //      selector: '0x' + data.slice(2,10),
         [':---']: '',
         ['Contract\'s Method Header']: '',
         [':----']: '',
-        method_signature: 'transfer(address,uint256)',
-        method_data_offset: '0x80', // '0x1c0', // '480', // 13*32
-        method_data_length: '0x40',
+        method_params_offset: '0x60', // '0x1c0', // '480', // 13*32
+        method_params_length: '0x40',
         [':-----']: '',
         ['Contract\'s Method Data']: '',
         [':------']: '',
