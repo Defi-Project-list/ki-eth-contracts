@@ -96,8 +96,6 @@ contract FactoryProxy is FactoryStorage {
     
     string public constant VERSION = "1";
 
-    bytes32 public constant TRANSFER_TYPEHASH = 0xf728cfc064674dacd2ced2a03acd588dfd299d5e4716726c6d5ec364d16406eb;
-
     bytes32 public constant BATCH_TRANSFER_TYPEHASH = keccak256(
         "BatchTransfer(address token_address,string token_ens,address to,string to_ens,uint256 value,uint64 nonce,uint40 valid_from,uint40 expires_at,uint32 gas_limit,uint64 gas_price_limit,bool ordered,bool refund)"
     );
