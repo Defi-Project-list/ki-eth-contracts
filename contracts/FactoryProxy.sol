@@ -146,6 +146,10 @@ contract FactoryProxy is FactoryStorage {
         // proxy = address(this);
     }
 
+    receive() external payable {
+        require(false, "Factory: not aceepting ether");
+    }
+
     fallback() external {
         assembly {
             calldatacopy(0x00, 0x00, calldatasize())
@@ -414,15 +418,13 @@ contract FactoryProxy is FactoryStorage {
             require(block.timestamp > afterTS, "Factory: too early");
             require(block.timestamp < beforeTS, "Factory: too late");
             uint256 length = mcalls.mcall.length;
-            // address[] memory toList = new address[](length);
+
             for(uint256 j = 0; j < length; j++) {
                 MCall calldata call = mcalls.mcall[j];
                 bytes32 functionSignature = call.functionSignature;
-                // (bytes32 messageHash, address to) = _encodeMCall2(call);
                 uint16 flags = call.flags;
                 msg2 = abi.encodePacked(
                     msg2,
-                    // messageHash
                     functionSignature != 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470 ?
                         keccak256(abi.encode(
                             call.typeHash,
@@ -451,7 +453,6 @@ contract FactoryProxy is FactoryStorage {
                             flags & ON_SUCCESS_REVERT
                         ))
                 );
-                // toList[j] = to;
             }
 
             // emit ErrorHandled(abi.encodePacked(mcalls.r, mcalls.s, mcalls.v));
@@ -639,7 +640,7 @@ contract FactoryProxy is FactoryStorage {
                             signature.r,
                             signature.s
                         );
-                        if (signer == call.signer) { //  && signers[j] == address(0)) {
+                        if (signer == call.signer && signers[j] == address(0)) {
                             signers[j] = signer;
                         }
                     }
@@ -710,6 +711,10 @@ contract FactoryProxy is FactoryStorage {
 
     function operator() external view returns (address) {
       return s_operator;
+    }
+
+    function setOperator(address newOperator) external multiSig2of3(0) {
+      s_operator = newOperator;
     }
 
     function activator() external view returns (address) {

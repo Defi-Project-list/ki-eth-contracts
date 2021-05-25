@@ -220,8 +220,8 @@ contract('Wallet', async (accounts) => {
     token20notSafe = await ERC20Token.new('Kirobo ERC20 Not Safe Token', 'KDB20NS', {from: owner});
     token721 = await ERC721Token.new('Kirobo ERC721 Token', 'KBF', {from: owner});
 
-    await factory.setOperator(operator, { from: factoryOwner1 });
-    await factory.setOperator(operator, { from: factoryOwner2 });
+    await factoryProxy.setOperator(operator, { from: factoryOwner1 });
+    await factoryProxy.setOperator(operator, { from: factoryOwner2 });
 
     await factory.setActivator(activator, { from: factoryOwner1 });
     await factory.setActivator(activator, { from: factoryOwner2 });

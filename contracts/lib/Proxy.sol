@@ -8,7 +8,6 @@ import "./StorageBase.sol";
 contract Proxy is StorageBase {
 
     fallback() external payable {
-        // solium-disable-next-line security/no-inline-assembly
         assembly {
             calldatacopy(0x00, 0x00, calldatasize())
             let res := delegatecall(

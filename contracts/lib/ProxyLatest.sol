@@ -12,7 +12,7 @@ contract ProxyLatest is StorageBase {
 
     fallback() external payable {
         address latest = ICreator(this.creator()).getLatestVersion();
-        // solium-disable-next-line security/no-inline-assembly
+
         assembly {
             calldatacopy(0x00, 0x00, calldatasize())
             let res := delegatecall(gas(), latest, 0x00, calldatasize(), 0, 0)

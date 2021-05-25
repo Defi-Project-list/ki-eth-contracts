@@ -149,34 +149,8 @@ contract Factory is FactoryStorage {
         address owner3
     ) FactoryStorage(owner1, owner2, owner3) {}
 
-    /*
-    receive () external payable {
-      if (msg.value > 0) {
-        emit GotEther(msg.sender, msg.value);
-      }
-    }
-    */
-
-    fallback() external {
-        /*
-        bytes8 _version = wallets_version[msg.sender];
-        if (_version == LATEST) {
-            _version = production_version;
-        }
-        address _oracle = versions_oracle[_version];
-       */
-        //require(_oracle != address(0), "no oracle code");
-        /*
-        // solium-disable-next-line security/no-inline-assembly
-        assembly {
-                calldatacopy(0x00, 0x00, calldatasize)
-                //let res := call(gas, sload(oracle_slot), callvalue, 0x00, calldatasize, 0, 0)
-                let res := staticcall(gas, sload(_oracle), 0x00, calldatasize, 0, 0)
-                returndatacopy(0x00, 0x00, returndatasize)
-                if res { return(0x00, returndatasize) }
-                revert(0x00, returndatasize)
-            }
-            */
+    receive() external payable {
+        require(false, "Factory: not aceepting ether");
     }
 
     function transferWalletOwnership(address newOwner) external {
@@ -387,10 +361,6 @@ contract Factory is FactoryStorage {
         oracleAddress = s_versions_oracle[version];
     }
 
-    function setOperator(address newOperator) external multiSig2of3(0) {
-      s_operator = newOperator;
-    }
-
     function setActivator(address newActivator) external multiSig2of3(0) {
       s_activator = newActivator;
     }
@@ -411,7 +381,6 @@ contract Factory is FactoryStorage {
             uint256 value = call.value;
             uint256 sessionId = call.sessionId;
             uint256 gasLimit  = uint32(sessionId >> 80);
-            // uint256 gasPriceLimit  = uint64(sessionId >> 16);
 
             if (i == 0) {
               require(sessionId >> 192 >= nonce >> 192, "Factory: group+nonce too low");
@@ -513,13 +482,9 @@ contract Factory is FactoryStorage {
                 sessionId & FLAG_EIP712 > 0
             );
             
-            // emit ErrorHandled(abi.encodePacked(msgPre, msg2));
-            // return ;
-
             Wallet storage wallet = _getWalletFromMessage(mcalls.signer, messageHash, mcalls.v, mcalls.r, mcalls.s);
             require(wallet.owner == true, "Factory: singer is not owner");
 
-            // uint256 length = mcalls.mcall.length;
             for(uint256 j = 0; j < length; j++) {
                 MCall calldata call = mcalls.mcall[j];
                 uint32 gasLimit = call.gasLimit;
@@ -565,11 +530,6 @@ contract Factory is FactoryStorage {
             uint256 gas = gasleft();
             MSCalls calldata mcalls = tr[i];
             uint256 sessionId = mcalls.sessionId;
-            // uint256 afterTS = uint40(sessionId >> 152);
-            // uint256 beforeTS  = uint40(sessionId >> 112);
-            // uint256 gasPriceLimit  = uint64(sessionId >> 16);
-            // bool refund = sessionId & FLAG_PAYMENT > 0;
-            // bool ordered = sessionId & FLAG_ORDERED > 0;
             bytes memory msg2 = abi.encode(
                 BATCH_MULTI_SIG_CALL_TYPEHASH,
                 keccak256(abi.encode(
@@ -594,7 +554,6 @@ contract Factory is FactoryStorage {
             require(block.timestamp > uint40(sessionId >> 152) /*afterTS*/, "Factory: too early");
             require(block.timestamp < uint40(sessionId >> 112) /*beforeTS*/, "Factory: too late");
             uint256 length = mcalls.mcall.length;
-            // address[] memory toList = new address[](length);
 
             for(uint256 j = 0; j < length; j++) {
                 MSCall calldata call = mcalls.mcall[j];
@@ -611,10 +570,6 @@ contract Factory is FactoryStorage {
                     ))
                 );
             }
-
-            // emit ErrorHandled(abi.encodePacked(mcalls.r, mcalls.s, mcalls.v));
-            // emit ErrorHandled(abi.encodePacked(msg2));
-            // return;
 
             bytes32 messageToRecover = _messageToRecover(
                 keccak256(msg2),
@@ -633,25 +588,18 @@ contract Factory is FactoryStorage {
                         signature.r,
                         signature.s
                     );
-                    if (signer == call.signer) { //  && signers[j] == address(0)) {
+                    if (signer == call.signer && signers[j] == address(0)) {
                         signers[j] = signer;
                     }
                 }
             }
 
-          //  emit ErrorHandled(abi.encodePacked(signers));
-          //  return;
-          
            for(uint256 j = 0; j < length; j++) {
-                // address signer = signers[j];
                 require(signers[j] != address(0), "Factory: signer missing");
                 Wallet storage wallet = s_accounts_wallet[signers[j]];
                 require(wallet.owner == true, "Factory: signer is not owner");
                 MSCall calldata call = mcalls.mcall[j];
-                // uint32 gasLimit = call.gasLimit;
-                // uint16 flags = call.flags;
                 address to = call.to;
-                // bytes32 functionSignature = call.functionSignature;
 
                 (bool success, bytes memory res) = call.flags & FLAG_STATICCALL > 0 ?
                     wallet.addr.call{gas: call.gasLimit==0 || call.gasLimit > gasleft() ? gasleft() : call.gasLimit}(
@@ -714,7 +662,6 @@ contract Factory is FactoryStorage {
             code[61 + i] = creatorBytes[i];
             code[101 + i] = targetBytes[i];
         }
-        // solium-disable-next-line security/no-inline-assembly
         assembly {
             result := create(0, add(code, 0x20), mload(code))
         }
