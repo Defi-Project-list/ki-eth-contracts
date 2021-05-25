@@ -110,7 +110,7 @@ contract FactoryProxy is FactoryStorage {
     );
 
     bytes32 public constant BATCH_TRANSFER_PACKED_TYPEHASH = keccak256(
-        "batchTransferPacked()"
+        "BatchTransferPacked(address token,address to,uint256 value,uint256 sessionId)"
     );
 
     // bytes4(keccak256("sendEther(address payable,uint256)"));
