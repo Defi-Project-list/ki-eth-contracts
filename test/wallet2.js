@@ -402,7 +402,7 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
         BatchMultiCall: [
           { name: 'limits',               type: 'Limits'},
           { name: 'transaction_1',        type: 'TokenTransfer' },
-          // { name: 'transaction_2',        type: 'EthTransfer' }, //TODO: check is there is bug/limit in metamsk
+          { name: 'transaction_2',        type: 'EthTransfer' }, //TODO: check is there is bug/limit in metamsk
           { name: 'transaction_3',        type: 'TokenTransfer' }, 
         ],
         Limits: [
