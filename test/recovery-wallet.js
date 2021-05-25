@@ -27,6 +27,7 @@ const {
 contract('RecoveryWallet', async accounts => {
   let instance;
   let factory;
+  let factoryProxy;
   let token20;
   let token20notSafe;
   let token721;
@@ -65,6 +66,7 @@ contract('RecoveryWallet', async accounts => {
     await sw_factory_proxy.setTarget(sw_factory.address, { from: factoryOwner1 });
     await sw_factory_proxy.setTarget(sw_factory.address, { from: factoryOwner2 });
     factory = await Factory.at(sw_factory_proxy.address, { from: factoryOwner3 });
+    factoryProxy = await FactoryProxy.at(sw_factory_proxy.address, { from: factoryOwner3 });
     
     //const factory = await FactoryProxy.new({ from: creator });
     const version = await RecoveryWallet.new({ from: factoryOwner3 });

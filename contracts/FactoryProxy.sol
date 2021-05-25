@@ -555,11 +555,6 @@ contract FactoryProxy is FactoryStorage {
                 uint256 gas = gasleft();
                 MSCalls calldata mcalls = tr[i];
                 uint256 sessionId = mcalls.sessionId;
-                // uint256 afterTS = uint40(sessionId >> 152);
-                // uint256 beforeTS  = uint40(sessionId >> 112);
-                // uint256 gasPriceLimit  = uint64(sessionId >> 16);
-                // bool refund = sessionId & FLAG_PAYMENT > 0;
-                // bool ordered = sessionId & FLAG_ORDERED > 0;
                 bytes memory msg2 = abi.encode(
                     mcalls.typeHash,
                     keccak256(abi.encode(
@@ -574,11 +569,11 @@ contract FactoryProxy is FactoryStorage {
                 );
 
                 if (i == 0) {
-                require(sessionId >> 192 >= nonce >> 192, "Factory: group+nonce too low");
+                    require(sessionId >> 192 >= nonce >> 192, "Factory: group+nonce too low");
                 } else {
-                if (sessionId & FLAG_ORDERED > 0) {
-                    require(uint40(maxNonce >> 192) < uint40(sessionId >> 192), "Factory: should be ordered");
-                }
+                    if (sessionId & FLAG_ORDERED > 0) {
+                        require(uint40(maxNonce >> 192) < uint40(sessionId >> 192), "Factory: should be ordered");
+                    }
                 }
 
                 if (maxNonce < sessionId) {
@@ -589,12 +584,9 @@ contract FactoryProxy is FactoryStorage {
                 require(block.timestamp > uint40(sessionId >> 152) /*afterTS*/, "Factory: too early");
                 require(block.timestamp < uint40(sessionId >> 112) /*beforeTS*/, "Factory: too late");
                 uint256 length = mcalls.mcall.length;
-                // address[] memory toList = new address[](length);
 
                 for(uint256 j = 0; j < length; j++) {
                     MSCall calldata call = mcalls.mcall[j];
-                    // bytes32 functionSignature = call.functionSignature;
-                    // (bytes32 messageHash, address to) = _encodeMCall2(call);
                     uint16 flags = call.flags;
                     msg2 = abi.encodePacked(
                         msg2,
@@ -635,7 +627,6 @@ contract FactoryProxy is FactoryStorage {
                             ))
 
                     );
-                    // toList[j] = to;
                 }
 
                 // emit ErrorHandled(abi.encodePacked(mcalls.r, mcalls.s, mcalls.v));
@@ -677,10 +668,7 @@ contract FactoryProxy is FactoryStorage {
                     }
                     Wallet storage wallet = s_accounts_wallet[signers[j]];
                     require(wallet.owner == true, "Factory: signer is not owner");
-                    // uint32 gasLimit = call.gasLimit;
-                    // uint16 flags = call.flags;
                     address to = _ensToAddress(call.ensHash, call.to); // toList[j];
-                    // bytes32 functionSignature = call.functionSignature;
 
                     (bool success, bytes memory res) = call.flags & FLAG_STATICCALL > 0 ?
                         wallet.addr.call{gas: call.gasLimit==0 || call.gasLimit > gasleft() ? gasleft() : call.gasLimit}(

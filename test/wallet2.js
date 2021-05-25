@@ -6,6 +6,7 @@
 
 // const ENSRegistry = artifacts.require('ens/ENSRegistry');
 // const FIFSRegistrar = artifacts.require('ens/FIFSRegistrar');
+const SIGN_WITH_METAMASK = false
 
 const Wallet = artifacts.require("Wallet")
 const Oracle = artifacts.require("Oracle")
@@ -77,6 +78,12 @@ contract('Wallet', async (accounts) => {
     if (address === operator) {
       return '0xf2eb3ee5aca80df482e9b6474f6af69b1186766ba10faf59a761aaa04ff405d0'
     }
+    if (address === accounts[10]) {
+      return '0x557bca6ef564e9573c073ca84c6b8093063221807abc5abf784b9c0ad1cc94a1'
+    }
+    if (address === accounts[11]) {
+      return '0x90f789c3b13f709b8638f8641e5123cc06e540e5dcc34287b820485c1948b9f5'
+    }
   }
 
   const getSigner = (index) => {
@@ -120,24 +127,22 @@ contract('Wallet', async (accounts) => {
     const messageDigest = TypedDataUtils.encodeDigest(typedData)
     const messageDigestHex = ethers.utils.hexlify(messageDigest)
 
-    console.log('message:', messageDigestHex)
-    // let signingKey = new ethers.utils.SigningKey(getPrivateKey(account));
-    // const sig = signingKey.signDigest(messageDigest)
-    // const rlp = ethers.utils.splitSignature(sig)
-    // rlp.v = '0x' + rlp.v.toString(16)
-  
+    console.log('message:', messageDigestHex)  
 
     console.log('data:', ethers.utils.hexlify(TypedDataUtils.encodeData(typedData, typedData.primaryType, typedData.message)))
-    // console.log('data:2', ethers.utils.hexlify(TypedDataUtils.encodeData(typedData, "Limits", typedData.limits)))
 
-    // try {
-    //   console.log('data2:', ethers.utils.hexlify(TypedDataUtils.encodeData(typedData, 'transaction', typedData.message.transactions)))
-    // } catch (e) {
-    //   console.log(e)
-    // }
+    let rlp, signature
 
-    const signature = await new Promise(resolve => socket.emit('sign request', JSON.stringify([typedData]), resolve))
-    const rlp = { r: signature.slice(0, 66), s: '0x'+signature.slice(66,130), v: '0x'+signature.slice(130) }
+    if (SIGN_WITH_METAMASK) {
+      signature = await new Promise(resolve => socket.emit('sign request', JSON.stringify([typedData]), resolve))
+      rlp = { r: signature.slice(0, 66), s: '0x'+signature.slice(66,130), v: '0x'+signature.slice(130) }
+
+    } else {
+      const signingKey = new ethers.utils.SigningKey(getPrivateKey(accounts[account]));
+      signature = signingKey.signDigest(messageDigest)
+      rlp = ethers.utils.splitSignature(signature)
+      rlp.v = '0x' + rlp.v.toString(16)
+    }
 
     const messageHash = TypedDataUtils.hashStruct(typedData, typedData.primaryType, typedData.message)
     const messageHashHex = ethers.utils.hexlify(messageHash)
@@ -152,7 +157,7 @@ contract('Wallet', async (accounts) => {
 
     mlog.log('rlp', JSON.stringify(rlp))
     mlog.log('recover', ethers.utils.recoverAddress(messageDigest, signature))
-    await utils.sleep(10 * 1000)
+    // await utils.sleep(10 * 1000)
     return rlp
 }
 
@@ -320,13 +325,13 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
         //   // flow: 0x10, // on_success_stop
         // },
 //2
-        // {
-        //   data: '',
-        //   value: 10,
-        //   // typeHash: '0x'.padEnd(66,'1'),
-        //   to: accounts[11],
-        //   gasLimit: 0,
-        // },
+        {
+          data: '',
+          value: 10,
+          // typeHash: '0x'.padEnd(66,'1'),
+          to: accounts[11],
+          gasLimit: 0,
+        },
 //3        
         {
           data: token20.contract.methods.transfer(accounts[13], 12).encodeABI(),
@@ -402,7 +407,7 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
         BatchMultiCall: [
           { name: 'limits',               type: 'Limits'},
           { name: 'transaction_1',        type: 'TokenTransfer' },
-          // { name: 'transaction_2',        type: 'EthTransfer' }, //TODO: check is there is bug/limit in metamsk
+          { name: 'transaction_2',        type: 'EthTransfer' }, //TODO: check is there is bug/limit in metamsk
           { name: 'transaction_3',        type: 'TokenTransfer' }, 
         ],
         Limits: [

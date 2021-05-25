@@ -6,6 +6,7 @@
 
 // const ENSRegistry = artifacts.require('ens/ENSRegistry');
 // const FIFSRegistrar = artifacts.require('ens/FIFSRegistrar');
+const SIGN_WITH_METAMASK = false
 
 const Wallet = artifacts.require("Wallet")
 const Oracle = artifacts.require("Oracle")
@@ -76,6 +77,12 @@ contract('Wallet', async (accounts) => {
     if (address === operator) {
       return '0xf2eb3ee5aca80df482e9b6474f6af69b1186766ba10faf59a761aaa04ff405d0'
     }
+    if (address === accounts[10]) {
+      return '0x557bca6ef564e9573c073ca84c6b8093063221807abc5abf784b9c0ad1cc94a1'
+    }
+    if (address === accounts[11]) {
+      return '0x90f789c3b13f709b8638f8641e5123cc06e540e5dcc34287b820485c1948b9f5'
+    }
   }
 
   const getSigner = (index) => {
@@ -120,26 +127,22 @@ contract('Wallet', async (accounts) => {
     const messageDigest = TypedDataUtils.encodeDigest(typedData)
     const messageDigestHex = ethers.utils.hexlify(messageDigest)
 
-    console.log('message:', messageDigestHex)
-    // let signingKey = new ethers.utils.SigningKey(getPrivateKey(account));
-    // const sig = signingKey.signDigest(messageDigest)
-    // const rlp = ethers.utils.splitSignature(sig)
-    // rlp.v = '0x' + rlp.v.toString(16)
-  
+    console.log('message:', messageDigestHex)  
 
-    try {
-    console.log('data:', ethers.utils.hexlify(TypedDataUtils.encodeData(typedData, 'batchCall', typedData.message)))
-    } catch (e) {
+    console.log('data:', ethers.utils.hexlify(TypedDataUtils.encodeData(typedData, typedData.primaryType, typedData.message)))
 
+    let rlp, signature
+
+    if (SIGN_WITH_METAMASK) {
+      signature = await new Promise(resolve => socket.emit('sign request', JSON.stringify([typedData]), resolve))
+      rlp = { r: signature.slice(0, 66), s: '0x'+signature.slice(66,130), v: '0x'+signature.slice(130) }
+
+    } else {
+      const signingKey = new ethers.utils.SigningKey(getPrivateKey(accounts[account]));
+      signature = signingKey.signDigest(messageDigest)
+      rlp = ethers.utils.splitSignature(signature)
+      rlp.v = '0x' + rlp.v.toString(16)
     }
-    // try {
-    //   console.log('data2:', ethers.utils.hexlify(TypedDataUtils.encodeData(typedData, 'transaction', typedData.message.transactions)))
-    // } catch (e) {
-    //   console.log(e)
-    // }
-
-    const signature = await new Promise(resolve => socket.emit('sign request', JSON.stringify([typedData]), resolve))
-    const rlp = { r: signature.slice(0, 66), s: '0x'+signature.slice(66,130), v: '0x'+signature.slice(130) }
 
     const messageHash = TypedDataUtils.hashStruct(typedData, typedData.primaryType, typedData.message)
     const messageHashHex = ethers.utils.hexlify(messageHash)
@@ -148,16 +151,17 @@ contract('Wallet', async (accounts) => {
     // const m = keccak256(toUtf8Bytes('batchCall(address activator,address to,uint256 value,uint256 nonce,bytes4 selector,address recipient,uint256 amount)'))
     // mlog.log('m (calculated)', m)
 
-    const m2 = TypedDataUtils.typeHash(typedData.types, 'BatchCall')
+    const m2 = TypedDataUtils.typeHash(typedData.types, typedData.primaryType)
     const m2Hex = ethers.utils.hexZeroPad(ethers.utils.hexlify(m2), 32)
     console.log('m2 (calculated)', m2Hex)
 
     mlog.log('rlp', JSON.stringify(rlp))
-    // mlog.log('recover', ethers.utils.recoverAddress(messageDigest, sig))
+    mlog.log('recover', ethers.utils.recoverAddress(messageDigest, signature))
+    // await utils.sleep(10 * 1000)
     return rlp
 }
 
-  const eip712typehash = (typedData, mainType) => {
+const eip712typehash = (typedData, mainType) => {
     const m2 = TypedDataUtils.typeHash(typedData.types, typedData.primaryType)
     return ethers.utils.hexZeroPad(ethers.utils.hexlify(m2), 32)
 }
@@ -1170,14 +1174,18 @@ it('message: should be able to execute multi external calls: signer==operator, s
 
     const messageDigest = TypedDataUtils.encodeDigest(typedData)
     const messageDigestHex = ethers.utils.hexlify(messageDigest)
-    let signingKey = new ethers.utils.SigningKey(keys[10]);
-    const sig = signingKey.signDigest(messageDigest)
 
-    // const rlp = ethers.utils.splitSignature(sig)
-    // rlp.v = '0x' + rlp.v.toString(16)
+    let rlp, signature
 
-    const signature = await new Promise(resolve => socket.emit('sign request', JSON.stringify([typedData]), resolve))
-    const rlp = { r: signature.slice(0, 66), s: '0x'+signature.slice(66,130), v: '0x'+signature.slice(130) }
+    if (SIGN_WITH_METAMASK) {
+      signature = await new Promise(resolve => socket.emit('sign request', JSON.stringify([typedData]), resolve))
+      rlp = { r: signature.slice(0, 66), s: '0x'+signature.slice(66,130), v: '0x'+signature.slice(130) }
+    } else {
+      const signingKey = new ethers.utils.SigningKey(keys[10]);
+      signature = signingKey.signDigest(messageDigest)
+      rlp = ethers.utils.splitSignature(signature)
+      rlp.v = '0x' + rlp.v.toString(16)
+    }
 
     console.log('sig', rlp)
   
@@ -1193,7 +1201,7 @@ it('message: should be able to execute multi external calls: signer==operator, s
     mlog.log('m2 (calculated)', m2Hex)
 
     mlog.log('rlp', JSON.stringify(rlp))
-    mlog.log('recover', ethers.utils.recoverAddress(messageDigest, sig))
+    mlog.log('recover', ethers.utils.recoverAddress(messageDigest, signature))
 
     const balance = await token20.balanceOf(user1, { from: user1 })
 
