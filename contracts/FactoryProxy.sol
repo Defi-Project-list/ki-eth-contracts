@@ -15,7 +15,6 @@ struct Signature {
 }
 
 struct Transfer {
-    bytes32 typeHash;
     address signer;
     bytes32 r;
     bytes32 s;
@@ -101,6 +100,10 @@ contract FactoryProxy is FactoryStorage {
     string public constant VERSION = "1";
 
     bytes32 public constant TRANSFER_TYPEHASH = 0xf728cfc064674dacd2ced2a03acd588dfd299d5e4716726c6d5ec364d16406eb;
+
+    bytes32 public constant BATCH_TRANSFER_TYPEHASH = keccak256(
+        "BatchTransfer(address token_address,string token_ens,address to,string to_ens,uint256 value,uint64 nonce,uint40 valid_from,uint40 expires_at,uint32 gas_limit,uint64 gas_price_limit,bool ordered,bool refund)"
+    );
 
     bytes32 public constant BATCH_CALL_TRANSACTION_TYPEHASH = keccak256(
         "Transaction(address call_address,string call_ens,uint256 eth_value,uint64 nonce,uint40 valid_from,uint40 expires_at,uint32 gas_limit,uint64 gas_price_limit,bool view_only,bool ordered,bool refund)"
@@ -216,19 +219,7 @@ contract FactoryProxy is FactoryStorage {
             require(block.timestamp > uint40(sessionId >> 152) /*afterTS*/, "Factory: too early");
             require(block.timestamp < uint32(sessionId >> 112) /*beforeTS*/, "Factory: too late");
 
-            bytes32 message = keccak256(abi.encode(
-                    call.typeHash,
-                    call.token,
-                    call.tokenEnsHash,
-                    call.to,
-                    call.toEnsHash,
-                    call.value,
-                    uint64(sessionId >> 192), // group + nonce
-                    uint40(sessionId >> 152), // afterTS,
-                    uint40(sessionId >> 112), // beforeTS
-                    uint32(sessionId >> 80), // gasLimit
-                    uint64(sessionId >> 16) // gasPriceLimit,
-                ));
+            bytes32 message = _encodeTransfer(call);
 
             bytes32 messageHash = _messageToRecover(
                 message,
@@ -745,6 +736,24 @@ contract FactoryProxy is FactoryStorage {
         //           // uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + constGas + 15000) /*22100))*/ * 110 / 100 ));
     }
 
+    function _encodeTransfer(Transfer memory call) private view returns (bytes32 messageHash) {
+        return keccak256(abi.encode(
+                BATCH_TRANSFER_TYPEHASH,
+                call.token,
+                call.tokenEnsHash,
+                call.to,
+                call.toEnsHash,
+                call.value,
+                uint64(call.sessionId >> 192), // group + nonce
+                uint40(call.sessionId >> 152), // afterTS,
+                uint40(call.sessionId >> 112), // beforeTS
+                uint32(call.sessionId >> 80), // gasLimit
+                uint64(call.sessionId >> 16), // gasPriceLimit,
+                bool(call.sessionId & FLAG_ORDERED > 0), // ordered
+                bool(call.sessionId & FLAG_PAYMENT > 0) // refund
+            ));
+    }
+
     function _calcCallTransactionHash(Call memory call) private pure returns (bytes32) {
         return keccak256(abi.encode(
                 BATCH_CALL_TRANSACTION_TYPEHASH,
@@ -762,7 +771,7 @@ contract FactoryProxy is FactoryStorage {
         ));
     }
 
-    function _encodeCall(Call memory call) private /*view*/ returns (bytes32 messageHash, address to) {
+    function _encodeCall(Call memory call) private view returns (bytes32 messageHash, address to) {
         to = _ensToAddress(call.ensHash, call.to);
  
         // emit ErrorHandled(abi.encode(BATCH_CALL_TRANSACTION_TYPEHASH));

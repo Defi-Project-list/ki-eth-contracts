@@ -1119,21 +1119,22 @@ it('message: should be able to execute multi external calls: signer==operator, s
           { name: "verifyingContract",  type: "address" },
           { name: "salt",               type: "bytes32" },
         ],
-        batchTransfer: [
-          // { name: 'contractMethod',     type: "string"  },
+        BatchTransfer: [
           { name: 'token_address',      type: 'address' },
           { name: 'token_ens',          type: 'string'  },
-          { name: 'recipient',          type: 'address' },
-          { name: 'recipient_ens',      type: 'string'  },
-          { name: 'token_amount',       type: 'uint256' },
+          { name: 'to',                 type: 'address' },
+          { name: 'to_ens',             type: 'string'  },
+          { name: 'value',              type: 'uint256' },
           { name: 'nonce',              type: 'uint64' },
-          { name: 'after',              type: 'uint40'  },
-          { name: 'before',             type: 'uint40'  },
-          { name: 'gasLimit',           type: 'uint32'  },
-          { name: 'gasPriceLimit',      type: 'uint64'  },
+          { name: 'valid_from',         type: 'uint40'  },
+          { name: 'expires_at',         type: 'uint40'  },
+          { name: 'gas_limit',          type: 'uint32'  },
+          { name: 'gas_price_limit',    type: 'uint64'  },
+          { name: 'ordered',            type: 'bool'    },
+          { name: 'refund',             type: 'bool'    },
         ]
       },
-      primaryType: 'batchTransfer',
+      primaryType: 'BatchTransfer',
       domain: {
         name: await factoryProxy.NAME(),
         version: await factoryProxy.VERSION(),
@@ -1147,14 +1148,16 @@ it('message: should be able to execute multi external calls: signer==operator, s
         nonce: '0x' + groupERC20 + tnonceERC20,
         token_address: token20.address,
         token_ens: '@token.kiro.eth',
-        recipient: accounts[10+userCount/2],
-        recipient_ens: '',
-        token_amount: '20',
-        sessionId: sessionIdERC20,
-        after: '0x' + afterERC20,
-        before: '0x' + beforeERC20,
-        gasLimit: '0x' + maxGasERC20,
-        gasPriceLimit: '0x' + maxGasPriceERC20,
+        to: accounts[10+userCount/2],
+        to_ens: '',
+        value: '20',
+        // sessionId: sessionIdERC20,
+        valid_from: '0x' + afterERC20,
+        expires_at: '0x' + beforeERC20,
+        gas_limit: '0x' + maxGasERC20,
+        gas_price_limit: '0x' + maxGasPriceERC20,
+        ordered: false,
+        refund: true,
       }
     }
 
@@ -1182,10 +1185,10 @@ it('message: should be able to execute multi external calls: signer==operator, s
     const messageHashHex = ethers.utils.hexlify(messageHash)
     mlog.log('messageHash (calculated)', messageHashHex)
 
-    const m = keccak256(toUtf8Bytes('batchTransfer(address token,address recipient,uint256 value,uint256 sessionId,uint40 after,uint40 before,uint32 gasLimit,uint64 gasPriceLimit)'))
+    const m = keccak256(toUtf8Bytes('BatchTransfer(address token_address,string token_ens,address to,string to_ens,uint256 value,uint64 nonce,uint40 valid_from,uint40 expires_at,uint32 gas_limit,uint64 gas_price_limit,bool ordered,bool refund)'))
     mlog.log('m (calculated)', m)
 
-    const m2 = TypedDataUtils.typeHash(typedData.types, 'batchTransfer')
+    const m2 = TypedDataUtils.typeHash(typedData.types, 'BatchTransfer')
     const m2Hex = ethers.utils.hexZeroPad(ethers.utils.hexlify(m2), 32)
     mlog.log('m2 (calculated)', m2Hex)
 
@@ -1200,16 +1203,18 @@ it('message: should be able to execute multi external calls: signer==operator, s
       signer: getSigner(10),
       r: rlp.r,
       s: rlp.s,
-      to: typedData.message.recipient,
+      // to: typedData.message.to,
     }].map(item => ({
       ...item,
-      value:item.token_amount,
+      // value:item.token_amount,
       token: item.token_address,
       tokenEnsHash: web3.utils.sha3('@token.kiro.eth'),
       toEnsHash: '0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470',
       typeHash: eip712typehash(typedData),
 
     }))
+
+    mlog.pending(`calling ${JSON.stringify(msgsERC20[0], null, 2)}`)
 
     await logERC20Balances()
 
