@@ -157,7 +157,9 @@ contract('Wallet', async (accounts) => {
 
     mlog.log('rlp', JSON.stringify(rlp))
     mlog.log('recover', ethers.utils.recoverAddress(messageDigest, signature))
-    // await utils.sleep(10 * 1000)
+    if (SIGN_WITH_METAMASK) {
+      await utils.sleep(10 * 1000)
+    }
     return rlp
 }
 
