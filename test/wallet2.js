@@ -598,12 +598,9 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
 
   })
 
-
-it('EIP712: should be able to execute multi sig external calls: signer==operator, sender==owner', async () => {
+const runEIP712MultiSigTest= async (multiSig, group) => {
     await instance.cancelCall({ from: owner })
     const nonce = await instance.nonce()
-
-    const multiSig = false
 
     const sends = []
 
@@ -695,7 +692,7 @@ it('EIP712: should be able to execute multi sig external calls: signer==operator
     }
 
 
-    const groupERC20        = '000009'
+    const groupERC20        = '0000' + group
     const tnonceERC20       = '0000000200'
     const afterERC20        = '0000000000'
     const beforeERC20       = 'ffffffffff'
@@ -707,6 +704,10 @@ it('EIP712: should be able to execute multi sig external calls: signer==operator
       `0x${groupERC20}${tnonceERC20}${afterERC20}${beforeERC20}${maxGasERC20}${maxGasPriceERC20}${eip712ERC20}`
     )
 
+    const transaction2 = multiSig ? 
+          { name: 'approval',             type: 'Approval'}:
+          { name: 'transaction_2',        type: 'transaction2'}
+    
     const typedData = {
       types: {
         EIP712Domain: [
@@ -716,10 +717,10 @@ it('EIP712: should be able to execute multi sig external calls: signer==operator
           { name: "verifyingContract",    type: "address" },
           { name: "salt",                 type: "bytes32" },
         ],
-        batchCall: [
+        BatchMultiSigCall: [
           { name: 'limits',                 type: 'Limits'},
           { name: 'transaction_1',          type: 'transaction1'},
-          { name: 'transaction_2',          type: 'transaction2'},
+          transaction2,
           { name: 'transaction_3',          type: 'transaction3'},
         ],
         Limits: [
@@ -731,41 +732,40 @@ it('EIP712: should be able to execute multi sig external calls: signer==operator
           { name: 'gas_price_limit',      type: 'uint64'  },
         ],
         transaction1: [
-          { name: 'signer',               type: 'address' },
-          { name: 'token_address',        type: 'address' },
-          { name: 'token_ens',            type: 'string'  },
-          { name: 'eth_value',            type: 'uint256' },
-          { name: 'gas_limit',            type: 'uint32'  },
-          { name: 'view_only',            type: 'bool'    },
-          { name: 'continue_on_fail',     type: 'bool'    },
-          { name: 'stop_on_fail',         type: 'bool'    },
-          { name: 'stop_on_success',      type: 'bool'    },
-          { name: 'revert_on_success',    type: 'bool'    },
-          { name: 'method_interface',     type: 'string'  },
+          { name: 'details',              type: 'Transaction' },
           { name: 'method_data_offset',   type: 'uint256' },
           { name: 'method_data_length',   type: 'uint256' },
           { name: 'to',                   type: 'address' },
           { name: 'token_amount',         type: 'uint256' },
+        ],
+        transaction2: [
+          { name: 'details',              type: 'Transaction' },
         ],
         transaction3: [
-          { name: 'signer',               type: 'address' },
-          { name: 'token_address',        type: 'address' },
-          { name: 'token_ens',            type: 'string'  },
-          { name: 'eth_value',            type: 'uint256' },
-          { name: 'gas_limit',            type: 'uint32'  },
-          { name: 'view_only',            type: 'bool'    },
-          { name: 'continue_on_fail',     type: 'bool'    },
-          { name: 'stop_on_fail',         type: 'bool'    },
-          { name: 'stop_on_success',      type: 'bool'    },
-          { name: 'revert_on_success',    type: 'bool'    },
-          { name: 'method_interface',     type: 'string'  },
+          { name: 'details',              type: 'Transaction' },
           { name: 'method_data_offset',   type: 'uint256' },
           { name: 'method_data_length',   type: 'uint256' },
           { name: 'to',                   type: 'address' },
           { name: 'token_amount',         type: 'uint256' },
         ],
+        Transaction: [
+          { name: 'signer',               type: 'address'     },
+          { name: 'call_address',         type: 'address'     },
+          { name: 'call_ens',             type: 'string'      },
+          { name: 'eth_value',            type: 'uint256'     },
+          { name: 'gas_limit',            type: 'uint32'      },
+          { name: 'view_only',            type: 'bool'        },
+          { name: 'continue_on_fail',     type: 'bool'        },
+          { name: 'stop_on_fail',         type: 'bool'        },
+          { name: 'stop_on_success',      type: 'bool'        },
+          { name: 'revert_on_success',    type: 'bool'        },
+          { name: 'method_interface',     type: 'string'      },        
+        ],
+        Approval: [
+          { name: 'signer',               type: 'address'     },
+        ]
       },
-      primaryType: 'batchCall',
+      primaryType: 'BatchMultiSigCall',
       domain: {
         name: await factoryProxy.NAME(),
         version: await factoryProxy.VERSION(),
@@ -786,76 +786,64 @@ it('EIP712: should be able to execute multi sig external calls: signer==operator
         },
         ['-----------------------------------']: '',
         transaction_1: {
-          signer: getSigner(10), 
-          token_address: token20.address,
-          token_ens: '@token.kiro.eth',
-          eth_value: '0',
-          view_only: false,
-          continue_on_fail: false,
-          stop_on_fail: false,
-          stop_on_success: false,
-          revert_on_success: false,
-          gas_limit: Number.parseInt('0x' + maxGasERC20),
-          method_interface: 'transfer(address,uint256)',
-          method_data_offset: '0x1a0', // '480', // 13*32
+          details: {
+            signer: getSigner(10), 
+            call_address: token20.address,
+            call_ens: '@token.kiro.eth',
+            eth_value: '0',
+            view_only: false,
+            continue_on_fail: false,
+            stop_on_fail: false,
+            stop_on_success: false,
+            revert_on_success: false,
+            gas_limit: Number.parseInt('0x' + maxGasERC20),
+            method_interface: 'transfer(address,uint256)',
+          },
+          method_data_offset: '0x60', //'0x1a0', // '480', // 13*32
           method_data_length: '0x40',
           to: accounts[11],
           token_amount: '5',
       },
         ['------------------------------------']: '',
-        transaction_2: {
+        approval: {
           signer: getSigner(11),
-          to: multiSig ? ZERO_ADDRESS: accounts[12],
-          to_ens: '',
-          eth_value: multiSig ? '0': '10',
-          gas_limit: Number.parseInt('0x' + maxGasERC20),
-          view_only: false,
-          continue_on_fail: false,
-          stop_on_fail: false,
-          stop_on_success: false,
-          revert_on_success: false,
+        },
+        transaction_2: {
+          details: {
+            signer: getSigner(11),
+            call_address: multiSig ? ZERO_ADDRESS: accounts[12],
+            call_ens: '',
+            eth_value: multiSig ? '0': '10',
+            gas_limit: Number.parseInt('0x' + maxGasERC20),
+            view_only: false,
+            continue_on_fail: false,
+            stop_on_fail: false,
+            stop_on_success: false,
+            revert_on_success: false,
+            method_interface: '',
+          },
         }, 
         ['-------------------------------------']: '', 
         transaction_3: {
-          signer: getSigner(10),
-          token_address: token20.address,
-          token_ens: '@token.kiro.eth',
-          eth_value: '0',
-          gas_limit: Number.parseInt('0x' + maxGasERC20),
-          view_only: false,
-          continue_on_fail: false,
-          stop_on_fail: false,
-          stop_on_success: false,
-          revert_on_success: false,
-          method_interface: 'transfer(address,uint256)',
-          method_data_offset: '0x1a0', // '480', // 13*32
+          details: {
+            signer: getSigner(10),
+            call_address: token20.address,
+            call_ens: '@token.kiro.eth',
+            eth_value: '0',
+            gas_limit: Number.parseInt('0x' + maxGasERC20),
+            view_only: false,
+            continue_on_fail: false,
+            stop_on_fail: false,
+            stop_on_success: false,
+            revert_on_success: false,
+            method_interface: 'transfer(address,uint256)',
+          },
+          method_data_offset: '0x60', //'0x1a0', // '480', // 13*32
           method_data_length: '0x40',
           to: accounts[13],
           token_amount: '12',
       }}
     }
-
-
-if (multiSig) {
-  typedData.types.transaction2 =
-    [
-      { name: 'signer',               type: 'address' },
-    ];
-} else {
-  typedData.types.transaction2 =
-    [
-      { name: 'signer',               type: 'address' },
-      { name: 'to',                   type: 'address' },
-      { name: 'to_ens',               type: 'string'  },
-      { name: 'eth_value',            type: 'uint256' },
-      { name: 'gas_limit',            type: 'uint32'  },
-      { name: 'view_only',            type: 'bool'    },
-      { name: 'continue_on_fail',     type: 'bool'    },
-      { name: 'stop_on_fail',         type: 'bool'    },
-      { name: 'stop_on_success',      type: 'bool'    },
-      { name: 'revert_on_success',    type: 'bool'    },
-    ];
-}
 
     // console.log('sends', JSON.stringify(sends, null,2))
 
@@ -914,7 +902,7 @@ if (multiSig) {
     await logERC20Balances()
     await logBalances()
 
-    const { receipt: receiptERC20 } = await factoryProxy.batchMultiSigCall(msgsERC20, 9, { from: activator, gasPrice: 200 }) // .catch(revertReason => console.log({ revertReason: JSON.stringify(revertReason, null ,2) }))
+    const { receipt: receiptERC20 } = await factoryProxy.batchMultiSigCall(msgsERC20, '0x'+group, { from: activator, gasPrice: 200 }) // .catch(revertReason => console.log({ revertReason: JSON.stringify(revertReason, null ,2) }))
 
     mlog.pending(`ERC20 X ${msgsERC20.length} Transfers consumed ${JSON.stringify(receiptERC20.gasUsed)} gas (${JSON.stringify(receiptERC20.gasUsed/msgsERC20.length)} gas per call)`)
 
@@ -922,8 +910,14 @@ if (multiSig) {
     await logBalances()
     await logDebt()
 
-  })
+}
 
+it('EIP712: should be able to execute multi sig external calls: signer==operator, sender==owner', async () => {
+  await runEIP712MultiSigTest(false, '09')
+})
 
+it('EIP712: should be able to execute multi sig external calls with approvals: signer==operator, sender==owner', async () => {
+  await runEIP712MultiSigTest(true, '0a')
+})
 
 });

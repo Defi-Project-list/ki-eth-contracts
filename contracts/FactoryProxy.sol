@@ -114,6 +114,14 @@ contract FactoryProxy is FactoryStorage {
         "Limits(uint64 nonce,bool ordered,bool refund,uint40 valid_from,uint40 expires_at,uint64 gas_price_limit)"
     );
 
+    bytes32 public constant BATCH_MULTI_SIG_CALL_TRANSACTION_TYPEHASH = keccak256(
+        "Transaction(address signer,address call_address,string call_ens,uint256 eth_value,uint32 gas_limit,bool view_only,bool continue_on_fail,bool stop_on_fail,bool stop_on_success,bool revert_on_success,string method_interface)"
+    );
+
+    bytes32 public constant BATCH_MULTI_SIG_CALL_APPROVAL_TYPEHASH = keccak256(
+        "Approval(address signer)"
+    );
+
     bytes32 public constant BATCH_TRANSFER_PACKED_TYPEHASH = keccak256(
         "BatchTransferPacked(address token,address to,uint256 value,uint256 sessionId)"
     );
@@ -248,7 +256,7 @@ contract FactoryProxy is FactoryStorage {
                 // wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 16000 + (24000/length)));
             }
         }
-        require(maxNonce < nonce + (1 << 216), "Factory: gourp+nonce too high");
+        require(maxNonce < nonce + (1 << 216), "Factory: group+nonce too high");
         s_nonce_group[nonceGroup] = (maxNonce & 0x000000ffffffffff000000000000000000000000000000000000000000000000) + (1 << 192);
       }
     }
@@ -587,45 +595,25 @@ contract FactoryProxy is FactoryStorage {
 
                 for(uint256 j = 0; j < length; j++) {
                     MSCall calldata call = mcalls.mcall[j];
-                    uint16 flags = call.flags;
+                    
                     msg2 = abi.encodePacked(
                         msg2,
                         // messageHash
                         call.functionSignature != 0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470 ?
                             keccak256(abi.encode(
                                 call.typeHash,
-                                call.signer,
-                                call.to,
-                                call.ensHash,
-                                call.value,
-                                call.gasLimit,
-                                flags & FLAG_STATICCALL,
-                                flags & ON_FAIL_CONTINUE,
-                                flags & ON_FAIL_STOP,
-                                flags & ON_SUCCESS_STOP,
-                                flags & ON_SUCCESS_REVERT,
-                                call.functionSignature,
+                                _calcMultiSigTransactionHash(call),
                                 call.data
                             )):
                         call.to != address(0) ?                            
                             keccak256(abi.encode(
                                 call.typeHash,
-                                call.signer,
-                                call.to,
-                                call.ensHash,
-                                call.value,
-                                call.gasLimit,
-                                flags & FLAG_STATICCALL,
-                                flags & ON_FAIL_CONTINUE,
-                                flags & ON_FAIL_STOP,
-                                flags & ON_SUCCESS_STOP,
-                                flags & ON_SUCCESS_REVERT
+                                _calcMultiSigTransactionHash(call)       
                             )):
                             keccak256(abi.encode(
-                                call.typeHash,
+                                BATCH_MULTI_SIG_CALL_APPROVAL_TYPEHASH,
                                 call.signer
                             ))
-
                     );
                 }
 
@@ -740,7 +728,7 @@ contract FactoryProxy is FactoryStorage {
         //           // uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + constGas + 15000) /*22100))*/ * 110 / 100 ));
     }
 
-    function _encodeTransfer(Transfer memory call) private view returns (bytes32 messageHash) {
+    function _encodeTransfer(Transfer memory call) private pure returns (bytes32 messageHash) {
         return keccak256(abi.encode(
                 BATCH_TRANSFER_TYPEHASH,
                 call.token,
@@ -791,17 +779,24 @@ contract FactoryProxy is FactoryStorage {
             ));
     }
 
-    function _encodeMCall(MCall memory call) private view returns (bytes32, address) {
-        return (keccak256(abi.encode(
-                  call.typeHash,
-                  call.to,
-                  call.ensHash,
-                  call.value,
-                  call.gasLimit,
-                  call.functionSignature,
-                  call.data
-          )),
-          _ensToAddress(call.ensHash, call.to));
+    function _calcMultiSigTransactionHash(MSCall memory call) private pure returns (bytes32) {
+        uint16 flags = call.flags;
+
+        return keccak256(abi.encode(
+            BATCH_MULTI_SIG_CALL_TRANSACTION_TYPEHASH,
+            call.signer,
+            call.to,
+            call.ensHash,
+            call.value,
+            call.gasLimit,
+            flags & FLAG_STATICCALL,
+            flags & ON_FAIL_CONTINUE,
+            flags & ON_FAIL_STOP,
+            flags & ON_SUCCESS_STOP,
+            flags & ON_SUCCESS_REVERT,
+            call.functionSignature                  
+        ));
     }
+
 
 }
