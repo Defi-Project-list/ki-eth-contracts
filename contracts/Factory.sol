@@ -146,7 +146,7 @@ contract Factory is FactoryStorage {
     event BatchCallPackedReverted(address indexed wallet, uint256 nonce, uint256 index);
     event BatchMultiCallPackedFailed(address indexed wallet, uint256 nonce, uint256 index, uint256 innerIndex);
     event BatchMultiSigCallPackedFailed(address indexed wallet, uint256 nonce, uint256 index, uint256 innerIndex);
-
+    event BatchTransfered(uint256 indexed mode, uint256 block, uint256 nonce);
 
     constructor(
         address owner1,
@@ -154,8 +154,12 @@ contract Factory is FactoryStorage {
         address owner3
     ) FactoryStorage(owner1, owner2, owner3) {}
 
-    receive() external payable {
-        require(false, "Factory: not aceepting ether");
+    // receive() external payable {
+    //     require(false, "Factory: not aceepting ether");
+    // }
+
+    function setActivator(address newActivator) external multiSig2of3(0) {
+      s_activator = newActivator;
     }
 
     function transferWalletOwnership(address newOwner) external {
@@ -454,7 +458,7 @@ contract Factory is FactoryStorage {
                 }
             }
             if (sessionId & FLAG_PAYMENT != 0 && success) {
-                wallet.debt = _calcRefund(wallet.debt, gas, constGas, uint64(sessionId >> 16));
+                wallet.debt += _calcRefund(wallet.debt, gas, constGas, uint64(sessionId >> 16));
                 // if (payment == 0xf000) {
                 //   wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 16000 + (32000/length))*110/100);
                 // } else {
@@ -464,6 +468,7 @@ contract Factory is FactoryStorage {
         }
         require(maxNonce < nonce + (1 << 216), "Factory: gourp+nonce too high");
         s_nonce_group[nonceGroup] = (maxNonce & 0x000000ffffffffff000000000000000000000000000000000000000000000000) + (1 << 192);
+        emit BatchTransfered(5, block.number, maxNonce);
       }
     }
 
@@ -565,7 +570,7 @@ contract Factory is FactoryStorage {
                 }
             }
             if (sessionId & FLAG_PAYMENT > 0) {
-                wallet.debt = _calcRefund(wallet.debt, gas, constGas, gasPriceLimit);
+                wallet.debt += _calcRefund(wallet.debt, gas, constGas, gasPriceLimit);
                 // wallet.debt = (wallet.debt > 0  ? uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + constGas + 5000)):
                 // uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + constGas + 22100))) * 110 / 100;
                 // wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 18000 + (30000/trLength))*110/100);
@@ -574,6 +579,7 @@ contract Factory is FactoryStorage {
         }
         require(maxNonce < nonce + (1 << 216), "Factory: gourp+nonce too high");
         s_nonce_group[nonceGroup] = (maxNonce & 0x000000ffffffffff000000000000000000000000000000000000000000000000) + (1 << 192);
+        emit BatchTransfered(6, block.number, maxNonce);
       }
     }
 
@@ -714,12 +720,13 @@ contract Factory is FactoryStorage {
                     revert("Factory: revert on success");
                 }
                 if (localSessionId & FLAG_PAYMENT > 0 /*refund*/) {
-                    wallet.debt = _calcRefund(wallet.debt, localGas, localConstGas, uint64(localSessionId >> 16) /*gasPriceLimit*/);
+                    wallet.debt += _calcRefund(wallet.debt, localGas, localConstGas, uint64(localSessionId >> 16) /*gasPriceLimit*/);
                 }
             }
         }
         require(maxNonce < nonce + (1 << 216), "Factory: gourp+nonce too high");
         s_nonce_group[nonceGroup] = (maxNonce & 0x000000ffffffffff000000000000000000000000000000000000000000000000) + (1 << 192);
+        emit BatchTransfered(7, block.number, maxNonce);
       }
     }
 
@@ -729,7 +736,7 @@ contract Factory is FactoryStorage {
     {
         return (debt > 0  ? 
                   uint88((tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * ((gas - gasleft()) * 110 / 100 + constGas + 5000)):
-                  uint88((tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * ((gas - gasleft()) * 110 / 100 + constGas + 5000)));
+                  uint88((tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * ((gas - gasleft()) * 110 / 100 + constGas + 8000)));
                   // uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + constGas + 15000) /*22100))*/ * 110 / 100 ));
     }
 

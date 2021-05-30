@@ -84,16 +84,7 @@ abstract contract FactoryStorage is MultiSig {
         s_swProxy = new Proxy();
         s_swProxyLatest = new ProxyLatest();
         s_versions_code[LATEST] = address(s_swProxyLatest);
-        s_nonce_group[0] = 1; // TODO: remove for production
-        s_nonce_group[1] = 1; // TODO: remove for production
-        s_nonce_group[2] = 1; // TODO: remove for production
-        s_nonce_group[3] = 1; // TODO: remove for production
-        s_nonce_group[4] = 1; // TODO: remove for production
-        s_nonce_group[5] = 1; // TODO: remove for production
-        s_nonce_group[6] = 1; // TODO: remove for production
-        s_nonce_group[7] = 1; // TODO: remove for production
-        s_nonce_group[8] = 1; // TODO: remove for production
-        s_nonce_group[9] = 1; // TODO: remove for production
+        // s_nonce_group[0] = 1; // TODO: remove for production
     }
 
     function _resolve(bytes32 node) internal view returns(address result) {

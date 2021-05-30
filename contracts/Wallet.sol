@@ -186,6 +186,7 @@ contract Wallet is IStorage, Heritable {
     }
 
     function blockTransaction(bytes32 messageHash) external onlyOwner() {
+        require(messageHash != bytes32(0), "blocking 0x0 is not allowed");
         s_blocked[messageHash] = 1;
     }
 

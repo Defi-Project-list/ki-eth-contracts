@@ -227,8 +227,8 @@ const eip712typehash = (typedData, mainType) => {
     // await factoryProxy.setOperator(operator, { from: factoryOwner1 });
     // await factoryProxy.setOperator(operator, { from: factoryOwner2 });
 
-    await factoryProxy.setActivator(activator, { from: factoryOwner1 });
-    await factoryProxy.setActivator(activator, { from: factoryOwner2 });
+    await factory.setActivator(activator, { from: factoryOwner1 });
+    await factory.setActivator(activator, { from: factoryOwner2 });
 
     await factoryProxy.setLocalEns("token.kiro.eth", token20.address, { from: factoryOwner1 });
     await factoryProxy.setLocalEns("token.kiro.eth", token20.address, { from: factoryOwner2 });

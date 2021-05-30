@@ -139,6 +139,7 @@ contract FactoryProxy is FactoryStorage {
     event BatchCallReverted(address indexed wallet, uint256 nonce, uint256 index);
     event BatchMultiCallFailed(address indexed wallet, uint256 nonce, uint256 index, uint256 innerIndex);
     event BatchMultiSigCallFailed(address indexed wallet, uint256 nonce, uint256 index, uint256 innerIndex);
+    event BatchTransfered(uint256 indexed mode, uint256 block, uint256 nonce);
 
     constructor(
         address owner1,
@@ -209,9 +210,9 @@ contract FactoryProxy is FactoryStorage {
         s_frozen = true;
     }
 
-    function setActivator(address newActivator) external multiSig2of3(0) {
-      s_activator = newActivator;
-    }
+    // function setActivator(address newActivator) external multiSig2of3(0) {
+    //   s_activator = newActivator;
+    // }
 
     // function setOperator(address newOperator) external multiSig2of3(0) {
     //   s_operator = newOperator;
@@ -248,6 +249,29 @@ contract FactoryProxy is FactoryStorage {
     //             call.sessionId & FLAG_EIP712 > 0
     //     );
     // }
+
+    function collectDebt(address account, address recipient) external { 
+      unchecked {
+        require(msg.sender == s_activator, "Wallet: sender not allowed");
+        Wallet storage wallet = s_accounts_wallet[account]; 
+        uint256 debt = wallet.debt;
+        if (debt > 0) {
+            wallet.debt = 0;
+            // (bool success, ) = 
+            wallet.addr.call(
+                    abi.encodeWithSignature(
+                        "transferEth(address,uint256,bytes32)",
+                        recipient,
+                        debt,
+                        bytes32(0)
+                    )
+            );
+            //if (!success) {
+            //      revert('Factory: collect debt failed');
+            //}
+        }
+      }
+    }
 
     // Batch Transfers: ETH & ERC20 Tokens
     function batchTransfer(Transfer[] calldata tr, uint24 nonceGroup, uint256 silentRevert) external {
@@ -317,12 +341,13 @@ contract FactoryProxy is FactoryStorage {
             }
 
             if (sessionId & FLAG_PAYMENT != 0 && success) {
-                wallet.debt = _calcRefund(wallet.debt, gas, constGas + 12000, uint64(sessionId >> 16));
+                wallet.debt += _calcRefund(wallet.debt, gas, constGas + 12000, uint64(sessionId >> 16));
                 // wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 16000 + (24000/length)));
             }
         }
         require(maxNonce < nonce + (1 << 216), "Factory: group+nonce too high");
         s_nonce_group[nonceGroup] = (maxNonce & 0x000000ffffffffff000000000000000000000000000000000000000000000000) + (1 << 192);
+        emit BatchTransfered(0, block.number, maxNonce);
       } 
     }
 
@@ -404,12 +429,13 @@ contract FactoryProxy is FactoryStorage {
             }
 
             if (sessionId & FLAG_PAYMENT != 0 && success) {
-                wallet.debt = _calcRefund(wallet.debt, gas, constGas + 12000, uint64(sessionId >> 16));
+                wallet.debt += _calcRefund(wallet.debt, gas, constGas + 12000, uint64(sessionId >> 16));
                 // wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 16000 + (24000/length)));
             }
         }
         require(maxNonce < nonce + (1 << 216), "Factory: group+nonce too high");
         s_nonce_group[nonceGroup] = (maxNonce & 0x000000ffffffffff000000000000000000000000000000000000000000000000) + (1 << 192);
+        emit BatchTransfered(4, block.number, maxNonce);
       }
     }
 
@@ -487,7 +513,7 @@ contract FactoryProxy is FactoryStorage {
                 }
             }
             if (sessionId & FLAG_PAYMENT != 0 && success) {
-                wallet.debt = _calcRefund(wallet.debt, gas, constGas, uint64(sessionId >> 16));
+                wallet.debt += _calcRefund(wallet.debt, gas, constGas, uint64(sessionId >> 16));
                 // if (payment == 0xf000) {
                 //   wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 16000 + (32000/length))*110/100);
                 // } else {
@@ -497,6 +523,7 @@ contract FactoryProxy is FactoryStorage {
         }
         require(maxNonce < nonce + (1 << 216), "Factory: group+nonce too high");
         s_nonce_group[nonceGroup] = (maxNonce & 0x000000ffffffffff000000000000000000000000000000000000000000000000) + (1 << 192);
+        emit BatchTransfered(1, block.number, maxNonce);
       }
     }
 
@@ -654,11 +681,12 @@ contract FactoryProxy is FactoryStorage {
                 }
             }
             if (sessionId & FLAG_PAYMENT != 0) {
-                wallet.debt = _calcRefund(wallet.debt, gas, constGas, uint64(sessionId >> 16) /*gasPriceLimit*/);
+                wallet.debt += _calcRefund(wallet.debt, gas, constGas, uint64(sessionId >> 16) /*gasPriceLimit*/);
             }
         }
         require(maxNonce < nonce + (1 << 216), "Factory: group+nonce too high");
         s_nonce_group[nonceGroup] = (maxNonce & 0x000000ffffffffff000000000000000000000000000000000000000000000000) + (1 << 192);
+        emit BatchTransfered(2, block.number, maxNonce);
       }
     }
 
@@ -814,12 +842,13 @@ contract FactoryProxy is FactoryStorage {
                         revert("Factory: revert on success");
                     }
                     if (localSessionId & FLAG_PAYMENT != 0) {
-                        wallet.debt = _calcRefund(wallet.debt, locals.gas, locals.constGas, uint64(localSessionId >> 16) /*gasPriceLimit*/);
+                        wallet.debt += _calcRefund(wallet.debt, locals.gas, locals.constGas, uint64(localSessionId >> 16) /*gasPriceLimit*/);
                     }
                 }
             }
             require(maxNonce < nonce + (1 << 216), "Factory: group+nonce too high");
             s_nonce_group[nonceGroup] = (maxNonce & 0x000000ffffffffff000000000000000000000000000000000000000000000000) + (1 << 192);
+            emit BatchTransfered(3, block.number, maxNonce);
         }
     }
 
@@ -843,7 +872,7 @@ contract FactoryProxy is FactoryStorage {
         // return uint88((gas - gasleft()) * 110 / 100 + constGas + 8000);
         return (debt != 0  ? 
                   uint88((tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * ((gas - gasleft()) * 110 / 100 + constGas + 5000)):
-                  uint88((tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * ((gas - gasleft()) * 110 / 100 + constGas + 5000)));
+                  uint88((tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * ((gas - gasleft()) * 110 / 100 + constGas + 8000)));
         //           // uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + constGas + 15000) /*22100))*/ * 110 / 100 ));
     }
 
