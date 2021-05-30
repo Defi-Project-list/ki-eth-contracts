@@ -33,7 +33,7 @@ contract Proxy is StorageBase {
 
     function call(address target, uint256 value, bytes calldata data, bytes32 messageHash) external onlyCreator() {
         if (messageHash != 0) {
-            require(s_blocked[messageHash]>0, "Wallet: transaction canceled");
+            require(s_blocked[messageHash]==0, "Wallet: transaction canceled");
         }
         (bool success, bytes memory res) = 
             target.call{value: value}(data);
@@ -47,7 +47,7 @@ contract Proxy is StorageBase {
         onlyCreator()
     {
         if (messageHash != 0) {
-            require(s_blocked[messageHash]>0, "Wallet: transaction canceled");
+            require(s_blocked[messageHash]==0, "Wallet: transaction canceled");
         }
         (bool success, bytes memory res) = 
             to.call{gas: 20000, value: value}("");
@@ -61,7 +61,7 @@ contract Proxy is StorageBase {
         onlyCreator()
     {
         if (messageHash != 0) {
-            require(s_blocked[messageHash]>0, "Wallet: transaction canceled");
+            require(s_blocked[messageHash]==0, "Wallet: transaction canceled");
         }
         (bool success, bytes memory res) = 
             token.call{gas: 80000}(abi.encodeWithSignature("transfer(address,uint256)", to, value));
@@ -72,7 +72,7 @@ contract Proxy is StorageBase {
 
     function staticcall(address target, bytes calldata data, bytes32 messageHash) external view onlyCreator() {
         if (messageHash != 0) {
-            require(s_blocked[messageHash]>0, "Wallet: transaction canceled");
+            require(s_blocked[messageHash]==0, "Wallet: transaction canceled");
         }
         (bool success, bytes memory res) = 
             target.staticcall(data);

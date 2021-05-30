@@ -22,7 +22,7 @@ contract Wallet is IStorage, Heritable {
     event BatchCall(
         address indexed creator,
         address indexed owner,
-        address indexed operator,
+        address indexed activator,
         uint256 value
     );
 
@@ -108,10 +108,10 @@ contract Wallet is IStorage, Heritable {
         return bytes8("1.2.1");
     }
 
-    function isValidSignature(bytes32 msgHash, bytes memory signature) external view onlyActiveState() returns (bytes4) {
-        require(s_owner.isValidSignatureNow(msgHash, signature), "Wallet: signer is not owner");
-        return SELECTOR_IS_VALID_SIGNATURE;
-    }
+    // function isValidSignature(bytes32 msgHash, bytes memory signature) external view onlyActiveState() returns (bytes4) {
+    //     require(s_owner.isValidSignatureNow(msgHash, signature), "Wallet: signer is not owner");
+    //     return SELECTOR_IS_VALID_SIGNATURE;
+    // }
 
     fallback() external {
         if(
@@ -185,18 +185,20 @@ contract Wallet is IStorage, Heritable {
         bytes data;
     }
 
+    function blockTransaction(bytes32 messageHash) external onlyOwner() {
+        s_blocked[messageHash] = 1;
+    }
+
+    function unblockTransaction(bytes32 messageHash) external onlyOwner() {
+        s_blocked[messageHash] = 0;        
+    }
+
     function _selector(bytes calldata data) private pure returns (bytes4) {
       return data[0] | (bytes4(data[1]) >> 8) | (bytes4(data[2]) >> 16) | (bytes4(data[3]) >> 24);
     }
 
     function erc20BalanceGT(address token, address account, uint256 value) external view {
       require(IERC20(token).balanceOf(account) >= value, "ERC20Balance: too low");
-    }
-
-    struct Entities {
-      address creator;
-      address operator;
-      address owner;  
     }
 
     function generateMessage(Call calldata call, address activator, uint256 targetNonce) public pure returns (bytes memory) {
@@ -279,7 +281,8 @@ contract Wallet is IStorage, Heritable {
 
     function executeBatchCall(Call[] calldata tr) public payable onlyActiveState() {
       address creator = this.creator();
-      (address operator, address activator) = ICreator(creator).managers();
+      // (address operator, address activator) = ICreator(creator).managers();
+      address activator = ICreator(creator).activator();
       uint32 currentNonce = s_nonce;
       address owner = s_owner;
       require(msg.sender == activator || msg.sender == owner, "Wallet: sender not allowed");
@@ -299,7 +302,7 @@ contract Wallet is IStorage, Heritable {
             call.s
           );
           require(signer != msg.sender, "Wallet: sender cannot be signer");
-          require(signer == owner || signer == operator, "Wallet: signer not allowed");
+          require(signer == owner || signer == activator, "Wallet: signer not allowed");
           require(to != msg.sender && to != signer && to != address(this) && to != creator, "Wallet: reentrancy not allowed");
         }
         (bool success, bytes memory res) = call.metaData.staticcall ? 
@@ -312,12 +315,12 @@ contract Wallet is IStorage, Heritable {
       unchecked {  
         s_nonce = currentNonce + uint32(tr.length);
       }
-      emit BatchCall(creator, owner, operator, block.number);
+      emit BatchCall(creator, owner, activator, block.number);
     }
 
     function executeXXBatchCall(XCall[] calldata tr) public payable onlyActiveState() {
       address creator = this.creator();
-      address operator = ICreator(creator).operator();
+      address activator = ICreator(creator).activator();
       
       for(uint i = 0; i < tr.length; i++) {
         XCall calldata call = tr[i];
@@ -341,9 +344,9 @@ contract Wallet is IStorage, Heritable {
             call.r2,
             call.s2
           );
-          require(msg.sender == s_owner || msg.sender == operator, "Wallet: sender is not owner nor operator");
+          require(msg.sender == s_owner || msg.sender == activator, "Wallet: sender is not owner nor operator");
           require(signer1 == s_owner, "Wallet: signer1 is not owner");
-          require(signer2 == operator, "Wallet: signer2 is not operator");          
+          require(signer2 == activator, "Wallet: signer2 is not operator");          
           require(call.to != signer1 && call.to != signer2 && call.to != address(this) && call.to != creator, "Wallet: reentrancy not allowed");
         }
         (bool success, bytes memory res) = call.metaData.staticcall ? 
@@ -354,7 +357,7 @@ contract Wallet is IStorage, Heritable {
         }
       }
       s_nonce = s_nonce + uint32(tr.length);
-      emit BatchCall(creator, s_owner, operator, block.number);
+      emit BatchCall(creator, s_owner, activator, block.number);
     }
 
     function _getRevertMsg(bytes memory returnData)

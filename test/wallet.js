@@ -57,7 +57,7 @@ contract('Wallet', async (accounts) => {
   const user3         = accounts[6];
   const operator      = accounts[7];
   const user4         = accounts[8];
-  const activator     = accounts[9];
+  const activator     = accounts[7];
   const instances     = []
   
   const val1  = web3.utils.toWei('0.5', 'gwei');
@@ -224,11 +224,11 @@ const eip712typehash = (typedData, mainType) => {
     token20notSafe = await ERC20Token.new('Kirobo ERC20 Not Safe Token', 'KDB20NS', {from: owner});
     token721 = await ERC721Token.new('Kirobo ERC721 Token', 'KBF', {from: owner});
 
-    await factoryProxy.setOperator(operator, { from: factoryOwner1 });
-    await factoryProxy.setOperator(operator, { from: factoryOwner2 });
+    // await factoryProxy.setOperator(operator, { from: factoryOwner1 });
+    // await factoryProxy.setOperator(operator, { from: factoryOwner2 });
 
-    await factory.setActivator(activator, { from: factoryOwner1 });
-    await factory.setActivator(activator, { from: factoryOwner2 });
+    await factoryProxy.setActivator(activator, { from: factoryOwner1 });
+    await factoryProxy.setActivator(activator, { from: factoryOwner2 });
 
     await factoryProxy.setLocalEns("token.kiro.eth", token20.address, { from: factoryOwner1 });
     await factoryProxy.setLocalEns("token.kiro.eth", token20.address, { from: factoryOwner2 });
@@ -599,15 +599,15 @@ const eip712typehash = (typedData, mainType) => {
     // await factory.batchTransfer(msgs, { from: owner, gasPrice: 200 })
 
     await logBalances()
-    const { receipt: receiptEth } = await factoryProxy.batchTransferPacked(msgsEth, 1, { from: activator, gasPrice: 50e9 })
-    // const { receipt: receiptEth } = await factoryProxy.batchEthTransfer(msgsEth, 0, false,{ from: activator, gasPrice: 200 })
+    const { receipt: receiptEth } = await factoryProxy.batchTransferPacked(msgsEth, 1, 0, { from: activator, gasPrice: 50e9 })
+    // const { receipt: receiptEth } = await factoryProxy.batchEthTransfer(msgsEth, 0, 0,{ from: activator, gasPrice: 200 })
     mlog.pending(`zxc Ether X ${msgsEth.length} Transfers consumed ${JSON.stringify(receiptEth.gasUsed)} gas (${JSON.stringify(receiptEth.gasUsed/msgsEth.length)} gas per call)`)
     await logBalances()
     await logDebt()
 
     await logERC20Balances()
 
-    const { receipt: receiptERC20 } = await factoryProxy.batchTransferPacked(msgsERC20, 1, { from: activator, gasPrice: 50e9 })
+    const { receipt: receiptERC20 } = await factoryProxy.batchTransferPacked(msgsERC20, 1, 0, { from: activator, gasPrice: 50e9 })
 
     // Should revert
     // await factory.batchTransfer(msgs, { from: activator, gasPrice: 200 })
@@ -686,7 +686,7 @@ it('message: should be able to execute batch of many external calls: signer==ope
 
     await logERC20Balances()
 
-    const { receipt: receiptERC20 } = await factory.batchCallPacked(msgsERC20, 2, { from: activator, gasPrice: 200 })
+    const { receipt: receiptERC20 } = await factory.batchCallPacked(msgsERC20, 2, 0, { from: activator, gasPrice: 200 })
 
     // Should revert
     // await factory.batchTransfer(msgs, { from: activator, gasPrice: 200 })
@@ -764,7 +764,7 @@ it('message: should be able to execute batch of many external static calls: sign
 
     await logERC20Balances()
 
-    const { receipt: receiptERC20 } = await factory.batchCallPacked(msgsERC20, 6, { from: activator, gasPrice: 200 })
+    const { receipt: receiptERC20 } = await factory.batchCallPacked(msgsERC20, 6, 0, { from: activator, gasPrice: 200 })
 
     // Should revert
     // await factory.batchTransfer(msgs, { from: activator, gasPrice: 200 })
@@ -1226,7 +1226,7 @@ it('message: should be able to execute multi external calls: signer==operator, s
 
     await logERC20Balances()
 
-    const { receipt: receiptERC20 } = await factoryProxy.batchTransfer(msgsERC20, 8, { from: activator, gasPrice: 50e9 })
+    const { receipt: receiptERC20 } = await factoryProxy.batchTransfer(msgsERC20, 8, 0, { from: activator, gasPrice: 50e9 })
 
     mlog.pending(`ERC20 X ${msgsERC20.length} Transfers consumed ${JSON.stringify(receiptERC20.gasUsed)} gas (${JSON.stringify(receiptERC20.gasUsed/msgsERC20.length)} gas per call)`)
 
@@ -1387,7 +1387,7 @@ it('eip712: should be able to execute batch of many external calls: signer==oper
 
     await logERC20Balances()
 
-    const { receipt: receiptERC20 } = await factoryProxy.batchCall(msgsERC20, 2, { from: activator, gasPrice: 200 })
+    const { receipt: receiptERC20 } = await factoryProxy.batchCall(msgsERC20, 2, 0, { from: activator, gasPrice: 200 })
 
     // Should revert
     // await factory.batchTransfer(msgs, { from: activator, gasPrice: 200 })
