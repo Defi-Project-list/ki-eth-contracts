@@ -383,7 +383,7 @@ contract FactoryProxy is FactoryStorage {
                 // wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 16000 + (24000/length)));
             }
         }
-        require(maxNonce < nonce + (1 << 216), "Factory: gourp+nonce too high");
+        require(maxNonce < nonce + (1 << 216), "Factory: group+nonce too high");
         s_nonce_group[nonceGroup] = (maxNonce & 0x000000ffffffffff000000000000000000000000000000000000000000000000) + (1 << 192);
       }
     }
@@ -629,14 +629,9 @@ contract FactoryProxy is FactoryStorage {
             }
             if (sessionId & FLAG_PAYMENT > 0) {
                 wallet.debt = _calcRefund(wallet.debt, gas, constGas, uint64(sessionId >> 16) /*gasPriceLimit*/, sessionId & FLAG_PAYMENT);
-                //  (wallet.debt > 0  ? 
-                //   uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + constGas + 5000) * 110 / 100):
-                //   uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + constGas + 22100)) * 110 / 100);
-                  // // wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 18000 + (30000/trLength))*110/100);
-                  // wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 16000 + (32000/trLength))*110/100);
             }
         }
-        require(maxNonce < nonce + (1 << 216), "Factory: gourp+nonce too high");
+        require(maxNonce < nonce + (1 << 216), "Factory: group+nonce too high");
         s_nonce_group[nonceGroup] = (maxNonce & 0x000000ffffffffff000000000000000000000000000000000000000000000000) + (1 << 192);
       }
     }
@@ -802,7 +797,7 @@ contract FactoryProxy is FactoryStorage {
                     }
                 }
             }
-            require(maxNonce < nonce + (1 << 216), "Factory: gourp+nonce too high");
+            require(maxNonce < nonce + (1 << 216), "Factory: group+nonce too high");
             s_nonce_group[nonceGroup] = (maxNonce & 0x000000ffffffffff000000000000000000000000000000000000000000000000) + (1 << 192);
         }
     }
@@ -828,10 +823,10 @@ contract FactoryProxy is FactoryStorage {
     }
 
     function _calcRefund(uint256 debt, uint256 gas, uint256 constGas, uint256 gasPriceLimit, uint256 payment) private view returns (uint88) {
-        return uint88((gas - gasleft()) * 110 / 100 + constGas + 8000);
-        // return (debt > 0  ? 
-        //           uint88((tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * ((gas - gasleft()) * 110 / 100 + constGas + 5000)):
-        //           uint88((tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * ((gas - gasleft()) * 110 / 100 + constGas + 5000)));
+        // return uint88((gas - gasleft()) * 110 / 100 + constGas + 8000);
+        return (debt > 0  ? 
+                  uint88((tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * ((gas - gasleft()) * 110 / 100 + constGas + 5000)):
+                  uint88((tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * ((gas - gasleft()) * 110 / 100 + constGas + 5000)));
         //           // uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + constGas + 15000) /*22100))*/ * 110 / 100 ));
     }
 
