@@ -49,6 +49,7 @@ contract StorageBase is IProxy {
     address internal s_owner;
     address internal s_target;
     uint256 internal s_debt;
+    mapping(bytes32 => uint256) s_blocked;
 
     modifier onlyCreator() {
         require(msg.sender == this.creator(), "not creator");

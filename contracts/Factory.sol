@@ -414,8 +414,23 @@ contract Factory is FactoryStorage {
             require(wallet.owner == true, "Factory: singer is not owner");
 
             (bool success, bytes memory res) = sessionId & FLAG_STATICCALL > 0 ?
-                wallet.addr.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(abi.encodeWithSignature("staticcall(address,bytes)", to, call.data)):
-                wallet.addr.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(abi.encodeWithSignature("call(address,uint256,bytes)", to, value, call.data));
+                wallet.addr.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(
+                    abi.encodeWithSignature(
+                        "staticcall(address,bytes,bytes32)",
+                        to,
+                        call.data,
+                        sessionId & FLAG_CANCELABLE > 0 ? messageHash : bytes32(0)
+                    )
+                ):
+                wallet.addr.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(
+                    abi.encodeWithSignature(
+                        "call(address,uint256,bytes,bytes32)",
+                        to,
+                        value,
+                        call.data,
+                        sessionId & FLAG_CANCELABLE > 0 ? messageHash : bytes32(0)
+                    )
+                );
             if (!success) {
                 revert(_getRevertMsg(res));
             }
@@ -448,8 +463,6 @@ contract Factory is FactoryStorage {
             bytes memory msgPre = abi.encode(0x20, mcalls.mcall.length, 32*mcalls.mcall.length);
             bytes memory msg2;
             uint256 sessionId = mcalls.sessionId;
-            uint256 afterTS = uint40(sessionId >> 152);
-            uint256 beforeTS  = uint40(sessionId >> 112);
             uint256 gasPriceLimit  = uint64(sessionId >> 16);
 
             if (i == 0) {
@@ -465,8 +478,8 @@ contract Factory is FactoryStorage {
             }
 
             require(tx.gasprice <= gasPriceLimit, "Factory: gas price too high");
-            require(block.timestamp > afterTS, "Factory: too early");
-            require(block.timestamp < beforeTS, "Factory: too late");
+            require(block.timestamp > uint40(sessionId >> 152) /*afterTS*/, "Factory: too early");
+            require(block.timestamp < uint40(sessionId >> 112) /*beforeTS*/, "Factory: too late");
             uint256 length = mcalls.mcall.length;
             for(uint256 j = 0; j < length; j++) {
                 MCall calldata call = mcalls.mcall[j];
@@ -485,14 +498,34 @@ contract Factory is FactoryStorage {
             Wallet storage wallet = _getWalletFromMessage(mcalls.signer, messageHash, mcalls.v, mcalls.r, mcalls.s);
             require(wallet.owner == true, "Factory: singer is not owner");
 
+            uint256 localSessionId;
+            {
+                localSessionId = sessionId;
+            } 
+
             for(uint256 j = 0; j < length; j++) {
                 MCall calldata call = mcalls.mcall[j];
                 uint32 gasLimit = call.gasLimit;
                 uint16 flags = call.flags;
 
                 (bool success, bytes memory res) = call.flags & FLAG_STATICCALL > 0 ?
-                    wallet.addr.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(abi.encodeWithSignature("staticcall(address,bytes)", call.to, call.data)):
-                    wallet.addr.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(abi.encodeWithSignature("call(address,uint256,bytes)", call.to, call.value, call.data));
+                    wallet.addr.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(
+                        abi.encodeWithSignature(
+                            "staticcall(address,bytes,bytes32)",
+                            call.to,
+                            call.data,
+                            localSessionId & FLAG_CANCELABLE > 0 ? messageHash : bytes32(0)
+                        )
+                    ):
+                    wallet.addr.call{gas: gasLimit==0 || gasLimit > gasleft() ? gasleft() : gasLimit}(
+                        abi.encodeWithSignature(
+                            "call(address,uint256,bytes,bytes32)",
+                            call.to,
+                            call.value,
+                            call.data,
+                            localSessionId & FLAG_CANCELABLE > 0 ? messageHash : bytes32(0)
+                        )
+                    );
                 if (!success) {
                     if (flags & ON_FAIL_CONTINUE > 0) {
                         continue;
@@ -526,6 +559,7 @@ contract Factory is FactoryStorage {
         uint256 nonce = s_nonce_group[nonceGroup] + (uint256(nonceGroup) << 232);
         uint256 maxNonce = 0;
         uint256 trLength = tr.length;
+        uint256 constGas = (21000 + msg.data.length * 8) / trLength;
         for(uint256 i = 0; i < trLength; i++) {
             uint256 gas = gasleft();
             MSCalls calldata mcalls = tr[i];
@@ -571,7 +605,7 @@ contract Factory is FactoryStorage {
                 );
             }
 
-            bytes32 messageToRecover = _messageToRecover(
+            bytes32 messageHash = _messageToRecover(
                 keccak256(msg2),
                 sessionId & FLAG_EIP712 > 0
             );
@@ -583,7 +617,7 @@ contract Factory is FactoryStorage {
                 for(uint256 j = 0; j < length; j++) {
                     MSCall calldata call = mcalls.mcall[j];
                     address signer = _addressFromMessageAndSignature(
-                        messageToRecover,
+                        messageHash,
                         signature.v,
                         signature.r,
                         signature.s
@@ -591,6 +625,19 @@ contract Factory is FactoryStorage {
                     if (signer == call.signer && signers[j] == address(0)) {
                         signers[j] = signer;
                     }
+                }
+            }
+
+            uint256 localSessionId;
+            uint256 localConstGas;
+            uint256 localGas;
+            bytes32 localMessageHash;
+            {
+                localSessionId = sessionId;
+                localConstGas = constGas;
+                localGas = gas;
+                if (sessionId & FLAG_CANCELABLE > 0) {
+                    localMessageHash = messageHash;
                 }
             }
 
@@ -604,17 +651,19 @@ contract Factory is FactoryStorage {
                 (bool success, bytes memory res) = call.flags & FLAG_STATICCALL > 0 ?
                     wallet.addr.call{gas: call.gasLimit==0 || call.gasLimit > gasleft() ? gasleft() : call.gasLimit}(
                         abi.encodeWithSignature(
-                            "staticcall(address,bytes)",
+                            "staticcall(address,bytes,bytes32)",
                             to,
-                            call.data
+                            call.data,
+                            localMessageHash
                         )
                     ) :
                     wallet.addr.call{gas: call.gasLimit==0 || call.gasLimit > gasleft() ? gasleft() : call.gasLimit}(
                         abi.encodeWithSignature(
-                            "call(address,uint256,bytes)",
+                            "call(address,uint256,bytes,bytes32)",
                             to,
                             call.value,
-                            call.data
+                            call.data,
+                            localMessageHash
                         )
                     );
                 if (!success) {
@@ -629,9 +678,8 @@ contract Factory is FactoryStorage {
                 } else if (call.flags & ON_SUCCESS_REVERT > 0) {
                     revert("Factory: revert on success");
                 }
-                if (sessionId & FLAG_PAYMENT > 0 /*refund*/) {
-                    wallet.debt = uint88((tx.gasprice + (uint64(sessionId >> 16)/*gasPriceLimit*/ - tx.gasprice) / 2) * (gas - gasleft() + 18000 + (30000/trLength))*110/100);
-                    // wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 16000 + (32000/trLength))*110/100);
+                if (localSessionId & FLAG_PAYMENT > 0 /*refund*/) {
+                    wallet.debt = _calcRefund(wallet.debt, localGas, localConstGas, uint64(localSessionId >> 16) /*gasPriceLimit*/, localSessionId & FLAG_PAYMENT);
                 }
             }
         }

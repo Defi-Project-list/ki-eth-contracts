@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 pragma abicoder v1;
 
 import "./StorageBase.sol";
+import "./Storage.sol";
 
 contract Proxy is StorageBase {
 
@@ -30,18 +31,24 @@ contract Proxy is StorageBase {
         revert("should not accept ether directly");
     }
 
-    function call(address target, uint256 value, /*uint256 gas,*/ bytes calldata data) external onlyCreator() {
-      (bool success, bytes memory res) = 
-        target.call{value: value}(data);
-      if (!success) {
-        revert(_getRevertMsg(res));
-      }
+    function call(address target, uint256 value, bytes calldata data, bytes32 messageHash) external onlyCreator() {
+        if (messageHash != 0) {
+            require(s_blocked[messageHash]>0, "Wallet: transaction canceled");
+        }
+        (bool success, bytes memory res) = 
+            target.call{value: value}(data);
+        if (!success) {
+            revert(_getRevertMsg(res));
+        }
     }
 
-    function transferEth(address payable to, uint256 value)
+    function transferEth(address payable to, uint256 value, bytes32 messageHash)
         external
         onlyCreator()
     {
+        if (messageHash != 0) {
+            require(s_blocked[messageHash]>0, "Wallet: transaction canceled");
+        }
         (bool success, bytes memory res) = 
             to.call{gas: 20000, value: value}("");
         if (!success) {
@@ -49,10 +56,13 @@ contract Proxy is StorageBase {
         }
     }
 
-    function transferERC20(address token, address payable to, uint256 value)
+    function transferERC20(address token, address payable to, uint256 value, bytes32 messageHash)
         external
         onlyCreator()
     {
+        if (messageHash != 0) {
+            require(s_blocked[messageHash]>0, "Wallet: transaction canceled");
+        }
         (bool success, bytes memory res) = 
             token.call{gas: 80000}(abi.encodeWithSignature("transfer(address,uint256)", to, value));
         if (!success) {
@@ -60,12 +70,19 @@ contract Proxy is StorageBase {
         }
     }
 
-    function staticcall(address target, bytes calldata data) external view onlyCreator() {
-      (bool success, bytes memory res) = 
-        target.staticcall(data);
-      if (!success) {
-        revert(_getRevertMsg(res));
-      }
+    function staticcall(address target, bytes calldata data, bytes32 messageHash) external view onlyCreator() {
+        if (messageHash != 0) {
+            require(s_blocked[messageHash]>0, "Wallet: transaction canceled");
+        }
+        (bool success, bytes memory res) = 
+            target.staticcall(data);
+        if (!success) {
+            revert(_getRevertMsg(res));
+        }
+    }
+
+    function isBlocked(bytes32 messageHash) external view returns (uint256) {
+        return s_blocked[messageHash];
     }
 
     function _getRevertMsg(bytes memory returnData)

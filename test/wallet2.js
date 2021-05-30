@@ -590,7 +590,7 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
     await logERC20Balances()
     await logBalances()
 
-    const { receipt: receiptERC20 } = await factoryProxy.batchMultiCall(msgsERC20, 8, { from: activator, gasPrice: 200, gas: 1e6 }) // .catch(revertReason => console.log({ revertReason: JSON.stringify(revertReason, null ,2) }))
+    const { receipt: receiptERC20 } = await factoryProxy.batchMultiCall(msgsERC20, 8, false, { from: activator, gasPrice: 200, gas: 1e6 }) // .catch(revertReason => console.log({ revertReason: JSON.stringify(revertReason, null ,2) }))
 
     mlog.pending(`ERC20 X ${msgsERC20.length} Transfers consumed ${JSON.stringify(receiptERC20.gasUsed)} gas (${JSON.stringify(receiptERC20.gasUsed/msgsERC20.length)} gas per call)`)
 
@@ -904,7 +904,7 @@ const runEIP712MultiSigTest= async (multiSig, group) => {
     await logERC20Balances()
     await logBalances()
 
-    const { receipt: receiptERC20 } = await factoryProxy.batchMultiSigCall(msgsERC20, '0x'+group, { from: activator, gasPrice: 200 }) // .catch(revertReason => console.log({ revertReason: JSON.stringify(revertReason, null ,2) }))
+    const { receipt: receiptERC20 } = await factoryProxy.batchMultiSigCall(msgsERC20, '0x'+group, false, { from: activator, gasPrice: 200 }) // .catch(revertReason => console.log({ revertReason: JSON.stringify(revertReason, null ,2) }))
 
     mlog.pending(`ERC20 X ${msgsERC20.length} Transfers consumed ${JSON.stringify(receiptERC20.gasUsed)} gas (${JSON.stringify(receiptERC20.gasUsed/msgsERC20.length)} gas per call)`)
 
