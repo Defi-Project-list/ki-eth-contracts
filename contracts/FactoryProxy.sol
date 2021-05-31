@@ -177,9 +177,9 @@ contract FactoryProxy is FactoryStorage {
         // proxy = address(this);
     }
 
-    receive() external payable {
-        require(false, "Factory: not aceepting ether");
-    }
+    // receive() external payable {
+    //     require(false, "Factory: not aceepting ether");
+    // }
 
     fallback() external {
         assembly {
@@ -257,18 +257,17 @@ contract FactoryProxy is FactoryStorage {
         uint256 debt = wallet.debt;
         if (debt > 0) {
             wallet.debt = 0;
-            // (bool success, ) = 
-            wallet.addr.call(
-                    abi.encodeWithSignature(
-                        "transferEth(address,uint256,bytes32)",
-                        recipient,
-                        debt,
-                        bytes32(0)
-                    )
+            (bool success, bytes memory res) = wallet.addr.call(
+                abi.encodeWithSignature(
+                    "transferEth(address,uint256,bytes32)",
+                    recipient,
+                    debt,
+                    bytes32(0)
+                )
             );
-            //if (!success) {
-            //      revert('Factory: collect debt failed');
-            //}
+            if (!success) {
+                revert(_getRevertMsg(res));
+            }
         }
       }
     }
