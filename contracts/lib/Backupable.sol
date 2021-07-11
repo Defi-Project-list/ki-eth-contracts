@@ -8,14 +8,13 @@ import "./Interface.sol";
 import "./StorageBase.sol";
 import "./Storage.sol";
 
-/**
- * @dev Backupable contract intreduces the functionality of backup wallet
- *
- * an owner of the wallet can set a different wallet as a backup wallet
- * after activation and time setting the wallet ownership can be reclaimed by
- * the backup wallet owner
+/** @title Backupable contract
+    @author Tal Asa <tal@kirobo.io> 
+    @notice Backupable contract intreduces the functionality of backup wallet.
+            An owner of the wallet can set a different wallet as a backup wallet.
+            After activation and time setting the wallet ownership can be reclaimed by
+            the backup wallet owner
  */
-
 abstract contract Backupable is IStorage, StorageBase, Storage, Interface {
     event BackupChanged(
         address indexed creator,
@@ -89,15 +88,14 @@ abstract contract Backupable is IStorage, StorageBase, Storage, Interface {
         _;
     }
 
-    /*
-     * @dev this function sets the backup wallet to a specific activeOwner
-     * @params - wallet (type address)
-     *           timeout (type uint32)
-     *
-     * Requirements: 1. must enter a wallet address
-     *               2. owner wallet address must be different then the backup wallet address
-     *
-     * Caution: this operation will override the previous backup wallet
+    /** @notice this function sets the backup wallet to a specific activeOwner
+        @param wallet: (type address) - backup wallet address
+        @param timeout (type uint32) - timeout in seconds 
+     
+        Requirements: 1. must enter a wallet address
+                      2. owner wallet address must be different then the backup wallet address
+     
+        Caution: this operation will override the previous backup wallet
      */
     function setBackup(address wallet, uint32 timeout)
         external
@@ -130,20 +128,17 @@ abstract contract Backupable is IStorage, StorageBase, Storage, Interface {
         );
     }
 
-    /**
-     * @dev removes the owner's backup wallet
+    /** @notice removes the owner's backup wallet
      */
     function removeBackup() external onlyOwner {
         require(s_backup.wallet != address(0), "backup not exist");
         _removeBackup();
     }
 
-    /**
-     * @dev activates backup wallet
-     *
-     * contitions: 1. backup is enabled
-     *             2. backup wallet needs to be set
-     *             3. backup time that was set is now 0
+    /** @notice activates backup wallet
+        conditions: 1. backup is enabled
+                    2. backup wallet needs to be set
+                    3. backup time that was set is now 0
      */
     function activateBackup() external {
         require(s_backup.state == BACKUP_STATE_ENABLED, "backup not enabled");
@@ -184,12 +179,10 @@ abstract contract Backupable is IStorage, StorageBase, Storage, Interface {
         }
     }
 
-    /**
-     * @dev once a backup wallet was activated the ownership of the original wallet needs to be
-     * claimed by the owner of the backup wallet
-     *
-     * restrictions: 1. only the backup wallet owner can claim the original wallet
-     *               2. backup status needs to be active
+    /** @notice once a backup wallet was activated the ownership of the original wallet needs to be
+        claimed by the owner of the backup wallet
+        restrictions: 1. only the backup wallet owner can claim the original wallet
+                      2. backup status needs to be active
      */
     function claimOwnership() external onlyBackup {
         require(
@@ -210,10 +203,9 @@ abstract contract Backupable is IStorage, StorageBase, Storage, Interface {
         if (s_backup.timestamp != 0) s_backup.timestamp = 0;
     }
 
-    /**
-     * @dev the owner that created the backup wallet can reclaim the account back
-     * restrictions: 1. only the original wallet owner can reclaim his original wallet
-     *               2. backup status needs to be active
+    /** @notice the owner that created the backup wallet can reclaim the account back
+        restrictions: 1. only the original wallet owner can reclaim his original wallet
+                      2. backup status needs to be active
      */
     function reclaimOwnership() external onlyOwner {
         require(
@@ -229,6 +221,9 @@ abstract contract Backupable is IStorage, StorageBase, Storage, Interface {
         );
     }
 
+    /** @notice sets the status of the backup to be enabled
+        can be triggered by the owner or by the backup    
+     */
     function enable() external eitherOwnerOrBackup {
         require(
             s_backup.state == BACKUP_STATE_REGISTERED,
@@ -245,6 +240,8 @@ abstract contract Backupable is IStorage, StorageBase, Storage, Interface {
         );
     }
 
+    /** @notice sets the status of the backup to registered if the status was pending
+     */
     function accept() external onlyBackup {
         require(s_backup.state == BACKUP_STATE_PENDING, "backup not pending");
         s_backup.state = BACKUP_STATE_REGISTERED;
@@ -284,6 +281,10 @@ abstract contract Backupable is IStorage, StorageBase, Storage, Interface {
         return s_backup.timestamp;
     }
 
+    /** @notice checks the time left until the backup can be activated
+        @return res (uint40) - time left in seconds untill the backup is enabled or 0
+                    if the time has passed
+    */
     function getBackupTimeLeft() public view returns (uint40 res) {
         unchecked {
             uint40 timestamp = getBlockTimestamp();
