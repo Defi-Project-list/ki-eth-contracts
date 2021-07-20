@@ -241,6 +241,8 @@ contract Factory is FactoryStorage {
         emit WalletUpgradeRequested(sp_sw.addr, version);
     }
 
+    /** @notice upgradeWalletDismiss - dismiss the request for wallet upgrade
+     */
     function upgradeWalletDismiss() external {
         address owner = IProxy(msg.sender).owner();
         Wallet storage sp_sw = s_accounts_wallet[owner];
@@ -256,6 +258,8 @@ contract Factory is FactoryStorage {
         emit WalletUpgradeDismissed(sp_sw.addr, sp_upgradeRequest.version);
     }
 
+    /** @notice upgradeWalletExecute - upgrages the wallet version
+     */
     function upgradeWalletExecute() external {
         address owner = IProxy(msg.sender).owner();
         Wallet storage sp_sw = s_accounts_wallet[owner];
@@ -275,6 +279,10 @@ contract Factory is FactoryStorage {
         emit WalletUpgraded(sp_sw.addr, version);
     }
 
+    /** @notice addVersion - add a specific version
+        @param target(address)
+        @param targetOracle(address)
+     */
     function addVersion(address target, address targetOracle)
         external
         multiSig2of3(0)
@@ -298,6 +306,9 @@ contract Factory is FactoryStorage {
         emit VersionAdded(version, code, targetOracle);
     }
 
+    /** @notice deployVersion - deployment of a specific version to the system 
+        @param version(bytes8) - the version to deploy
+    */
     function deployVersion(bytes8 version) external multiSig2of3(0) {
         address code = s_versions_code[version];
         require(code != address(0), "version not exist");
@@ -359,6 +370,11 @@ contract Factory is FactoryStorage {
         return s_accounts_wallet[account].debt;
     }
 
+    /** @notice createWallet - create a new wallet
+        @param autoMode(bool) - if true: sets the wallet with the latest version
+                                if false: sets the wallet with the production version
+        @return address
+    */
     function createWallet(bool autoMode) external returns (address) {
         require(address(s_swProxy) != address(0), "no proxy");
         require(s_production_version_code != address(0), "no prod version"); //Must be here - ProxyLatest also needs it.
@@ -940,6 +956,13 @@ contract Factory is FactoryStorage {
         }
     }
 
+    /** @notice _calcRefund - calculates the amount of refund to give based on the following input params:
+        @param debt(uint256)
+        @param gas(uint256)
+        @param constGas(uint256)
+        @param gasPriceLimit(uint256)
+        @return uint88
+    */
     function _calcRefund(
         uint256 debt,
         uint256 gas,
@@ -960,6 +983,7 @@ contract Factory is FactoryStorage {
         // uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + constGas + 15000) /*22100))*/ * 110 / 100 ));
     }
 
+    /** @notice _createWallet - private function that  */
     function _createWallet(address creator, address target)
         private
         returns (address result)
