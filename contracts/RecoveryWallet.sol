@@ -3,6 +3,7 @@
 pragma solidity ^0.8.0;
 pragma abicoder v1;
 
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
 import "openzeppelin-solidity/contracts/token/ERC721/IERC721.sol";
 import "openzeppelin-solidity/contracts/utils/cryptography/SignatureChecker.sol";
@@ -12,9 +13,9 @@ import "./lib/Heritable.sol";
 
 // import "./Trust.sol";
 
-contract RecoveryWallet is IStorage, Heritable {
+contract RecoveryWallet is IStorage, Heritable, ReentrancyGuard {
     using SignatureChecker for address;
-
+    //constractor() ReentrancyGuard() public {};
     uint8 public constant VERSION_NUMBER = 0x1;
     string public constant NAME = "Kirobo OCW";
     string public constant VERSION = "1";
@@ -46,11 +47,12 @@ contract RecoveryWallet is IStorage, Heritable {
     function sendEther(address payable to, uint256 value)
         public
         onlyActiveOwner()
+        nonReentrant()
     {
         require(value > 0, "value == 0");
         require(value <= address(this).balance, "value > balance");
         emit SentEther(this.creator(), address(this), to, value);
-        to.transfer(value);
+        to.call(value);
     }
 
     function transfer20(
@@ -90,8 +92,15 @@ contract RecoveryWallet is IStorage, Heritable {
         uint256 id
     ) public onlyActiveOwner() {
         require(token != address(0), "_token is 0x0");
-        emit Transfer721(this.creator(), token, from == address(0) ? address(this) : address(from), to, id, "");
-        IERC721(token).transferFrom(address(this), to, id);
+        emit Transfer721(
+            this.creator(),
+            token,
+            from == address(0) ? address(this) : from,
+            to,
+            id,
+            ""
+        );
+        IERC721(token).transferFrom(from, to, id);
     }
 
     function safeTransferFrom721(
@@ -101,8 +110,15 @@ contract RecoveryWallet is IStorage, Heritable {
         uint256 id
     ) public onlyActiveOwner() {
         require(token != address(0), "_token is 0x0");
-        emit Transfer721(this.creator(), token, from == address(0) ? address(this) : address(from), to, id, "");
-        IERC721(token).safeTransferFrom(address(this), to, id);
+        emit Transfer721(
+            this.creator(),
+            token,
+            from == address(0) ? address(this) : from,
+            to,
+            id,
+            ""
+        );
+        IERC721(token).safeTransferFrom(from, to, id);
     }
 
     function safeTransferFrom721wData(
@@ -113,8 +129,15 @@ contract RecoveryWallet is IStorage, Heritable {
         bytes memory data
     ) public onlyActiveOwner() {
         require(token != address(0), "token is 0x0");
-        emit Transfer721(this.creator(), token, from == address(0) ? address(this) : address(from), to, id, data);
-        IERC721(token).safeTransferFrom(address(this), to, id, data);
+        emit Transfer721(
+            this.creator(),
+            token,
+            from == address(0) ? address(this) : from,
+            to,
+            id,
+            data
+        );
+        IERC721(token).safeTransferFrom(from, to, id, data);
     }
 
     function getBalance() public view returns (uint256) {
@@ -206,15 +229,14 @@ contract RecoveryWallet is IStorage, Heritable {
     // }
 
     fallback() external {
-        if(
+        if (
             msg.sig == SELECTOR_ON_ERC721_RECEIVED ||
             msg.sig == SELECTOR_ON_ERC1155_RECEIVED ||
             msg.sig == SELECTOR_ON_ERC1155_BATCH_RECEIVED
-        ) 
-        {
-            assembly {                
+        ) {
+            assembly {
                 calldatacopy(0, 0, 0x04)
-                return (0, 0x20)
+                return(0, 0x20)
             }
         }
     }
@@ -248,5 +270,4 @@ contract RecoveryWallet is IStorage, Heritable {
         }
         return abi.decode(returnData, (string));
     }
-
 }

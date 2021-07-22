@@ -58,7 +58,7 @@ contract('Wallet', async (accounts) => {
   const user3         = accounts[6];
   const operator      = accounts[7];
   const user4         = accounts[8];
-  const activator     = accounts[9];
+  const activator     = accounts[7];
   const instances     = []
   
   const val1  = web3.utils.toWei('0.5', 'gwei');
@@ -226,8 +226,8 @@ contract('Wallet', async (accounts) => {
     token20notSafe = await ERC20Token.new('Kirobo ERC20 Not Safe Token', 'KDB20NS', {from: owner});
     token721 = await ERC721Token.new('Kirobo ERC721 Token', 'KBF', {from: owner});
 
-    await factoryProxy.setOperator(operator, { from: factoryOwner1 });
-    await factoryProxy.setOperator(operator, { from: factoryOwner2 });
+    // await factoryProxy.setOperator(operator, { from: factoryOwner1 });
+    // await factoryProxy.setOperator(operator, { from: factoryOwner2 });
 
     await factory.setActivator(activator, { from: factoryOwner1 });
     await factory.setActivator(activator, { from: factoryOwner2 });

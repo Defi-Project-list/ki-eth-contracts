@@ -50,7 +50,7 @@ abstract contract FactoryStorage is MultiSig {
 
     address internal s_production_version_oracle;
     mapping(bytes8 => address) internal s_versions_oracle;
-    address internal s_operator;
+    // address internal s_operator;
     address internal s_activator;
     mapping(uint256 => uint256) internal s_nonce_group;
 
@@ -66,6 +66,7 @@ abstract contract FactoryStorage is MultiSig {
     uint256 internal constant FLAG_EIP712  = 0x0100;
     uint256 internal constant FLAG_ORDERED = 0x0200;
     uint256 internal constant FLAG_STATICCALL = 0x0400;
+    uint256 internal constant FLAG_CANCELABLE = 0x0800;
     uint256 internal constant FLAG_PAYMENT = 0xf000;
     uint256 internal constant FLAG_FLOW = 0x00ff;
 
@@ -83,16 +84,7 @@ abstract contract FactoryStorage is MultiSig {
         s_swProxy = new Proxy();
         s_swProxyLatest = new ProxyLatest();
         s_versions_code[LATEST] = address(s_swProxyLatest);
-        s_nonce_group[0] = 1; // TODO: remove for production
-        s_nonce_group[1] = 1; // TODO: remove for production
-        s_nonce_group[2] = 1; // TODO: remove for production
-        s_nonce_group[3] = 1; // TODO: remove for production
-        s_nonce_group[4] = 1; // TODO: remove for production
-        s_nonce_group[5] = 1; // TODO: remove for production
-        s_nonce_group[6] = 1; // TODO: remove for production
-        s_nonce_group[7] = 1; // TODO: remove for production
-        s_nonce_group[8] = 1; // TODO: remove for production
-        s_nonce_group[9] = 1; // TODO: remove for production
+        // s_nonce_group[0] = 1; // TODO: remove for production
     }
 
     function _resolve(bytes32 node) internal view returns(address result) {
