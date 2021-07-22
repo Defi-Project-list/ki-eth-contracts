@@ -6,7 +6,7 @@
 
 // const ENSRegistry = artifacts.require('ens/ENSRegistry');
 // const FIFSRegistrar = artifacts.require('ens/FIFSRegistrar');
-const SIGN_WITH_METAMASK = false
+const SIGN_WITH_METAMASK = true
 
 const Wallet = artifacts.require("Wallet")
 const Oracle = artifacts.require("Oracle")
