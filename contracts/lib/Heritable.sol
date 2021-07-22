@@ -131,7 +131,7 @@ abstract contract Heritable is Backupable {
                 and then sends the funds defined to the heirs wallets
      */
     function activateInheritance() external {
-        require(s_inheritance.enabled == true, "inheritance is not enabled");
+        require(s_inheritance.enabled, "inheritance is not enabled");
         require(s_inheritance.activated == false, "inheritance is activated");
         require(getInheritanceTimeLeft() == 0, "too early");
 
@@ -223,11 +223,11 @@ abstract contract Heritable is Backupable {
     }
 
     function isInheritanceActivated() external view returns (bool) {
-        return (s_inheritance.activated == true);
+        return (s_inheritance.activated);
     }
 
     function isInheritanceEnabled() external view returns (bool) {
-        return (s_inheritance.enabled == true);
+        return (s_inheritance.enabled);
     }
 
     function getInheritanceTimeout() external view returns (uint40) {

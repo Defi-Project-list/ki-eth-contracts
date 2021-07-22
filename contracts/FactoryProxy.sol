@@ -303,7 +303,7 @@ contract FactoryProxy is FactoryStorage {
     function batchTransfer(
         Transfer[] calldata tr,
         uint24 nonceGroup,
-        uint256 silentRevert
+        bool silentRevert
     ) external {
         unchecked {
             require(msg.sender == s_activator, "Wallet: sender not allowed");
@@ -397,7 +397,7 @@ contract FactoryProxy is FactoryStorage {
                         )
                     );
                 if (!success) {
-                    if (silentRevert != 0) {
+                    if (!silentRevert) {
                         emit TransferReverted(wallet.addr, nonce, i);
                         continue;
                     } else {
@@ -431,7 +431,7 @@ contract FactoryProxy is FactoryStorage {
     function batchTransferPacked(
         PTransfer[] calldata tr,
         uint24 nonceGroup,
-        uint256 silentRevert
+        bool silentRevert
     ) external {
         unchecked {
             require(msg.sender == s_activator, "Wallet: sender not allowed");
@@ -501,10 +501,10 @@ contract FactoryProxy is FactoryStorage {
                     call.s
                 );
 
-                require(wallet.owner == true, "Factory: singer is not owner");
+                require(wallet.owner, "Factory: singer is not owner");
 
                 uint256 localNonce;
-                uint256 localSilentRevert;
+                bool localSilentRevert;
                 {
                     localNonce = nonce;
                     localSilentRevert = silentRevert;
@@ -541,7 +541,7 @@ contract FactoryProxy is FactoryStorage {
                         )
                     );
                 if (!success) {
-                    if (localSilentRevert != 0) {
+                    if (!localSilentRevert) {
                         emit TransferPackedReverted(wallet.addr, localNonce, i);
                         continue;
                     } else {
@@ -575,7 +575,7 @@ contract FactoryProxy is FactoryStorage {
     function batchCall(
         Call[] calldata tr,
         uint256 nonceGroup,
-        uint256 silentRevert
+        bool silentRevert
     ) external {
         unchecked {
             require(msg.sender == s_activator, "Wallet: sender not allowed");
@@ -679,7 +679,7 @@ contract FactoryProxy is FactoryStorage {
                         )
                     );
                 if (!success) {
-                    if (silentRevert != 0) {
+                    if (!silentRevert) {
                         emit BatchCallReverted(wallet.addr, nonce, i);
                         continue;
                     } else {

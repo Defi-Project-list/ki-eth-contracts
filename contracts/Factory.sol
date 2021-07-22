@@ -184,7 +184,7 @@ contract Factory is FactoryStorage {
         address curOwner = IProxy(msg.sender).owner();
         Wallet storage sp_sw = s_accounts_wallet[curOwner];
         require(msg.sender == sp_sw.addr, "from: no wallet");
-        require(sp_sw.owner == true, "from: not wallet owner");
+        require(sp_sw.owner, "from: not wallet owner");
         Wallet storage sp_sw2 = s_accounts_wallet[newOwner];
         require(msg.sender == sp_sw2.addr, "to: not same wallet as from");
         require(sp_sw2.owner == false, "to: wallet owner");
@@ -205,7 +205,7 @@ contract Factory is FactoryStorage {
         address owner = IProxy(msg.sender).owner();
         Wallet storage sp_sw_owner = s_accounts_wallet[owner];
         require(msg.sender == sp_sw_owner.addr, "not wallet");
-        require(sp_sw_owner.owner == true, "no wallet owner");
+        require(sp_sw_owner.owner, "no wallet owner");
         sp_sw.addr = msg.sender;
         emit WalletBakcupCreated(sp_sw.addr, owner, backup);
     }
@@ -231,7 +231,7 @@ contract Factory is FactoryStorage {
         address owner = IProxy(msg.sender).owner();
         Wallet storage sp_sw = s_accounts_wallet[owner];
         require(
-            msg.sender == sp_sw.addr && sp_sw.owner == true,
+            msg.sender == sp_sw.addr && sp_sw.owner,
             "sender is not wallet owner"
         );
         s_wallets_upgrade_requests[sp_sw.addr] = UpgradeRequest({
@@ -247,7 +247,7 @@ contract Factory is FactoryStorage {
         address owner = IProxy(msg.sender).owner();
         Wallet storage sp_sw = s_accounts_wallet[owner];
         require(
-            msg.sender == sp_sw.addr && sp_sw.owner == true,
+            msg.sender == sp_sw.addr && sp_sw.owner,
             "sender is not wallet owner"
         );
         UpgradeRequest storage sp_upgradeRequest = s_wallets_upgrade_requests[
@@ -264,7 +264,7 @@ contract Factory is FactoryStorage {
         address owner = IProxy(msg.sender).owner();
         Wallet storage sp_sw = s_accounts_wallet[owner];
         require(
-            msg.sender == sp_sw.addr && sp_sw.owner == true,
+            msg.sender == sp_sw.addr && sp_sw.owner,
             "sender is not wallet owner"
         );
         UpgradeRequest storage sp_upgradeRequest = s_wallets_upgrade_requests[
@@ -323,7 +323,7 @@ contract Factory is FactoryStorage {
     function restoreWalletConfiguration() external {
         Wallet storage sp_sw = s_accounts_wallet[msg.sender];
         require(sp_sw.addr != address(0), "no wallet");
-        require(sp_sw.owner == true, "not wallet owner");
+        require(sp_sw.owner, "not wallet owner");
         bytes8 version = s_wallets_version[sp_sw.addr];
         if (version == LATEST) {
             version = s_production_version;
@@ -337,7 +337,7 @@ contract Factory is FactoryStorage {
     function restoreWalletOwnership() external {
         Wallet storage sp_sw = s_accounts_wallet[msg.sender];
         require(sp_sw.addr != address(0), "no wallet");
-        require(sp_sw.owner == true, "not wallet owner");
+        require(sp_sw.owner, "not wallet owner");
 
         IProxy(sp_sw.addr).init(msg.sender, address(0));
         emit WalletOwnershipRestored(sp_sw.addr, msg.sender);
@@ -346,7 +346,7 @@ contract Factory is FactoryStorage {
     function restoreWalletVersion() external {
         Wallet storage sp_sw = s_accounts_wallet[msg.sender];
         require(sp_sw.addr != address(0), "no wallet");
-        require(sp_sw.owner == true, "not wallet owner");
+        require(sp_sw.owner, "not wallet owner");
 
         bytes8 version = s_wallets_version[sp_sw.addr];
         if (version == LATEST) {
@@ -505,7 +505,7 @@ contract Factory is FactoryStorage {
                     call.s
                 );
 
-                require(wallet.owner == true, "Factory: singer is not owner");
+                require(wallet.owner, "Factory: singer is not owner");
 
                 (bool success, bytes memory res) = sessionId & FLAG_STATICCALL >
                     0
@@ -659,7 +659,7 @@ contract Factory is FactoryStorage {
                     mcalls.r,
                     mcalls.s
                 );
-                require(wallet.owner == true, "Factory: singer is not owner");
+                require(wallet.owner, "Factory: singer is not owner");
 
                 uint256 localNonce;
                 uint256 localIndex;
@@ -869,10 +869,7 @@ contract Factory is FactoryStorage {
                         "Factory: signer missing"
                     );
                     Wallet storage wallet = s_accounts_wallet[signers[j]];
-                    require(
-                        wallet.owner == true,
-                        "Factory: signer is not owner"
-                    );
+                    require(wallet.owner, "Factory: signer is not owner");
                     MSCall calldata call = mcalls.mcall[j];
                     bytes32 localMessageHash;
                     uint256 localIndex;
