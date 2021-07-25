@@ -410,6 +410,10 @@ contract Wallet is IStorage, Heritable {
     {
         address creator = this.creator();
         address activator = ICreator(creator).activator();
+        require(
+            msg.sender == s_owner || msg.sender == activator,
+            "Wallet: sender is not owner nor activator"
+        );
 
         for (uint256 i = 0; i < tr.length; i++) {
             XCall calldata call = tr[i];
@@ -432,10 +436,6 @@ contract Wallet is IStorage, Heritable {
                     call.v2,
                     call.r2,
                     call.s2
-                );
-                require(
-                    msg.sender == s_owner || msg.sender == activator,
-                    "Wallet: sender is not owner nor activator"
                 );
                 require(signer1 == s_owner, "Wallet: signer1 is not owner");
                 require(

@@ -245,7 +245,10 @@ contract FactoryProxy is FactoryStorage {
     //   s_operator = newOperator;
     // }
 
-    function setLocalEns(string calldata ens, address dest) external {
+    function setLocalEns(string calldata ens, address dest)
+        external
+        multiSig2of3(0)
+    {
         s_local_ens[keccak256(abi.encodePacked("@", ens))] = dest;
     }
 
@@ -364,7 +367,7 @@ contract FactoryProxy is FactoryStorage {
                     call.s
                 );
 
-                require(wallet.owner == true, "Factory: singer is not owner");
+                require(wallet.owner == true, "Factory: signer is not owner");
 
                 (bool success, bytes memory res) = call.token == address(0)
                     ? wallet.addr.call{
@@ -501,7 +504,7 @@ contract FactoryProxy is FactoryStorage {
                     call.s
                 );
 
-                require(wallet.owner, "Factory: singer is not owner");
+                require(wallet.owner, "Factory: signer is not owner");
 
                 uint256 localNonce;
                 bool localSilentRevert;
@@ -636,7 +639,7 @@ contract FactoryProxy is FactoryStorage {
                     call.s
                 );
 
-                require(wallet.owner == true, "Factory: singer is not owner");
+                require(wallet.owner == true, "Factory: signer is not owner");
 
                 if (sessionId & FLAG_CANCELABLE == 0) {
                     messageHash = bytes32(0);
@@ -652,7 +655,7 @@ contract FactoryProxy is FactoryStorage {
                             : uint32(sessionId >> 80)
                     }(
                         abi.encodeWithSignature(
-                            "staticcall(address,bytes,bytes32)",
+                            "LocalStaticCall(address,bytes,bytes32)",
                             to,
                             abi.encodePacked(
                                 bytes4(call.functionSignature),
@@ -668,7 +671,7 @@ contract FactoryProxy is FactoryStorage {
                             : uint32(sessionId >> 80)
                     }(
                         abi.encodeWithSignature(
-                            "call(address,uint256,bytes,bytes32)",
+                            "LocalCall(address,uint256,bytes,bytes32)",
                             to,
                             call.value,
                             abi.encodePacked(
@@ -826,7 +829,7 @@ contract FactoryProxy is FactoryStorage {
                     mcalls.s
                 );
 
-                require(wallet.owner == true, "Factory: singer is not owner");
+                require(wallet.owner == true, "Factory: signer is not owner");
 
                 if (sessionId & FLAG_CANCELABLE == 0) {
                     messageHash = bytes32(0);
@@ -861,7 +864,7 @@ contract FactoryProxy is FactoryStorage {
                                 : gasLimit
                         }(
                             abi.encodeWithSignature(
-                                "staticcall(address,bytes,bytes32)",
+                                "LocalStaticCall(address,bytes,bytes32)",
                                 to,
                                 abi.encodePacked(
                                     bytes4(call.functionSignature),
@@ -876,7 +879,7 @@ contract FactoryProxy is FactoryStorage {
                                 : gasLimit
                         }(
                             abi.encodeWithSignature(
-                                "call(address,uint256,bytes,bytes32)",
+                                "LocalCall(address,uint256,bytes,bytes32)",
                                 to,
                                 call.value,
                                 call.functionSignature ==
@@ -1089,7 +1092,7 @@ contract FactoryProxy is FactoryStorage {
                                 : call.gasLimit
                         }(
                             abi.encodeWithSignature(
-                                "staticcall(address,bytes,bytes32)",
+                                "LocalStaticCall(address,bytes,bytes32)",
                                 to,
                                 abi.encodePacked(
                                     bytes4(call.functionSignature),
@@ -1104,7 +1107,7 @@ contract FactoryProxy is FactoryStorage {
                                 : call.gasLimit
                         }(
                             abi.encodeWithSignature(
-                                "call(address,uint256,bytes,bytes32)",
+                                "LocalCall(address,uint256,bytes,bytes32)",
                                 to,
                                 call.value,
                                 call.functionSignature ==

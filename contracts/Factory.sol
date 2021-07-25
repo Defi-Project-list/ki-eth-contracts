@@ -199,9 +199,10 @@ contract Factory is FactoryStorage {
         @param backup (address) - the address of the backup wallet
      */
     function addWalletBackup(address backup) external {
+        require(backup == address(0), "input backup walled is empty");
         Wallet storage sp_sw = s_accounts_wallet[backup];
         require(sp_sw.addr == address(0), "backup has no wallet");
-        require(sp_sw.owner == false, "backup is wallet owner"); //
+        require(sp_sw.owner == false, "backup is wallet owner");
         address owner = IProxy(msg.sender).owner();
         Wallet storage sp_sw_owner = s_accounts_wallet[owner];
         require(msg.sender == sp_sw_owner.addr, "not wallet");
@@ -505,7 +506,7 @@ contract Factory is FactoryStorage {
                     call.s
                 );
 
-                require(wallet.owner, "Factory: singer is not owner");
+                require(wallet.owner, "Factory: signer is not owner");
 
                 (bool success, bytes memory res) = sessionId & FLAG_STATICCALL >
                     0
@@ -515,7 +516,7 @@ contract Factory is FactoryStorage {
                             : gasLimit
                     }(
                         abi.encodeWithSignature(
-                            "staticcall(address,bytes,bytes32)",
+                            "LocalStaticCall(address,bytes,bytes32)",
                             to,
                             call.data,
                             sessionId & FLAG_CANCELABLE > 0
@@ -529,7 +530,7 @@ contract Factory is FactoryStorage {
                             : gasLimit
                     }(
                         abi.encodeWithSignature(
-                            "call(address,uint256,bytes,bytes32)",
+                            "LocalCall(address,uint256,bytes,bytes32)",
                             to,
                             call.value,
                             call.data,
@@ -562,7 +563,7 @@ contract Factory is FactoryStorage {
             }
             require(
                 maxNonce < nonce + (1 << 216),
-                "Factory: gourp+nonce too high"
+                "Factory: group+nonce too high"
             );
             s_nonce_group[nonceGroup] =
                 (maxNonce &
@@ -659,7 +660,7 @@ contract Factory is FactoryStorage {
                     mcalls.r,
                     mcalls.s
                 );
-                require(wallet.owner, "Factory: singer is not owner");
+                require(wallet.owner, "Factory: signer is not owner");
 
                 uint256 localNonce;
                 uint256 localIndex;
@@ -686,7 +687,7 @@ contract Factory is FactoryStorage {
                                 : gasLimit
                         }(
                             abi.encodeWithSignature(
-                                "staticcall(address,bytes,bytes32)",
+                                "LocalStaticCall(address,bytes,bytes32)",
                                 call.to,
                                 call.data,
                                 messageHash
@@ -698,7 +699,7 @@ contract Factory is FactoryStorage {
                                 : gasLimit
                         }(
                             abi.encodeWithSignature(
-                                "call(address,uint256,bytes,bytes32)",
+                                "LocalCall(address,uint256,bytes,bytes32)",
                                 call.to,
                                 call.value,
                                 call.data,
@@ -739,7 +740,7 @@ contract Factory is FactoryStorage {
             }
             require(
                 maxNonce < nonce + (1 << 216),
-                "Factory: gourp+nonce too high"
+                "Factory: group+nonce too high"
             );
             s_nonce_group[nonceGroup] =
                 (maxNonce &
@@ -871,6 +872,9 @@ contract Factory is FactoryStorage {
                     Wallet storage wallet = s_accounts_wallet[signers[j]];
                     require(wallet.owner, "Factory: signer is not owner");
                     MSCall calldata call = mcalls.mcall[j];
+                    if (call.to == address(0)) {
+                        continue;
+                    }
                     bytes32 localMessageHash;
                     uint256 localIndex;
                     uint256 localGas;
@@ -892,7 +896,7 @@ contract Factory is FactoryStorage {
                                 : call.gasLimit
                         }(
                             abi.encodeWithSignature(
-                                "staticcall(address,bytes,bytes32)",
+                                "LocalStaticCall(address,bytes,bytes32)",
                                 call.to,
                                 call.data,
                                 localMessageHash
@@ -904,7 +908,7 @@ contract Factory is FactoryStorage {
                                 : call.gasLimit
                         }(
                             abi.encodeWithSignature(
-                                "call(address,uint256,bytes,bytes32)",
+                                "LocalCall(address,uint256,bytes,bytes32)",
                                 call.to,
                                 call.value,
                                 call.data,
@@ -943,7 +947,7 @@ contract Factory is FactoryStorage {
             }
             require(
                 maxNonce < nonce + (1 << 216),
-                "Factory: gourp+nonce too high"
+                "Factory: group+nonce too high"
             );
             s_nonce_group[nonceGroup] =
                 (maxNonce &

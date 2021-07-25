@@ -11,7 +11,6 @@ abstract contract MultiSig {
     struct Action {
         address owner;
         uint256 value;
-        uint256 height;
         bytes32 data;
     }
 
@@ -58,7 +57,6 @@ abstract contract MultiSig {
             "MultiSig: only owners that are not being removed"
         );
         bytes32 hashedData = keccak256(msg.data);
-        s_action.height = block.number;
         if (s_action.owner == address(0)) {
             s_action.owner = msg.sender;
             s_action.data = hashedData;

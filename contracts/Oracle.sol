@@ -17,7 +17,6 @@ contract Oracle is OracleBase {
 
     function update20(address token, bool safe)
         external
-        payable
         multiSig2of3(msg.value)
     {
         s_tokens_20[token] = safe;

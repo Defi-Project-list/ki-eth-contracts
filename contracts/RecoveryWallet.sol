@@ -4,7 +4,10 @@ pragma solidity ^0.8.0;
 pragma abicoder v1;
 
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
+
+//import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
+import "../node_modules/@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+
 import "openzeppelin-solidity/contracts/token/ERC721/IERC721.sol";
 import "openzeppelin-solidity/contracts/utils/cryptography/SignatureChecker.sol";
 
@@ -15,6 +18,7 @@ import "./lib/Heritable.sol";
 
 contract RecoveryWallet is IStorage, Heritable, ReentrancyGuard {
     using SignatureChecker for address;
+    using SafeERC20 for IERC20;
     //constractor() ReentrancyGuard() public {};
     uint8 public constant VERSION_NUMBER = 0x1;
     string public constant NAME = "Kirobo OCW";
@@ -62,7 +66,7 @@ contract RecoveryWallet is IStorage, Heritable, ReentrancyGuard {
     ) public onlyActiveOwner() {
         require(token != address(0), "_token is 0x0");
         emit Transfer20(this.creator(), token, address(this), to, value);
-        IERC20(token).transfer(to, value);
+        IERC20(token).safeTransfer(to, value);
     }
 
     function transferFrom20(
@@ -74,7 +78,7 @@ contract RecoveryWallet is IStorage, Heritable, ReentrancyGuard {
         require(token != address(0), "_token is 0x0");
         address sender = from == address(0) ? address(this) : address(from);
         emit Transfer20(this.creator(), token, sender, to, value);
-        IERC20(token).transferFrom(sender, to, value);
+        IERC20(token).safeTransferFrom(sender, to, value);
     }
 
     function transfer721(
@@ -239,10 +243,6 @@ contract RecoveryWallet is IStorage, Heritable, ReentrancyGuard {
                 return(0, 0x20)
             }
         }
-    }
-
-    receive() external payable {
-        require(false, "Wallet: not aceepting ether");
     }
 
     function execute(

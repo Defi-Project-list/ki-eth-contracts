@@ -16,6 +16,16 @@ import "./Storage.sol";
             the backup wallet owner
  */
 abstract contract Backupable is IStorage, StorageBase, Storage, Interface {
+    struct Backup {
+        address wallet;
+        uint40 timestamp;
+        uint32 timeout;
+        uint8 state;
+        uint16 filler;
+    }
+
+    Backup internal s_backup;
+
     event BackupChanged(
         address indexed creator,
         address indexed owner,
@@ -69,7 +79,7 @@ abstract contract Backupable is IStorage, StorageBase, Storage, Interface {
     modifier onlyActiveOwner() {
         require(
             msg.sender == this.owner() &&
-                s_backup.state != BACKUP_STATE_ACTIVATED,
+                s_backup.state != BackupStates.BACKUP_STATE_ACTIVATED,
             "not active owner"
         );
         _;
@@ -110,12 +120,12 @@ abstract contract Backupable is IStorage, StorageBase, Storage, Interface {
             }
             s_backup.wallet = wallet;
             ICreator(this.creator()).addWalletBackup(wallet);
-            if (s_backup.state != BACKUP_STATE_PENDING)
-                s_backup.state = BACKUP_STATE_PENDING;
+            if (s_backup.state != BackupStates.BACKUP_STATE_PENDING)
+                s_backup.state = BackupStates.BACKUP_STATE_PENDING;
             if (s_backup.timestamp != 0) s_backup.timestamp = 0;
         }
         if (s_backup.timeout != timeout) s_backup.timeout = timeout;
-        if (s_backup.state == BACKUP_STATE_ENABLED) {
+        if (s_backup.state == BackupStates.BACKUP_STATE_ENABLED) {
             s_backup.timestamp = getBlockTimestamp();
         }
         emit BackupChanged(
@@ -141,13 +151,16 @@ abstract contract Backupable is IStorage, StorageBase, Storage, Interface {
                     3. backup time that was set is now 0
      */
     function activateBackup() external {
-        require(s_backup.state == BACKUP_STATE_ENABLED, "backup not enabled");
+        require(
+            s_backup.state == BackupStates.BACKUP_STATE_ENABLED,
+            "backup not enabled"
+        );
         require(s_backup.wallet != address(0), "backup not exist");
         require(getBackupTimeLeft() == 0, "too early");
         //require (msg.sender == tx.origin);
 
-        if (s_backup.state != BACKUP_STATE_ACTIVATED)
-            s_backup.state = BACKUP_STATE_ACTIVATED;
+        if (s_backup.state != BackupStates.BACKUP_STATE_ACTIVATED)
+            s_backup.state = BackupStates.BACKUP_STATE_ACTIVATED;
         emit BackupActivated(
             this.creator(),
             s_backup.wallet,
@@ -186,10 +199,10 @@ abstract contract Backupable is IStorage, StorageBase, Storage, Interface {
      */
     function claimOwnership() external onlyBackup {
         require(
-            s_backup.state == BACKUP_STATE_ACTIVATED,
+            s_backup.state == BackupStates.BACKUP_STATE_ACTIVATED,
             "backup not activated"
         );
-        s_backup.state = BACKUP_STATE_PENDING;
+        s_backup.state = BackupStates.BACKUP_STATE_PENDING;
         emit OwnershipTransferred(
             this.creator(),
             s_owner,
@@ -209,10 +222,10 @@ abstract contract Backupable is IStorage, StorageBase, Storage, Interface {
      */
     function reclaimOwnership() external onlyOwner {
         require(
-            s_backup.state == BACKUP_STATE_ACTIVATED,
+            s_backup.state == BackupStates.BACKUP_STATE_ACTIVATED,
             "backup not activated"
         );
-        s_backup.state = BACKUP_STATE_REGISTERED;
+        s_backup.state = BackupStates.BACKUP_STATE_REGISTERED;
         emit OwnershipReclaimed(
             this.creator(),
             s_owner,
@@ -226,11 +239,11 @@ abstract contract Backupable is IStorage, StorageBase, Storage, Interface {
      */
     function enable() external eitherOwnerOrBackup {
         require(
-            s_backup.state == BACKUP_STATE_REGISTERED,
+            s_backup.state == BackupStates.BACKUP_STATE_REGISTERED,
             "backup not registered"
         );
         uint40 timestamp = getBlockTimestamp();
-        s_backup.state = BACKUP_STATE_ENABLED;
+        s_backup.state = BackupStates.BACKUP_STATE_ENABLED;
         s_backup.timestamp = timestamp;
         emit BackupEnabled(
             this.creator(),
@@ -243,13 +256,19 @@ abstract contract Backupable is IStorage, StorageBase, Storage, Interface {
     /** @notice sets the status of the backup to registered if the status was pending
      */
     function accept() external onlyBackup {
-        require(s_backup.state == BACKUP_STATE_PENDING, "backup not pending");
-        s_backup.state = BACKUP_STATE_REGISTERED;
+        require(
+            s_backup.state == BackupStates.BACKUP_STATE_PENDING,
+            "backup not pending"
+        );
+        s_backup.state = BackupStates.BACKUP_STATE_REGISTERED;
         emit BackupRegistered(this.creator(), s_backup.wallet, s_backup.state);
     }
 
     function decline() external onlyBackup {
-        require(s_backup.state == BACKUP_STATE_PENDING, "backup not pending");
+        require(
+            s_backup.state == BackupStates.BACKUP_STATE_PENDING,
+            "backup not pending"
+        );
         _removeBackup();
     }
 
@@ -311,8 +330,8 @@ abstract contract Backupable is IStorage, StorageBase, Storage, Interface {
         }
         if (s_backup.timeout != 0) s_backup.timeout = 0;
         if (s_backup.timestamp != 0) s_backup.timestamp = 0;
-        if (s_backup.state != BACKUP_STATE_PENDING)
-            s_backup.state = BACKUP_STATE_PENDING;
+        if (s_backup.state != BackupStates.BACKUP_STATE_PENDING)
+            s_backup.state = BackupStates.BACKUP_STATE_PENDING;
         emit BackupRemoved(this.creator(), s_owner, backup, s_backup.state);
     }
 }

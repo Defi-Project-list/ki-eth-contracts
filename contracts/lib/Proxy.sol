@@ -7,7 +7,6 @@ import "./StorageBase.sol";
 import "./Storage.sol";
 
 contract Proxy is StorageBase {
-
     fallback() external payable {
         assembly {
             calldatacopy(0x00, 0x00, calldatasize())
@@ -31,51 +30,75 @@ contract Proxy is StorageBase {
         revert("should not accept ether directly");
     }
 
-    function call(address target, uint256 value, bytes calldata data, bytes32 messageHash) external onlyCreator() {
+    function LocalCall(
+        address target,
+        uint256 value,
+        bytes calldata data,
+        bytes32 messageHash
+    ) external onlyCreator() {
         if (messageHash != 0) {
-            require(s_blocked[messageHash]==0, "Wallet: transaction canceled");
+            require(
+                s_blocked[messageHash] == 0,
+                "Wallet: transaction canceled"
+            );
         }
-        (bool success, bytes memory res) = 
-            target.call{value: value}(data);
+        (bool success, bytes memory res) = target.call{value: value}(data);
         if (!success) {
             revert(_getRevertMsg(res));
         }
     }
 
-    function transferEth(address payable to, uint256 value, bytes32 messageHash)
-        external
-        onlyCreator()
-    {
+    function transferEth(
+        address payable to,
+        uint256 value,
+        bytes32 messageHash
+    ) external onlyCreator() {
         if (messageHash != 0) {
-            require(s_blocked[messageHash]==0, "Wallet: transaction canceled");
+            require(
+                s_blocked[messageHash] == 0,
+                "Wallet: transaction canceled"
+            );
         }
-        (bool success, bytes memory res) = 
-            to.call{gas: 20000, value: value}("");
+        (bool success, bytes memory res) = to.call{gas: 20000, value: value}(
+            ""
+        );
         if (!success) {
             revert(_getRevertMsg(res));
         }
     }
 
-    function transferERC20(address token, address payable to, uint256 value, bytes32 messageHash)
-        external
-        onlyCreator()
-    {
+    function transferERC20(
+        address token,
+        address payable to,
+        uint256 value,
+        bytes32 messageHash
+    ) external onlyCreator() {
         if (messageHash != 0) {
-            require(s_blocked[messageHash]==0, "Wallet: transaction canceled");
+            require(
+                s_blocked[messageHash] == 0,
+                "Wallet: transaction canceled"
+            );
         }
-        (bool success, bytes memory res) = 
-            token.call{gas: 80000}(abi.encodeWithSignature("transfer(address,uint256)", to, value));
+        (bool success, bytes memory res) = token.call{gas: 80000}(
+            abi.encodeWithSignature("transfer(address,uint256)", to, value)
+        );
         if (!success) {
             revert(_getRevertMsg(res));
         }
     }
 
-    function staticcall(address target, bytes calldata data, bytes32 messageHash) external view onlyCreator() {
+    function LocalStaticCall(
+        address target,
+        bytes calldata data,
+        bytes32 messageHash
+    ) external view onlyCreator() {
         if (messageHash != 0) {
-            require(s_blocked[messageHash]==0, "Wallet: transaction canceled");
+            require(
+                s_blocked[messageHash] == 0,
+                "Wallet: transaction canceled"
+            );
         }
-        (bool success, bytes memory res) = 
-            target.staticcall(data);
+        (bool success, bytes memory res) = target.staticcall(data);
         if (!success) {
             revert(_getRevertMsg(res));
         }
@@ -98,5 +121,4 @@ contract Proxy is StorageBase {
         }
         return abi.decode(returnData, (string));
     }
-
 }

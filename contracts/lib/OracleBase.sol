@@ -23,8 +23,11 @@ abstract contract OracleBase is IOracle, MultiSig {
     }
 
     function initialized() external view override returns (bool) {
-        require(s_payto != address(0), "payment address cannot be 0");
+        //require(s_payto != address(0), "payment address cannot be 0");
+        if (s_payto == address(0)) {
+            //payment address cannot be 0
+            return false;
+        }
         return true;
     }
-
 }
