@@ -3,13 +3,12 @@
 pragma solidity ^0.8.0;
 pragma abicoder v1;
 
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "openzeppelin-solidity/contracts/security/ReentrancyGuard.sol";
 
 //import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
-import "../node_modules/@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
-
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "openzeppelin-solidity/contracts/token/ERC721/IERC721.sol";
-import "openzeppelin-solidity/contracts/utils/cryptography/SignatureChecker.sol";
+import "@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
 
 import "./lib/IOracle.sol";
 import "./lib/Heritable.sol";
@@ -56,7 +55,8 @@ contract RecoveryWallet is IStorage, Heritable, ReentrancyGuard {
         require(value > 0, "value == 0");
         require(value <= address(this).balance, "value > balance");
         emit SentEther(this.creator(), address(this), to, value);
-        to.call(value);
+        (bool sent, bytes memory data) = to.call{value: value}("");
+        require(sent, "Failed to send Ether");
     }
 
     function transfer20(

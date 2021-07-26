@@ -7,14 +7,21 @@ import "./StorageBase.sol";
 import "../Trust.sol";
 
 abstract contract Storage is IStorage {
-    enum BackupStates {PENDING, REGISTERED, ENABLED, ACTIVATED};
-
-/*
     uint8 public constant BACKUP_STATE_PENDING = 0;
     uint8 public constant BACKUP_STATE_REGISTERED = 1;
     uint8 public constant BACKUP_STATE_ENABLED = 2;
     uint8 public constant BACKUP_STATE_ACTIVATED = 3;
-*/
+
+    // ------------- Backup ---------
+    struct Backup {
+        address wallet;
+        uint40 timestamp;
+        uint32 timeout;
+        uint8 state;
+        uint16 filler;
+    }
+
+    Backup internal s_backup;
     // ------------- Generic ---------
 
     bytes32 internal s_uid;
@@ -25,7 +32,7 @@ abstract contract Storage is IStorage {
     // ------------- Trust ---------
 
     modifier onlyActiveState() {
-        require(s_backup.state != BackupStates.BACKUP_STATE_ACTIVATED, "not active state");
+        require(s_backup.state != BACKUP_STATE_ACTIVATED, "not active state");
         _;
     }
 

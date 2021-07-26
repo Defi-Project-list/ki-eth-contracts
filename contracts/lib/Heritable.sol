@@ -14,6 +14,7 @@ import "./Backupable.sol";
             2. abillity to set a time (in seconds) that the funds will be sent to the heirs. 
  */
 abstract contract Heritable is Backupable {
+    uint256 internal constant MAX_HEIRS = 8;
     struct Heir {
         address payable wallet;
         bool sent;
@@ -30,7 +31,6 @@ abstract contract Heritable is Backupable {
         uint16 filler;
     }
 
-    uint256 internal constant MAX_HEIRS = 8;
     Inheritance internal s_inheritance;
     uint256 internal s_totalTransfered;
 
