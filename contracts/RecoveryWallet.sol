@@ -51,12 +51,14 @@ contract RecoveryWallet is IStorage, Heritable, ReentrancyGuard {
         public
         onlyActiveOwner()
         nonReentrant()
+        returns (bytes memory)
     {
         require(value > 0, "value == 0");
         require(value <= address(this).balance, "value > balance");
         emit SentEther(this.creator(), address(this), to, value);
         (bool sent, bytes memory data) = to.call{value: value}("");
         require(sent, "Failed to send Ether");
+        return data;
     }
 
     function transfer20(

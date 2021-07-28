@@ -41,8 +41,7 @@ contract Trust {
         uint40 start,
         uint32 period,
         uint16 times,
-        uint256 amount,
-        bool cancelable
+        uint256 amount
     ) payable logPayment() {
         require(wallet != address(0));
         require(wallet != msg.sender);
