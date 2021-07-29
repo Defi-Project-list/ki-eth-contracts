@@ -88,10 +88,10 @@ contract RecoveryWallet is IStorage, Heritable, ReentrancyGuard {
         address to,
         uint256 value
     ) public onlyActiveOwner() {
-        transferFrom721(token, address(0), to, value);
+        safeTransferFrom721(token, address(0), to, value);
     }
 
-    function transferFrom721(
+    /* function transferFrom721(
         address token,
         address from,
         address to,
@@ -107,7 +107,7 @@ contract RecoveryWallet is IStorage, Heritable, ReentrancyGuard {
             ""
         );
         IERC721(token).transferFrom(from, to, id);
-    }
+    } */
 
     function safeTransferFrom721(
         address token,
@@ -116,15 +116,9 @@ contract RecoveryWallet is IStorage, Heritable, ReentrancyGuard {
         uint256 id
     ) public onlyActiveOwner() {
         require(token != address(0), "_token is 0x0");
-        emit Transfer721(
-            this.creator(),
-            token,
-            from == address(0) ? address(this) : from,
-            to,
-            id,
-            ""
-        );
-        IERC721(token).safeTransferFrom(from, to, id);
+        address sender = from == address(0) ? address(this) : address(from);
+        emit Transfer721(this.creator(), token, sender, to, id, "");
+        IERC721(token).safeTransferFrom(sender, to, id);
     }
 
     function safeTransferFrom721wData(
