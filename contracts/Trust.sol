@@ -41,8 +41,7 @@ contract Trust {
         uint40 start,
         uint32 period,
         uint16 times,
-        uint256 amount,
-        bool cancelable
+        uint256 amount
     ) payable logPayment() {
         require(wallet != address(0));
         require(wallet != msg.sender);
@@ -55,7 +54,6 @@ contract Trust {
         s_fund.period = period;
         s_fund.times = times;
         s_amount = amount;
-        s_fund.cancelable = cancelable;
     }
 
     receive() external payable logPayment() {}
@@ -77,7 +75,7 @@ contract Trust {
     }
 
     function fund() external view returns (Fund memory) {
-      return s_fund;
+        return s_fund;
     }
 
     function getNextPaymentTimestamp() external view returns (uint256) {
@@ -125,8 +123,7 @@ contract Trust {
         }
         // solium-disable-next-line security/no-block-members
         return
-            ((((block.timestamp - s_fund.start) / s_fund.period) + 1) * s_amount) -
-            s_payed;
+            ((((block.timestamp - s_fund.start) / s_fund.period) + 1) *
+                s_amount) - s_payed;
     }
-
 }

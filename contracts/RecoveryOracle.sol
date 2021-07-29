@@ -15,11 +15,7 @@ contract RecoveryOracle is OracleBase {
         address owner3
     ) MultiSig(owner1, owner2, owner3) {}
 
-    function update20(address token, bool safe)
-        external
-        payable
-        multiSig2of3(msg.value)
-    {
+    function update20(address token, bool safe) external multiSig2of3(0) {
         s_tokens_20[token] = safe;
     }
 
