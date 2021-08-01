@@ -79,8 +79,8 @@ module.exports = {
     development: {
       network_id: "*",
       provider: function () {
-        const mnemonic = 'awesome grain neither pond excess garage tackle table piece assist venture escape'
-        // const mnemonic = 'front assume robust donkey senior economy maple enhance click bright game alcohol'
+        // const mnemonic = 'awesome grain neither pond excess garage tackle table piece assist venture escape'
+        const mnemonic = 'front assume robust donkey senior economy maple enhance click bright game alcohol'
         const port = 7545
         if (!server) {
           server = ganache.server({ mnemonic })

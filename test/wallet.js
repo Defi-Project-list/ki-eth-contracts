@@ -295,7 +295,7 @@ const eip712typehash = (typedData, mainType) => {
   });
   
   it('message: should be able to execute external calls', async () => {
-    await instance.cancelCall({ from: owner })
+    await instance.cancelCall({ from: accounts[10] })
     const data = token20.contract.methods.transfer(user1, 5).encodeABI()
     const nonce = await instance.nonce()
     const typeHash = '0x'.padEnd(66,'0')
@@ -303,7 +303,7 @@ const eip712typehash = (typedData, mainType) => {
         ['bytes32', 'address', 'address', 'uint256', 'uint256', 'bool', 'uint32', 'bytes4', 'bytes'],
         [typeHash, activator, token20.address, '0', nonce.toString(), false, 0, data.slice(0, 10), '0x' + data.slice(10)],
     )
-    const rlp = await web3.eth.accounts.sign(web3.utils.sha3(msgData), getPrivateKey(owner))    
+    const rlp = await web3.eth.accounts.sign(web3.utils.sha3(msgData), getPrivateKey(accounts[10]))    
     const balance = await token20.balanceOf(user1, { from: user1 })
     const metaData = { simple: false, staticcall: false, gasLimit: 0 }
     const { receipt } = await instance.executeBatchCall([
