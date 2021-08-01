@@ -199,7 +199,7 @@ contract Factory is FactoryStorage {
         @param backup (address) - the address of the backup wallet
      */
     function addWalletBackup(address backup) external {
-        require(backup == address(0), "input backup walled is empty");
+        require(backup != address(0), "input backup walled is empty");
         Wallet storage sp_sw = s_accounts_wallet[backup];
         require(sp_sw.addr == address(0), "backup has no wallet");
         require(sp_sw.owner == false, "backup is wallet owner");

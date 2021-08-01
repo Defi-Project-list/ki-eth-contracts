@@ -70,7 +70,10 @@ contract('Wallet', async (accounts) => {
 
   console.log('accounts', JSON.stringify(accounts))
   const getPrivateKey = (address) => {
-    // const wallet = web3.currentProvider.wallets[address.toLowerCase()]
+     const wallet = web3.currentProvider.wallets[address.toLowerCase()]
+     console.log(`0x${wallet.privateKey.toString('hex')}`)
+     return `0x${wallet.privateKey.toString('hex')}`
+
     if (address === owner) {
       return '0x5f055f3bc7f2c8cabcc5132d97d6b594c25becbc57139221f1ef89263efc99c7' // `0x${wallet._privKey.toString('hex')}`
     }

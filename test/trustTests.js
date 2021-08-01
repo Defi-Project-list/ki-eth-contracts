@@ -16,12 +16,32 @@ const utils = require('./lib/utils');
 module.exports = (contractClass, contractName) => {
 
 contract(contractName, async accounts => {
-  let instance;
+  /* let instance;
 
   const owner = accounts[0];
   const user1 = accounts[1];
   const user2 = accounts[2];
   const user3 = accounts[3];
+*/
+  
+
+  /*
+  before('checking constants', async () => {
+      assert(typeof owner == 'string', 'owner should be string');
+      assert(typeof user1 == 'string', 'user1 should be string');
+      assert(typeof user2 == 'string', 'user2 should be string');
+      assert(typeof user3 == 'string', 'user3 should be string');
+  }); */
+
+  let instance;
+
+  const factoryOwner1 = accounts[0];
+  const factoryOwner2 = accounts[1];
+  const factoryOwner3 = accounts[2];
+  const owner = accounts[3];
+  const user1 = accounts[4];
+  const user2 = accounts[5];
+  const user3 = accounts[6];
 
   const startDelay     = 5;
   const wallet         = user1;
@@ -29,16 +49,19 @@ contract(contractName, async accounts => {
   const period         = 4;
   const times          = 5;
   const amount         = 1000;
-  const cancelable     = true;
   const value          = web3.utils.toBN('10000000');
   let   blockTimestamp = 0;
 
   before('checking constants', async () => {
+      assert(typeof factoryOwner1 == 'string', 'factoryOwner1 should be string');
+      assert(typeof factoryOwner2 == 'string', 'factoryOwner2 should be string');
+      assert(typeof factoryOwner3 == 'string', 'factoryOwner3 should be string');
       assert(typeof owner == 'string', 'owner should be string');
       assert(typeof user1 == 'string', 'user1 should be string');
       assert(typeof user2 == 'string', 'user2 should be string');
       assert(typeof user3 == 'string', 'user3 should be string');
   });
+
 
   before('setup contract for the test', async () => {
     // await utils.mine(owner);
@@ -47,9 +70,9 @@ contract(contractName, async accounts => {
     start = blockTimestamp + startDelay;
 
  	  if (contractClass.new instanceof Function) {
-      instance = await contractClass.new(wallet, start, period, times, amount, cancelable, { from: owner, value, nonce: await web3.eth.getTransactionCount(owner) });
+      instance = await contractClass.new(wallet, start, period, times, amount, { from: owner, value, nonce: await web3.eth.getTransactionCount(owner) });
  	  } else {
- 	    instance = await contractClass(owner, wallet, start, period, times, amount, cancelable);
+ 	    instance = await contractClass(owner, wallet, start, period, times, amount);
  	  }
 
     mlog.log('web3     ', web3.version);
@@ -78,7 +101,6 @@ contract(contractName, async accounts => {
     assert.equal(fund[1].toString(10), start.toString(10), "start");
     assert.equal(fund[2], period, "period");
     assert.equal(fund[3], times, "times");
-    assert.equal(fund[4], cancelable, "cancelable");
     const perPayAmount = await instance.getPaymentAmount.call({from: owner});
     assert.equal(perPayAmount, amount, "amount");
   });
