@@ -562,7 +562,7 @@ contract Factory is FactoryStorage {
                 }
             }
             require(
-                maxNonce < nonce + (1 << 216),
+                (maxNonce < nonce + (1 << 216)) && (maxNonce < (1 << 232)),
                 "Factory: group+nonce too high"
             );
             s_nonce_group[nonceGroup] =
@@ -739,7 +739,7 @@ contract Factory is FactoryStorage {
                 }
             }
             require(
-                maxNonce < nonce + (1 << 216),
+                (maxNonce < nonce + (1 << 216)) && (maxNonce < (1 << 232)),
                 "Factory: group+nonce too high"
             );
             s_nonce_group[nonceGroup] =
@@ -946,7 +946,7 @@ contract Factory is FactoryStorage {
                 }
             }
             require(
-                maxNonce < nonce + (1 << 216),
+                (maxNonce < nonce + (1 << 216)) && (maxNonce < (1 << 232)),
                 "Factory: group+nonce too high"
             );
             s_nonce_group[nonceGroup] =

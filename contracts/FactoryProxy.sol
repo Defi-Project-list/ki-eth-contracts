@@ -419,7 +419,7 @@ contract FactoryProxy is FactoryStorage {
                 }
             }
             require(
-                maxNonce < nonce + (1 << 216),
+                (maxNonce < nonce + (1 << 216)) && (maxNonce < (1 << 232)),
                 "Factory: group+nonce too high"
             );
             s_nonce_group[nonceGroup] =
@@ -563,7 +563,7 @@ contract FactoryProxy is FactoryStorage {
                 }
             }
             require(
-                maxNonce < nonce + (1 << 216),
+                (maxNonce < nonce + (1 << 216)) && (maxNonce < (1 << 232)),
                 "Factory: group+nonce too high"
             );
             s_nonce_group[nonceGroup] =
@@ -704,7 +704,7 @@ contract FactoryProxy is FactoryStorage {
                 }
             }
             require(
-                maxNonce < nonce + (1 << 216),
+                (maxNonce < nonce + (1 << 216)) && (nonce < (1 << 231)),
                 "Factory: group+nonce too high"
             );
             s_nonce_group[nonceGroup] =
@@ -921,7 +921,7 @@ contract FactoryProxy is FactoryStorage {
                 }
             }
             require(
-                maxNonce < nonce + (1 << 216),
+                (maxNonce < nonce + (1 << 216)) && (maxNonce < (1 << 232)),
                 "Factory: group+nonce too high"
             );
             s_nonce_group[nonceGroup] =
@@ -1149,7 +1149,7 @@ contract FactoryProxy is FactoryStorage {
                 }
             }
             require(
-                maxNonce < nonce + (1 << 216),
+                (maxNonce < nonce + (1 << 216)) && (maxNonce < (1 << 232)),
                 "Factory: group+nonce too high"
             );
             s_nonce_group[nonceGroup] =

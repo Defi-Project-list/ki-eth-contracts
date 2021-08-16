@@ -59,7 +59,7 @@ contract Proxy is StorageBase {
                 "Wallet: transaction canceled"
             );
         }
-        (bool success, bytes memory res) = to.call{gas: 20000, value: value}(
+        (bool success, bytes memory res) = to.call{value: value}(
             ""
         );
         if (!success) {
@@ -79,7 +79,7 @@ contract Proxy is StorageBase {
                 "Wallet: transaction canceled"
             );
         }
-        (bool success, bytes memory res) = token.call{gas: 80000}(
+        (bool success, bytes memory res) = token.call(
             abi.encodeWithSignature("transfer(address,uint256)", to, value)
         );
         if (!success) {

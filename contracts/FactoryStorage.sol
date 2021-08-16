@@ -115,25 +115,11 @@ abstract contract FactoryStorage is MultiSig {
         returns (Wallet storage)
     {
         if (signer == address(0)) {
-            if (uint256(s) > 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5D576E7357A4501DDFE92F46681B20A0) {
-                revert("Factory: wrong signature (s)");
-            }
-
-            if (v != 0) {
-                return s_accounts_wallet[messageHash.recover(
-                    27 + uint8(uint256(s) >> 255),
-                    r,
-                    s & 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-                )];
-            } else if (v != 27 && v != 28) {
-                    revert("Factory: wrong signature (v)");
-            } else {
-                return s_accounts_wallet[messageHash.recover(
-                    v,
-                    r,
-                    s
-                )];
-            }
+            return s_accounts_wallet[messageHash.recover(
+                v,
+                r,
+                s
+            )];
         } else if (signer.isValidSignatureNow(messageHash, v!=0 ? abi.encodePacked(r, s, v): abi.encodePacked(r,s))) {
             return s_accounts_wallet[signer];
         }
