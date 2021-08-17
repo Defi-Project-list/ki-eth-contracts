@@ -59,11 +59,6 @@ struct MSCalls {
     @notice Factory contract - defines functions that are used by all related contracts
  */
 contract Factory is FactoryStorage {
-    bytes32 public constant BATCH_CALL_PACKED_TYPEHASH =
-        keccak256(
-            "BatchCallPacked(address to,uint256 value,uint256 sessionId,bytes data)"
-        );
-
     bytes32 public constant BATCH_MULTI_CALL_TYPEHASH =
         keccak256(
             "BatchMultiCallPacked(address to,uint256 value,uint256 sessionId,bytes data)"
@@ -143,11 +138,6 @@ contract Factory is FactoryStorage {
         address indexed oracle
     );
 
-    event BatchCallPackedReverted(
-        address indexed wallet,
-        uint256 nonce,
-        uint256 index
-    );
     event BatchMultiCallPackedFailed(
         address indexed wallet,
         uint256 nonce,
@@ -431,148 +421,6 @@ contract Factory is FactoryStorage {
     //     s_local_ens[keccak256(abi.encodePacked("@",ens))] = dest;
     // }
 
-    // Batch Call: External Contract Functions
-    function batchCallPacked(
-        Call[] calldata tr,
-        uint256 nonceGroup,
-        uint256 silentRevert
-    ) external {
-        unchecked {
-            require(msg.sender == s_activator, "Wallet: sender not allowed");
-            uint256 nonce = s_nonce_group[nonceGroup] + (nonceGroup << 232);
-            uint256 maxNonce = 0;
-            // uint256 length = tr.length;
-            uint256 constGas = (21000 + msg.data.length * 8) / tr.length;
-            for (uint256 i = 0; i < tr.length; i++) {
-                uint256 gas = gasleft();
-
-                Call calldata call = tr[i];
-                address to = call.to;
-                // uint256 value = call.value;
-                uint256 sessionId = call.sessionId;
-                uint256 gasLimit = uint32(sessionId >> 80);
-
-                if (i == 0) {
-                    require(
-                        sessionId >> 192 >= nonce >> 192,
-                        "Factory: group+nonce too low"
-                    );
-                } else {
-                    if (sessionId & FLAG_ORDERED != 0) {
-                        // ordered
-                        require(
-                            uint40(maxNonce >> 192) < uint40(sessionId >> 192),
-                            "Factory: should be ordered"
-                        );
-                    }
-                }
-
-                if (maxNonce < sessionId) {
-                    maxNonce = sessionId;
-                }
-
-                require(
-                    tx.gasprice <= uint64(sessionId >> 16), /*gasPriceLimit*/
-                    "Factory: gas price too high"
-                );
-                require(
-                    block.timestamp > uint40(sessionId >> 152), /*afterTS*/
-                    "Factory: too early"
-                );
-                require(
-                    block.timestamp < uint40(sessionId >> 112), /*beforeTS*/
-                    "Factory: too late"
-                );
-
-                bytes32 trHash = keccak256(
-                    abi.encode(
-                        BATCH_CALL_PACKED_TYPEHASH,
-                        to,
-                        call.value,
-                        sessionId >> 8,
-                        call.data
-                    )
-                );
-                bytes32 messageHash = _messageToRecover(
-                    trHash,
-                    sessionId & FLAG_EIP712 != 0
-                );
-
-                Wallet storage wallet = _getWalletFromMessage(
-                    call.signer,
-                    messageHash,
-                    uint8(sessionId), /*v*/
-                    call.r,
-                    call.s
-                );
-
-                require(wallet.owner, "Factory: signer is not owner");
-
-                (bool success, bytes memory res) = sessionId & FLAG_STATICCALL >
-                    0
-                    ? wallet.addr.call{
-                        gas: gasLimit == 0 || gasLimit > gasleft()
-                            ? gasleft()
-                            : gasLimit
-                    }(
-                        abi.encodeWithSignature(
-                            "LocalStaticCall(address,bytes,bytes32)",
-                            to,
-                            call.data,
-                            sessionId & FLAG_CANCELABLE > 0
-                                ? messageHash
-                                : bytes32(0)
-                        )
-                    )
-                    : wallet.addr.call{
-                        gas: gasLimit == 0 || gasLimit > gasleft()
-                            ? gasleft()
-                            : gasLimit
-                    }(
-                        abi.encodeWithSignature(
-                            "LocalCall(address,uint256,bytes,bytes32)",
-                            to,
-                            call.value,
-                            call.data,
-                            sessionId & FLAG_CANCELABLE > 0
-                                ? messageHash
-                                : bytes32(0)
-                        )
-                    );
-                if (!success) {
-                    if (silentRevert != 0) {
-                        emit BatchCallPackedReverted(wallet.addr, nonce, i);
-                        continue;
-                    } else {
-                        revert(_getRevertMsg(res));
-                    }
-                }
-                if (sessionId & FLAG_PAYMENT != 0 && success) {
-                    wallet.debt += _calcRefund(
-                        wallet.debt,
-                        gas,
-                        constGas,
-                        uint64(sessionId >> 16)
-                    );
-                    // if (payment == 0xf000) {
-                    //   wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 16000 + (32000/length))*110/100);
-                    // } else {
-                    //   wallet.debt = uint88((tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * (gas - gasleft() + 16000 + (32000/length))*110/100);
-                    // }
-                }
-            }
-            require(
-                (maxNonce < nonce + (1 << 216)) && (maxNonce < (1 << 232)),
-                "Factory: group+nonce too high"
-            );
-            s_nonce_group[nonceGroup] =
-                (maxNonce &
-                    0x000000ffffffffff000000000000000000000000000000000000000000000000) +
-                (1 << 192);
-            emit BatchTransfered(5, block.number, maxNonce);
-        }
-    }
-
     // Batch Call: Multi External Contract Functions
     function batchMultiCallPacked(MCalls[] calldata tr, uint256 nonceGroup)
         external
@@ -739,7 +587,7 @@ contract Factory is FactoryStorage {
                 }
             }
             require(
-                (maxNonce < nonce + (1 << 216)) && (maxNonce < (1 << 232)),
+                maxNonce < nonce + (1 << 216),
                 "Factory: group+nonce too high"
             );
             s_nonce_group[nonceGroup] =
@@ -946,7 +794,7 @@ contract Factory is FactoryStorage {
                 }
             }
             require(
-                (maxNonce < nonce + (1 << 216)) && (maxNonce < (1 << 232)),
+                maxNonce < nonce + (1 << 216),
                 "Factory: group+nonce too high"
             );
             s_nonce_group[nonceGroup] =
