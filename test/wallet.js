@@ -48,9 +48,9 @@ contract('Wallet', async (accounts) => {
   let oracle;
   let DOMAIN_SEPARATOR;
   let FACTORY_DOMAIN_SEPARATOR;
-  const factoryOwner1 = accounts[0];
-  const factoryOwner2 = accounts[1];
-  const factoryOwner3 = accounts[2];
+  const factoryOwner1 = accounts[3]; // accounts[0];
+  const factoryOwner2 = accounts[3]; // accounts[1];
+  const factoryOwner3 = accounts[3]; // accounts[2];
   const owner         = accounts[3];
   const user1         = accounts[4];
   const user2         = accounts[5];
@@ -207,12 +207,13 @@ const eip712typehash = (typedData, mainType) => {
 
     // const factory = await FactoryProxy.new({ from: creator });
     const version = await Wallet.new({ from: factoryOwner3 });
-    oracle = await Oracle.new(factoryOwner1, factoryOwner2, factoryOwner3, {from: owner, nonce: await web3.eth.getTransactionCount(owner)});
+    // oracle = await Oracle.new(factoryOwner1, factoryOwner2, factoryOwner3, {from: owner, nonce: await web3.eth.getTransactionCount(owner)});
+    oracle = await Oracle.new({from: owner, nonce: await web3.eth.getTransactionCount(owner)});
     await oracle.setPaymentAddress(factoryOwner2, { from: factoryOwner2 });
     await oracle.setPaymentAddress(factoryOwner2, { from: factoryOwner1 });
-    //await factory.addVersion(web3.fromAscii("1.1", 8), version.address, { from: creator });
+    // // await factory.addVersion(web3.fromAscii("1.1", 8), version.address, { from: creator });
     await factory.addVersion(version.address, oracle.address, { from: factoryOwner3 });
-    await factory.addVersion(version.address, oracle.address, { from: factoryOwner1 });
+    // await factory.addVersion(version.address, oracle.address, { from: factoryOwner1 });
     await factory.deployVersion(await version.version(), { from: factoryOwner1 });
     await factory.deployVersion(await version.version(), { from: factoryOwner2 });
     const { receipt } = await factory.createWallet(false, { from: owner });
@@ -220,8 +221,8 @@ const eip712typehash = (typedData, mainType) => {
     instance = await Wallet.at( await factory.getWallet(owner));
 
     token20 = await ERC20Token.new('Kirobo ERC20 Token', 'KDB20', {from: owner});
-    await oracle.update721(token20.address, true, {from: factoryOwner3});
-    await oracle.cancel({from: factoryOwner2});
+    // await oracle.update721(token20.address, true, {from: factoryOwner3});
+    // await oracle.cancel({from: factoryOwner2});
     await oracle.update20(token20.address, true, {from: factoryOwner1});
     await oracle.update20(token20.address, true, {from: factoryOwner3});
     token20notSafe = await ERC20Token.new('Kirobo ERC20 Not Safe Token', 'KDB20NS', {from: owner});
@@ -230,8 +231,8 @@ const eip712typehash = (typedData, mainType) => {
     // await factoryProxy.setOperator(operator, { from: factoryOwner1 });
     // await factoryProxy.setOperator(operator, { from: factoryOwner2 });
 
-    await factory.setActivator(activator, { from: factoryOwner1 });
-    await factory.setActivator(activator, { from: factoryOwner2 });
+    await factoryProxy.setActivator(activator, { from: factoryOwner1 });
+    await factoryProxy.setActivator(activator, { from: factoryOwner2 });
 
     await factoryProxy.setLocalEns("token.kiro.eth", token20.address, { from: factoryOwner1 });
     await factoryProxy.setLocalEns("token.kiro.eth", token20.address, { from: factoryOwner2 });

@@ -10,16 +10,16 @@ contract RecoveryOracle is OracleBase {
     mapping(address => bool) private s_tokens_721;
 
     constructor(
-        address owner1,
-        address owner2,
-        address owner3
-    ) MultiSig(owner1, owner2, owner3) {}
+        // address owner1,
+        // address owner2,
+        // address owner3
+    ) {} // MultiSig(owner1, owner2, owner3) {}
 
-    function update20(address token, bool safe) external multiSig2of3(0) {
+    function update20(address token, bool safe) external onlyOwner() {
         s_tokens_20[token] = safe;
     }
 
-    function update721(address token, bool safe) external multiSig2of3(0) {
+    function update721(address token, bool safe) external onlyOwner() {
         s_tokens_721[token] = safe;
     }
 

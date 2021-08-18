@@ -3,11 +3,12 @@
 pragma solidity ^0.8.0;
 pragma abicoder v1;
 
-import "./lib/MultiSig.sol";
+// import "./lib/MultiSig.sol";
 import "./lib/Proxy.sol";
 import "./lib/ProxyLatest.sol";
 import "openzeppelin-solidity/contracts/utils/cryptography/SignatureChecker.sol";
 import "openzeppelin-solidity/contracts/utils/cryptography/ECDSA.sol";
+import "openzeppelin-solidity/contracts/access/Ownable.sol";
 
 struct Wallet {
     address addr;
@@ -28,7 +29,7 @@ interface Resolver {
     function addr(bytes32 node) external view returns (address);
 }
 
-abstract contract FactoryStorage is MultiSig {
+abstract contract FactoryStorage is Ownable {
     using SignatureChecker for address;
     using ECDSA for bytes32;
 
@@ -76,10 +77,11 @@ abstract contract FactoryStorage is MultiSig {
     uint256 internal constant ON_SUCCESS_REVERT = 0x20;
     
     constructor(
-        address owner1,
-        address owner2,
-        address owner3
-    ) MultiSig(owner1, owner2, owner3) {
+        // address owner1,
+        // address owner2,
+        // address owner3
+     // ) MultiSig(owner1, owner2, owner3) {
+    ){
         // proxy = msg.sender; //in case we are using Factory directly
         s_swProxy = new Proxy();
         s_swProxyLatest = new ProxyLatest();

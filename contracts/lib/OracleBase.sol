@@ -4,15 +4,16 @@ pragma solidity ^0.8.0;
 pragma abicoder v1;
 
 import "./IOracle.sol";
-import "./MultiSig.sol";
+// import "./MultiSig.sol";
+import "openzeppelin-solidity/contracts/access/Ownable.sol";
 
-abstract contract OracleBase is IOracle, MultiSig {
+abstract contract OracleBase is IOracle, Ownable {
     address payable internal s_payto;
 
     function setPaymentAddress(address payable payto)
         external
         override
-        multiSig2of3(0)
+        onlyOwner()
     {
         require(payto != address(0), "payment address cannot be 0");
         s_payto = payto;
