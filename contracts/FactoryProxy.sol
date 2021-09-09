@@ -259,9 +259,9 @@ contract FactoryProxy is FactoryStorage {
     event BatchTransfered(uint256 indexed mode, uint256 block, uint256 nonce);
 
     constructor(
-        address owner1,
-        address owner2,
-        address owner3,
+        // address owner1,
+        // address owner2,
+        // address owner3,
         ENS ens
     ) FactoryStorage() { // owner1, owner2, owner3) {
         s_ens = ens;

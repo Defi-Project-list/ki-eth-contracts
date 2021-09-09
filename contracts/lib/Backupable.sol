@@ -68,7 +68,7 @@ abstract contract Backupable is IStorage, StorageBase, Storage, Interface {
 
     modifier onlyActiveOwner() {
         require(
-            msg.sender == this.owner() &&
+            msg.sender == s_owner &&
                 s_backup.state != BACKUP_STATE_ACTIVATED,
             "not active owner"
         );
@@ -255,10 +255,6 @@ abstract contract Backupable is IStorage, StorageBase, Storage, Interface {
 
     function getBackupState() external view returns (uint8) {
         return s_backup.state;
-    }
-
-    function getOwner() external view returns (address) {
-        return s_owner;
     }
 
     function getBackupWallet() external view returns (address) {

@@ -48,7 +48,7 @@ interface IWallet {
 contract StorageBase is IProxy {
     address internal s_owner;
     address internal s_target;
-    uint256 internal s_debt;
+    // uint256 internal s_debt;
     mapping(bytes32 => uint256) internal s_blocked;
 
     modifier onlyCreator() {
@@ -73,7 +73,7 @@ contract StorageBase is IProxy {
         if (newOwner != s_owner && newOwner != address(0)) s_owner = newOwner;
         if (newTarget != s_target && newTarget != address(0))
             s_target = newTarget;
-        s_debt = 1; //TODO: remove for production
+        // s_debt = 1; //TODO: remove for production
     }
 
     function upgrade(bytes8 version) external onlyOwner() {
