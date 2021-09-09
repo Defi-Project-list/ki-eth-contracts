@@ -193,7 +193,7 @@ const eip712typehash = (typedData, mainType) => {
 
     const sw_factory = await Factory.new(factoryOwner1, factoryOwner2, factoryOwner3, { from: owner, nonce: await web3.eth.getTransactionCount(owner) })
     .on('receipt', function(receipt){ mlog.pending(`Creating Factory Cost ${receipt.gasUsed} gas`) })
-    const sw_factory_proxy = await FactoryProxy.new(factoryOwner1, factoryOwner2, factoryOwner3, ZERO_ADDRESS, { from: owner })
+    const sw_factory_proxy = await FactoryProxy.new(/*factoryOwner1, factoryOwner2, factoryOwner3,*/ ZERO_ADDRESS, { from: owner })
     .on('receipt', function(receipt){ mlog.pending(`Creating Factory Proxy Cost ${receipt.gasUsed} gas`) })
 
     /// await ens.setAddress('user10.eth', accounts[10])
