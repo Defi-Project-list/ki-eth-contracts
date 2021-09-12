@@ -93,16 +93,20 @@ contract Factory is FactoryStorage {
     );
     event BatchTransfered(uint256 indexed mode, uint256 block, uint256 nonce);
 
-    constructor(
+    constructor()
         // address owner1,
         // address owner2,
         // address owner3
-    ) FactoryStorage() {} // owner1, owner2, owner3) {}
+        FactoryStorage()
+    {} // owner1, owner2, owner3) {}
 
     // receive() external payable {
     //     require(false, "Factory: not aceepting ether");
     // }
 
+    function isOwner() external view returns (bool) {
+        return owner() == msg.sender;
+    }
 
     /** @notice transferWalletOwnership - the function transfers the ownership of the wallet 
                 to the newOwner in the input param
@@ -214,7 +218,7 @@ contract Factory is FactoryStorage {
      */
     function addVersion(address target, address targetOracle)
         external
-        onlyOwner()
+        onlyOwner
     {
         require(target != address(0), "no version");
         require(targetOracle != address(0), "no oracle version");
@@ -238,7 +242,7 @@ contract Factory is FactoryStorage {
     /** @notice deployVersion - deployment of a specific version to the system 
         @param version(bytes8) - the version to deploy
     */
-    function deployVersion(bytes8 version) external onlyOwner() {
+    function deployVersion(bytes8 version) external onlyOwner {
         address code = s_versions_code[version];
         require(code != address(0), "version not exist");
         address oracleAddress = s_versions_oracle[version];
@@ -358,14 +362,13 @@ contract Factory is FactoryStorage {
     //     s_local_ens[keccak256(abi.encodePacked("@", ens))] = dest;
     // }
 
-
     /** @notice _createWallet - private function that  */
     function _createWallet(address creator, address target)
         private
         returns (address result)
     {
-        bytes memory code
-         = hex"60998061000d6000396000f30036601657341560145734602052336001602080a25b005b6000805260046000601c376302d05d3f6000511415604b5773dadadadadadadadadadadadadadadadadadadada602052602080f35b366000803760008036600073bebebebebebebebebebebebebebebebebebebebe5af415608f57341560855734602052600051336002602080a35b3d6000803e3d6000f35b3d6000803e3d6000fd"; //log3-event-ids-address-funcid-opt (-2,-2) (min: 22440)
+        bytes
+            memory code = hex"60998061000d6000396000f30036601657341560145734602052336001602080a25b005b6000805260046000601c376302d05d3f6000511415604b5773dadadadadadadadadadadadadadadadadadadada602052602080f35b366000803760008036600073bebebebebebebebebebebebebebebebebebebebe5af415608f57341560855734602052600051336002602080a35b3d6000803e3d6000f35b3d6000803e3d6000fd"; //log3-event-ids-address-funcid-opt (-2,-2) (min: 22440)
         bytes20 creatorBytes = bytes20(creator);
         bytes20 targetBytes = bytes20(target);
         for (uint256 i = 0; i < 20; i++) {
