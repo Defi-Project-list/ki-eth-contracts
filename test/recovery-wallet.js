@@ -61,23 +61,18 @@ contract('RecoveryWallet', async accounts => {
   });
   
   before('setup contract for the test', async () => {
-    const sw_factory = await Factory.new(/*factoryOwner1, factoryOwner2, factoryOwner3,*/ { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
-    const sw_factory_proxy = await FactoryProxy.new(/*factoryOwner1, factoryOwner2, factoryOwner3,*/ ZERO_ADDRESS, { from: owner });
+    const sw_factory = await Factory.new({ from: owner, nonce: await web3.eth.getTransactionCount(owner) });
+    const sw_factory_proxy = await FactoryProxy.new(ZERO_ADDRESS, { from: owner });
     await sw_factory_proxy.setTarget(sw_factory.address, { from: owner });
-    //await sw_factory_proxy.setTarget(sw_factory.address, { from: factoryOwner2 });
     factory = await Factory.at(sw_factory_proxy.address, { from: factoryOwner3 });
     factoryProxy = await FactoryProxy.at(sw_factory_proxy.address, { from: factoryOwner3 });
     
-    //const factory = await FactoryProxy.new({ from: creator });
     const version = await RecoveryWallet.new({ from: factoryOwner3 });
     oracle = await RecoveryOracle.new(factoryOwner1, factoryOwner2, factoryOwner3, {from: owner, nonce: await web3.eth.getTransactionCount(owner)});
     await oracle.setPaymentAddress(factoryOwner2, { from: factoryOwner2 });
     await oracle.setPaymentAddress(factoryOwner2, { from: factoryOwner1 });
-    //await factory.addVersion(web3.fromAscii("1.1", 8), version.address, { from: creator });
-    //await factory.addVersion(version.address, oracle.address, { from: factoryOwner3 });
     await factory.addVersion(version.address, oracle.address, { from: owner });
     await factory.deployVersion(await version.version(), { from: owner });
-    //await factory.deployVersion(await version.version(), { from: factoryOwner2 });
     const { receipt } = await factory.createWallet(false, { from: owner });
     mlog.pending(`Creating Wallet Cost ${JSON.stringify(receipt.gasUsed)} gas`)
 
@@ -90,9 +85,6 @@ contract('RecoveryWallet', async accounts => {
     await oracle.update20(token20.address, true, {from: factoryOwner3});
     token20notSafe = await ERC20Token.new('Kirobo ERC20 Not Safe Token', 'KDB20NS', {from: owner});
     token721 = await ERC721Token.new('Kirobo ERC721 Token', 'KBF', {from: owner});
-
-    //await factory.setActivator(activator, { from: owner });
-    //await factory.setActivator(activator, { from: factoryOwner2 });
 
     mlog.log('web3      ', web3.version);
     mlog.log('token20   ', token20.address);

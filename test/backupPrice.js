@@ -1,6 +1,6 @@
 'use strict';
 
-const Backup = {}; //artifacts.require("Backup");
+const Backup = {}; 
 
 const getBalanceInWei = async (account) => {
   let balance = 0;

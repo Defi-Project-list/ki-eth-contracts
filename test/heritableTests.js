@@ -323,8 +323,6 @@ contract(contractName, async accounts => {
 
     assert.equal(heirs[0].wallet, user2.toLowerCase(), "heir1 wallet");
     assert.equal(heirs[0].bps, 2500, "heir1 bps");
-    //assert.equal(heirs[0].sent, true, "heir1 sent");
-
     assert.equal(heirs[1].wallet, user1.toLowerCase(), "heir2 wallet");
     assert.equal(heirs[1].bps, 3000, "heir2 bps");
     assert.equal(heirs[1].sent, true, "heir2 sent");

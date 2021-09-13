@@ -46,12 +46,9 @@ contract (contractName, async accounts => {
 
   before ('setup contract for the test', async () => {
     if (contractClass.new instanceof Function) {
-      //let instance = await Factory.new({from:"0xc8BB419F44D0C888B1dFF3863f889B8b8747f56b", nonce: await web3.eth.getTransactionCount("0xc8BB419F44D0C888B1dFF3863f889B8b8747f56b")})
-      //instance = await contractClass.new({ from: "0x398626417A3F334dbf13762794d69715b56E4D2b", nonce: await web3.eth.getTransactionCount("0x398626417A3F334dbf13762794d69715b56E4D2b")});
-  	   instance = await contractClass.new(/*owner1, owner2, owner3,*/ { from: owner1, nonce: await web3.eth.getTransactionCount(owner1)});
-       // await instance.migrate();
+      instance = await contractClass.new({ from: owner1, nonce: await web3.eth.getTransactionCount(owner1)});
  	} else {
-  	   instance = await contractClass(/*owner1, owner2, owner3*/{ from: owner1, nonce: await web3.eth.getTransactionCount(owner1)});
+  	   instance = await contractClass({ from: owner1, nonce: await web3.eth.getTransactionCount(owner1)});
     }
 
     mlog.log('web3     ', web3.version);
@@ -66,8 +63,6 @@ contract (contractName, async accounts => {
 
   it ('constructor: contract owners should be owners', async () => {
     assert(await instance.isOwner.call({from: owner1}));
-    //assert(await instance.isOwner.call({from: owner2}));
-    //assert(await instance.isOwner.call({from: owner3}));
     assert(!await instance.isOwner.call({from: user1}));
   });
   
@@ -126,9 +121,7 @@ contract (contractName, async accounts => {
     //    assertRevert(err);
     //  }
     await instance.addVersion (wallet_owner.address, oracle_owner.address, { from: owner1, nonce: await web3.eth.getTransactionCount(owner1)});
-    //await instance.addVersion (wallet_owner.address, oracle_owner.address, { from: owner3, nonce: await web3.eth.getTransactionCount(owner3)});
     await instance.deployVersion(await wallet_owner.version(), { from: owner1 }); 
-    //await instance.deployVersion(await wallet_owner.version(), { from: owner2 }); 
 
     const version = await instance.getLatestVersion ({ from: owner1 });
     assert.equal (wallet_owner.address, version);
@@ -173,9 +166,7 @@ contract (contractName, async accounts => {
     await oracle2.setPaymentAddress(owner2, {from: owner3});
 
     await instance.addVersion (wallet2.address, oracle2.address, { from: owner1 });
-    //await instance.addVersion (wallet2.address, oracle2.address, { from: owner2 });
     await instance.deployVersion (await wallet2.version(), { from: owner1 });
-    //await instance.deployVersion (await wallet2.version(), { from: owner2 });
 
     latestVersionAddress = await instance.getLatestVersion ({ from: owner1 });
 
@@ -237,7 +228,6 @@ contract (contractName, async accounts => {
       assert(false);
     } catch (err) {
     }
-    // assert.equal (value.toString(10), 0);
 
     await instance.restoreWalletConfiguration({ from: user2, nonce: await web3.eth.getTransactionCount(user2) });
 

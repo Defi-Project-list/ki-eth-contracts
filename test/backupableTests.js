@@ -1,7 +1,6 @@
 'use strict';
 
 const Factory = artifacts.require("Factory");
-// const truffleAssert = require('truffle-assertions');
 
 const mlog = require('mocha-logger');
 const { ZERO_ADDRESS, ZERO_BYTES32, ZERO_BN } = require('./lib/consts');
@@ -57,8 +56,6 @@ contract(contractName, async accounts => {
   });
 
   it('constructor: owner should be the contract creator', async () => {
-    //const contractOwner = await instance.owner.call();
-    //assert.equal(contractOwner, owner);
     const isOwner = await instance.isOwner.call({from: owner});
     assert.equal(isOwner, true);
   });
@@ -99,7 +96,6 @@ contract(contractName, async accounts => {
     backupWallet = await instance.getBackupWallet();
     backupTimeout = await instance.getBackupTimeout();
     backupTimestamp = await instance.getBackupTimestamp();
-    //backupActivated = await instance.isBackupActivated();
     backupActivated = await utils.isBackupActivated(instance);
 
     assert.equal(backupWallet, user1, "backupWallet");
@@ -194,11 +190,7 @@ contract(contractName, async accounts => {
   });
 
   it('should emit event "BackupChanged(owner, backupWallet, timeout)" when backup is set', async () => {
-    const tx = await instance.setBackup(user2, 240, { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
-    // truffleAssert.eventEmitted(tx, 'BackupChanged', (ev) => {
-    //   console.log('ev: ' + JSON.stringify(ev))
-    //   return ev.owner === owner && ev.wallet === user2 && ev.timeout === 240;
-    // });    
+    const tx = await instance.setBackup(user2, 240, { from: owner, nonce: await web3.eth.getTransactionCount(owner) });    
     const args = assetEvent_getArgs(tx.logs, 'BackupChanged');
     assert.equal(args.owner, owner, '..(owner, .., ..)');
     assert.equal(args.wallet, user2, '..(.., wallet, ..)');

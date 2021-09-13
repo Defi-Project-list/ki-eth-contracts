@@ -4,8 +4,6 @@ pragma solidity ^0.8.0;
 pragma abicoder v1;
 
 import "openzeppelin-solidity/contracts/security/ReentrancyGuard.sol";
-
-//import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/utils/SafeERC20.sol";
 import "openzeppelin-solidity/contracts/token/ERC721/IERC721.sol";
 import "openzeppelin-solidity/contracts/utils/cryptography/SignatureChecker.sol";
@@ -18,12 +16,9 @@ import "./lib/Heritable.sol";
 contract RecoveryWallet is IStorage, Heritable, ReentrancyGuard {
     using SignatureChecker for address;
     using SafeERC20 for IERC20;
-    //constractor() ReentrancyGuard() public {};
     uint8 public constant VERSION_NUMBER = 0x1;
     string public constant NAME = "Kirobo OCW";
     string public constant VERSION = "1";
-
-    // bytes public DOMAIN_SEPARATOR_ASCII;
 
     event SentEther(
         address indexed creator,
@@ -49,8 +44,8 @@ contract RecoveryWallet is IStorage, Heritable, ReentrancyGuard {
 
     function sendEther(address payable to, uint256 value)
         public
-        onlyActiveOwner()
-        nonReentrant()
+        onlyActiveOwner
+        nonReentrant
         returns (bytes memory)
     {
         require(value > 0, "value == 0");
@@ -65,7 +60,7 @@ contract RecoveryWallet is IStorage, Heritable, ReentrancyGuard {
         address token,
         address to,
         uint256 value
-    ) public onlyActiveOwner() {
+    ) public onlyActiveOwner {
         require(token != address(0), "_token is 0x0");
         emit Transfer20(this.creator(), token, address(this), to, value);
         IERC20(token).safeTransfer(to, value);
@@ -76,7 +71,7 @@ contract RecoveryWallet is IStorage, Heritable, ReentrancyGuard {
         address from,
         address to,
         uint256 value
-    ) public onlyActiveOwner() {
+    ) public onlyActiveOwner {
         require(token != address(0), "_token is 0x0");
         address sender = from == address(0) ? address(this) : address(from);
         emit Transfer20(this.creator(), token, sender, to, value);
@@ -87,34 +82,16 @@ contract RecoveryWallet is IStorage, Heritable, ReentrancyGuard {
         address token,
         address to,
         uint256 value
-    ) public onlyActiveOwner() {
+    ) public onlyActiveOwner {
         safeTransferFrom721(token, address(0), to, value);
     }
-
-    /* function transferFrom721(
-        address token,
-        address from,
-        address to,
-        uint256 id
-    ) public onlyActiveOwner() {
-        require(token != address(0), "_token is 0x0");
-        emit Transfer721(
-            this.creator(),
-            token,
-            from == address(0) ? address(this) : from,
-            to,
-            id,
-            ""
-        );
-        IERC721(token).transferFrom(from, to, id);
-    } */
 
     function safeTransferFrom721(
         address token,
         address from,
         address to,
         uint256 id
-    ) public onlyActiveOwner() {
+    ) public onlyActiveOwner {
         require(token != address(0), "_token is 0x0");
         address sender = from == address(0) ? address(this) : address(from);
         emit Transfer721(this.creator(), token, sender, to, id, "");
@@ -127,7 +104,7 @@ contract RecoveryWallet is IStorage, Heritable, ReentrancyGuard {
         address to,
         uint256 id,
         bytes memory data
-    ) public onlyActiveOwner() {
+    ) public onlyActiveOwner {
         require(token != address(0), "token is 0x0");
         emit Transfer721(
             this.creator(),
@@ -190,7 +167,7 @@ contract RecoveryWallet is IStorage, Heritable, ReentrancyGuard {
     // }
 
     // IStorage Implementation
-    function migrate() external override onlyCreator() {
+    function migrate() external override onlyCreator {
         uint256 chainId;
         assembly {
             chainId := chainid()
@@ -245,7 +222,7 @@ contract RecoveryWallet is IStorage, Heritable, ReentrancyGuard {
         address to,
         uint256 value,
         bytes calldata data
-    ) public onlyActiveOwner() returns (bytes memory) {
+    ) public onlyActiveOwner returns (bytes memory) {
         (bool success, bytes memory res) = to.call{value: value}(data);
         if (!success) {
             revert(_getRevertMsg(res));

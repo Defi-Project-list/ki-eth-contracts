@@ -93,16 +93,7 @@ contract Factory is FactoryStorage {
     );
     event BatchTransfered(uint256 indexed mode, uint256 block, uint256 nonce);
 
-    constructor()
-        // address owner1,
-        // address owner2,
-        // address owner3
-        FactoryStorage()
-    {} // owner1, owner2, owner3) {}
-
-    // receive() external payable {
-    //     require(false, "Factory: not aceepting ether");
-    // }
+    constructor() FactoryStorage() {}
 
     function isOwner() external view returns (bool) {
         return owner() == msg.sender;
@@ -350,17 +341,6 @@ contract Factory is FactoryStorage {
         }
         oracleAddress = s_versions_oracle[version];
     }
-
-    // function setActivator(address newActivator) external onlyOwner() {
-    //     s_activator = newActivator;
-    // }
-
-    // function setLocalEns(string calldata ens, address dest)
-    //     external
-    //     onlyOwner()
-    // {
-    //     s_local_ens[keccak256(abi.encodePacked("@", ens))] = dest;
-    // }
 
     /** @notice _createWallet - private function that  */
     function _createWallet(address creator, address target)

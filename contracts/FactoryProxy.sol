@@ -4,14 +4,14 @@ pragma solidity ^0.8.0;
 pragma abicoder v2;
 
 import "./FactoryStorage.sol";
-                                             // 1-15     16bit flags
-uint256 constant GAS_PRICE_LIMIT_BIT = 16;   // 16-70    64bit gas price limit
-uint256 constant GAS_LIMIT_BIT       = 80;   // 80-111   32bit gas limit
-uint256 constant BEFORE_TS_BIT       = 112;  // 112-151  40bit before timestamp
-uint256 constant AFTER_TS_BIT        = 152;  // 152-191  40bit after timestamp
-uint256 constant NONCE_BIT           = 192;  // 192-231  40bit nonce
-uint256 constant MAX_NONCE_JUMP_BIT  = 216;  // 216      24bit of nonce
-uint256 constant GROUP_BIT           = 232;  // 232-255  24bit group
+// 1-15     16bit flags
+uint256 constant GAS_PRICE_LIMIT_BIT = 16; // 16-70    64bit gas price limit
+uint256 constant GAS_LIMIT_BIT = 80; // 80-111   32bit gas limit
+uint256 constant BEFORE_TS_BIT = 112; // 112-151  40bit before timestamp
+uint256 constant AFTER_TS_BIT = 152; // 152-191  40bit after timestamp
+uint256 constant NONCE_BIT = 192; // 192-231  40bit nonce
+uint256 constant MAX_NONCE_JUMP_BIT = 216; // 216      24bit of nonce
+uint256 constant GROUP_BIT = 232; // 232-255  24bit group
 
 struct Signature {
     bytes32 r;
@@ -154,7 +154,7 @@ contract FactoryProxy is FactoryStorage {
         keccak256(
             "BatchCallPacked(address to,uint256 value,uint256 sessionId,bytes data)"
         );
-  
+
     bytes32 public constant BATCH_MULTI_CALL_TYPEHASH =
         keccak256(
             "BatchMultiCallPacked(address to,uint256 value,uint256 sessionId,bytes data)"
@@ -258,12 +258,7 @@ contract FactoryProxy is FactoryStorage {
     );
     event BatchTransfered(uint256 indexed mode, uint256 block, uint256 nonce);
 
-    constructor(
-        // address owner1,
-        // address owner2,
-        // address owner3,
-        ENS ens
-    ) FactoryStorage() { // owner1, owner2, owner3) {
+    constructor(ENS ens) FactoryStorage() {
         s_ens = ens;
 
         uint256 chainId;
@@ -291,12 +286,7 @@ contract FactoryProxy is FactoryStorage {
                 s_uid
             )
         );
-        // proxy = address(this);
     }
-
-    // receive() external payable {
-    //     require(false, "Factory: not aceepting ether");
-    // }
 
     fallback() external {
         assembly {
@@ -317,54 +307,23 @@ contract FactoryProxy is FactoryStorage {
         }
     }
 
-    function setTarget(address target) external onlyOwner() {
+    function setTarget(address target) external onlyOwner {
         require(s_frozen != true, "frozen");
         require(target != address(0), "no target");
         s_target = target;
     }
 
-    function freezeTarget() external onlyOwner() {
+    function freezeTarget() external onlyOwner {
         s_frozen = true;
     }
 
-    function setActivator(address newActivator) external onlyOwner() {
+    function setActivator(address newActivator) external onlyOwner {
         s_activator = newActivator;
     }
 
-    function setLocalEns(string calldata ens, address dest)
-        external
-        onlyOwner()
-    {
+    function setLocalEns(string calldata ens, address dest) external onlyOwner {
         s_local_ens[keccak256(abi.encodePacked("@", ens))] = dest;
     }
-
-    // function calcBatchTransferMessageHash(Transfer calldata call) external view returns (bytes32) {
-    //     return _messageToRecover(
-    //         _encodeTransfer(call),
-    //         call.sessionId & FLAG_EIP712 > 0
-    //     );
-    // }
-
-    // function calcBatchTransferPackedMessageHash(Transfer calldata call) external view returns (bytes32) {
-    //     return _messageToRecover(
-    //         keccak256(abi.encode(
-    //             BATCH_TRANSFER_PACKED_TYPEHASH,
-    //             call.token,
-    //             call.to,
-    //             call.value,
-    //             call.sessionId >> 8
-    //         )),
-    //         call.sessionId & FLAG_EIP712 > 0
-    //     );
-    // }
-
-    // function calcBatchCallMessageHash(Call calldata call) external view returns (bytes32) {
-    //     (bytes32 messageHash, ) = _encodeCall(call);
-    //     return _messageToRecover(
-    //             messageHash,
-    //             call.sessionId & FLAG_EIP712 > 0
-    //     );
-    // }
 
     function collectDebt(address account, address recipient) external {
         unchecked {
@@ -408,9 +367,9 @@ contract FactoryProxy is FactoryStorage {
                 uint256 sessionId = call.sessionId;
                 uint256 gasLimit = uint32(sessionId >> GAS_LIMIT_BIT);
 
-                _checkSessionIdLimits(i, sessionId, nonce, maxNonce); 
+                _checkSessionIdLimits(i, sessionId, nonce, maxNonce);
                 maxNonce = sessionId;
-                
+
                 bytes32 messageHash = _messageToRecover(
                     _encodeTransfer(call),
                     sessionId & FLAG_EIP712 != 0
@@ -472,7 +431,6 @@ contract FactoryProxy is FactoryStorage {
                         constGas + 12000,
                         uint64(sessionId >> 16)
                     );
-                    // wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 16000 + (24000/length)));
                 }
             }
             s_nonce_group[ng] = _nextNonce(nonce, maxNonce);
@@ -499,9 +457,9 @@ contract FactoryProxy is FactoryStorage {
                 uint256 sessionId = call.sessionId;
                 uint256 gasLimit = uint32(sessionId >> GAS_LIMIT_BIT);
 
-                _checkSessionIdLimits(i, sessionId, nonce, maxNonce); 
+                _checkSessionIdLimits(i, sessionId, nonce, maxNonce);
                 maxNonce = sessionId;
-                
+
                 bytes32 messageHash = _messageToRecover(
                     keccak256(
                         abi.encode(
@@ -578,7 +536,6 @@ contract FactoryProxy is FactoryStorage {
                         constGas + 12000,
                         uint64(sessionId >> 16)
                     );
-                    // wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 16000 + (24000/length)));
                 }
             }
             s_nonce_group[ng] = _nextNonce(nonce, maxNonce);
@@ -586,62 +543,106 @@ contract FactoryProxy is FactoryStorage {
         }
     }
 
-    function _executeCall(address wallet, address to, uint16 flags, uint32 gasLimit, bytes32 messageHash, bytes32 functionSignature, uint256 value, bool packed, bytes calldata data) private returns (bool, bytes memory) {
+    function _executeCall(
+        address wallet,
+        address to,
+        uint16 flags,
+        uint32 gasLimit,
+        bytes32 messageHash,
+        bytes32 functionSignature,
+        uint256 value,
+        bool packed,
+        bytes calldata data
+    ) private returns (bool, bytes memory) {
         if (flags & FLAG_CANCELABLE != 0) {
-          messageHash = bytes32(0);  
+            messageHash = bytes32(0);
         }
-        return flags & FLAG_STATICCALL != 0
-            ? wallet.call{
-                gas: gasLimit == 0 ||
-                    gasLimit > gasleft()
-                    ? gasleft()
-                    : gasLimit
-            }(
-                abi.encodeWithSignature(
-                    "LocalStaticCall(address,bytes,bytes32)",
-                    to,
-                    packed 
-                        ? data
-                        : functionSignature ==
-                            0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470
+        return
+            flags & FLAG_STATICCALL != 0
+                ? wallet.call{
+                    gas: gasLimit == 0 || gasLimit > gasleft()
+                        ? gasleft()
+                        : gasLimit
+                }(
+                    abi.encodeWithSignature(
+                        "LocalStaticCall(address,bytes,bytes32)",
+                        to,
+                        packed
+                            ? data
+                            : functionSignature ==
+                                0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470
                             ? bytes("")
-                            : abi.encodePacked(
-                                bytes4(functionSignature),
-                                data
-                            ),
-                    messageHash
+                            : abi.encodePacked(bytes4(functionSignature), data),
+                        messageHash
+                    )
                 )
-            )
-            : wallet.call{
-                gas: gasLimit == 0 ||
-                    gasLimit > gasleft()
-                    ? gasleft()
-                    : gasLimit
-            }(
-                abi.encodeWithSignature(
-                    "LocalCall(address,uint256,bytes,bytes32)",
-                    to,
-                    value,
-                    packed
-                        ? data
-                        : functionSignature ==
-                            0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470
+                : wallet.call{
+                    gas: gasLimit == 0 || gasLimit > gasleft()
+                        ? gasleft()
+                        : gasLimit
+                }(
+                    abi.encodeWithSignature(
+                        "LocalCall(address,uint256,bytes,bytes32)",
+                        to,
+                        value,
+                        packed
+                            ? data
+                            : functionSignature ==
+                                0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470
                             ? bytes("")
-                            : packed ? data : abi.encodePacked(
-                                bytes4(functionSignature),
-                                data
-                            ),
-                    messageHash
-                )
+                            : packed
+                            ? data
+                            : abi.encodePacked(bytes4(functionSignature), data),
+                        messageHash
+                    )
+                );
+    }
+
+    function _executeCall(
+        address wallet,
+        address to,
+        uint16 flags,
+        uint32 gasLimit,
+        bytes32 messageHash,
+        bytes32 functionSignature,
+        uint256 value,
+        bytes calldata data
+    ) private returns (bool, bytes memory) {
+        return
+            _executeCall(
+                wallet,
+                to,
+                flags,
+                gasLimit,
+                messageHash,
+                functionSignature,
+                value,
+                false,
+                data
             );
     }
 
-    function _executeCall(address wallet, address to, uint16 flags, uint32 gasLimit, bytes32 messageHash, bytes32 functionSignature, uint256 value, bytes calldata data) private returns (bool, bytes memory) {
-        return _executeCall(wallet, to, flags, gasLimit, messageHash, functionSignature, value, false, data);    
-    }
-
-    function _executePackedCall(address wallet, address to, uint16 flags, uint32 gasLimit, bytes32 messageHash, uint256 value, bytes calldata data) private returns (bool, bytes memory) {
-        return _executeCall(wallet, to, flags, gasLimit, messageHash, bytes32(0), value, true, data);    
+    function _executePackedCall(
+        address wallet,
+        address to,
+        uint16 flags,
+        uint32 gasLimit,
+        bytes32 messageHash,
+        uint256 value,
+        bytes calldata data
+    ) private returns (bool, bytes memory) {
+        return
+            _executeCall(
+                wallet,
+                to,
+                flags,
+                gasLimit,
+                messageHash,
+                bytes32(0),
+                value,
+                true,
+                data
+            );
     }
 
     // Batch Call: External Contract Functions
@@ -662,7 +663,7 @@ contract FactoryProxy is FactoryStorage {
                 Call calldata call = tr[i];
                 uint256 sessionId = call.sessionId;
 
-                _checkSessionIdLimits(i, sessionId, nonce, maxNonce); 
+                _checkSessionIdLimits(i, sessionId, nonce, maxNonce);
 
                 maxNonce = sessionId;
 
@@ -683,11 +684,16 @@ contract FactoryProxy is FactoryStorage {
 
                 require(wallet.owner == true, "Factory: signer is not owner");
 
-                // if (sessionId & FLAG_CANCELABLE == 0) {
-                //     messageHash = bytes32(0);
-                // }
-
-                (bool success, bytes memory res) = _executeCall(wallet.addr, to, uint16(sessionId), uint32(sessionId >> GAS_LIMIT_BIT), messageHash, call.functionSignature, call.value, call.data); 
+                (bool success, bytes memory res) = _executeCall(
+                    wallet.addr,
+                    to,
+                    uint16(sessionId),
+                    uint32(sessionId >> GAS_LIMIT_BIT),
+                    messageHash,
+                    call.functionSignature,
+                    call.value,
+                    call.data
+                );
                 if (!success) {
                     if (!silentRevert) {
                         emit BatchCallReverted(wallet.addr, nonce, i);
@@ -703,11 +709,6 @@ contract FactoryProxy is FactoryStorage {
                         constGas,
                         uint64(sessionId >> 16)
                     );
-                    // if (payment == 0xf000) {
-                    //   wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 16000 + (32000/length))*110/100);
-                    // } else {
-                    //   wallet.debt = uint88((tx.gasprice + (uint64(sessionId >> 16) /*gasPriceLimit*/ - tx.gasprice) / 2) * (gas - gasleft() + 16000 + (32000/length))*110/100);
-                    // }
                 }
             }
 
@@ -733,13 +734,11 @@ contract FactoryProxy is FactoryStorage {
 
                 PackedCall calldata call = tr[i];
                 address to = call.to;
-                // uint256 value = call.value;
                 uint256 sessionId = call.sessionId;
-                // uint256 gasLimit = uint32(sessionId >> GAS_LIMIT_BIT);
 
-                _checkSessionIdLimits(i, sessionId, nonce, maxNonce); 
+                _checkSessionIdLimits(i, sessionId, nonce, maxNonce);
                 maxNonce = sessionId;
-                
+
                 bytes32 trHash = keccak256(
                     abi.encode(
                         BATCH_CALL_PACKED_TYPEHASH,
@@ -764,7 +763,15 @@ contract FactoryProxy is FactoryStorage {
 
                 require(wallet.owner, "Factory: signer is not owner");
 
-                (bool success, bytes memory res) = _executePackedCall(wallet.addr, to, uint16(sessionId), uint32(sessionId >> GAS_LIMIT_BIT), messageHash, call.value, call.data); 
+                (bool success, bytes memory res) = _executePackedCall(
+                    wallet.addr,
+                    to,
+                    uint16(sessionId),
+                    uint32(sessionId >> GAS_LIMIT_BIT),
+                    messageHash,
+                    call.value,
+                    call.data
+                );
 
                 if (!success) {
                     if (silentRevert != 0) {
@@ -781,11 +788,6 @@ contract FactoryProxy is FactoryStorage {
                         constGas,
                         uint64(sessionId >> 16)
                     );
-                    // if (payment == 0xf000) {
-                    //   wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 16000 + (32000/length))*110/100);
-                    // } else {
-                    //   wallet.debt = uint88((tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * (gas - gasleft() + 16000 + (32000/length))*110/100);
-                    // }
                 }
             }
             s_nonce_group[ng] = _nextNonce(nonce, maxNonce);
@@ -820,14 +822,13 @@ contract FactoryProxy is FactoryStorage {
                     )
                 );
 
-                _checkSessionIdLimits(i, sessionId, nonce, maxNonce); 
+                _checkSessionIdLimits(i, sessionId, nonce, maxNonce);
                 maxNonce = sessionId;
 
                 uint256 length = mcalls.mcall.length;
 
                 for (uint256 j = 0; j < length; j++) {
                     MCall calldata call = mcalls.mcall[j];
-                    // bytes32 functionSignature = call.functionSignature;
                     uint16 flags = call.flags;
 
                     bytes32 transactionHash = keccak256(
@@ -863,10 +864,6 @@ contract FactoryProxy is FactoryStorage {
                     );
                 }
 
-                // emit ErrorHandled(abi.encodePacked(mcalls.r, mcalls.s, mcalls.v));
-                // emit ErrorHandled(abi.encodePacked(msg2));
-                // return;
-
                 bytes32 messageHash = _messageToRecover(
                     keccak256(msg2),
                     sessionId & FLAG_EIP712 != 0
@@ -882,10 +879,6 @@ contract FactoryProxy is FactoryStorage {
 
                 require(wallet.owner == true, "Factory: signer is not owner");
 
-                // if (sessionId & FLAG_CANCELABLE == 0) {
-                //     messageHash = bytes32(0);
-                // }
-
                 uint256 localNonce;
                 uint256 localIndex;
                 bytes32 localMessageHash;
@@ -893,17 +886,23 @@ contract FactoryProxy is FactoryStorage {
                 {
                     localNonce = nonce;
                     localIndex = i;
-                    // if (sessionId & FLAG_CANCELABLE != 0) {
                     localMessageHash = messageHash;
-                    // }
                 }
 
-                // uint256 length = mcalls.mcall.length;
                 for (uint256 j = 0; j < length; j++) {
                     MCall calldata call = mcalls.mcall[j];
                     uint16 flags = call.flags;
 
-                    (bool success, bytes memory res) = _executeCall(wallet.addr, _ensToAddress(call.ensHash, call.to), flags, call.gasLimit, localMessageHash, call.functionSignature, call.value, call.data); 
+                    (bool success, bytes memory res) = _executeCall(
+                        wallet.addr,
+                        _ensToAddress(call.ensHash, call.to),
+                        flags,
+                        call.gasLimit,
+                        localMessageHash,
+                        call.functionSignature,
+                        call.value,
+                        call.data
+                    );
 
                     if (!success) {
                         emit BatchMultiCallFailed(
@@ -938,15 +937,15 @@ contract FactoryProxy is FactoryStorage {
         }
     }
 
-    function batchMultiCallPacked(PackedMCalls[] calldata tr, uint256 nonceGroup)
-        external
-    {
+    function batchMultiCallPacked(
+        PackedMCalls[] calldata tr,
+        uint256 nonceGroup
+    ) external {
         require(msg.sender == s_activator, "Wallet: sender not allowed");
         unchecked {
             uint256 ng = nonceGroup;
             uint256 nonce = s_nonce_group[ng] + (ng << GROUP_BIT);
             uint256 maxNonce = 0;
-            // uint256 trLength = tr.length;
             uint256 constGas = (21000 + msg.data.length * 8) / tr.length;
             for (uint256 i = 0; i < tr.length; i++) {
                 uint256 gas = gasleft();
@@ -960,7 +959,7 @@ contract FactoryProxy is FactoryStorage {
                 uint256 sessionId = mcalls.sessionId;
                 uint256 gasPriceLimit = uint64(sessionId >> 16);
 
-                _checkSessionIdLimits(i, sessionId, nonce, maxNonce); 
+                _checkSessionIdLimits(i, sessionId, nonce, maxNonce);
                 maxNonce = sessionId;
 
                 uint256 length = mcalls.mcall.length;
@@ -1006,15 +1005,19 @@ contract FactoryProxy is FactoryStorage {
                     localIndex = i;
                 }
 
-                // if (sessionId & FLAG_CANCELABLE == 0) {
-                //     messageHash = bytes32(0);
-                // }
-
                 for (uint256 j = 0; j < length; j++) {
                     PackedMCall calldata call = mcalls.mcall[j];
                     uint16 flags = call.flags;
 
-                    (bool success, bytes memory res) = _executePackedCall(wallet.addr, call.to, flags, call.gasLimit, messageHash, call.value, call.data); 
+                    (bool success, bytes memory res) = _executePackedCall(
+                        wallet.addr,
+                        call.to,
+                        flags,
+                        call.gasLimit,
+                        messageHash,
+                        call.value,
+                        call.data
+                    );
 
                     if (!success) {
                         emit BatchMultiCallPackedFailed(
@@ -1042,17 +1045,12 @@ contract FactoryProxy is FactoryStorage {
                         constGas,
                         gasPriceLimit
                     );
-                    // wallet.debt = (wallet.debt > 0  ? uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + constGas + 5000)):
-                    // uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + constGas + 22100))) * 110 / 100;
-                    // wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 18000 + (30000/trLength))*110/100);
-                    // wallet.debt = uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + 16000 + (32000/trLength))*110/100);
                 }
             }
             s_nonce_group[ng] = _nextNonce(nonce, maxNonce);
             emit BatchTransfered(6, block.number, maxNonce);
         }
     }
-
 
     // Batch Call: Multi Signature, Multi External Contract Functions
     function batchMultiSigCall(MSCalls[] calldata tr, uint256 nonceGroup)
@@ -1084,9 +1082,9 @@ contract FactoryProxy is FactoryStorage {
                     )
                 );
 
-                _checkSessionIdLimits(i, sessionId, nonce, maxNonce); 
+                _checkSessionIdLimits(i, sessionId, nonce, maxNonce);
                 maxNonce = sessionId;
-                
+
                 uint256 length = mcalls.mcall.length;
 
                 for (uint256 j = 0; j < length; j++) {
@@ -1119,10 +1117,6 @@ contract FactoryProxy is FactoryStorage {
                             )
                     );
                 }
-
-                // emit ErrorHandled(abi.encodePacked(mcalls.r, mcalls.s, mcalls.v));
-                // emit ErrorHandled(abi.encodePacked(msg2));
-                // return;
 
                 bytes32 messageHash = _messageToRecover(
                     keccak256(msg2),
@@ -1162,7 +1156,6 @@ contract FactoryProxy is FactoryStorage {
                 }
 
                 for (uint256 j = 0; j < length; j++) {
-                    // address signer = signers[j];
                     require(
                         signers[j] != address(0),
                         "Factory: signer missing"
@@ -1176,9 +1169,17 @@ contract FactoryProxy is FactoryStorage {
                         wallet.owner == true,
                         "Factory: signer is not owner"
                     );
-                    // address to = _ensToAddress(call.ensHash, call.to);
 
-                    (bool success, bytes memory res) = _executeCall(wallet.addr, _ensToAddress(call.ensHash, call.to), call.flags, call.gasLimit, locals.messageHash, call.functionSignature, call.value, call.data); 
+                    (bool success, bytes memory res) = _executeCall(
+                        wallet.addr,
+                        _ensToAddress(call.ensHash, call.to),
+                        call.flags,
+                        call.gasLimit,
+                        locals.messageHash,
+                        call.functionSignature,
+                        call.value,
+                        call.data
+                    );
 
                     if (!success) {
                         emit BatchMultiSigCallFailed(
@@ -1213,15 +1214,15 @@ contract FactoryProxy is FactoryStorage {
         }
     }
 
-    function batchMultiSigCallPacked(PackedMSCalls[] calldata tr, uint256 nonceGroup)
-        external
-    {
+    function batchMultiSigCallPacked(
+        PackedMSCalls[] calldata tr,
+        uint256 nonceGroup
+    ) external {
         require(msg.sender == s_activator, "Wallet: sender not allowed");
         unchecked {
             uint256 ng = nonceGroup;
             uint256 nonce = s_nonce_group[ng] + (ng << GROUP_BIT);
             uint256 maxNonce = 0;
-            // uint256 trLength = tr.length;
             uint256 constGas = (21000 + msg.data.length * 8) / tr.length;
             for (uint256 i = 0; i < tr.length; i++) {
                 uint256 gas = gasleft();
@@ -1241,9 +1242,9 @@ contract FactoryProxy is FactoryStorage {
                         )
                     );
 
-                    _checkSessionIdLimits(i, sessionId, nonce, maxNonce); 
+                    _checkSessionIdLimits(i, sessionId, nonce, maxNonce);
                     maxNonce = sessionId;
- 
+
                     for (uint256 j = 0; j < length; j++) {
                         PackedMSCall calldata call = mcalls.mcall[j];
                         msg2 = abi.encodePacked(
@@ -1293,10 +1294,6 @@ contract FactoryProxy is FactoryStorage {
                     localNonce = nonce;
                 }
 
-                // if (sessionId & FLAG_CANCELABLE == 0) {
-                //     messageHash = bytes32(0);
-                // }
-
                 for (uint256 j = 0; j < length; j++) {
                     require(
                         signers[j] != address(0),
@@ -1318,9 +1315,16 @@ contract FactoryProxy is FactoryStorage {
                         localGas = gas;
                         localSessionId = sessionId;
                     }
-                    // address to = call.to;
 
-                    (bool success, bytes memory res) = _executePackedCall(wallet.addr, call.to, call.flags, call.gasLimit, localMessageHash, call.value, call.data); 
+                    (bool success, bytes memory res) = _executePackedCall(
+                        wallet.addr,
+                        call.to,
+                        call.flags,
+                        call.gasLimit,
+                        localMessageHash,
+                        call.value,
+                        call.data
+                    );
 
                     if (!success) {
                         emit BatchMultiSigCallPackedFailed(
@@ -1355,23 +1359,15 @@ contract FactoryProxy is FactoryStorage {
             s_nonce_group[ng] = _nextNonce(nonce, maxNonce);
             emit BatchTransfered(7, block.number, maxNonce);
         }
-    }  
+    }
 
     function uid() external view returns (bytes32) {
         return s_uid;
     }
 
-    // function operator() external view returns (address) {
-    //   return s_operator;
-    // }
-
     function activator() external view returns (address) {
         return s_activator;
     }
-
-    // function managers() external view returns (address, address) {
-    //   return (s_operator, s_activator);
-    // }
 
     /** @notice _calcRefund - calculates the amount of refund to give based on the following input params:
         @param debt(uint256)
@@ -1386,7 +1382,6 @@ contract FactoryProxy is FactoryStorage {
         uint256 constGas,
         uint256 gasPriceLimit
     ) private view returns (uint88) {
-        // return uint88((gas - gasleft()) * 110 / 100 + constGas + 8000);
         return (
             debt != 0
                 ? uint88(
@@ -1398,7 +1393,6 @@ contract FactoryProxy is FactoryStorage {
                         (((gas - gasleft()) * 110) / 100 + constGas + 8000)
                 )
         );
-        //           // uint88(/*(tx.gasprice + (gasPriceLimit - tx.gasprice) / 2) * */ (gas - gasleft() + constGas + 15000) /*22100))*/ * 110 / 100 ));
     }
 
     function _encodeTransfer(Transfer memory call)
@@ -1498,7 +1492,12 @@ contract FactoryProxy is FactoryStorage {
             );
     }
 
-        function _checkSessionIdLimits(uint256 i, uint256 sessionId, uint256 nonce, uint256 maxNonce) view private {
+    function _checkSessionIdLimits(
+        uint256 i,
+        uint256 sessionId,
+        uint256 nonce,
+        uint256 maxNonce
+    ) private view {
         if (i == 0) {
             require(
                 sessionId >> NONCE_BIT >= nonce >> NONCE_BIT,
@@ -1524,9 +1523,14 @@ contract FactoryProxy is FactoryStorage {
         );
     }
 
-    function _nextNonce(uint256 nonce, uint256 maxNonce) pure private returns (uint256) {
+    function _nextNonce(uint256 nonce, uint256 maxNonce)
+        private
+        pure
+        returns (uint256)
+    {
         require(
-            (maxNonce < nonce + (1 << MAX_NONCE_JUMP_BIT)) && (uint40(maxNonce >> NONCE_BIT) >= uint40(nonce >> NONCE_BIT)),
+            (maxNonce < nonce + (1 << MAX_NONCE_JUMP_BIT)) &&
+                (uint40(maxNonce >> NONCE_BIT) >= uint40(nonce >> NONCE_BIT)),
             "Factory: group+nonce too high"
         );
         return
@@ -1534,5 +1538,4 @@ contract FactoryProxy is FactoryStorage {
                 0x000000ffffffffff000000000000000000000000000000000000000000000000) +
             (1 << NONCE_BIT);
     }
-
 }
