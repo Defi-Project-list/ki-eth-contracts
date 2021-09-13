@@ -36,7 +36,7 @@ const assertInvalidOpcode = (err) => {
     }
 };
 
-describe.skip('old backup', () => {
+/* describe.skip('old backup', () => {
 contract('Backup', async accounts => {
   let instance = null;
   let owner = accounts[0];
@@ -56,7 +56,7 @@ contract('Backup', async accounts => {
     const tax = ownerPrevBalance.minus(ownerBalance);
     if (tax > 0) {
       mlog.log(`owner tr.tax: \t${await toEtherString(tax)}`);
-      mlog.log(`owner gas used: \t${/*Math.floor(...)*/(tax / gasPrice)}`);
+      mlog.log(`owner gas used: \t${/*Math.floor(...)*//*(tax / gasPrice)}`);
     }
   }
 
@@ -98,3 +98,4 @@ contract('Backup', async accounts => {
 
 });
 });
+ */

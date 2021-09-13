@@ -21,7 +21,7 @@ const assertInvalidOpcode = (err) => {
     }
 };
 
-describe.skip("old backup", () => {
+/* describe.skip("old backup", () => {
 contract('Backup', async accounts => {
   let owner = accounts[0];
   let user1 = accounts[1];
@@ -62,4 +62,4 @@ contract('Backup', async accounts => {
       }
   });
 });
-});
+}) */;
