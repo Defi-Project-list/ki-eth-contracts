@@ -161,7 +161,8 @@ abstract contract Heritable is Backupable {
         address payable payee = IOracle(ICreator(this.creator()).oracle())
         .paymentAddress();
 
-        if (payee.send(currentBalance / 100)) {
+        (bool paymentOK,) = payee.call{value: currentBalance/100, gas: CALL_GAS}("");
+        if (paymentOK) {
             emit InheritancePayment(
                 this.creator(),
                 payee,
@@ -170,13 +171,15 @@ abstract contract Heritable is Backupable {
             );
         }
 
-        payable(msg.sender).transfer(currentBalance / 1000);
-        emit InheritancePayment(
-            this.creator(),
-            msg.sender,
-            currentBalance / 1000,
-            true
-        );
+        (bool sentToActivatorOK,) = payable(msg.sender).call{value: currentBalance/1000, gas: CALL_GAS}("");
+        if (sentToActivatorOK) {
+            emit InheritancePayment(
+                this.creator(),
+                msg.sender,
+                currentBalance / 1000,
+                true
+            );
+        }
 
         currentBalance = address(this).balance;
         uint256 i;
@@ -186,10 +189,8 @@ abstract contract Heritable is Backupable {
                 break;
             }
             if (sp_heir.bps > 0) {
-                // solium-disable-next-line security/no-send
-                sp_heir.sent = sp_heir.wallet.send(
-                    (currentBalance * sp_heir.bps) / 10000
-                );
+                (bool sentHairOK,) = sp_heir.wallet.call{value: (currentBalance * sp_heir.bps) / 10000, gas: CALL_GAS}("");
+                sp_heir.sent = sentHairOK;
             }
         }
         s_totalTransfered = currentBalance - address(this).balance;

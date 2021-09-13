@@ -5,7 +5,8 @@ pragma abicoder v1;
 
 contract Sender {
     function sendEther(address payable to, uint256 value) public {
-        to.transfer(value);
+        (bool success,) = to.call{value: value}("");
+        require(success, "send failed");
     }
 
     fallback() external payable {}

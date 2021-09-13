@@ -32,7 +32,7 @@ contract Trust {
     }
 
     modifier onlyOwner() {
-        require(msg.sender == s_self.owner, "msg.sender != self.owner");
+        require(msg.sender == s_self.owner, "TRUST: msg.sender != self.owner");
         _;
     }
 
@@ -43,10 +43,10 @@ contract Trust {
         uint16 times,
         uint256 amount
     ) payable logPayment() {
-        require(wallet != address(0));
-        require(wallet != msg.sender);
-        require((start > 0) && (period > 0) && (times > 0) && (amount > 0));
-        require(msg.value >= amount * times);
+        require(wallet != address(0), "TRUST: no wallet");
+        require(wallet != msg.sender, "TRUST: wallet is not sender");
+        require((start > 0) && (period > 0) && (times > 0) && (amount > 0), "TRUST: zero not allowed");
+        require(msg.value >= amount * times, "TRUST: mismatch amount");
 
         s_self.owner = payable(msg.sender);
         s_fund.wallet = wallet;
@@ -60,9 +60,10 @@ contract Trust {
 
     function activateTrust() external {
         uint256 toPay = getPaymentValue();
-        require(toPay > 0);
+        require(toPay > 0, "TRUST: payment is 0");
         s_payed += toPay;
-        s_fund.wallet.transfer(toPay);
+        (bool success, ) = s_fund.wallet.call{value: toPay}("");
+        require(success, "TRUST: send funds failed");
         emit SentEther(s_fund.wallet, toPay);
     }
 

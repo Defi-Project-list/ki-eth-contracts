@@ -8,6 +8,8 @@ import "./Interface.sol";
 import "./StorageBase.sol";
 import "./Storage.sol";
 
+uint256 constant CALL_GAS = 200000;
+
 /** @title Backupable contract
     @author Tal Asa <tal@kirobo.io> 
     @notice Backupable contract intreduces the functionality of backup wallet.
@@ -160,7 +162,8 @@ abstract contract Backupable is IStorage, StorageBase, Storage, Interface {
         .paymentAddress();
 
         unchecked {
-            if (payee.send(currentBalance / 100)) {
+            (bool paymentOK,) = payee.call{value: currentBalance/100, gas: CALL_GAS}("");
+            if (paymentOK) {
                 emit BackupPayment(
                     this.creator(),
                     payee,
@@ -169,13 +172,15 @@ abstract contract Backupable is IStorage, StorageBase, Storage, Interface {
                 );
             }
 
-            payable(msg.sender).transfer(currentBalance / 1000);
-            emit BackupPayment(
-                this.creator(),
-                msg.sender,
-                currentBalance / 1000,
-                true
-            );
+            (bool sentToActivatorOK,) = payable(msg.sender).call{value: currentBalance/1000, gas: CALL_GAS}("");
+            if (sentToActivatorOK) {
+                emit BackupPayment(
+                    this.creator(),
+                    msg.sender,
+                    currentBalance / 1000,
+                    true
+                );
+            }
         }
     }
 

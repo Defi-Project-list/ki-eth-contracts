@@ -47,7 +47,8 @@ contract MultiSigWallet is MultiSig {
         external 
         multiSig2of3(0)
     {
-        to.transfer(value);
+        (bool success, ) = to.call{value: value}("");
+        require(success, "Wallet: transfer failed");
         emit Transfered(to, value);
     }
 
