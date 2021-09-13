@@ -175,17 +175,17 @@ contract FactoryProxy is FactoryStorage {
 
     bytes32 public constant BATCH_TRANSFER_TYPEHASH =
         keccak256(
-            "BatchTransfer(address token_address,string token_ens,address to,string to_ens,uint256 value,uint64 nonce,uint40 valid_from,uint40 expires_at,uint32 gas_limit,uint64 gas_price_limit,bool ordered,bool refund)"
+            "BatchTransfer(address token_address,string token_ens,address to,string to_ens,uint256 value,uint64 nonce,uint40 valid_from,uint40 expires_at,uint32 gas_limit,uint64 gas_price_limit,bool refund)"
         );
 
     bytes32 public constant BATCH_CALL_TRANSACTION_TYPEHASH =
         keccak256(
-            "Transaction(address call_address,string call_ens,uint256 eth_value,uint64 nonce,uint40 valid_from,uint40 expires_at,uint32 gas_limit,uint64 gas_price_limit,bool view_only,bool ordered,bool refund,string method_interface)"
+            "Transaction(address call_address,string call_ens,uint256 eth_value,uint64 nonce,uint40 valid_from,uint40 expires_at,uint32 gas_limit,uint64 gas_price_limit,bool view_only,bool refund,string method_interface)"
         );
 
     bytes32 public constant BATCH_MULTI_CALL_LIMITS_TYPEHASH =
         keccak256(
-            "Limits(uint64 nonce,bool ordered,bool refund,uint40 valid_from,uint40 expires_at,uint64 gas_price_limit)"
+            "Limits(uint64 nonce,bool refund,uint40 valid_from,uint40 expires_at,uint64 gas_price_limit)"
         );
 
     bytes32 public constant BATCH_MULTI_CALL_TRANSACTION_TYPEHASH =
@@ -195,7 +195,7 @@ contract FactoryProxy is FactoryStorage {
 
     bytes32 public constant BATCH_MULTI_SIG_CALL_LIMITS_TYPEHASH =
         keccak256(
-            "Limits(uint64 nonce,bool ordered,bool refund,uint40 valid_from,uint40 expires_at,uint64 gas_price_limit)"
+            "Limits(uint64 nonce,bool refund,uint40 valid_from,uint40 expires_at,uint64 gas_price_limit)"
         );
 
     bytes32 public constant BATCH_MULTI_SIG_CALL_TRANSACTION_TYPEHASH =
@@ -813,7 +813,6 @@ contract FactoryProxy is FactoryStorage {
                         abi.encode(
                             BATCH_MULTI_CALL_LIMITS_TYPEHASH,
                             uint64(sessionId >> NONCE_BIT), // group + nonce
-                            sessionId & FLAG_ORDERED != 0,
                             sessionId & FLAG_PAYMENT != 0,
                             uint40(sessionId >> AFTER_TS_BIT),
                             uint40(sessionId >> BEFORE_TS_BIT),
@@ -1073,7 +1072,6 @@ contract FactoryProxy is FactoryStorage {
                         abi.encode(
                             BATCH_MULTI_SIG_CALL_LIMITS_TYPEHASH,
                             uint64(sessionId >> NONCE_BIT), // group + nonce
-                            sessionId & FLAG_ORDERED != 0,
                             sessionId & FLAG_PAYMENT != 0,
                             uint40(sessionId >> AFTER_TS_BIT),
                             uint40(sessionId >> BEFORE_TS_BIT),
@@ -1414,7 +1412,6 @@ contract FactoryProxy is FactoryStorage {
                     uint40(call.sessionId >> BEFORE_TS_BIT),
                     uint32(call.sessionId >> GAS_LIMIT_BIT),
                     uint64(call.sessionId >> GAS_PRICE_LIMIT_BIT),
-                    bool(call.sessionId & FLAG_ORDERED != 0),
                     bool(call.sessionId & FLAG_PAYMENT != 0)
                 )
             );
@@ -1438,7 +1435,6 @@ contract FactoryProxy is FactoryStorage {
                     uint32(call.sessionId >> GAS_LIMIT_BIT),
                     uint64(call.sessionId >> GAS_PRICE_LIMIT_BIT),
                     bool(call.sessionId & FLAG_STATICCALL != 0),
-                    bool(call.sessionId & FLAG_ORDERED != 0),
                     bool(call.sessionId & FLAG_PAYMENT != 0),
                     call.functionSignature
                 )

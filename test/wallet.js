@@ -1125,7 +1125,7 @@ it('message: should be able to execute multi external calls: signer==operator, s
           { name: 'expires_at',         type: 'uint40'  },
           { name: 'gas_limit',          type: 'uint32'  },
           { name: 'gas_price_limit',    type: 'uint64'  },
-          { name: 'ordered',            type: 'bool'    },
+          // { name: 'ordered',            type: 'bool'    },
           { name: 'refund',             type: 'bool'    },
         ]
       },
@@ -1151,7 +1151,7 @@ it('message: should be able to execute multi external calls: signer==operator, s
         expires_at: '0x' + beforeERC20,
         gas_limit: '0x' + maxGasERC20,
         gas_price_limit: '0x' + maxGasPriceERC20,
-        ordered: false,
+        // ordered: false,
         refund: true,
       }
     }
@@ -1184,7 +1184,7 @@ it('message: should be able to execute multi external calls: signer==operator, s
     const messageHashHex = ethers.utils.hexlify(messageHash)
     mlog.log('messageHash (calculated)', messageHashHex)
 
-    const m = keccak256(toUtf8Bytes('BatchTransfer(address token_address,string token_ens,address to,string to_ens,uint256 value,uint64 nonce,uint40 valid_from,uint40 expires_at,uint32 gas_limit,uint64 gas_price_limit,bool ordered,bool refund)'))
+    const m = keccak256(toUtf8Bytes('BatchTransfer(address token_address,string token_ens,address to,string to_ens,uint256 value,uint64 nonce,uint40 valid_from,uint40 expires_at,uint32 gas_limit,uint64 gas_price_limit,bool refund)'))
     mlog.log('m (calculated)', m)
 
     const m2 = TypedDataUtils.typeHash(typedData.types, 'BatchTransfer')
@@ -1282,7 +1282,7 @@ it('eip712: should be able to execute batch of many external calls: signer==oper
           { name: 'gas_limit',            type: 'uint32'  },
           { name: 'gas_price_limit',      type: 'uint64'  },
           { name: 'view_only',            type: 'bool'    },
-          { name: 'ordered',              type: 'bool'    },
+          // { name: 'ordered',              type: 'bool'    },
           { name: 'refund',               type: 'bool'    },
           { name: 'method_interface',     type: 'string'  },
         ],
@@ -1308,7 +1308,7 @@ it('eip712: should be able to execute batch of many external calls: signer==oper
         [':--']: '',
         // ['group_id']: Number.parseInt('0x' + groupERC20),
         nonce: '0x' + groupERC20 + tnonceERC20 + '00', //Number.parseInt('0x' + tnonceERC20 + '00'),
-        ordered: true,
+        // ordered: true,
         view_only: false,
         refund: true,
         valid_from: Number.parseInt('0x' + afterERC20),

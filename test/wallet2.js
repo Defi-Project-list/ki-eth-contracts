@@ -425,7 +425,7 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
         ],
         Limits: [
           { name: 'nonce',                type: 'uint64'      },
-          { name: 'ordered',              type: 'bool'        },
+          // { name: 'ordered',              type: 'bool'        },
           { name: 'refund',               type: 'bool'        },
           { name: 'valid_from',           type: 'uint40'      },
           { name: 'expires_at',           type: 'uint40'      },
@@ -467,7 +467,7 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
         ['MULTI PROTECTION']: '👍',
         limits: {
           nonce: '0x' + groupERC20 + tnonceERC20,
-          ordered: false,
+          // ordered: false,
           refund: true,
           valid_from: Number.parseInt('0x' + afterERC20),
           expires_at: Number.parseInt('0x' + beforeERC20),
@@ -738,7 +738,7 @@ const runEIP712MultiSigTest= async (multiSig, group) => {
         ],
         Limits: [
           { name: 'nonce',                type: 'uint64'  },
-          { name: 'ordered',              type: 'bool'    },
+          // { name: 'ordered',              type: 'bool'    },
           { name: 'refund',               type: 'bool'    },
           { name: 'valid_from',           type: 'uint40'  },
           { name: 'expires_at',           type: 'uint40'  },
@@ -791,7 +791,7 @@ const runEIP712MultiSigTest= async (multiSig, group) => {
         ['MULTI PROTECTION']: '👍',
         limits: {
           nonce: '0x' + groupERC20 + tnonceERC20,
-          ordered: false,
+          // ordered: false,
           refund: true,
           valid_from: Number.parseInt('0x' + afterERC20),
           expires_at: Number.parseInt('0x' + beforeERC20),

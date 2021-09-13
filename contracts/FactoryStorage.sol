@@ -64,7 +64,6 @@ abstract contract FactoryStorage is Ownable {
     mapping(bytes32 => address) internal s_local_ens;
 
     uint256 internal constant FLAG_EIP712 = 0x0100;
-    uint256 internal constant FLAG_ORDERED = 0x0200;
     uint256 internal constant FLAG_STATICCALL = 0x0400;
     uint256 internal constant FLAG_CANCELABLE = 0x0800;
     uint256 internal constant FLAG_PAYMENT = 0xf000;
