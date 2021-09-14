@@ -720,7 +720,7 @@ contract FactoryProxy is FactoryStorage {
     function batchCallPacked(
         PackedCall[] calldata tr,
         uint256 nonceGroup,
-        uint256 silentRevert
+        bool silentRevert
     ) external {
         require(msg.sender == s_activator, "Wallet: sender not allowed");
         unchecked {
@@ -774,7 +774,7 @@ contract FactoryProxy is FactoryStorage {
                 );
 
                 if (!success) {
-                    if (silentRevert != 0) {
+                    if (!silentRevert) {
                         emit BatchCallPackedReverted(wallet.addr, nonce, i);
                         continue;
                     } else {

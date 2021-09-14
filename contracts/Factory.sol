@@ -342,7 +342,8 @@ contract Factory is FactoryStorage {
         oracleAddress = s_versions_oracle[version];
     }
 
-    /** @notice _createWallet - private function that  */
+    /** @notice _createWallet - private function that creates a wallet using a pre defined code 
+                and plantes the creator and target in that code and returns the address created from that*/
     function _createWallet(address creator, address target)
         private
         returns (address result)

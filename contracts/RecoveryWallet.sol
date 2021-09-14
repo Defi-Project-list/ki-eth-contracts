@@ -11,8 +11,6 @@ import "openzeppelin-solidity/contracts/utils/cryptography/SignatureChecker.sol"
 import "./lib/IOracle.sol";
 import "./lib/Heritable.sol";
 
-// import "./Trust.sol";
-
 contract RecoveryWallet is IStorage, Heritable, ReentrancyGuard {
     using SignatureChecker for address;
     using SafeERC20 for IERC20;
@@ -137,36 +135,6 @@ contract RecoveryWallet is IStorage, Heritable, ReentrancyGuard {
         return IOracle(ICreator(this.creator()).oracle()).is721Safe(token);
     }
 
-    // function createTrust(
-    //     address _wallet,
-    //     uint40 _start,
-    //     uint32 _period,
-    //     uint16 _times,
-    //     uint256 _amount,
-    //     bool _cancelable
-    // ) public payable {
-    //     require(s_trust == Trust(payable(0)));
-    //     s_trust = (new Trust){value: _amount * _times}(
-    //         payable(_wallet),
-    //         _start,
-    //         _period,
-    //         _times,
-    //         _amount,
-    //         _cancelable
-    //     );
-    // }
-
-    // function destroyTrust() public {
-    //     require(s_trust != Trust(payable(0)));
-    //     s_trust.destroy();
-    //     s_trust = Trust(payable(0));
-    // }
-
-    // function getTrust() public view returns (Trust) {
-    //     return s_trust;
-    // }
-
-    // IStorage Implementation
     function migrate() external override onlyCreator {
         uint256 chainId;
         assembly {
@@ -193,17 +161,11 @@ contract RecoveryWallet is IStorage, Heritable, ReentrancyGuard {
                 s_uid
             )
         );
-        // DOMAIN_SEPARATOR_ASCII = _hashToAscii(DOMAIN_SEPARATOR);
     }
 
     function version() public pure override returns (bytes8) {
         return bytes8("REC-0.1");
     }
-
-    // function isValidSignature(bytes32 msgHash, bytes memory signature) external view onlyActiveState() returns (bytes4) {
-    //     require(s_owner.isValidSignatureNow(msgHash, signature), "Wallet: signer is not owner");
-    //     return SELECTOR_IS_VALID_SIGNATURE;
-    // }
 
     fallback() external {
         if (

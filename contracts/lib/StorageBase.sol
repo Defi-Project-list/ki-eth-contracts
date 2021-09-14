@@ -16,8 +16,6 @@ interface ICreator {
 
     function oracle() external view returns (address);
 
-    // function operator() external view returns (address);
-
     function activator() external view returns (address);
 
     function managers() external view returns (address, address);
@@ -48,7 +46,6 @@ interface IWallet {
 contract StorageBase is IProxy {
     address internal s_owner;
     address internal s_target;
-    // uint256 internal s_debt;
     mapping(bytes32 => uint256) internal s_blocked;
 
     modifier onlyCreator() {
@@ -68,7 +65,7 @@ contract StorageBase is IProxy {
     function init(address newOwner, address newTarget)
         external
         override
-        onlyCreator()
+        onlyCreator
     {
         if (newOwner != s_owner && newOwner != address(0)) s_owner = newOwner;
         if (newTarget != s_target && newTarget != address(0))
@@ -76,7 +73,7 @@ contract StorageBase is IProxy {
         // s_debt = 1; //TODO: remove for production
     }
 
-    function upgrade(bytes8 version) external onlyOwner() {
+    function upgrade(bytes8 version) external onlyOwner {
         ICreator(this.creator()).upgradeWallet(version);
     }
 

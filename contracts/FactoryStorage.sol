@@ -2,8 +2,6 @@
 
 pragma solidity ^0.8.0;
 pragma abicoder v1;
-
-// import "./lib/MultiSig.sol";
 import "./lib/Proxy.sol";
 import "./lib/ProxyLatest.sol";
 import "openzeppelin-solidity/contracts/utils/cryptography/SignatureChecker.sol";
@@ -29,6 +27,10 @@ interface Resolver {
     function addr(bytes32 node) external view returns (address);
 }
 
+/** @title FactoryStorage contract 
+    @author Tal Asa <tal@kirobo.io> 
+    @notice Factory contract - defines functions that are used by all related contracts
+ */
 abstract contract FactoryStorage is Ownable {
     using SignatureChecker for address;
     using ECDSA for bytes32;
