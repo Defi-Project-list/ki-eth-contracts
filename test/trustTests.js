@@ -16,12 +16,32 @@ const utils = require('./lib/utils');
 module.exports = (contractClass, contractName) => {
 
 contract(contractName, async accounts => {
-  let instance;
+  /* let instance;
 
   const owner = accounts[0];
   const user1 = accounts[1];
   const user2 = accounts[2];
   const user3 = accounts[3];
+*/
+  
+
+  /*
+  before('checking constants', async () => {
+      assert(typeof owner == 'string', 'owner should be string');
+      assert(typeof user1 == 'string', 'user1 should be string');
+      assert(typeof user2 == 'string', 'user2 should be string');
+      assert(typeof user3 == 'string', 'user3 should be string');
+  }); */
+
+  let instance;
+
+  const factoryOwner1 = accounts[0];
+  const factoryOwner2 = accounts[1];
+  const factoryOwner3 = accounts[2];
+  const owner = accounts[3];
+  const user1 = accounts[4];
+  const user2 = accounts[5];
+  const user3 = accounts[6];
 
   const startDelay     = 5;
   const wallet         = user1;
@@ -29,29 +49,33 @@ contract(contractName, async accounts => {
   const period         = 4;
   const times          = 5;
   const amount         = 1000;
-  const cancelable     = true;
-  const value          = web3.toBigNumber(10000000);
+  const value          = web3.utils.toBN('10000000');
   let   blockTimestamp = 0;
 
   before('checking constants', async () => {
+      assert(typeof factoryOwner1 == 'string', 'factoryOwner1 should be string');
+      assert(typeof factoryOwner2 == 'string', 'factoryOwner2 should be string');
+      assert(typeof factoryOwner3 == 'string', 'factoryOwner3 should be string');
       assert(typeof owner == 'string', 'owner should be string');
       assert(typeof user1 == 'string', 'user1 should be string');
       assert(typeof user2 == 'string', 'user2 should be string');
       assert(typeof user3 == 'string', 'user3 should be string');
   });
 
+
   before('setup contract for the test', async () => {
-    await utils.mine(owner);
+    // await utils.mine(owner);
+    await utils.advanceBlock()
     blockTimestamp = await utils.getLatestBlockTimestamp();
     start = blockTimestamp + startDelay;
 
  	  if (contractClass.new instanceof Function) {
- 	    instance = await contractClass.new(wallet, start, period, times, amount, cancelable, { from: owner, value });
+      instance = await contractClass.new(wallet, start, period, times, amount, { from: owner, value, nonce: await web3.eth.getTransactionCount(owner) });
  	  } else {
- 	    instance = await contractClass(owner, wallet, start, period, times, amount, cancelable);
+ 	    instance = await contractClass(owner, wallet, start, period, times, amount);
  	  }
 
-    mlog.log('web3     ', web3.version.api);
+    mlog.log('web3     ', web3.version);
     mlog.log('contract ', instance.address);
     mlog.log('owner    ', owner);
     mlog.log('user1    ', user1);
@@ -77,7 +101,6 @@ contract(contractName, async accounts => {
     assert.equal(fund[1].toString(10), start.toString(10), "start");
     assert.equal(fund[2], period, "period");
     assert.equal(fund[3], times, "times");
-    assert.equal(fund[4], cancelable, "cancelable");
     const perPayAmount = await instance.getPaymentAmount.call({from: owner});
     assert.equal(perPayAmount, amount, "amount");
   });
@@ -99,6 +122,7 @@ contract(contractName, async accounts => {
   });
 
   it('should revert when trying to activate when now > start', async () => {
+    await web3.eth.getTransactionCount(owner)
     try {
       await instance.activateTrust({ from: owner });
       assert(false);
@@ -108,8 +132,10 @@ contract(contractName, async accounts => {
   });
 
   it('should return amount as payment value when in first period when start>now before activation', async () => {
-    await utils.sleep(startDelay*1000);
-    await utils.mine(owner);
+    await web3.eth.getTransactionCount(owner)
+    // await utils.sleep(startDelay*1000);
+    // await utils.mine(owner);
+    await utils.advanceTimeAndBlock(startDelay)
     const paymentValue = await instance.getPaymentValue.call();
     assert.equal(paymentValue.toString(10), amount.toString(10), "getPaymentValue==amount");
   });
@@ -127,9 +153,9 @@ contract(contractName, async accounts => {
   it('should transfer amount to wallet by activating trust at timestamp: { now <= timestamp < now + period }', async () => {
     const trustBalance = await web3.eth.getBalance(instance.address);
     const walletBalance = await web3.eth.getBalance(wallet);
-    await instance.activateTrust({from: owner});
-    const trustDiff = trustBalance.minus(await web3.eth.getBalance(instance.address));
-    const walletDiff = (await web3.eth.getBalance(wallet)).minus(walletBalance);
+    await instance.activateTrust({from: owner, nonce: await web3.eth.getTransactionCount(owner)});
+    const trustDiff = web3.utils.toBN(trustBalance).sub(web3.utils.toBN(await web3.eth.getBalance(instance.address)));
+    const walletDiff = web3.utils.toBN(await web3.eth.getBalance(wallet)).sub(web3.utils.toBN(walletBalance));
     assert(trustDiff.toString(10), amount.toString(10), 'trust balance change');
     assert(walletDiff.toString(10), amount.toString(10), 'wallet balance change');
   });
@@ -150,15 +176,16 @@ contract(contractName, async accounts => {
   });
 
   it('should return (amount*2) as payment value when two periods passed without activation', async () => {
-    await utils.sleep(period * 2 * 1000);
-    await utils.mine(owner);
+    // await utils.sleep(period * 2 * 1000);
+    // await utils.mine(owner);
+    await utils.advanceTimeAndBlock(+period * 2)
     const paymentValue = await instance.getPaymentValue.call();
     assert.equal(paymentValue.toString(10), (amount * 2).toString(10), "getPaymentValue==(amount*2)");
   });
 
   it('should return lowest possible timestamp as next payment timestamp even when two periods passed', async () => {
     const nextPaymentTimestamp = await instance.getNextPaymentTimestamp.call();
-    assert.equal(nextPaymentTimestamp.toString(10), (start + period).toString(10), "getNextPaymentTimestamp");
+    assert.equal(nextPaymentTimestamp.toString(10), (+ start + period).toString(10), "getNextPaymentTimestamp");
   });
 
   it('should return latest activation time payed value when additional periods passed without activation', async () => {
@@ -170,8 +197,8 @@ contract(contractName, async accounts => {
     const trustBalance = await web3.eth.getBalance(instance.address);
     const walletBalance = await web3.eth.getBalance(wallet);
     await instance.activateTrust({from: owner});
-    const trustDiff = trustBalance.minus(await web3.eth.getBalance(instance.address));
-    const walletDiff = (await web3.eth.getBalance(wallet)).minus(walletBalance);
+    const trustDiff = web3.utils.toBN(trustBalance).sub(web3.utils.toBN(await web3.eth.getBalance(instance.address)));
+    const walletDiff = web3.utils.toBN(await web3.eth.getBalance(wallet)).sub(web3.utils.toBN(walletBalance));
     assert(trustDiff.toString(10), (amount * 2).toString(10), 'trust balance change');
     assert(walletDiff.toString(10), (amount * 2).toString(10), 'wallet ba(lance *2)change');
   });
@@ -183,7 +210,7 @@ contract(contractName, async accounts => {
 
   it('should return (start+(period*3)) as next payment timestamp when 3 periods passed and activated', async () => {
     const nextPaymentTimestamp = await instance.getNextPaymentTimestamp.call();
-    assert.equal(nextPaymentTimestamp.toString(10), (start + period*3).toString(10), "getNextPaymentTimestamp");
+    assert.equal(nextPaymentTimestamp.toString(10), (+start + +period * 3).toString(10), "getNextPaymentTimestamp");
   });
 
   it('should return (amount*3) as payed value when 3 periods passed and activated', async () => {
@@ -193,9 +220,11 @@ contract(contractName, async accounts => {
 
   it('should return all left trust contract balance as payment value when last period passed', async () => {
     const trustBalance = await web3.eth.getBalance(instance.address);
-    await utils.mine(owner);
+    // await utils.mine(owner);
+    await utils.advanceBlock()
     blockTimestamp = await utils.getLatestBlockTimestamp();
-    await utils.sleep((start + period*times - blockTimestamp)*1000);
+    // await utils.sleep((start + period*times - blockTimestamp)*1000);
+    await utils.advanceTimeAndBlock((+ start + period*times - blockTimestamp))
     const paymentValue = await instance.getPaymentValue.call();
     assert.equal(paymentValue.toString(10), trustBalance.toString(10), "getPaymentValue==0");
   });
@@ -204,8 +233,8 @@ contract(contractName, async accounts => {
     const walletBalance = await web3.eth.getBalance(wallet);
     const trustBalance = await web3.eth.getBalance(instance.address);
     await instance.activateTrust();
-    const trustDiff = trustBalance.minus(await web3.eth.getBalance(instance.address));
-    const walletDiff = (await web3.eth.getBalance(wallet)).minus(walletBalance);
+    const trustDiff = web3.utils.toBN(trustBalance).sub(web3.utils.toBN(await web3.eth.getBalance(instance.address)));
+    const walletDiff = web3.utils.toBN(await web3.eth.getBalance(wallet)).sub(web3.utils.toBN(walletBalance));
     assert.equal(trustDiff.toString(10), trustBalance.toString(10) , 'trustDiff == trustBalance');
     assert.equal(walletDiff.toString(10), trustBalance.toString(10) , 'walletDiff == trustBalance');
   });

@@ -4,8 +4,8 @@
   "description": "",
   "main": "deploy.js",
   "engines": {
-    "node": "8.12.0",
-    "npm": "6.4.1"
+    "node": "12.20.1",
+    "npm": "7.6.0"
   },
   "directories": {
     "lib": "lib",
@@ -13,7 +13,8 @@
   },
   "scripts": {
     "version": "truffle version",
-    "test": "truffle test --network",
+    "compile": "truffle compile --all",
+    "test": "truffle test --network development",
     "t": "truffle test test/sw_factory.js --network development",
     "heroku-postbuild-full": "truffle migrate --compile-all --reset --network rinkeby && cd web-app && npm i && npm i --only=dev && npm build",
     "heroku-postbuild": "truffle compile --all; cd web-app && npm i && npm i --only=dev && npm run build",
@@ -26,29 +27,28 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/talasa/kirobo.git"
+    "url": "git+https://github.com/kiroboki/ki-eth-contracts.git"
   },
   "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/talasa/kirobo/issues"
-  },
-  "homepage": "https://github.com/talasa/kirobo#readme",
   "dependencies": {
-    "bignumber": "^1.1.0",
-    "cors": "^2.8.4",
-    "node-hid": "^0.7.3",
-    "npm": "^6.4.1",
-    "openzeppelin-solidity": "^2.0.0",
-    "sha3": "^2.0.7",
-    "solc": "^0.4.24",
-    "truffle-assertions": "^0.2.0",
-    "truffle-hdwallet-provider": "0.0.3"
+    "@truffle/hdwallet-provider": "1.5.0",
+    "openzeppelin-solidity": "https://github.com/OpenZeppelin/openzeppelin-contracts.git"
   },
   "devDependencies": {
-    "ganache-cli": "^6.1.0",
-    "mocha-logger": "^1.0.6",
-    "run-script-os": "^1.0.3",
-    "truffle": "^4.1.11"
+    "@types/ganache-core": "^2.7.0",
+    "bignumber": "1.1.0",
+    "cors": "^2.8.5",
+    "eth-gas-reporter": "0.2.22",
+    "ethers": "5.1.0",
+    "ethers-eip712": "0.2.0",
+    "express": "^4.17.1",
+    "ganache-cli": "6.12.2",
+    "ganache-core": "2.13.2",
+    "mocha-logger": "1.0.7",
+    "sha3": "2.1.4",
+    "socket.io": "^4.0.1",
+    "socket.io-client": "^4.0.1",
+    "solc": "0.8.2",
+    "truffle": "5.2.5"
   }
 }

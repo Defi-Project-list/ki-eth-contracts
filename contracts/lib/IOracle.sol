@@ -1,6 +1,18 @@
-pragma solidity 0.4.24;
+// SPDX-License-Identifier: UNLICENSED
+
+pragma solidity ^0.8.0;
+pragma abicoder v1;
 
 interface IOracle {
-    function is20Safe(address _token) external view returns (bool);
-    function is721Safe(address _token) external view returns (bool);
+    function is20Safe(address token) external view returns (bool);
+
+    function is721Safe(address token) external view returns (bool);
+
+    function version() external pure returns (bytes8);
+
+    function setPaymentAddress(address payable) external;
+
+    function paymentAddress() external view returns (address payable);
+
+    function initialized() external view returns (bool);
 }

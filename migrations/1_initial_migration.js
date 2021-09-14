@@ -1,7 +1,9 @@
 var Migrations = artifacts.require("./Migrations.sol");
-const gasPrice =  web3.toWei(3, 'gwei');
-const gas = 6200000;
+const gasPrice =  web3.utils.toWei('3', 'gwei');
+const gas = 12500000;
 
-module.exports = function(deployer) {
-  deployer.deploy(Migrations, {gas, gasPrice});
+module.exports = async function (deployer) {
+  console.log('initial_migrations')
+  return
+  await deployer.deploy(Migrations, {gas, gasPrice});
 };

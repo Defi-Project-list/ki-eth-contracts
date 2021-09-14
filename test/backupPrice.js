@@ -1,6 +1,6 @@
 'use strict';
 
-const Backup = {}; //artifacts.require("Backup");
+const Backup = {}; 
 
 const getBalanceInWei = async (account) => {
   let balance = 0;
@@ -36,14 +36,14 @@ const assertInvalidOpcode = (err) => {
     }
 };
 
-describe.skip('old backup', () => {
+/* describe.skip('old backup', () => {
 contract('Backup', async accounts => {
   let instance = null;
   let owner = accounts[0];
   let user1 = accounts[1];
-  let ownerBalance = new web3.BigNumber(0);
-  let ownerPrevBalance = new web3.BigNumber(0);
-  let user1Balance = new web3.BigNumber(0);
+  let ownerBalance = new web3.utils.BN('0');
+  let ownerPrevBalance = new web3.utils.BN('0');
+  let user1Balance = new web3.utils.BN('0');
   let gasPrice;
 
   const sendOptions = (account) => ({ from: account, gasPrice: gasPrice });
@@ -56,7 +56,7 @@ contract('Backup', async accounts => {
     const tax = ownerPrevBalance.minus(ownerBalance);
     if (tax > 0) {
       mlog.log(`owner tr.tax: \t${await toEtherString(tax)}`);
-      mlog.log(`owner gas used: \t${/*Math.floor(...)*/(tax / gasPrice)}`);
+      mlog.log(`owner gas used: \t${/*Math.floor(...)*//*(tax / gasPrice)}`);
     }
   }
 
@@ -98,3 +98,4 @@ contract('Backup', async accounts => {
 
 });
 });
+ */

@@ -1,20 +1,45 @@
-pragma solidity 0.4.24;
+// SPDX-License-Identifier: UNLICENSED
 
-import "openzeppelin-solidity/contracts/token/ERC20/ERC20Detailed.sol";
-import "openzeppelin-solidity/contracts/token/ERC20/ERC20Mintable.sol";
-import "openzeppelin-solidity/contracts/token/ERC20/ERC20Burnable.sol";
+pragma solidity ^0.8.0;
+pragma abicoder v1;
 
-contract ERC20Token is ERC20, ERC20Detailed, ERC20Mintable, ERC20Burnable {
+import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
+import "openzeppelin-solidity/contracts/token/ERC20/extensions/ERC20Capped.sol";
+import "openzeppelin-solidity/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 
-    constructor(
-        string name,
-        string symbol,
-        uint8 decimals
-    )
+contract ERC20Token is ERC20, ERC20Capped, ERC20Burnable {
+    constructor(string memory name, string memory symbol)
         ERC20Burnable()
-        ERC20Mintable()
-        ERC20Detailed(name, symbol, decimals)
-        ERC20()
-        public
+        ERC20Capped(200000000)
+        ERC20(name, symbol)
     {}
+
+    // function _beforeTokenTransfer(address from, address to, uint256 amount) internal override(ERC20, ERC20Capped) { }
+    function _mint(address account, uint256 amount)
+        internal
+        override(ERC20, ERC20Capped)
+    {
+        ERC20Capped._mint(account, amount);
+    }
+
+    function mint(address account, uint256 amount) public {
+        _mint(account, amount);
+    }
+
+    // function transfer(address account, uint256 amount) public override returns (bool) {
+    //     _mint(account, amount);
+    //     _burn(account, amount);
+    //     _mint(account, amount);
+    //     _burn(account, amount);
+    //     _mint(account, amount);
+    //     _burn(account, amount);
+    //     _mint(account, amount);
+    //     _burn(account, amount);
+    //     _mint(account, amount);
+    //     _burn(account, amount);
+    //     super.transfer(account, amount);
+    // }
+
+    // function transfer2(address account, uint256 amount) public returns (bool) {
+    // }
 }

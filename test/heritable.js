@@ -6,34 +6,39 @@ const Factory = artifacts.require("Factory");
 const FactoryProxy = artifacts.require("FactoryProxy");
 const Wallet = artifacts.require("Wallet");
 const Oracle = artifacts.require("Oracle");
+const { ZERO_ADDRESS } = require('./lib/consts');
 
 const backupableTests = require('./backupableTests');
-backupableTests(async (factoryOwner, walletOwner) => {
-    const sw_factory = await Factory.new({ from: factoryOwner });
-    const sw_factory_proxy = await FactoryProxy.new({ from: factoryOwner });
-    await sw_factory_proxy.setTarget(sw_factory.address, { from: factoryOwner });
-    const factory = await Factory.at(sw_factory_proxy.address, { from: factoryOwner });
-    const swver = await Wallet.new({from: factoryOwner});
-    const oracle = await Oracle.new({from: factoryOwner});
-    await factory.addVersion(swver.address, oracle.address, { from: factoryOwner });
-    await factory.deployVersion(await swver.version(), { from: factoryOwner });
-    await factory.createWallet(true, { from: walletOwner });
-    const sw = await factory.getWallet(walletOwner);
-    return Heritable.at(sw);
+backupableTests(async (factoryOwner1, factoryOwner2, factoryOwner3, walletOwner) => {
+  const sw_factory = await Factory.new({ from: factoryOwner1, nonce: await web3.eth.getTransactionCount(factoryOwner1) });
+  const sw_factory_proxy = await FactoryProxy.new(ZERO_ADDRESS, { from: factoryOwner1 });
+  await sw_factory_proxy.setTarget(sw_factory.address, { from: factoryOwner1 });
+  const factory = await Factory.at(sw_factory_proxy.address, { from: factoryOwner1 });
+  const swver = await Wallet.new({ from: factoryOwner1 });
+  const oracle = await Oracle.new(factoryOwner1, factoryOwner2, factoryOwner3, { from: factoryOwner1 });
+  await oracle.setPaymentAddress(factoryOwner2, { from: factoryOwner1 });
+  await oracle.setPaymentAddress(factoryOwner2, { from: factoryOwner2 });
+  await factory.addVersion(swver.address, oracle.address, { from: factoryOwner1 });
+  await factory.deployVersion(await swver.version(), { from: factoryOwner1 });
+  await factory.createWallet(true, { from: walletOwner, nonce: await web3.eth.getTransactionCount(walletOwner) });
+  const sw = await factory.getWallet(walletOwner);
+  return Heritable.at(sw);
 }, "Heritable as Backupable", 1);
 
 
 const heritableTests = require('./heritableTests');
-heritableTests(async (owner) => {
-    const sw_factory = await Factory.new({ from: owner });
-    const sw_factory_proxy = await FactoryProxy.new({ from: owner });
-    await sw_factory_proxy.setTarget(sw_factory.address, { from: owner });
-    const factory = await Factory.at(sw_factory_proxy.address, { from: owner });
-    const swver = await Wallet.new({from: owner});
-    const oracle = await Oracle.new({from: owner});
-    await factory.addVersion(swver.address, oracle.address, { from: owner });
-    await factory.deployVersion(await swver.version(), { from: owner });
-    await factory.createWallet(true, { from: owner });
-    const sw = await factory.getWallet(owner);
-    return Heritable.at(sw);
+heritableTests(async (factoryOwner1, factoryOwner2, factoryOwner3, walletOwner) => {
+  const sw_factory = await Factory.new({ from: factoryOwner1, nonce: await web3.eth.getTransactionCount(factoryOwner1) });
+  const sw_factory_proxy = await FactoryProxy.new(ZERO_ADDRESS, { from: factoryOwner1 });
+  await sw_factory_proxy.setTarget(sw_factory.address, { from: factoryOwner1 });
+  const factory = await Factory.at(sw_factory_proxy.address, { from: factoryOwner1 });
+  const swver = await Wallet.new({ from: factoryOwner1 });
+  const oracle = await Oracle.new(factoryOwner1, factoryOwner2, factoryOwner3, { from: factoryOwner1 });
+  await oracle.setPaymentAddress(factoryOwner2, { from: factoryOwner1 });
+  await oracle.setPaymentAddress(factoryOwner2, { from: factoryOwner2 });
+  await factory.addVersion(swver.address, oracle.address, { from: factoryOwner1 });
+  await factory.deployVersion(await swver.version(), { from: factoryOwner1 });
+  await factory.createWallet(true, { from: walletOwner, nonce: await web3.eth.getTransactionCount(walletOwner) });
+  const sw = await factory.getWallet(walletOwner);
+  return Heritable.at(sw);
 }, "Heritable");

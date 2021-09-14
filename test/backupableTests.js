@@ -19,37 +19,43 @@ module.exports = (contractClass, contractName, timeUnitInSeconds=1) => {
 contract(contractName, async accounts => {
   let instance;
 
-  const factoryOwner = accounts[0];
-  const owner = accounts[1];
-  const user1 = accounts[2];
-  const user2 = accounts[3];
+  const factoryOwner1 = accounts[0];
+  const factoryOwner2 = accounts[1];
+  const factoryOwner3 = accounts[2];
+  const owner = accounts[3];
+  const user1 = accounts[4];
+  const user2 = accounts[5];
 
-  let blockTimestamp = 0;
+  let blockTimestamp = '0';
 
   before('checking constants', async () => {
-      assert(typeof owner == 'string', 'owner should be string');
-      assert(typeof user1 == 'string', 'user1 should be string');
-      assert(typeof user2 == 'string', 'user2 should be string');
+    assert(typeof factoryOwner1 == 'string', 'factoryOwner1 should be string');
+    assert(typeof factoryOwner2 == 'string', 'factoryOwner2 should be string');
+    assert(typeof factoryOwner3 == 'string', 'factoryOwner3 should be string');
+    assert(typeof owner == 'string', 'owner should be string');
+    assert(typeof user1 == 'string', 'user1 should be string');
+    assert(typeof user2 == 'string', 'user2 should be string');
   });
 
   before('setup contract for the test', async () => {
 	  if (contractClass.new instanceof Function) {
-      instance = await contractClass.new();
+      instance = await contractClass.new({ from: owner, nonce: await web3.eth.getTransactionCount(owner)});
 	  }
 	  else {
-      instance = await contractClass(factoryOwner, owner);
+      instance = await contractClass(factoryOwner1, factoryOwner2, factoryOwner3, owner);
 	  }
 
-    mlog.log('web3     ', web3.version.api);
-    mlog.log('contract ', instance.address);
-    mlog.log('owner    ', owner);
-    mlog.log('user1    ', user1);
-    mlog.log('user2    ', user2);
+    mlog.log('web3             ', web3.version);
+    mlog.log('contract         ', instance.address);
+    mlog.log('factoryOwner1    ', factoryOwner1);
+    mlog.log('factoryOwner2    ', factoryOwner2);
+    mlog.log('factoryOwner3    ', factoryOwner3);
+    mlog.log('owner            ', owner);
+    mlog.log('user1            ', user1);
+    mlog.log('user2            ', user2);
   });
 
   it('constructor: owner should be the contract creator', async () => {
-    //const contractOwner = await instance.owner.call();
-    //assert.equal(contractOwner, owner);
     const isOwner = await instance.isOwner.call({from: owner});
     assert.equal(isOwner, true);
   });
@@ -60,16 +66,15 @@ contract(contractName, async accounts => {
     const backupTimestamp = await instance.getBackupTimestamp();
     const backupActivated = await utils.isBackupActivated(instance);
 
-
     assert.equal(backupWallet, ZERO_ADDRESS, "backupWallet");
-    assert.ok(backupTimeout.equals(ZERO_BN), 'backupTimeout is not zero');
-    assert.ok(backupTimestamp.equals(ZERO_BN), 'backupTimestamp is not zero');
+    assert.equal(backupTimeout.toString(), ZERO_BN.toString(), 'backupTimeout is not zero');
+    assert.equal(backupTimestamp.toString(), ZERO_BN.toString(), 'backupTimestamp is not zero');
     assert.equal(backupActivated, false, 'backupActivated');
   });
 
   it('only owner can set backup', async () => {
     try {
-      await instance.setBackup(user2, 60, { from: user1 });
+      await instance.setBackup(user2, 60, { from: user1, nonce: await web3.eth.getTransactionCount(user1) });
       assert(false);
     } catch (err) {
       assertRevert(err);
@@ -85,18 +90,17 @@ contract(contractName, async accounts => {
     assert.equal(backupTimestamp.toString(10), ZERO_BN.toString(10), 'backupTimestamp');
     assert.equal(backupActivated, false, 'backupActivated');
 
-    await instance.setBackup(user1, 120, { from: owner });
+    await instance.setBackup(user1, 120, { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
     blockTimestamp = await utils.getLatestBlockTimestamp(timeUnitInSeconds);
 
     backupWallet = await instance.getBackupWallet();
     backupTimeout = await instance.getBackupTimeout();
     backupTimestamp = await instance.getBackupTimestamp();
-    //backupActivated = await instance.isBackupActivated();
     backupActivated = await utils.isBackupActivated(instance);
 
     assert.equal(backupWallet, user1, "backupWallet");
-    assert.equal(backupTimeout.toString(10), web3.toBigNumber(120).toString(10), `backupTimeout`);
-    assert.equal(backupTimestamp.toString(10), web3.toBigNumber(0).toString(10), `backupTimestamp`);
+    assert.equal(backupTimeout.toString(10), web3.utils.toBN('120').toString(10), `backupTimeout`);
+    assert.equal(backupTimestamp.toString(10), web3.utils.toBN('0').toString(10), `backupTimestamp`);
     assert.equal(backupActivated, false, 'backupActivated');
   });
 
@@ -111,7 +115,7 @@ contract(contractName, async accounts => {
 
   it('should revert when trying to set the owner as a backup', async () => {
     try {
-      await instance.setBackup(owner, 120, { from: owner });
+      await instance.setBackup(owner, 120, { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
       assert(false);
     } catch (err) {
       assertRevert(err);
@@ -126,18 +130,18 @@ contract(contractName, async accounts => {
     assert.equal(walletAddress, instance.address, 'walletAddress');
    
     try {
-      await factory.addWalletBackup(user1, { from: owner });
+      await factory.addWalletBackup(user1, { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
       assert(false);
     } catch (err) {
       assertRevert(err);
     }
     try {
-      await factory.addWalletBackup(user1, { from: factoryOwner });
+      await factory.addWalletBackup(user1, { from: factoryOwner1 });
       assert(false);
     } catch (err) {
       assertRevert(err);
     }
-    await instance.setBackup(user1, 120, { from: owner });
+    await instance.setBackup(user1, 120, { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
     try {
       await factory.removeWalletBackup(user1, { from: owner });
       assert(false);
@@ -145,24 +149,24 @@ contract(contractName, async accounts => {
       assertRevert(err);
     }
     try {
-      await factory.removeWalletBackup(user1, { from: factoryOwner });
+      await factory.removeWalletBackup(user1, { from: factoryOwner1, nonce: await web3.eth.getTransactionCount(factoryOwner1) });
       assert(false);
     } catch (err) {
       assertRevert(err);
     }
-    await instance.removeBackup({ from: owner });
+    await instance.removeBackup({ from: owner, nonce: await web3.eth.getTransactionCount(owner) });
 
   });
 
   it('only owner can remove a backup', async () => {
-    await instance.setBackup(user1, 120, { from: owner });
+    await instance.setBackup(user1, 120, { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
     try {
-      await instance.removeBackup({ from: user1 });
+      await instance.removeBackup({ from: user1, nonce: await web3.eth.getTransactionCount(user1) });
       assert(false);
     } catch (err) {
       assertRevert(err);
     }
-    await instance.removeBackup({ from: owner });
+    await instance.removeBackup({ from: owner, nonce: await web3.eth.getTransactionCount(owner) });
     blockTimestamp = await utils.getLatestBlockTimestamp(timeUnitInSeconds);
 
     const backupWallet = await instance.getBackupWallet();
@@ -178,7 +182,7 @@ contract(contractName, async accounts => {
 
   it('should revert when trying to activate an empty backup', async () => {
     try {
-      await instance.activateBackup({ from: owner });
+      await instance.activateBackup({ from: owner, nonce: await web3.eth.getTransactionCount(owner) });
       assert(false);
     } catch (err) {
       assertRevert(err);
@@ -186,17 +190,8 @@ contract(contractName, async accounts => {
   });
 
   it('should emit event "BackupChanged(owner, backupWallet, timeout)" when backup is set', async () => {
-    await instance.setBackup(user2, 240, { from: owner });
-
-    const logs = await new Promise((r, j) => instance.BackupChanged({}, {
-        fromBlock: 'latest',
-        toBlock: 'latest'
-      })
-      .get((err, logs) => {
-        r(logs)
-      }));
-
-    const args = assetEvent_getArgs(logs, 'BackupChanged');
+    const tx = await instance.setBackup(user2, 240, { from: owner, nonce: await web3.eth.getTransactionCount(owner) });    
+    const args = assetEvent_getArgs(tx.logs, 'BackupChanged');
     assert.equal(args.owner, owner, '..(owner, .., ..)');
     assert.equal(args.wallet, user2, '..(.., wallet, ..)');
     assert.equal(args.timeout, 240, '..(.., .., timeout)');
@@ -204,24 +199,17 @@ contract(contractName, async accounts => {
 
 
   it('should emit event "BackupRemoved(owner, wallet)" when backup is removed', async () => {
-    await instance.setBackup(user2, 240, { from: owner });
-    await instance.removeBackup({ from: owner });
-    const logs = await new Promise((r, j) => instance.BackupRemoved({}, {
-        fromBlock: 'latest',
-        toBlock: 'latest'
-      })
-      .get((err, logs) => {
-        r(logs)
-      }));
+    await instance.setBackup(user2, 240, { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
+    const tx = await instance.removeBackup({ from: owner });
 
-    const args = assetEvent_getArgs(logs, 'BackupRemoved');
+    const args = assetEvent_getArgs(tx.logs, 'BackupRemoved');
     assert.equal(args.owner, owner, '..(owner, ..)');
     assert.equal(args.wallet, user2, '..(.., wallet)');
   });
 
 
   it('should revert when trying to activate backup before time is out', async () => {
-    await instance.setBackup(user1, 120, { from: owner });
+    await instance.setBackup(user1, 120, { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
     try {
       await instance.activateBackup({ from: owner });
       assert(false);
@@ -231,17 +219,17 @@ contract(contractName, async accounts => {
   });
 
   it('anyone should be able to activate backup when time is out', async () => {
-    await instance.setBackup(user1, 0, { from: owner });
-    if (instance.accept) await instance.accept({from: user1 });
+    await instance.setBackup(user1, 0, { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
+    if (instance.accept) await instance.accept({from: user1, nonce: await web3.eth.getTransactionCount(user1) });
     if (instance.enable) await instance.enable({from: user1 });
     blockTimestamp = await utils.getLatestBlockTimestamp(timeUnitInSeconds);
 
-    await instance.activateBackup({ from: user2 });
+    await instance.activateBackup({ from: user2, nonce: await web3.eth.getTransactionCount(user2) });
   });
 
   it('should revert when trying to set a backup when backup is activated', async () => {
     try {
-      await instance.setBackup(user1, 120, { from: owner });
+      await instance.setBackup(user1, 120, { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
       assert(false);
     } catch (err) {
       assertRevert(err);
@@ -251,7 +239,7 @@ contract(contractName, async accounts => {
 
   it('should revert when trying to activate a backup when backup is already activated', async () => {
     try {
-      await instance.activateBackup({ from: user2 });
+      await instance.activateBackup({ from: user2, nonce: await web3.eth.getTransactionCount(user2) });
       assert(false);
     } catch (err) {
       assertRevert(err);
@@ -260,7 +248,7 @@ contract(contractName, async accounts => {
 
   it('only owner can reclaim ownership', async () => {
     try {
-      await instance.reclaimOwnership({ from: user1 });
+      await instance.reclaimOwnership({ from: user1, nonce: await web3.eth.getTransactionCount(user1) });
       assert(false);
     } catch (err) {
       assertRevert(err);
@@ -268,7 +256,7 @@ contract(contractName, async accounts => {
   });
 
   it('owner should be able to remove a backup when backup is activated', async () => {
-    await instance.removeBackup({ from: owner });
+    await instance.removeBackup({ from: owner, nonce: await web3.eth.getTransactionCount(owner) });
     blockTimestamp = await utils.getLatestBlockTimestamp(timeUnitInSeconds);
 
     const backupWallet = await instance.getBackupWallet();
@@ -292,12 +280,12 @@ contract(contractName, async accounts => {
   // });
 
   it('owner should be able to reclaim ownership when backup is activated', async () => {
-    await instance.setBackup(user1, 0, { from: owner });
-    if (instance.accept) await instance.accept({from: user1 });
+    await instance.setBackup(user1, 0, { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
+    if (instance.accept) await instance.accept({from: user1, nonce: await web3.eth.getTransactionCount(user1) });
     if (instance.enable) await instance.enable({from: user1 });
     blockTimestamp = await utils.getLatestBlockTimestamp(timeUnitInSeconds);
     await utils.sleep(1000);
-    await instance.activateBackup({ from: user2 });
+    await instance.activateBackup({ from: user2, nonce: await web3.eth.getTransactionCount(user2) });
 
     let backupWallet = await instance.getBackupWallet();
     let backupTimeout = await instance.getBackupTimeout();
@@ -307,13 +295,13 @@ contract(contractName, async accounts => {
 
     assert.equal(backupWallet, user1, "backupWallet");
     assert.equal(backupTimeout.toString(10), ZERO_BN.toString(10), 'backupTimeout');
-    assert.equal(backupTimestamp.toString(10), web3.toBigNumber(blockTimestamp).toString(10), 'backupTimestamp');
+    assert.equal(backupTimestamp.toString(10), web3.utils.toBN(blockTimestamp.toString()).toString(10), 'backupTimestamp');
     assert.equal(backupActivated, true, 'backupActivated');
 
     await utils.sleep(2000);
 
-    await instance.reclaimOwnership({ from: owner });
-    if (instance.enable) await instance.enable({from: user1 });
+    await instance.reclaimOwnership({ from: owner, nonce: await web3.eth.getTransactionCount(owner) });
+    if (instance.enable) await instance.enable({from: user1, nonce: await web3.eth.getTransactionCount(user1) });
 
     blockTimestamp = await utils.getLatestBlockTimestamp(timeUnitInSeconds);
 
@@ -325,17 +313,17 @@ contract(contractName, async accounts => {
 
     assert.equal(backupWallet, user1, "backupWallet");
     assert.equal(backupTimeout.toString(10), ZERO_BN.toString(10), 'backupTimeout');
-    assert.equal(backupTimestamp.toString(10), web3.toBigNumber(blockTimestamp).toString(10), 'backupTimestamp');
+    assert.equal(backupTimestamp.toString(10), web3.utils.toBN(blockTimestamp.toString()).toString(10), 'backupTimestamp');
     assert.equal(backupActivated, false, 'backupActivated');
   });
 
   /*
   it('should revert when trying to transferOwnership when backup is defined', async () => {
+    console.log(instance)
     await instance.setBackup(user1, 0, { from: owner });
     blockTimestamp = await utils.getLatestBlockTimestamp();
     //await instance.activateBackup({ from: user2 });
     await instance.transferOwnership(user2, { from: owner });
-``
   });
   */
 });

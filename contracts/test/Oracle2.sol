@@ -1,17 +1,36 @@
-pragma solidity 0.4.24;
+// SPDX-License-Identifier: UNLICENSED
 
-import "../lib/IOracle.sol";
+pragma solidity ^0.8.0;
+pragma abicoder v1;
 
-contract Oracle2 is IOracle {
+import "../lib/OracleBase.sol";
 
-    mapping (address=>bool) private tokens;
+contract Oracle2 is OracleBase {
+    mapping(address => bool) private s_tokens;
 
-    function updateToken(address _token, bool _safe) public {
-        tokens[_token] = _safe;
+    constructor(
+        address owner1,
+        address owner2,
+        address owner3
+    ) MultiSigWallet(owner1, owner2, owner3) {}
+
+    function updateToken(address token, bool safe) public {
+        s_tokens[token] = safe;
     }
 
-    function isTokenSafe(address _token) public view returns (bool) {
-        return tokens[_token];
+    function isTokenSafe(address token) public view returns (bool) {
+        return s_tokens[token];
     }
 
+    function is20Safe(address token) public view override returns (bool) {
+        return s_tokens[token];
+    }
+
+    function is721Safe(address token) public view override returns (bool) {
+        return s_tokens[token];
+    }
+
+    function version() external pure override returns (bytes8) {
+        return bytes8("0.1");
+    }
 }

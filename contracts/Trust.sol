@@ -1,54 +1,28 @@
-pragma solidity 0.4.24;
+// SPDX-License-Identifier: UNLICENSED
 
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+pragma solidity ^0.8.0;
+pragma abicoder v2;
+
+struct Fund {
+    address payable wallet;
+    uint40 start;
+    uint32 period;
+    uint16 times;
+    bool cancelable;
+}
+
+struct Self {
+    address payable owner;
+}
 
 contract Trust {
+    uint256 private s_amount;
+    uint256 private s_payed;
+    Fund private s_fund;
+    Self private s_self;
 
-    using SafeMath for uint32;
-    using SafeMath for uint40;
-    using SafeMath for uint256;
-
-    struct Fund {
-        address wallet;
-        uint40  start;
-        uint32  period;
-        uint16  times;
-        bool    cancelable;
-    }
-
-    struct Self {
-        address owner;
-    }
-
-    uint256 private amount;
-    uint256 private payed;
-    Fund public fund;
-    Self private self;
-
-    event GotEther          (address indexed from, uint256 value);
-    event SentEther         (address indexed to, uint256 value);
-
-    constructor (address  _wallet,
-                 uint40   _start,
-                 uint32   _period,
-                 uint16   _times,
-                 uint256  _amount,
-                 bool     _cancelable)
-                payable logPayment() public {
-
-        require(_wallet != address(0));
-        require(_wallet != msg.sender);
-        require((_start > 0) && (_period > 0) && (_times > 0) && (_amount > 0));
-        require(msg.value >= _amount.mul(_times));
-
-        self.owner = msg.sender;
-        fund.wallet = _wallet;
-        fund.start = _start;
-        fund.period = _period;
-        fund.times = _times;
-        amount = _amount;
-        fund.cancelable = _cancelable;
-    }
+    event GotEther(address indexed from, uint256 value);
+    event SentEther(address indexed to, uint256 value);
 
     modifier logPayment {
         if (msg.value > 0) {
@@ -57,34 +31,60 @@ contract Trust {
         _;
     }
 
-    modifier onlyOwner () {
-        require (msg.sender == self.owner, "msg.sender != self.owner");
+    modifier onlyOwner() {
+        require(msg.sender == s_self.owner, "TRUST: msg.sender != self.owner");
         _;
     }
 
-    function isOwner () public view returns (bool) {
-        return msg.sender == self.owner;
+    constructor(
+        address payable wallet,
+        uint40 start,
+        uint32 period,
+        uint16 times,
+        uint256 amount
+    ) payable logPayment() {
+        require(wallet != address(0), "TRUST: no wallet");
+        require(wallet != msg.sender, "TRUST: wallet is not sender");
+        require((start > 0) && (period > 0) && (times > 0) && (amount > 0), "TRUST: zero not allowed");
+        require(msg.value >= amount * times, "TRUST: mismatch amount");
+
+        s_self.owner = payable(msg.sender);
+        s_fund.wallet = wallet;
+        s_fund.start = start;
+        s_fund.period = period;
+        s_fund.times = times;
+        s_amount = amount;
     }
 
-    function getPaymentValue() public view returns (uint256) {
-        // solium-disable-next-line security/no-block-members
-        if (block.timestamp < fund.start) {
-            return 0;
-        }
-        // solium-disable-next-line security/no-block-members
-        if (block.timestamp >= fund.start.add(fund.period.mul(fund.times))) {
-            return address(this).balance;
-        }
-        // solium-disable-next-line security/no-block-members
-        return block.timestamp.sub(fund.start).div(fund.period).add(1).mul(amount).sub(payed);
+    receive() external payable logPayment() {}
+
+    function activateTrust() external {
+        uint256 toPay = getPaymentValue();
+        require(toPay > 0, "TRUST: payment is 0");
+        s_payed += toPay;
+        (bool success, ) = s_fund.wallet.call{value: toPay}("");
+        require(success, "TRUST: send funds failed");
+        emit SentEther(s_fund.wallet, toPay);
     }
 
-    function getNextPaymentTimestamp() public view returns (uint256) {
+    function destroy() external onlyOwner() {
+        selfdestruct(s_self.owner);
+    }
+
+    function isOwner() external view returns (bool) {
+        return msg.sender == s_self.owner;
+    }
+
+    function fund() external view returns (Fund memory) {
+        return s_fund;
+    }
+
+    function getNextPaymentTimestamp() external view returns (uint256) {
         // solium-disable-next-line security/no-block-members
-        if (block.timestamp < fund.start) {
-            return fund.start;
+        if (block.timestamp < s_fund.start) {
+            return s_fund.start;
         }
-        uint256 endTimestamp = fund.start.add(fund.period.mul(fund.times));
+        uint256 endTimestamp = s_fund.start + (s_fund.period * s_fund.times);
         // solium-disable-next-line security/no-block-members
         if (block.timestamp >= endTimestamp) {
             if (address(this).balance > 0) {
@@ -94,37 +94,37 @@ contract Trust {
             return uint40(0);
         }
         // solium-disable-next-line security/no-block-members
-        return fund.start.add(payed.div(amount).mul(fund.period));
+        return s_fund.start + ((s_payed / s_amount) * s_fund.period);
     }
 
-    function getTotalPayed () public view returns (uint256) {
-        return payed;
+    function getTotalPayed() external view returns (uint256) {
+        return s_payed;
     }
 
-    function getPaymentAmount () public view returns (uint256) {
-        return amount;
+    function getPaymentAmount() external view returns (uint256) {
+        return s_amount;
     }
 
-    function activateTrust() public {
-        uint256 toPay = getPaymentValue();
-        require (toPay > 0);
-        payed += toPay;
-        fund.wallet.transfer(toPay);
-        emit SentEther(fund.wallet, toPay);
-    }
-
-    function getBalance () public view returns (uint256) {
+    function getBalance() external view returns (uint256) {
         return address(this).balance;
     }
 
-    function destroy() public onlyOwner() {
-        selfdestruct (self.owner);
-    }
-
-    function () public logPayment() payable {
-    }
-
-    function version() public pure returns (bytes8) {
+    function version() external pure returns (bytes8) {
         return bytes8("0.1");
+    }
+
+    function getPaymentValue() public view returns (uint256) {
+        // solium-disable-next-line security/no-block-members
+        if (block.timestamp < s_fund.start) {
+            return 0;
+        }
+        // solium-disable-next-line security/no-block-members
+        if (block.timestamp >= s_fund.start + (s_fund.period * s_fund.times)) {
+            return address(this).balance;
+        }
+        // solium-disable-next-line security/no-block-members
+        return
+            ((((block.timestamp - s_fund.start) / s_fund.period) + 1) *
+                s_amount) - s_payed;
     }
 }

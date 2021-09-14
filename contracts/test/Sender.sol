@@ -1,8 +1,15 @@
-pragma solidity 0.4.24;
+// SPDX-License-Identifier: UNLICENSED
+
+pragma solidity ^0.8.0;
+pragma abicoder v1;
 
 contract Sender {
-    function sendEther(address _to, uint256 _value) public {
-        _to.transfer(_value);
+    function sendEther(address payable to, uint256 value) public {
+        (bool success,) = to.call{value: value}("");
+        require(success, "send failed");
     }
-    function () payable public {}
+
+    fallback() external payable {}
+
+    receive() external payable {}
 }

@@ -1,27 +1,22 @@
-pragma solidity 0.4.24;
+// SPDX-License-Identifier: UNLICENSED
 
-import "openzeppelin-solidity/contracts/token/ERC721/ERC721Full.sol";
+pragma solidity ^0.8.0;
+pragma abicoder v1;
 
-contract ERC721Token is ERC721Full {
-    uint256 private tokenId;
+import "openzeppelin-solidity/contracts/token/ERC721/ERC721.sol";
+import "openzeppelin-solidity/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 
-    constructor(
-        string name,
-        string symbol
-    )
-        ERC721Full(name, symbol)
-        public
+contract ERC721Token is ERC721URIStorage {
+    uint256 private s_tokenId;
+
+    constructor(string memory name, string memory symbol)
+        ERC721(name, symbol)
     {}
 
-    function createTimeframe (
-        string tokenURI
-    )
-        public
-        returns (bool)
-    {
-        tokenId += 1;
-        _mint(msg.sender, tokenId);
-        _setTokenURI(tokenId, tokenURI);
+    function createTimeframe(string memory tokenURI) public returns (bool) {
+        s_tokenId += 1;
+        _mint(msg.sender, s_tokenId);
+        _setTokenURI(s_tokenId, tokenURI);
         return true;
     }
 }
