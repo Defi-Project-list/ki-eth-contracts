@@ -383,7 +383,7 @@ contract FactoryProxy is FactoryStorage {
                     call.s
                 );
 
-                require(wallet.owner == true, "Factory: signer is not owner");
+                require(wallet.owner, "Factory: signer is not owner");
 
                 (bool success, bytes memory res) = call.token == address(0)
                     ? wallet.addr.call{
@@ -682,7 +682,7 @@ contract FactoryProxy is FactoryStorage {
                     call.s
                 );
 
-                require(wallet.owner == true, "Factory: signer is not owner");
+                require(wallet.owner, "Factory: signer is not owner");
 
                 (bool success, bytes memory res) = _executeCall(
                     wallet.addr,
@@ -876,7 +876,7 @@ contract FactoryProxy is FactoryStorage {
                     mcalls.s
                 );
 
-                require(wallet.owner == true, "Factory: signer is not owner");
+                require(wallet.owner, "Factory: signer is not owner");
 
                 uint256 localNonce;
                 uint256 localIndex;
@@ -1163,10 +1163,7 @@ contract FactoryProxy is FactoryStorage {
                         continue;
                     }
                     Wallet storage wallet = s_accounts_wallet[signers[j]];
-                    require(
-                        wallet.owner == true,
-                        "Factory: signer is not owner"
-                    );
+                    require(wallet.owner, "Factory: signer is not owner");
 
                     (bool success, bytes memory res) = _executeCall(
                         wallet.addr,
