@@ -5,8 +5,9 @@ pragma abicoder v1;
 
 import "./IOracle.sol";
 import "./MultiSig.sol";
+import "../MultiSigWallet.sol";
 
-abstract contract OracleBase is IOracle, MultiSig {
+abstract contract OracleBase is IOracle, MultiSigWallet {
     address payable internal s_payto;
 
     function setPaymentAddress(address payable payto)

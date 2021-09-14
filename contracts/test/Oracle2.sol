@@ -12,7 +12,7 @@ contract Oracle2 is OracleBase {
         address owner1,
         address owner2,
         address owner3
-    ) MultiSig(owner1, owner2, owner3) {}
+    ) MultiSigWallet(owner1, owner2, owner3) {}
 
     function updateToken(address token, bool safe) public {
         s_tokens[token] = safe;

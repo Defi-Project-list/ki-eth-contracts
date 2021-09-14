@@ -13,7 +13,7 @@ contract Oracle is OracleBase {
         address owner1,
         address owner2,
         address owner3
-    ) MultiSig(owner1, owner2, owner3) {}
+    ) MultiSigWallet(owner1, owner2, owner3) {}
 
     function update20(address token, bool safe) external multiSig2of3(0) {
         s_tokens_20[token] = safe;
@@ -35,5 +35,4 @@ contract Oracle is OracleBase {
         return bytes8("1.2.1");
     }
 
-    fallback() external {}
 }
