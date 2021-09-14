@@ -79,16 +79,32 @@ module.exports = {
     development: {
       network_id: "*",
       provider: function () {
-        // const mnemonic = 'awesome grain neither pond excess garage tackle table piece assist venture escape'
-        const mnemonic = 'front assume robust donkey senior economy maple enhance click bright game alcohol'
+        const mnemonic = 'awesome grain neither pond excess garage tackle table piece assist venture escape'
         const port = 7545
+        const accounts = 220
         if (!server) {
-          server = ganache.server({ mnemonic })
+          server = ganache.server({
+            mnemonic,
+            total_accounts: accounts,
+            gasLimit: 22500000,
+            default_balance_ether: 1000,
+          })
            server.listen(port, () => { console.log('ready') })
          }
-         const provider = new HDWalletProvider(mnemonic, `http://127.0.0.1:${port}`)
+         const provider = new HDWalletProvider({
+           mnemonic, 
+           numberOfAddresses: accounts,
+           providerOrUrl: `http://127.0.0.1:${port}`,
+           _chainId: 4,
+           _chainIdRpc: 4,
+          })
          return provider
        },
+      ens: {
+        registry: {
+          address: '0x194882C829ba3F56C7B7b99175435381d8Ac30B9',
+        },
+      },
     },
     dev: devNetwork
   },

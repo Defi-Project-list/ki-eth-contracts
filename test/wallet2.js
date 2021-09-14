@@ -62,7 +62,7 @@ contract('Wallet', async (accounts) => {
   const user4         = accounts[8];
   const activator     = accounts[7];
   const instances     = []
-  
+
   const val1  = web3.utils.toWei('0.5', 'gwei');
   const val2  = web3.utils.toWei('0.4', 'gwei');
   const val3  = web3.utils.toWei('0.6', 'gwei');
@@ -117,7 +117,7 @@ contract('Wallet', async (accounts) => {
     mlog.log(`user4 debt: ${await factory.getWalletDebt(accounts[13], { from: user1 })}`)
     mlog.log(`activator debt: ${await factory.getWalletDebt(activator)}`)
   }
-  
+
   const eip712sign = async (inst, typedData, account) => {
     mlog.log('typedData: ', JSON.stringify(typedData, null, 2))
     const domainHash = TypedDataUtils.hashStruct(typedData, 'EIP712Domain', typedData.domain)
@@ -129,7 +129,7 @@ contract('Wallet', async (accounts) => {
     const messageDigest = TypedDataUtils.encodeDigest(typedData)
     const messageDigestHex = ethers.utils.hexlify(messageDigest)
 
-    console.log('message:', messageDigestHex)  
+    console.log('message:', messageDigestHex)
 
     console.log('data:', ethers.utils.hexlify(TypedDataUtils.encodeData(typedData, typedData.primaryType, typedData.message)))
 
@@ -185,7 +185,7 @@ contract('Wallet', async (accounts) => {
     assert(typeof val3    == 'string', 'val2    should be string');
     assert(valBN instanceof web3.utils.BN, 'valBN should be big number');
   });
-  
+
   before('setup contract for the test', async () => {
     // for (const key of keys) {
     //   await web3.eth.accounts.wallet.add(key)
@@ -207,7 +207,7 @@ contract('Wallet', async (accounts) => {
 
     await sw_factory_proxy_ms.setTarget(sw_factory.address, { from: factoryOwner1 });
     await sw_factory_proxy_ms.setTarget(sw_factory.address, { from: factoryOwner2 });
-    
+
     factory = await Factory.at(sw_factory_proxy.address);
     factoryProxy = await FactoryProxy.at(sw_factory_proxy.address);
 
@@ -215,7 +215,7 @@ contract('Wallet', async (accounts) => {
     oracle = await Oracle.new(factoryOwner1, factoryOwner2, factoryOwner3, {from: owner, nonce: await web3.eth.getTransactionCount(owner)});
     await oracle.setPaymentAddress(factoryOwner2, { from: factoryOwner2 });
     await oracle.setPaymentAddress(factoryOwner2, { from: factoryOwner1 });
-    
+
     await multiSig.setOwnTarget_(factory.address, { from: factoryOwner1 })
     await multiSig.setOwnTarget_(factory.address, { from: factoryOwner2 })
 
@@ -236,7 +236,7 @@ contract('Wallet', async (accounts) => {
     await oracle.update20(token20.address, true, {from: factoryOwner3});
     token20notSafe = await ERC20Token.new('Kirobo ERC20 Not Safe Token', 'KDB20NS', {from: owner});
     token721 = await ERC721Token.new('Kirobo ERC721 Token', 'KBF', {from: owner});
-    
+
     await multiSig.setOwnTarget_(sw_factory_proxy.address, { from: factoryOwner1 })
     await multiSig.setOwnTarget_(sw_factory_proxy.address, { from: factoryOwner2 })
 
@@ -264,7 +264,7 @@ contract('Wallet', async (accounts) => {
 
     DOMAIN_SEPARATOR = (await instance.DOMAIN_SEPARATOR())
   });
-  
+
   it('should create an empty wallet', async () => {
     const balance = await web3.eth.getBalance(instance.address);
     assert.equal(balance.toString(10), web3.utils.toBN('0').toString(10));
@@ -274,7 +274,7 @@ contract('Wallet', async (accounts) => {
     await web3.eth.sendTransaction({ gas, from: owner, value: val1, to: instance.address, nonce: await web3.eth.getTransactionCount(owner) });
     await web3.eth.sendTransaction({ gas, from: user1, value: val2, to: instance.address, nonce: await web3.eth.getTransactionCount(user1) });
     await web3.eth.sendTransaction({ gas, from: user2, value: val3, to: instance.address, nonce: await web3.eth.getTransactionCount(user2) });
-    
+
     const balance = await web3.eth.getBalance(instance.address);
     assert.equal(balance.toString(10), valBN.toString(10));
 
@@ -284,6 +284,7 @@ contract('Wallet', async (accounts) => {
     await token20.mint(user4, 10000, { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
 
     for (let i=10; i<10+userCount; ++i) {
+      console.log('minting for', accounts[i])
       await token20.mint(accounts[i], 10000, { from: owner, nonce: await web3.eth.getTransactionCount(owner) });
     }
     for (let i=10; i<20; /*10+userCount/2;*/ ++i) {
@@ -301,7 +302,7 @@ contract('Wallet', async (accounts) => {
     const { receipt } = await token20.transfer(instance.address, 50, {from: user1, nonce: await web3.eth.getTransactionCount(user1)});
     mlog.pending(`ERC20 native Transfer consumed ${JSON.stringify(receipt.gasUsed)} gas`)
   });
-  
+
 
 it('EIP712: should be able to execute multi external calls: signer==operator, sender==owner', async () => {
     await instance.cancelCall({ from: owner })
@@ -345,7 +346,7 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
           to: accounts[11],
           gasLimit: 0,
         },
-//3        
+//3
         {
           data: token20.contract.methods.transfer(accounts[13], 12).encodeABI(),
           value: 0,
@@ -367,7 +368,7 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
         //   typeHash: '0x'.padEnd(66,'1'),
         //   to: token20.address,
         //   gasLimit: 0,
-        //   flow: 0, 
+        //   flow: 0,
         // },
         // {
         //   data: token20.contract.methods.transfer(accounts[i+53], 5).encodeABI(),
@@ -421,7 +422,7 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
           { name: 'limits',               type: 'Limits'},
           { name: 'transaction_1',        type: 'TokenTransfer' },
           { name: 'transaction_2',        type: 'EthTransfer' }, //TODO: check is there is bug/limit in metamsk
-          { name: 'transaction_3',        type: 'TokenTransfer' }, 
+          { name: 'transaction_3',        type: 'TokenTransfer' },
         ],
         Limits: [
           { name: 'nonce',                type: 'uint64'      },
@@ -441,7 +442,7 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
           { name: 'stop_on_fail',         type: 'bool'        },
           { name: 'stop_on_success',      type: 'bool'        },
           { name: 'revert_on_success',    type: 'bool'        },
-          { name: 'method_interface',     type: 'string'      },        
+          { name: 'method_interface',     type: 'string'      },
         ],
         TokenTransfer: [
           { name: 'details',              type: 'Transaction' },
@@ -462,7 +463,7 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
         verifyingContract: factoryProxy.address,
         salt: await factoryProxy.uid(),
       },
-      message: { 
+      message: {
         ['KIROBO PROTECTS YOU']: '👍',
         ['MULTI PROTECTION']: '👍',
         limits: {
@@ -524,8 +525,8 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
           gas_limit: Number.parseInt('0x' + maxGasERC20),
           method_interface: '',
         }
-      }, 
-        ['-------------------------------------']: '', 
+      },
+        ['-------------------------------------']: '',
         transaction_3: {
           details: {
             call_address: token20.address,
@@ -559,10 +560,10 @@ it('EIP712: should be able to execute multi external calls: signer==operator, se
               gasLimit: Number.parseInt('0x' + maxGasERC20),
               ensHash: item.data.length > 0 ? web3.utils.sha3('@token.kiro.eth'): '0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470',
               data: item.data.length > 0 ? '0x' + item.data.slice(10): '0x'})
-        ), 
+        ),
         // _hash: defaultAbiCoder.encode(
         //   ['(bytes32,address,uint256,uint256,uint40,uint40,uint256,uint256,bytes4,bytes)[]'],
-        //   [send.map(item => ([ 
+        //   [send.map(item => ([
         //         item.typeHash,
         //         item.to,
         //         item.value,
@@ -637,7 +638,7 @@ const runEIP712MultiSigTest= async (multiSig, group) => {
           signer: getSigner(10),
           // flow: 0x10, // on_success_stop
         },
-        (multiSig ? 
+        (multiSig ?
         {
           data: '',
           value: 0,
@@ -676,7 +677,7 @@ const runEIP712MultiSigTest= async (multiSig, group) => {
         //   typeHash: '0x'.padEnd(66,'1'),
         //   to: token20.address,
         //   gasLimit: 0,
-        //   flow: 0, 
+        //   flow: 0,
         // },
         // {
         //   data: token20.contract.methods.transfer(accounts[i+53], 5).encodeABI(),
@@ -717,10 +718,10 @@ const runEIP712MultiSigTest= async (multiSig, group) => {
       `0x${groupERC20}${tnonceERC20}${afterERC20}${beforeERC20}${maxGasERC20}${maxGasPriceERC20}${eip712ERC20}`
     )
 
-    const transaction2 = multiSig ? 
+    const transaction2 = multiSig ?
           { name: 'approval',             type: 'Approval'}:
           { name: 'transaction_2',        type: 'transaction2'}
-    
+
     const typedData = {
       types: {
         EIP712Domain: [
@@ -772,7 +773,7 @@ const runEIP712MultiSigTest= async (multiSig, group) => {
           { name: 'stop_on_fail',         type: 'bool'        },
           { name: 'stop_on_success',      type: 'bool'        },
           { name: 'revert_on_success',    type: 'bool'        },
-          { name: 'method_interface',     type: 'string'      },        
+          { name: 'method_interface',     type: 'string'      },
         ],
         Approval: [
           { name: 'signer',               type: 'address'     },
@@ -786,7 +787,7 @@ const runEIP712MultiSigTest= async (multiSig, group) => {
         verifyingContract: factoryProxy.address,
         salt: await factoryProxy.uid(),
       },
-      message: { 
+      message: {
         ['KIROBO PROTECTS YOU']: '👍',
         ['MULTI PROTECTION']: '👍',
         limits: {
@@ -800,7 +801,7 @@ const runEIP712MultiSigTest= async (multiSig, group) => {
         ['-----------------------------------']: '',
         transaction_1: {
           details: {
-            signer: getSigner(10), 
+            signer: getSigner(10),
             call_address: token20.address,
             call_ens: '@token.kiro.eth',
             eth_value: '0',
@@ -835,8 +836,8 @@ const runEIP712MultiSigTest= async (multiSig, group) => {
             revert_on_success: false,
             method_interface: '',
           },
-        }, 
-        ['-------------------------------------']: '', 
+        },
+        ['-------------------------------------']: '',
         transaction_3: {
           details: {
             signer: getSigner(10),
@@ -870,10 +871,10 @@ const runEIP712MultiSigTest= async (multiSig, group) => {
               gasLimit: Number.parseInt('0x' + maxGasERC20),
               ensHash: item.data.length > 0 ? web3.utils.sha3('@token.kiro.eth'): '0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470',
               data: item.data.length > 0 ? '0x' + item.data.slice(10): '0x'})
-        ), 
+        ),
         // _hash: defaultAbiCoder.encode(
         //   ['(bytes32,address,uint256,uint256,uint40,uint40,uint256,uint256,bytes4,bytes)[]'],
-        //   [send.map(item => ([ 
+        //   [send.map(item => ([
         //         item.typeHash,
         //         item.to,
         //         item.value,
