@@ -14,7 +14,7 @@
   "scripts": {
     "version": "truffle version",
     "compile": "truffle compile --all",
-    "test": "truffle test test/wallet3.js --network development",
+    "test": "truffle test --network development",
     "t": "truffle test test/sw_factory.js --network development",
     "heroku-postbuild-full": "truffle migrate --compile-all --reset --network rinkeby && cd web-app && npm i && npm i --only=dev && npm build",
     "heroku-postbuild": "truffle compile --all; cd web-app && npm i && npm i --only=dev && npm run build",

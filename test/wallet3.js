@@ -247,29 +247,111 @@ const eip712typehash = (typedData, mainType) => {
   
   it('eip712: should be able to execute external calls', async () => {
 
+    const message = "Sign this message in order to create your personal free wallet" // await factory.createWalletMessage(true, "Please Sign")
+
+    mlog.log('message: ', message)
+    const typedData = {
+      types: {
+        EIP712Domain: [
+          { name: "name",               type: "string" },
+          { name: "version",            type: "string" },
+          { name: "chainId",            type: "uint256" },
+          { name: "verifyingContract",  type: "address" },
+          { name: "salt",               type: "bytes32" }
+        ],
+        CreateWallet: [
+          { name: 'action',             type: 'string' },
+          { name: 'auto_updates',       type: 'bool' },
+          { name: 'info',               type: 'string' },
+        ]
+      },
+      primaryType: 'CreateWallet',
+      domain: {
+        name: await factoryProxy.NAME(),
+        version: await factoryProxy.VERSION(),
+        chainId: '0x' + web3.utils.toBN(await factoryProxy.CHAIN_ID()).toString('hex'), // await web3.eth.getChainId(),
+        verifyingContract: factoryProxy.address,
+        salt: await factoryProxy.uid(),
+      },
+      message: {
+        action: 'create safe vault',
+        auto_updates: true,
+        info: message,
+      }
+    }
+    mlog.log('typedData: ', JSON.stringify(typedData, null, 2))
+    const domainHash = TypedDataUtils.hashStruct(typedData, 'EIP712Domain', typedData.domain)
+    const domainHashHex = ethers.utils.hexlify(domainHash)
+    mlog.log('CHAIN_ID', await factoryProxy.CHAIN_ID())
+    mlog.log('DOMAIN_SEPARATOR', await factoryProxy.DOMAIN_SEPARATOR())
+    mlog.log('DOMAIN_SEPARATOR (calculated)', domainHashHex)
     
+    const { defaultAbiCoder, keccak256, toUtf8Bytes } = ethers.utils
 
+    mlog.log('DOMAIN_SEPARATOR (calculated2)', keccak256(defaultAbiCoder.encode(
+        ['bytes32', 'bytes32', 'bytes32', 'uint256', 'address', 'bytes32'],
+        [
+          keccak256(
+            toUtf8Bytes('EIP712Domain(string name,string version,uint256 chainId,address verifyingContract,bytes32 salt)')
+          ),
+          keccak256(toUtf8Bytes(await factoryProxy.NAME())),
+          keccak256(toUtf8Bytes(await factoryProxy.VERSION())),
+          '0x' + web3.utils.toBN(await factoryProxy.CHAIN_ID()).toString('hex'),
+          factoryProxy.address,
+          await factoryProxy.uid(),
+        ]
+    )))
 
-    const msg = (await factory.generateMessage.call("Please sign", "Thanks", true))
+    const messageDigest = TypedDataUtils.encodeDigest(typedData)
+    const messageDigestHex = ethers.utils.hexlify(messageDigest)
+    let signingKey = new ethers.utils.SigningKey(getPrivateKey(owner));
+    const sig = signingKey.signDigest(messageDigest)
+    const rlp = await eip712sign(factoryProxy, typedData, 3) // ethers.utils.splitSignature(sig)
+    // rlp.v = '0x' + rlp.v.toString(16)
+    // const messageDigestHash = messageDigestHex.slice(2)
+    // mlog.log('messageDigestHash', messageDigestHash)
+    const messageHash = TypedDataUtils.hashStruct(typedData, typedData.primaryType, typedData.message)
+    const messageHashHex = ethers.utils.hexlify(messageHash)
+    mlog.log('messageHash (calculated)', messageHashHex)
+    mlog.log('typeHash ', await factory.CREATE_WALLET_TYPEHASH())
+    mlog.log('typeHash (calculated) ', '0x' + Buffer.from(TypedDataUtils.typeHash(typedData.types, 'CreateWallet')).toString('hex'))
+    
+    // const message2Hash = keccak256(message)
+    // mlog.log('messageHash (calculated 2)', message2Hash)
+    
+    mlog.log('rlp', JSON.stringify(rlp))
+    mlog.log('recover', ethers.utils.recoverAddress(messageDigest, sig))
 
-      const typedData = [{ 
-          type: "string",
-          name: "message", 
-          value: msg
-      }]
-
-      mlog.log(JSON.stringify(msg))
-
-      const signature = await new Promise(resolve => socket.emit('sign_v1 request', JSON.stringify([typedData]), resolve))
-      const rlp = { r: signature.slice(0, 66), s: '0x'+signature.slice(66,130), v: '0x'+signature.slice(130) }
-
-
-    //function createFreeWallet(string calldata preMsg, string calldata postMsg, bool autoMode, address owner, uint8 v, bytes32 r, bytes32 s) external returns (address)
-    const res =await factory.createFreeWallet ("Please sign", "Thanks", true, "0x29bC20DebBB95fEFef4dB8057121c8e84547E1A9", rlp.v, rlp.r, rlp.s);
+    const res = await factory.createFreeWallet(true, web3.utils.sha3(message), owner, rlp.v, rlp.r, rlp.s);
+    // const res = await factory.createFreeWallet(true, web3.utils.sha3(message), '0xab5486920b798Cb449f912b1710f5449478Ab0c1', rlp.v, rlp.r, rlp.s);
     mlog.log(JSON.stringify(res))
 
-    // const tokens = 2
-    // await instance.cancelCall({ from: owner })
+    // assert(await pool.validateAcceptTokens(user1, tokens, secretHash, rlp.v, rlp.r, rlp.s, true, { from: user1 }), 'invalid signature')
+    // mlog.log('account info: ', JSON.stringify(await pool.account(user1), { from: user1 }))
+    // await pool.executeAcceptTokens(user1, tokens, Buffer.from(secret), rlp.v, rlp.r, rlp.s, true, { from: poolOwner} )
+    // mlog.log('account info: ', JSON.stringify(await pool.account(user1), { from: user1 }))
+
+
+    // const msg = (await factory.generateMessage.call("Please sign\n", "\nThanks", true))
+
+    //   const typedData = [{ 
+    //       type: "string",
+    //       name: "message", 
+    //       value: msg
+    //   }]
+
+    //   mlog.log(JSON.stringify(msg))
+
+    //   const signature = await new Promise(resolve => socket.emit('sign_v1 request', JSON.stringify([typedData]), resolve))
+    //   const rlp = { r: signature.slice(0, 66), s: '0x'+signature.slice(66,130), v: '0x'+signature.slice(130) }
+
+
+    // //function createFreeWallet(string calldata preMsg, string calldata postMsg, bool autoMode, address owner, uint8 v, bytes32 r, bytes32 s) external returns (address)
+    // const res = await factory.createFreeWallet ("Please sign\n", "\nThanks", true, '0xab5486920b798Cb449f912b1710f5449478Ab0c1', rlp.v, rlp.r, rlp.s);
+    // mlog.log(JSON.stringify(res))
+
+    // // const tokens = 2
+    // // await instance.cancelCall({ from: owner })
     // const data = token20.contract.methods.transfer(user1, 5).encodeABI()
 
     // mlog.log('---> data', data)

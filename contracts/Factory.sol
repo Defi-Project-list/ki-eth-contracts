@@ -11,18 +11,8 @@ import "./lib/IOracle.sol";
     @notice Factory contract - defines functions that are used by all related contracts
  */
 contract Factory is FactoryStorage {
-    bytes32 public constant BATCH_MULTI_SIG_CALL_TYPEHASH =
-        keccak256(
-            "BatchMultiSigCall(Limits limits,Transaction transaction)Limits(uint256 sessionId)Transaction(address signer,address to,uint256 value,uint32 gasLimit,uint16 flags,bytes data)"
-        );
-
-    bytes32 public constant BATCH_MULTI_SIG_CALL_LIMITS_TYPEHASH =
-        keccak256("Limits(uint256 sessionId)");
-
-    bytes32 public constant BATCH_MULTI_SIG_CALL_TRANSACTION_TYPEHASH =
-        keccak256(
-            "Transaction(address signer,address to,uint256 value,uint32 gasLimit,uint16 flags,bytes data)"
-        );
+    bytes32 public constant CREATE_WALLET_TYPEHASH = keccak256("CreateWallet(string action,bool auto_updates,string info)");
+    bytes32 public constant CREATE_WALLET_ACTION_HASH = keccak256("create safe vault");
 
     event WalletCreated(
         address indexed wallet,
@@ -303,22 +293,35 @@ contract Factory is FactoryStorage {
         return _createWallet(autoMode, msg.sender);
     }
 
-    function generateMessage(string calldata preMsg, string calldata postMsg, bool autoMode) public view returns (string memory) {
-        return string(abi.encodePacked(
-          preMsg,
-          "\nWallet Creator Contract Address: 0x",
-          s_my_address,
-          "\nAuto Updates: ",
-          autoMode ? "Enabled\n" : "Disabled\n",
-          postMsg
-        ));
+    function createFreeWallet(bool autoMode, bytes32 infoHash, address owner, uint8 v, bytes32 r, bytes32 s)
+        external 
+        returns (address) 
+    {
+        bytes32 messageHash = _messageToRecover(keccak256(createWalletMessage(autoMode, infoHash)), true);
+        address signer = _addressFromMessageAndSignature(messageHash, v, r, s);
+        require(signer == owner, "signer is not owner");
+        return _createWallet(autoMode, owner);
     }
 
-    function createFreeWallet(string calldata preMsg, string calldata postMsg, bool autoMode, address owner, uint8 v, bytes32 r, bytes32 s) external returns (address) {
-        string memory message = generateMessage(preMsg, postMsg, autoMode);        
-        bytes32 messageHash = keccak256(abi.encodePacked(keccak256('string message'), keccak256(abi.encodePacked(message))));
-        require(ecrecover(messageHash, v, r, s) == owner, "signer is not owner");
-        return _createWallet(autoMode, owner);
+    function createWalletMessage(bool autoMode, bytes32 infoHash) 
+        public 
+        pure 
+        returns (bytes memory)
+    {
+        return abi.encode(
+            CREATE_WALLET_TYPEHASH,
+            CREATE_WALLET_ACTION_HASH,
+            autoMode,
+            infoHash
+        );
+    }
+
+    function oracle() external view returns (address oracleAddress) {
+        bytes8 version = s_wallets_version[msg.sender];
+        if (version == LATEST) {
+            version = s_production_version;
+        }
+        oracleAddress = s_versions_oracle[version];
     }
 
     function _createWallet(bool autoMode, address owner)
@@ -358,14 +361,6 @@ contract Factory is FactoryStorage {
             }
         }
         return sp_sw.addr;
-    }
-
-    function oracle() external view returns (address oracleAddress) {
-        bytes8 version = s_wallets_version[msg.sender];
-        if (version == LATEST) {
-            version = s_production_version;
-        }
-        oracleAddress = s_versions_oracle[version];
     }
 
     /** @notice _generateWallet - private function that creates a wallet using a pre defined code 

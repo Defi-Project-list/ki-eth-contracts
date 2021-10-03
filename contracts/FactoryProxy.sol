@@ -146,7 +146,7 @@ struct MultiSigCallLocals {
 contract FactoryProxy is FactoryStorage {
     uint8 public constant VERSION_NUMBER = 0x1;
 
-    string public constant NAME = "Kirobo OCW Manager";
+    string public constant NAME = "Kirobo Deployer";
 
     string public constant VERSION = "1";
 
