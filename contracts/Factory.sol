@@ -300,11 +300,37 @@ contract Factory is FactoryStorage {
         @return address
     */
     function createWallet(bool autoMode) external returns (address) {
+        return _createWallet(autoMode, msg.sender);
+    }
+
+    function generateMessage(string calldata preMsg, string calldata postMsg, bool autoMode) public view returns (string memory) {
+        return string(abi.encodePacked(
+          preMsg,
+          "\nWallet Creator Contract Address: 0x",
+          s_my_address,
+          "\nAuto Updates: ",
+          autoMode ? "Enabled\n" : "Disabled\n",
+          postMsg
+        ));
+    }
+
+    function createFreeWallet(string calldata preMsg, string calldata postMsg, bool autoMode, address owner, uint8 v, bytes32 r, bytes32 s) external returns (address) {
+        string memory message = generateMessage(preMsg, postMsg, autoMode);        
+        bytes32 messageHash = keccak256(abi.encodePacked(keccak256('string message'), keccak256(abi.encodePacked(message))));
+        require(ecrecover(messageHash, v, r, s) == owner, "signer is not owner");
+        return _createWallet(autoMode, owner);
+    }
+
+    function _createWallet(bool autoMode, address owner)
+        private
+        returns (address result)
+    {
         require(address(s_swProxy) != address(0), "no proxy");
         require(s_production_version_code != address(0), "no prod version"); //Must be here - ProxyLatest also needs it.
-        Wallet storage sp_sw = s_accounts_wallet[msg.sender];
+
+        Wallet storage sp_sw = s_accounts_wallet[owner];
         if (sp_sw.addr == address(0)) {
-            sp_sw.addr = _createWallet(address(this), address(s_swProxy));
+            sp_sw.addr = _generateWallet(address(this), address(s_swProxy));
             require(sp_sw.addr != address(0), "wallet not created");
             sp_sw.owner = true;
             if (autoMode) {
@@ -317,12 +343,12 @@ contract Factory is FactoryStorage {
                     "incorrect auto version"
                 );
                 s_wallets_version[sp_sw.addr] = LATEST;
-                IProxy(sp_sw.addr).init(msg.sender, address(s_swProxyLatest));
+                IProxy(sp_sw.addr).init(owner, address(s_swProxyLatest));
                 IStorage(sp_sw.addr).migrate();
                 emit WalletCreated(sp_sw.addr, LATEST, msg.sender);
             } else {
                 s_wallets_version[sp_sw.addr] = s_production_version;
-                IProxy(sp_sw.addr).init(msg.sender, s_production_version_code);
+                IProxy(sp_sw.addr).init(owner, s_production_version_code);
                 IStorage(sp_sw.addr).migrate();
                 emit WalletCreated(
                     sp_sw.addr,
@@ -342,9 +368,9 @@ contract Factory is FactoryStorage {
         oracleAddress = s_versions_oracle[version];
     }
 
-    /** @notice _createWallet - private function that creates a wallet using a pre defined code 
+    /** @notice _generateWallet - private function that creates a wallet using a pre defined code 
                 and plantes the creator and target in that code and returns the address created from that*/
-    function _createWallet(address creator, address target)
+    function _generateWallet(address creator, address target)
         private
         returns (address result)
     {

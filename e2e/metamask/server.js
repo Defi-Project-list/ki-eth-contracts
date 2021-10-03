@@ -30,6 +30,10 @@ io.on('connection', (socket) => {
 	console.log('sign request:', msg)
 	signer & signer.emit('sign', msg, res => { console.log(res); callback(res) })
   })
+  socket.on('sign_v1 request', (msg, callback) => {
+	console.log('sign_v1 request:', msg)
+	signer & signer.emit('sign_v1', msg, res => { console.log(res); callback(res) })
+  })
   socket.on('send request', msg => {
 	console.log('send request:', msg, callback)
 	siger & signer.emit('send', msg, res => { console.log(res); callback(res) })

@@ -64,6 +64,7 @@ abstract contract FactoryStorage is Ownable {
 
     ENS internal s_ens;
     mapping(bytes32 => address) internal s_local_ens;
+    string internal s_my_address;
 
     uint256 internal constant FLAG_EIP712 = 0x0100;
     uint256 internal constant FLAG_STATICCALL = 0x0400;
@@ -81,6 +82,7 @@ abstract contract FactoryStorage is Ownable {
         s_swProxyLatest = new ProxyLatest();
         s_versions_code[LATEST] = address(s_swProxyLatest);
         // s_nonce_group[0] = 1; // TODO: remove for production
+        s_my_address = _toAsciiString(address(this));
     }
 
     function _resolve(bytes32 node) internal view returns (address result) {
@@ -189,4 +191,31 @@ abstract contract FactoryStorage is Ownable {
                 )
             );
     }
+
+    function _toAsciiString(address x)
+        internal 
+        view 
+        returns (string memory) 
+    {
+        bytes memory s = new bytes(40);
+        for (uint i = 0; i < 20; i++) {
+            bytes1 b = bytes1(uint8(uint(uint160(x)) / (2**(8*(19 - i)))));
+            bytes1 hi = bytes1(uint8(b) / 16);
+            bytes1 lo = bytes1(uint8(b) - 16 * uint8(hi));
+            s[2*i] = _char(hi);
+            s[2*i+1] = _char(lo);            
+        }
+        return string(s);
+    }
+
+    function _char(bytes1 b)
+        internal 
+        view 
+        returns (bytes1 c) 
+    {
+        if (uint8(b) < 10) return bytes1(uint8(b) + 0x30);
+        else return bytes1(uint8(b) + 0x57);
+    }
+
+
 }
