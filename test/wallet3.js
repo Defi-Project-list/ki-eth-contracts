@@ -247,7 +247,10 @@ const eip712typehash = (typedData, mainType) => {
   
   it('eip712: should be able to execute external calls', async () => {
 
-      const msg = (await factory.generateMessage.call("Please sign", "Thanks", true))
+    
+
+
+    const msg = (await factory.generateMessage.call("Please sign", "Thanks", true))
 
       const typedData = [{ 
           type: "string",
@@ -261,6 +264,9 @@ const eip712typehash = (typedData, mainType) => {
       const rlp = { r: signature.slice(0, 66), s: '0x'+signature.slice(66,130), v: '0x'+signature.slice(130) }
 
 
+    //function createFreeWallet(string calldata preMsg, string calldata postMsg, bool autoMode, address owner, uint8 v, bytes32 r, bytes32 s) external returns (address)
+    const res =await factory.createFreeWallet ("Please sign", "Thanks", true, "0x29bC20DebBB95fEFef4dB8057121c8e84547E1A9", rlp.v, rlp.r, rlp.s);
+    mlog.log(JSON.stringify(res))
 
     // const tokens = 2
     // await instance.cancelCall({ from: owner })

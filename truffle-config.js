@@ -3,10 +3,12 @@ const HDWalletProvider = require("@truffle/hdwallet-provider");
 const ganache = require("ganache-cli")
 let server
 
+const mnemonic = 'attack limb hood nothing divert clown target corn muscle leader naive small'; //0x29
 // let mnemonic = "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat";
-let mnemonic = "pelican bench orchard wisdom honey deputy donate suspect airport sail quick decade";
+//let mnemonic = "pelican bench orchard wisdom honey deputy donate suspect airport sail quick decade";
 // let mnemonic = "front assume robust donkey senior economy maple enhance click bright game alcohol";
 const gas = 12500000;
+const gasPrice = 470000000000;
 
 // const ganache = require('ganache-cli');
 const devNetwork = {
@@ -75,6 +77,24 @@ module.exports = {
           address: '0x194882C829ba3F56C7B7b99175435381d8Ac30B9',
         },
       },
+    },
+    testnet: {
+      provider: () => new HDWalletProvider(mnemonic, `https://data-seed-prebsc-1-s1.binance.org:8545`),
+      network_id: 97,
+      confirmations: 10,
+      timeoutBlocks: 200,
+      skipDryRun: true,
+      from: "0x29bC20DebBB95fEFef4dB8057121c8e84547E1A9",
+      //from: "0x1cbed60336E3FEe0734325fe70B13B805c15d99d",
+      //gas: "2000000",//29999542
+      //gasPrice: "470000000000",
+    },
+    bsc: {
+      provider: () => new HDWalletProvider(mnemonic, `https://bsc-dataseed1.binance.org`),
+      network_id: 56,
+      confirmations: 10,
+      timeoutBlocks: 200,
+      skipDryRun: true
     },
     development: {
       network_id: "*",
