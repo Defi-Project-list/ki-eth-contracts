@@ -6,7 +6,7 @@ var FactoryProxy = artifacts.require("FactoryProxy");
 var Wallet = artifacts.require("./Wallet.sol");
 var Oracle = artifacts.require("./Oracle.sol");
 var SmartWallet2 = artifacts.require("./test/Wallet2.sol");
-var Root = artifacts.require("./Root.sol");
+// var Root = artifacts.require("./Root.sol");
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
 const liveNetworks = {testnet:true};
@@ -25,8 +25,8 @@ module.exports = function (deployer, network, accounts) {
 	//await sw_factory_proxy.setTarget("0x37BBb972a1f11d1b691268cdf94A601227A07528", { from: accounts[0] });
 	//const factory = await Factory.at("0x6DaAD2710F013C0b459Eb7e05937342286fB4D9f");
     //const factoryProxy = await FactoryProxy.at("0x6DaAD2710F013C0b459Eb7e05937342286fB4D9f");
-	const sw = await deployer.deploy(Wallet, {from:accounts[0]})//, { gas, gasPrice });
-    const oracle = await deployer.deploy(Oracle, accounts[0], accounts[1], accounts[2], {from:accounts[0]})//, { gas, gasPrice });
+	// const sw = await deployer.deploy(Wallet, {from:accounts[0]})//, { gas, gasPrice });
+    // const oracle = await deployer.deploy(Oracle, accounts[0], accounts[1], accounts[2], {from:accounts[0]})//, { gas, gasPrice });
 	//const ora = await Oracle.at(oracle.address)
 	//await ora.setPaymentAddress(accounts[0], { from: accounts[0] })
 	//await ora.setPaymentAddress(accounts[0], { from: accounts[1] })
@@ -35,8 +35,8 @@ module.exports = function (deployer, network, accounts) {
 	//await factory.deployVersion(await sw.version(), { from: accounts[0]})//, gas, gasPrice });
   	  /*
 	  try {
-      
-      
+
+
 
 		  const fac = await Factory.at(factoryProxy.address)
 

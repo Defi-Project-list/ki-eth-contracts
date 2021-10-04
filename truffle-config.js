@@ -100,7 +100,7 @@ module.exports = {
       network_id: "*",
       provider: function () {
         const mnemonic = 'awesome grain neither pond excess garage tackle table piece assist venture escape'
-        const port = 7545
+        const port = 9545
         const accounts = 220
         if (!server) {
           server = ganache.server({
@@ -112,7 +112,7 @@ module.exports = {
            server.listen(port, () => { console.log('ready') })
          }
          const provider = new HDWalletProvider({
-           mnemonic, 
+           mnemonic,
            numberOfAddresses: accounts,
            providerOrUrl: `http://127.0.0.1:${port}`,
            _chainId: 4,
