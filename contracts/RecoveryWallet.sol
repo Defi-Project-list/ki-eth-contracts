@@ -8,7 +8,7 @@ import "openzeppelin-solidity/contracts/token/ERC20/utils/SafeERC20.sol";
 import "openzeppelin-solidity/contracts/token/ERC721/IERC721.sol";
 import "openzeppelin-solidity/contracts/utils/cryptography/SignatureChecker.sol";
 
-import "./lib/IOracle.sol";
+import "./lib/IOracle.sol"; 
 import "./lib/Heritable.sol";
 
 contract RecoveryWallet is IStorage, Heritable, ReentrancyGuard {
@@ -59,7 +59,7 @@ contract RecoveryWallet is IStorage, Heritable, ReentrancyGuard {
         address to,
         uint256 value
     ) public onlyActiveOwner {
-        require(token != address(0), "_token is 0x0");
+        require(token != address(0), "token is 0x0");
         emit Transfer20(this.creator(), token, address(this), to, value);
         IERC20(token).safeTransfer(to, value);
     }
@@ -70,7 +70,7 @@ contract RecoveryWallet is IStorage, Heritable, ReentrancyGuard {
         address to,
         uint256 value
     ) public onlyActiveOwner {
-        require(token != address(0), "_token is 0x0");
+        require(token != address(0), "token is 0x0");
         address sender = from == address(0) ? address(this) : address(from);
         emit Transfer20(this.creator(), token, sender, to, value);
         IERC20(token).safeTransferFrom(sender, to, value);
@@ -90,7 +90,7 @@ contract RecoveryWallet is IStorage, Heritable, ReentrancyGuard {
         address to,
         uint256 id
     ) public onlyActiveOwner {
-        require(token != address(0), "_token is 0x0");
+        require(token != address(0), "token is 0x0");
         address sender = from == address(0) ? address(this) : address(from);
         emit Transfer721(this.creator(), token, sender, to, id, "");
         IERC721(token).safeTransferFrom(sender, to, id);
@@ -104,15 +104,9 @@ contract RecoveryWallet is IStorage, Heritable, ReentrancyGuard {
         bytes memory data
     ) public onlyActiveOwner {
         require(token != address(0), "token is 0x0");
-        emit Transfer721(
-            this.creator(),
-            token,
-            from == address(0) ? address(this) : from,
-            to,
-            id,
-            data
-        );
-        IERC721(token).safeTransferFrom(from, to, id, data);
+        address sender = from == address(0) ? address(this) : address(from);
+        emit Transfer721(this.creator(), token, sender, to, id, data);
+        IERC721(token).safeTransferFrom(sender, to, id, data);
     }
 
     function getBalance() public view returns (uint256) {
