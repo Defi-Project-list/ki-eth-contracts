@@ -74,7 +74,18 @@ abstract contract FactoryStorage is Ownable {
     uint256 internal constant ON_FAIL_STOP = 0x01;
     uint256 internal constant ON_FAIL_CONTINUE = 0x02;
     uint256 internal constant ON_SUCCESS_STOP = 0x10;
-    uint256 internal constant ON_SUCCESS_REVERT = 0x20;
+    uint256 internal constant ON_SUCCESS_REVERT = 0x20; 
+
+    /* uint16 internal constant FLAG_EIP712 = 0x0100;
+    uint16 internal constant FLAG_STATICCALL = 0x0400;
+    uint16 internal constant FLAG_CANCELABLE = 0x0800;
+    uint16 internal constant FLAG_PAYMENT = 0xf000;
+    uint16 internal constant FLAG_FLOW = 0x00ff;
+
+    uint16 internal constant ON_FAIL_STOP = 0x01;
+    uint16 internal constant ON_FAIL_CONTINUE = 0x02;
+    uint16 internal constant ON_SUCCESS_STOP = 0x10;
+    uint16 internal constant ON_SUCCESS_REVERT = 0x20; */
 
     constructor() {
         s_swProxy = new Proxy();
