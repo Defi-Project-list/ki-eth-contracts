@@ -6,7 +6,7 @@ import "openzeppelin-solidity/contracts/token/ERC20/utils/SafeERC20.sol";
 import "openzeppelin-solidity/contracts/access/AccessControl.sol";
 import "./lib/Backupable.sol";
 import "./Factory.sol";
-contract GasReturn is AccessControl {
+abstract contract GasReturn is AccessControl, Backupable {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
     address private owner;
@@ -39,7 +39,7 @@ contract GasReturn is AccessControl {
         _;
     }
 
-    constructor (address activator) public {
+    constructor (address activator){
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _setupRole(ACTIVATOR_ROLE, msg.sender);
         _setupRole(ACTIVATOR_ROLE, activator);
@@ -83,8 +83,12 @@ contract GasReturn is AccessControl {
         _stakingAmountNeeded = newStakingAmountNeeded;
     } 
 
+    function getNFTRewardAmount(address nft) public view returns(uint256 NFTReward) {
+        //NFTReward
+    }
+
     function calcReward(uint256 month, address nft, uint256 amountOfGasInKiro) private onlyActivator returns(uint256 rewardInKiroToAdd){
-        uint256 rewardOfNFT = getNFTData(nft);
+        uint256 rewardOfNFT = getNFTRewardAmount(nft);
         uint256 curRewards = rewardsPerMonthPerNFT[month][nft];
         if(curRewards + amountOfGasInKiro >= rewardOfNFT){
             rewardsPerMonthPerNFT[month][nft] += amountOfGasInKiro;
@@ -155,4 +159,8 @@ contract GasReturn is AccessControl {
         userStructs[id] = 0xffffffffffffffff;
         userAddresses[id] = user;
     } */
+
+    function supportsInterface(bytes4 interfaceId) public pure virtual override(Interface, AccessControl) returns (bool) {
+        return super.supportsInterface(interfaceId);
+    }
 }
