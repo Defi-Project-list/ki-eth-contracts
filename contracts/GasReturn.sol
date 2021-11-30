@@ -5,32 +5,33 @@ import "openzeppelin-solidity/contracts/utils/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/utils/SafeERC20.sol";
 import "openzeppelin-solidity/contracts/access/AccessControl.sol";
 import "./lib/Backupable.sol";
+import "./lib/DateTime.sol";
 import "./Factory.sol";
-abstract contract GasReturn is AccessControl, Backupable {
+abstract contract GasReturn is AccessControl, Backupable, DateTime {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
     address private owner;
     uint256 public totalBalance;
     uint256 public _kiroPrice;
     uint256 private _stakingAmountNeeded;
-    uint256 private _timeInStaking = 31556926;
+    uint256 private _timeInStaking = 31556926; //180 days
 
     // keccak256("ACTIVATOR_ROLE");
     bytes32 public constant ACTIVATOR_ROLE = 0xec5aad7bdface20c35bc02d6d2d5760df981277427368525d634f4e2603ea192;
-    struct User{
+    /* struct User{
         address userAddr;
         uint256 amount;
         uint256 lockedUntil;
-    }
+    } */
 
     event TransferReceived(address from, uint256 amount);
     event TransferSent(address from, address to, uint256 amount);
 
     mapping (uint256 => mapping(address => uint256)) balancesPerMonthPerWallet;
     mapping (uint256 => mapping(address => uint256)) rewardsPerMonthPerNFT;
-    mapping (bytes32 => uint256) userStructs;
+    /* mapping (bytes32 => uint256) userStructs;
     mapping (bytes32 => User) userAddresses;
-
+ */
     modifier onlyActivator() {
         require(
             hasRole(ACTIVATOR_ROLE, msg.sender),
@@ -75,8 +76,10 @@ abstract contract GasReturn is AccessControl, Backupable {
         kiroPrice = _kiroPrice;
     }
 
-    function getCurrentMonth() public view returns(uint256 month){
-        //month = 
+    //gets a timestamp date that is made from the year, month and the first day of the month
+    function getCurrentYearMonth() public view returns(uint256 yearMonth){
+        uint8 day = 2;
+        yearMonth = DateTime.toTimestamp(DateTime.getYear(block.timestamp), DateTime.getMonth(block.timestamp), day);
     }
 
     function updateStakingAmountNeeded(uint256 newStakingAmountNeeded) private onlyActivator {
@@ -87,36 +90,39 @@ abstract contract GasReturn is AccessControl, Backupable {
         //NFTReward
     }
 
-    function calcReward(uint256 month, address nft, uint256 amountOfGasInKiro) private onlyActivator returns(uint256 rewardInKiroToAdd){
+    function calcReward(uint256 yearMonth, address nft, uint256 amountOfGasInKiro) private onlyActivator returns(uint256 rewardInKiroToAdd){
         uint256 rewardOfNFT = getNFTRewardAmount(nft);
-        uint256 curRewards = rewardsPerMonthPerNFT[month][nft];
+        uint256 curRewards = rewardsPerMonthPerNFT[yearMonth][nft];
         if(curRewards + amountOfGasInKiro >= rewardOfNFT){
-            rewardsPerMonthPerNFT[month][nft] += amountOfGasInKiro;
+            rewardsPerMonthPerNFT[yearMonth][nft] += amountOfGasInKiro;
             rewardInKiroToAdd = amountOfGasInKiro;
         }
         else{//amountOfGasInKiro is grater then the rewards left according to the NFT data
             rewardInKiroToAdd = rewardOfNFT - curRewards;
-            rewardsPerMonthPerNFT[month][nft] += rewardInKiroToAdd;
+            rewardsPerMonthPerNFT[yearMonth][nft] += rewardInKiroToAdd;
         }
     }
 
     function gasReturnExecute(address to, uint256 value, bytes calldata data) public onlyActiveOwner returns(bytes memory res){
         address wallet = Factory.getWallet(msg.sender);
         address nft = Factory.getNft(msg.sender);
-        uint256 month = getCurrentMonth();
+        uint256 yearMonth = getCurrentYearMonth();
         uint256 staking = Factory.getStaking(msg.sender);
         require(staking >= _stakingAmountNeeded);
         res = wallet.execute2(to, value, data);
         uint256 kiroPrice = getKiroPrice();
         uint256 toPayInKiro =  res.gas * kiroPrice;
-        uint256 updatedAmountToPay = calcReward(month, nft, toPayInKiro);
-        balancesPerMonthPerWallet[month][wallet] += updatedAmountToPay;
+        uint256 updatedAmountToPay = calcReward(yearMonth, nft, toPayInKiro);
+        balancesPerMonthPerWallet[yearMonth][wallet] += updatedAmountToPay;
         totalBalance -= updatedAmountToPay;
     }
 
-    function isMonthOver(uint256 month) public view returns(bool){
-        uint256 currentMonth = getCurrentMonth();
-
+    function isMonthOver(uint256 yearMonth) public view returns(bool){
+        uint256 currentYearMonth = getCurrentYearMonth();
+        if(currentYearMonth > yearMonth)
+            return true;
+        else 
+            return false;
     }
 
     /* function gasLeft() public view returns(uint256 gas){
