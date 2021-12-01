@@ -2,12 +2,18 @@
 pragma solidity ^0.8.0;
 
 import "openzeppelin-solidity/contracts/utils/math/SafeMath.sol";
+import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/utils/SafeERC20.sol";
 import "openzeppelin-solidity/contracts/access/AccessControl.sol";
+import '@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol';
 import "./lib/Backupable.sol";
 import "./lib/DateTime.sol";
 import "./Factory.sol";
-abstract contract GasReturn is AccessControl, Backupable, DateTime {
+
+abstract contract GasReturn is AccessControl, Backupable, DateTime
+    //, Factory
+    //, IKiroboNFT 
+    {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
     address private owner;
@@ -15,6 +21,7 @@ abstract contract GasReturn is AccessControl, Backupable, DateTime {
     uint256 public _kiroPrice;
     uint256 private _stakingAmountNeeded;
     uint256 private _timeInStaking = 31556926; //180 days
+    address private _kiroEthPairAddress = 0x5CD136E8197Be513B06d39730dc674b1E0F6b7da;
 
     // keccak256("ACTIVATOR_ROLE");
     bytes32 public constant ACTIVATOR_ROLE = 0xec5aad7bdface20c35bc02d6d2d5760df981277427368525d634f4e2603ea192;
@@ -58,6 +65,20 @@ abstract contract GasReturn is AccessControl, Backupable, DateTime {
         balance -= amount;
         emit TransferSent(msg.sender, to, amount);
     } */
+    
+
+    // calculate price based on pair reserves
+   function getTokenPrice(address pairAddress, uint amount) public view returns(uint)
+   {
+    IUniswapV2Pair pair = IUniswapV2Pair(pairAddress);
+    ERC20 token1 = ERC20(pair.token1.address);
+    (uint Res0, uint Res1,) = pair.getReserves();
+
+    // decimals
+    uint res0 = Res0*(10**token1.decimals());
+    return((amount*res0)/Res1); // return amount of token0 needed to buy token1
+   }
+
 
     function updateTimeInStaking(uint256 newTimeInStaking) private onlyActivator {
         _timeInStaking = newTimeInStaking;
@@ -69,6 +90,7 @@ abstract contract GasReturn is AccessControl, Backupable, DateTime {
 
 
     function updateKiroPrice() private {
+        getTokenPrice(_kiroEthPairAddress, 1);
         //_kiroPrice = 
     }
 
@@ -87,7 +109,8 @@ abstract contract GasReturn is AccessControl, Backupable, DateTime {
     } 
 
     function getNFTRewardAmount(address nft) public view returns(uint256 NFTReward) {
-        //NFTReward
+        //need to get ID of nft
+        //then call NFTReward = IKiroboNFT.getProps(ID)
     }
 
     function calcReward(uint256 yearMonth, address nft, uint256 amountOfGasInKiro) private onlyActivator returns(uint256 rewardInKiroToAdd){
