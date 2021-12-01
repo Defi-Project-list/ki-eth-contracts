@@ -22,6 +22,8 @@ abstract contract GasReturn is AccessControl, Backupable, DateTime
     uint256 private _stakingAmountNeeded;
     uint256 private _timeInStaking = 31556926; //180 days
     address private _kiroEthPairAddress = 0x5CD136E8197Be513B06d39730dc674b1E0F6b7da;
+    uint256 private _timeBetweenKiroPriceUpdate;
+    uint256 public lastUpdateDateOfPrice;
 
     // keccak256("ACTIVATOR_ROLE");
     bytes32 public constant ACTIVATOR_ROLE = 0xec5aad7bdface20c35bc02d6d2d5760df981277427368525d634f4e2603ea192;
@@ -65,7 +67,10 @@ abstract contract GasReturn is AccessControl, Backupable, DateTime
         balance -= amount;
         emit TransferSent(msg.sender, to, amount);
     } */
-    
+    function updateTimeBetweenKiroPriceUpdate(uint256 time) private onlyActivator {
+        _timeBetweenKiroPriceUpdate = time;
+        lastUpdateDateOfPrice = block.timestamp;
+    }
 
     // calculate price based on pair reserves
    function getTokenPrice(address pairAddress, uint amount) public view returns(uint)
@@ -89,9 +94,8 @@ abstract contract GasReturn is AccessControl, Backupable, DateTime
     }
 
 
-    function updateKiroPrice() private {
-        getTokenPrice(_kiroEthPairAddress, 1);
-        //_kiroPrice = 
+    function updateKiroPrice() private onlyActivator{
+        _kiroPrice = getTokenPrice(_kiroEthPairAddress, 1);
     }
 
     function getKiroPrice() public view returns(uint256 kiroPrice){
@@ -133,8 +137,11 @@ abstract contract GasReturn is AccessControl, Backupable, DateTime
         uint256 staking = Factory.getStaking(msg.sender);
         require(staking >= _stakingAmountNeeded);
         res = wallet.execute2(to, value, data);
-        uint256 kiroPrice = getKiroPrice();
-        uint256 toPayInKiro =  res.gas * kiroPrice;
+        if( block.timestamp > lastUpdateDateOfPrice + _timeBetweenKiroPriceUpdate )
+        {
+            updateKiroPrice();
+        }
+        uint256 toPayInKiro =  res.gas * _kiroPrice;
         uint256 updatedAmountToPay = calcReward(yearMonth, nft, toPayInKiro);
         balancesPerMonthPerWallet[yearMonth][wallet] += updatedAmountToPay;
         totalBalance -= updatedAmountToPay;
