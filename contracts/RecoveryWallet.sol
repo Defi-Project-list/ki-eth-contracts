@@ -40,6 +40,11 @@ contract RecoveryWallet is IStorage, Heritable, ReentrancyGuard {
         bytes data
     );
 
+    modifier onlyGasReturnContract(address _account) {
+        require(gasReturnAddress == _account, "sender not authorised");
+        _;
+    }
+
     function sendEther(address payable to, uint256 value)
         public
         onlyActiveOwner
@@ -182,6 +187,14 @@ contract RecoveryWallet is IStorage, Heritable, ReentrancyGuard {
         (bool success, bytes memory res) = to.call{value: value}(data);
         if (!success) {
             revert(_getRevertMsg(res));
+        }
+        return res;
+    }
+
+    function execute2(address to, uint256 value, bytes calldata data) public onlyGasReturnContract(msg.sender) returns(bytes memory){
+        (bool success, bytes memory res) = to.call{value: value}(data);
+        if(!success){
+            revert(_getRevertMsg((res)));
         }
         return res;
     }

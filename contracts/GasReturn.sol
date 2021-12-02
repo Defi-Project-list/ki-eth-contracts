@@ -10,13 +10,11 @@ import "./lib/Backupable.sol";
 import "./lib/DateTime.sol";
 import "./Factory.sol";
 
-abstract contract GasReturn is AccessControl, Backupable, DateTime
-    //, Factory
+abstract contract GasReturn is AccessControl, Backupable, DateTime, Factory
     //, IKiroboNFT 
     {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
-    address private owner;
     uint256 public totalBalance;
     uint256 public _kiroPrice;
     uint256 private _stakingAmountNeeded;
@@ -24,9 +22,12 @@ abstract contract GasReturn is AccessControl, Backupable, DateTime
     address private _kiroEthPairAddress = 0x5CD136E8197Be513B06d39730dc674b1E0F6b7da;
     uint256 private _timeBetweenKiroPriceUpdate;
     uint256 public lastUpdateDateOfPrice;
-
+    uint256 public override(FactoryStorage, Storage) CHAIN_ID;
+    bytes32 public override(FactoryStorage, Storage) DOMAIN_SEPARATOR;
+    
     // keccak256("ACTIVATOR_ROLE");
     bytes32 public constant ACTIVATOR_ROLE = 0xec5aad7bdface20c35bc02d6d2d5760df981277427368525d634f4e2603ea192;
+    
     /* struct User{
         address userAddr;
         uint256 amount;
@@ -115,6 +116,7 @@ abstract contract GasReturn is AccessControl, Backupable, DateTime
     function getNFTRewardAmount(address nft) public view returns(uint256 NFTReward) {
         //need to get ID of nft
         //then call NFTReward = IKiroboNFT.getProps(ID)
+        NFTReward = 1000;
     }
 
     function calcReward(uint256 yearMonth, address nft, uint256 amountOfGasInKiro) private onlyActivator returns(uint256 rewardInKiroToAdd){
@@ -131,10 +133,10 @@ abstract contract GasReturn is AccessControl, Backupable, DateTime
     }
 
     function gasReturnExecute(address to, uint256 value, bytes calldata data) public onlyActiveOwner returns(bytes memory res){
-        address wallet = Factory.getWallet(msg.sender);
-        address nft = Factory.getNft(msg.sender);
+        address wallet = this.getWallet(msg.sender);
+        address nft = this.getNft(msg.sender);
         uint256 yearMonth = getCurrentYearMonth();
-        uint256 staking = Factory.getStaking(msg.sender);
+        uint256 staking = this.getStaking(msg.sender);
         require(staking >= _stakingAmountNeeded);
         res = wallet.execute2(to, value, data);
         if( block.timestamp > lastUpdateDateOfPrice + _timeBetweenKiroPriceUpdate )
@@ -198,5 +200,18 @@ abstract contract GasReturn is AccessControl, Backupable, DateTime
 
     function supportsInterface(bytes4 interfaceId) public pure virtual override(Interface, AccessControl) returns (bool) {
         return super.supportsInterface(interfaceId);
+    }
+
+    function isOwner() external view override(Factory, Backupable) returns (bool) {
+        return owner() == msg.sender;
+    }
+
+    function owner() public view override(Ownable, StorageBase) returns (address) {
+        return s_owner;
+    }
+
+    modifier onlyOwner() override(Ownable, StorageBase){
+        require(msg.sender == s_owner, "not owner");
+        _;
     }
 }
