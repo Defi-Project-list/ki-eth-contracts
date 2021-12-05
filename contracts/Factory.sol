@@ -279,14 +279,6 @@ contract Factory is FactoryStorage {
     function getWallet(address account) external view returns (address) {
         return s_accounts_wallet[account].addr;
     }
-    //needs to return the NFT address
-    function getNft(address account) external view returns (address) {
-        return s_accounts_wallet[account].addr;
-    }
-    //needs to return the staking amount that the user has
-    function getStaking(address account) external view returns (uint256) {
-        return 2000;
-    }
 
     function getWalletDebt(address account) external view returns (uint88) {
         return s_accounts_wallet[account].debt;

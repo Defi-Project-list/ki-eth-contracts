@@ -24,6 +24,7 @@ abstract contract GasReturn is AccessControl, Backupable, DateTime, Factory
     uint256 public lastUpdateDateOfPrice;
     uint256 public override(FactoryStorage, Storage) CHAIN_ID;
     bytes32 public override(FactoryStorage, Storage) DOMAIN_SEPARATOR;
+    address public kiroboInterfaceAddress;
     
     // keccak256("ACTIVATOR_ROLE");
     bytes32 public constant ACTIVATOR_ROLE = 0xec5aad7bdface20c35bc02d6d2d5760df981277427368525d634f4e2603ea192;
@@ -73,6 +74,10 @@ abstract contract GasReturn is AccessControl, Backupable, DateTime, Factory
         lastUpdateDateOfPrice = block.timestamp;
     }
 
+    function setkiroboInterfaceAddress(address kiroboIntrface) private onlyActivator {
+        kiroboInterfaceAddress = kiroboIntrface;
+    }
+
     // calculate price based on pair reserves
    function getTokenPrice(address pairAddress, uint amount) public view returns(uint)
    {
@@ -120,7 +125,8 @@ abstract contract GasReturn is AccessControl, Backupable, DateTime, Factory
     }
 
     function calcReward(uint256 yearMonth, address nft, uint256 amountOfGasInKiro) private onlyActivator returns(uint256 rewardInKiroToAdd){
-        uint256 rewardOfNFT = getNFTRewardAmount(nft);
+        uint256 id = kiroboInterfaceAddress(nft).getId();
+        uint256 rewardOfNFT = kiroboInterfaceAddress(nft).getNFTRewardAmount(id);
         uint256 curRewards = rewardsPerMonthPerNFT[yearMonth][nft];
         if(curRewards + amountOfGasInKiro >= rewardOfNFT){
             rewardsPerMonthPerNFT[yearMonth][nft] += amountOfGasInKiro;
@@ -134,9 +140,13 @@ abstract contract GasReturn is AccessControl, Backupable, DateTime, Factory
 
     function gasReturnExecute(address to, uint256 value, bytes calldata data) public onlyActiveOwner returns(bytes memory res){
         address wallet = this.getWallet(msg.sender);
-        address nft = this.getNft(msg.sender);
+        require(wallet != address(0), "wallet address doesn't exist");
+        //require(wallet.onlyActiveOwner, "wallet is not an active owner");
+        //how do i get the NFT address????
+        //address nft = .getNft(msg.sender);
         uint256 yearMonth = getCurrentYearMonth();
-        uint256 staking = this.getStaking(msg.sender);
+        //need to get the current kiro staking
+        uint256 staking = wallet.getStaking(msg.sender);
         require(staking >= _stakingAmountNeeded);
         res = wallet.execute2(to, value, data);
         if( block.timestamp > lastUpdateDateOfPrice + _timeBetweenKiroPriceUpdate )
