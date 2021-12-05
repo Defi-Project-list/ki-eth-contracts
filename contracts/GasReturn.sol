@@ -114,8 +114,8 @@ abstract contract GasReturn is AccessControl, Backupable, DateTime, Factory
     } 
 
     function getNFTRewardAmount(address nft) public view returns(uint256 NFTReward) {
-        //need to get ID of nft
-        //then call NFTReward = IKiroboNFT.getProps(ID)
+        /* uint256 nftId = IKiroboNFT(nft).getId(); //need to get ID of nft
+        NFTReward = IKiroboNFT(nft).getProperties(nftId) */
         NFTReward = 1000;
     }
 
