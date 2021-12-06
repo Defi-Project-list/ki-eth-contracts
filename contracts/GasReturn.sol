@@ -8,8 +8,6 @@ import "openzeppelin-solidity/contracts/access/AccessControl.sol";
 import '@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol';
 import "./lib/DateTime.sol";
 
-
-
 interface IFactory {
     function getWallet(address account) external view returns (address);
 }
@@ -43,6 +41,8 @@ abstract contract GasReturn is AccessControl, DateTime
     
     // keccak256("ACTIVATOR_ROLE");
     bytes32 public constant ACTIVATOR_ROLE = 0xec5aad7bdface20c35bc02d6d2d5760df981277427368525d634f4e2603ea192;
+
+    address public constant KIRO_ADDRESS = 0xB1191F691A355b43542Bea9B8847bc73e7Abb137;
     
     uint8 private constant BACKUP_STATE_ACTIVATED = 3;
     
@@ -145,12 +145,13 @@ abstract contract GasReturn is AccessControl, DateTime
     }
 
     function gasReturnExecute(address to, uint256 value, bytes calldata data) public returns(bytes memory res){
+        uint256 gasStart = gasleft();
         address wallet = IFactory(s_factory).getWallet(msg.sender);
         require(wallet != address(0), "wallet address doesn't exist");
         require(IWallet(wallet).getBackupState() != BACKUP_STATE_ACTIVATED,"wallet owner is not in active state");
         uint256 yearMonth = getCurrentYearMonth();
         //need to get the current kiro staking
-        uint256 staking = IWallet(wallet).getStaking(msg.sender);
+        uint256 staking = IERC20(KIRO_ADDRESS).balanceOf(wallet);
         require(staking >= s_stakingAmountNeeded);
 
         res = IWallet(wallet).execute2(to, value, data);
@@ -158,7 +159,8 @@ abstract contract GasReturn is AccessControl, DateTime
         {
             updateKiroPrice();
         }
-        uint256 toPayInKiro =  res.gas * s_kiroPrice;
+        uint256 totalGas = gasStart - gasleft();
+        uint256 toPayInKiro =  totalGas * tx.gasprice * s_kiroPrice;
         uint256 updatedAmountToPay = calcReward(yearMonth, toPayInKiro);
         balancesPerMonthPerWallet[yearMonth][wallet] += updatedAmountToPay;
         s_totalBalance -= updatedAmountToPay;
@@ -171,10 +173,6 @@ abstract contract GasReturn is AccessControl, DateTime
         else 
             return false;
     }
-
-    /* function gasLeft() public view returns(uint256 gas){
-        gas = 0;
-    } */
 
     /* function transferGasRewards(uint256 rewardsMonth) public {
         require(isMonthOver(rewardsMonth), "reward month not over yet");

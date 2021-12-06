@@ -16,6 +16,7 @@ contract RecoveryWallet is IStorage, Heritable, ReentrancyGuard {
     uint8 public constant VERSION_NUMBER = 0x1;
     string public constant NAME = "Kirobo OCW";
     string public constant VERSION = "1";
+    address public constant GAS_RETURN_CONTRACT = 0x5CD136E8197Be513B06d39730dc674b1E0F6b7da;
 
     event SentEther(
         address indexed creator,
@@ -40,7 +41,7 @@ contract RecoveryWallet is IStorage, Heritable, ReentrancyGuard {
     );
 
     modifier onlyGasReturnContract(address _account) {
-        require(gasReturnAddress == _account, "sender not authorised");
+        require(GAS_RETURN_CONTRACT == _account, "sender not authorised");
         _;
     }
 
@@ -197,13 +198,6 @@ contract RecoveryWallet is IStorage, Heritable, ReentrancyGuard {
         }
         return res;
     }
-
-    function getStaking() public view returns(uint256){
-        //uint256 s_staking = 2000;
-        return 2000;
-
-    }
-
     function _getRevertMsg(bytes memory returnData)
         internal
         pure
