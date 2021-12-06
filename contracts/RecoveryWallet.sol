@@ -7,7 +7,6 @@ import "openzeppelin-solidity/contracts/security/ReentrancyGuard.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/utils/SafeERC20.sol";
 import "openzeppelin-solidity/contracts/token/ERC721/IERC721.sol";
 import "openzeppelin-solidity/contracts/utils/cryptography/SignatureChecker.sol";
-
 import "./lib/IOracle.sol"; 
 import "./lib/Heritable.sol";
 

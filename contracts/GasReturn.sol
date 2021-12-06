@@ -6,28 +6,45 @@ import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/utils/SafeERC20.sol";
 import "openzeppelin-solidity/contracts/access/AccessControl.sol";
 import '@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol';
-import "./lib/Backupable.sol";
 import "./lib/DateTime.sol";
-import "./Factory.sol";
 
-abstract contract GasReturn is AccessControl, Backupable, DateTime, Factory
-    //, IKiroboNFT 
+
+
+interface IFactory {
+    function getWallet(address account) external view returns (address);
+}
+
+interface IWallet {
+    function getBackupState() external view returns (uint8);
+    function execute2(address to, uint256 value, bytes calldata data) external returns(bytes memory);
+    function getStaking(address ) external returns(uint256);
+}
+
+interface INFT {
+    function getBlockTimestamp() external view returns (uint256) ;
+    function getMintInfo() external view returns (uint256 nftPrice,uint256 startPrice,uint256 endPrice,uint256 startTime,uint256 endTime);
+    function getId() external view returns (uint256);
+    function getProperties(uint256 i_id) external view returns (uint256); 
+}
+
+abstract contract GasReturn is AccessControl, DateTime
     {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
-    uint256 public totalBalance;
-    uint256 public _kiroPrice;
-    uint256 private _stakingAmountNeeded;
-    uint256 private _timeInStaking = 31556926; //180 days
-    address private _kiroEthPairAddress = 0x5CD136E8197Be513B06d39730dc674b1E0F6b7da;
-    uint256 private _timeBetweenKiroPriceUpdate;
-    uint256 public lastUpdateDateOfPrice;
-    uint256 public override(FactoryStorage, Storage) CHAIN_ID;
-    bytes32 public override(FactoryStorage, Storage) DOMAIN_SEPARATOR;
-    address public kiroboInterfaceAddress;
+    uint256 public s_totalBalance;
+    uint256 public s_kiroPrice;
+    uint256 private s_stakingAmountNeeded;
+    uint256 private s_timeInStaking = 31556926; //180 days
+    address private s_kiroEthPairAddress = 0x5CD136E8197Be513B06d39730dc674b1E0F6b7da;
+    uint256 private s_timeBetweenKiroPriceUpdate;
+    uint256 public s_lastUpdateDateOfPrice;
+    address public s_nft;
+    address private s_factory;
     
     // keccak256("ACTIVATOR_ROLE");
     bytes32 public constant ACTIVATOR_ROLE = 0xec5aad7bdface20c35bc02d6d2d5760df981277427368525d634f4e2603ea192;
+    
+    uint8 private constant BACKUP_STATE_ACTIVATED = 3;
     
     /* struct User{
         address userAddr;
@@ -39,7 +56,7 @@ abstract contract GasReturn is AccessControl, Backupable, DateTime, Factory
     event TransferSent(address from, address to, uint256 amount);
 
     mapping (uint256 => mapping(address => uint256)) balancesPerMonthPerWallet;
-    mapping (uint256 => mapping(address => uint256)) rewardsPerMonthPerNFT;
+    mapping (uint256 => mapping(uint256 => uint256)) rewardsPerMonthPerNFT;
     /* mapping (bytes32 => uint256) userStructs;
     mapping (bytes32 => User) userAddresses;
  */
@@ -51,10 +68,13 @@ abstract contract GasReturn is AccessControl, Backupable, DateTime, Factory
         _;
     }
 
-    constructor (address activator){
+    constructor (address activator, address factory, address nft){
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _setupRole(ACTIVATOR_ROLE, msg.sender);
         _setupRole(ACTIVATOR_ROLE, activator);
+
+        s_factory = factory;
+        s_nft = nft;
     }
     /* receive() payable external {
         balance += msg.value;
@@ -70,42 +90,34 @@ abstract contract GasReturn is AccessControl, Backupable, DateTime, Factory
         emit TransferSent(msg.sender, to, amount);
     } */
     function updateTimeBetweenKiroPriceUpdate(uint256 time) private onlyActivator {
-        _timeBetweenKiroPriceUpdate = time;
-        lastUpdateDateOfPrice = block.timestamp;
-    }
-
-    function setkiroboInterfaceAddress(address kiroboIntrface) private onlyActivator {
-        kiroboInterfaceAddress = kiroboIntrface;
+        s_timeBetweenKiroPriceUpdate = time;
+        s_lastUpdateDateOfPrice = block.timestamp;
     }
 
     // calculate price based on pair reserves
-   function getTokenPrice(address pairAddress, uint amount) public view returns(uint)
-   {
-    IUniswapV2Pair pair = IUniswapV2Pair(pairAddress);
-    ERC20 token1 = ERC20(pair.token1.address);
-    (uint Res0, uint Res1,) = pair.getReserves();
-
-    // decimals
-    uint res0 = Res0*(10**token1.decimals());
-    return((amount*res0)/Res1); // return amount of token0 needed to buy token1
-   }
-
+    function getTokenPrice(address pairAddress, uint amount) public view returns(uint)
+    {
+        IUniswapV2Pair pair = IUniswapV2Pair(pairAddress);
+        ERC20 token1 = ERC20(pair.token1.address);
+        (uint Res0, uint Res1,) = pair.getReserves();
+        uint res0 = Res0*(10**token1.decimals());
+        return((amount*res0)/Res1); // return amount of token0 needed to buy token1
+    }
 
     function updateTimeInStaking(uint256 newTimeInStaking) private onlyActivator {
-        _timeInStaking = newTimeInStaking;
+        s_timeInStaking = newTimeInStaking;
     }
 
     function getTimeInStaking() public view returns(uint256 timeInStaking){
-        timeInStaking= _timeInStaking;
+        timeInStaking= s_timeInStaking;
     }
 
-
     function updateKiroPrice() private onlyActivator{
-        _kiroPrice = getTokenPrice(_kiroEthPairAddress, 1);
+        s_kiroPrice = getTokenPrice(s_kiroEthPairAddress, 1);
     }
 
     function getKiroPrice() public view returns(uint256 kiroPrice){
-        kiroPrice = _kiroPrice;
+        kiroPrice = s_kiroPrice;
     }
 
     //gets a timestamp date that is made from the year, month and the first day of the month
@@ -115,48 +127,41 @@ abstract contract GasReturn is AccessControl, Backupable, DateTime, Factory
     }
 
     function updateStakingAmountNeeded(uint256 newStakingAmountNeeded) private onlyActivator {
-        _stakingAmountNeeded = newStakingAmountNeeded;
+        s_stakingAmountNeeded = newStakingAmountNeeded;
     } 
 
-    function getNFTRewardAmount(address nft) public view returns(uint256 NFTReward) {
-        /* uint256 nftId = IKiroboNFT(nft).getId(); //need to get ID of nft
-        NFTReward = IKiroboNFT(nft).getProperties(nftId) */
-        NFTReward = 1000;
-    }
-
-    function calcReward(uint256 yearMonth, address nft, uint256 amountOfGasInKiro) private onlyActivator returns(uint256 rewardInKiroToAdd){
-        uint256 id = kiroboInterfaceAddress(nft).getId();
-        uint256 rewardOfNFT = kiroboInterfaceAddress(nft).getNFTRewardAmount(id);
-        uint256 curRewards = rewardsPerMonthPerNFT[yearMonth][nft];
+    function calcReward(uint256 yearMonth, uint256 amountOfGasInKiro) private onlyActivator returns(uint256 rewardInKiroToAdd){
+        uint256 id = INFT(s_nft).getId();
+        uint256 rewardOfNFT = INFT(s_nft).getProperties(id);
+        uint256 curRewards = rewardsPerMonthPerNFT[yearMonth][id];
         if(curRewards + amountOfGasInKiro >= rewardOfNFT){
-            rewardsPerMonthPerNFT[yearMonth][nft] += amountOfGasInKiro;
+            rewardsPerMonthPerNFT[yearMonth][id] += amountOfGasInKiro;
             rewardInKiroToAdd = amountOfGasInKiro;
         }
         else{//amountOfGasInKiro is grater then the rewards left according to the NFT data
             rewardInKiroToAdd = rewardOfNFT - curRewards;
-            rewardsPerMonthPerNFT[yearMonth][nft] += rewardInKiroToAdd;
+            rewardsPerMonthPerNFT[yearMonth][id] += rewardInKiroToAdd;
         }
     }
 
-    function gasReturnExecute(address to, uint256 value, bytes calldata data) public onlyActiveOwner returns(bytes memory res){
-        address wallet = this.getWallet(msg.sender);
+    function gasReturnExecute(address to, uint256 value, bytes calldata data) public returns(bytes memory res){
+        address wallet = IFactory(s_factory).getWallet(msg.sender);
         require(wallet != address(0), "wallet address doesn't exist");
-        //require(wallet.onlyActiveOwner, "wallet is not an active owner");
-        //how do i get the NFT address????
-        //address nft = .getNft(msg.sender);
+        require(IWallet(wallet).getBackupState() != BACKUP_STATE_ACTIVATED,"wallet owner is not in active state");
         uint256 yearMonth = getCurrentYearMonth();
         //need to get the current kiro staking
-        uint256 staking = wallet.getStaking(msg.sender);
-        require(staking >= _stakingAmountNeeded);
-        res = wallet.execute2(to, value, data);
-        if( block.timestamp > lastUpdateDateOfPrice + _timeBetweenKiroPriceUpdate )
+        uint256 staking = IWallet(wallet).getStaking(msg.sender);
+        require(staking >= s_stakingAmountNeeded);
+
+        res = IWallet(wallet).execute2(to, value, data);
+        if( block.timestamp > s_lastUpdateDateOfPrice + s_timeBetweenKiroPriceUpdate )
         {
             updateKiroPrice();
         }
-        uint256 toPayInKiro =  res.gas * _kiroPrice;
-        uint256 updatedAmountToPay = calcReward(yearMonth, nft, toPayInKiro);
+        uint256 toPayInKiro =  res.gas * s_kiroPrice;
+        uint256 updatedAmountToPay = calcReward(yearMonth, toPayInKiro);
         balancesPerMonthPerWallet[yearMonth][wallet] += updatedAmountToPay;
-        totalBalance -= updatedAmountToPay;
+        s_totalBalance -= updatedAmountToPay;
     }
 
     function isMonthOver(uint256 yearMonth) public view returns(bool){
@@ -207,21 +212,4 @@ abstract contract GasReturn is AccessControl, Backupable, DateTime, Factory
         userStructs[id] = 0xffffffffffffffff;
         userAddresses[id] = user;
     } */
-
-    function supportsInterface(bytes4 interfaceId) public pure virtual override(Interface, AccessControl) returns (bool) {
-        return super.supportsInterface(interfaceId);
-    }
-
-    function isOwner() external view override(Factory, Backupable) returns (bool) {
-        return owner() == msg.sender;
-    }
-
-    function owner() public view override(Ownable, StorageBase) returns (address) {
-        return s_owner;
-    }
-
-    modifier onlyOwner() override(Ownable, StorageBase){
-        require(msg.sender == s_owner, "not owner");
-        _;
-    }
 }
