@@ -198,6 +198,12 @@ contract RecoveryWallet is IStorage, Heritable, ReentrancyGuard {
         return res;
     }
 
+    function getStaking() public view returns(uint256){
+        //uint256 s_staking = 2000;
+        return 2000;
+
+    }
+
     function _getRevertMsg(bytes memory returnData)
         internal
         pure

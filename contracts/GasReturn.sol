@@ -17,7 +17,7 @@ interface IFactory {
 interface IWallet {
     function getBackupState() external view returns (uint8);
     function execute2(address to, uint256 value, bytes calldata data) external returns(bytes memory);
-    function getStaking(address ) external returns(uint256);
+    function getStaking() external view returns(uint256);
 }
 
 interface INFT {
