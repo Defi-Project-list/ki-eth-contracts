@@ -1,4 +1,67 @@
+const HDWalletProvider = require("@truffle/hdwallet-provider");
 
+
+module.exports = {
+  plugins: [
+    'truffle-plugin-verify'
+  ],
+
+  
+  api_keys: {
+    etherscan: 'T8Z8DMJTDYHKRSFKYYHJ7IH7DG2HB94TT3'
+  },
+
+  networks: {
+    ganache: {
+      host: "127.0.0.1",
+      port: 8545,
+      network_id: "*" ,// Match any network id
+      gasPrice: 20000000000,
+      gas: "6721975",
+    },
+    rinkeby: {
+      provider: function() {
+        const mnemonic =	"attack limb hood nothing divert clown target corn muscle leader naive small";
+        return new HDWalletProvider(
+          mnemonic, "https://rinkeby.infura.io/v3/adb23ed195ef4a499b698007beb437ca"
+        );
+      },
+      network_id: 4,
+      //gasPrice: 1,
+      //gas: "7000000",
+      //from: "0x29bC20DebBB95fEFef4dB8057121c8e84547E1A9",
+      },
+    },
+
+  // Set default mocha options here, use special reporters etc.
+  mocha: {
+    // timeout: 100000
+  },
+
+  // Configure your compilers
+  compilers: {
+    solc: {
+       version: "0.8.2",    // Fetch exact version from solc-bin (default: truffle's version)
+      // docker: true,        // Use "0.5.1" you've installed locally with docker (default: false)
+      settings: {          // See the solidity docs for advice about optimization and evmVersion
+        optimizer: {
+          enabled: true,
+          runs: 200
+        },
+      //  evmVersion: "byzantium"
+      }
+    }
+  },
+
+ 
+  db: {
+    enabled: false
+  }
+};
+
+
+
+/* 
 const HDWalletProvider = require("@truffle/hdwallet-provider");
 const ganache = require("ganache-cli")
 let server
@@ -33,8 +96,7 @@ module.exports = {
   networks: {
     rinkeby: {
       provider: function() {
-        mnemonic =
-          "front assume robust donkey senior economy maple enhance click bright game alcohol";
+        //mnemonic = "front assume robust donkey senior economy maple enhance click bright game alcohol";
         return new HDWalletProvider(
           mnemonic, "https://rinkeby.infura.io/v3/adb23ed195ef4a499b698007beb437ca"
         );
@@ -70,6 +132,7 @@ module.exports = {
       /* provider: function() {
          return new HDWalletProvider(mnemonic, "http://127.0.0.1:8545/");
       }, */
+      /*
       network_id: "*",
       gas,
       ens: {
@@ -157,3 +220,4 @@ module.exports = {
         }
     }
 };
+ */

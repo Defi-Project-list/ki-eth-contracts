@@ -6,8 +6,9 @@ pragma abicoder v1;
 import "openzeppelin-solidity/contracts/security/ReentrancyGuard.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/utils/SafeERC20.sol";
 import "openzeppelin-solidity/contracts/token/ERC721/IERC721.sol";
+import "openzeppelin-solidity/contracts/token/ERC1155/IERC1155.sol";
 import "openzeppelin-solidity/contracts/utils/cryptography/SignatureChecker.sol";
-import "./lib/IOracle.sol"; 
+//import "./lib/IOracle.sol"; 
 import "./lib/Heritable.sol";
 
 contract RecoveryWallet is IStorage, Heritable, ReentrancyGuard {
@@ -16,7 +17,7 @@ contract RecoveryWallet is IStorage, Heritable, ReentrancyGuard {
     uint8 public constant VERSION_NUMBER = 0x1;
     string public constant NAME = "Kirobo OCW";
     string public constant VERSION = "1";
-    address public constant GAS_RETURN_CONTRACT = 0x5CD136E8197Be513B06d39730dc674b1E0F6b7da;
+    address public constant GAS_RETURN_CONTRACT = 0x88b46C68c546f46cC3B2A549B83090e72E0AF165;
 
     event SentEther(
         address indexed creator,
@@ -37,6 +38,26 @@ contract RecoveryWallet is IStorage, Heritable, ReentrancyGuard {
         address from,
         address indexed to,
         uint256 id,
+        bytes data
+    );
+
+    event Transfer1155(
+        address indexed creator,
+        address indexed token,
+        address from,
+        address indexed to,
+        uint256 id,
+        uint256 amount,
+        bytes data
+    );
+
+    event TransferBatch1155(
+        address indexed creator,
+        address indexed token,
+        address from,
+        address indexed to,
+        uint256[] ids,
+        uint256[] amounts,
         bytes data
     );
 
@@ -114,6 +135,27 @@ contract RecoveryWallet is IStorage, Heritable, ReentrancyGuard {
         IERC721(token).safeTransferFrom(sender, to, id, data);
     }
 
+    function safeTransferFromERC1155(address token, address from, address to, uint256 id, uint256 amount, bytes memory data) public onlyActiveOwner {
+        require(token != address(0), "token is 0x0");
+        address sender = from == address(0) ? address(this) : address(from);
+        emit Transfer1155(this.creator(), token, sender, to, id,amount, data);
+        IERC1155(token).safeTransferFrom(from, to, id, amount, data);
+    }
+
+    function safeBatchTransferFromERC1155(
+        address token,
+        address from,
+        address to,
+        uint256[] memory ids,
+        uint256[] memory amounts,
+        bytes memory data
+    ) public onlyActiveOwner {
+        require(token != address(0), "token is 0x0");
+        address sender = from == address(0) ? address(this) : address(from);
+        emit TransferBatch1155(this.creator(), token, sender, to, ids, amounts, data);
+        IERC1155(token).safeBatchTransferFrom(from, to, ids, amounts, data);
+    }
+
     function getBalance() public view returns (uint256) {
         return address(this).balance;
     }
@@ -126,12 +168,28 @@ contract RecoveryWallet is IStorage, Heritable, ReentrancyGuard {
         return IERC721(token).balanceOf(address(this));
     }
 
+    function balanceOf1155(address token, uint256 id) public view returns (uint256) {
+        return IERC1155(token).balanceOf(address(this), id);
+    }
+
     function is20Safe(address token) public view returns (bool) {
         return IOracle(ICreator(this.creator()).oracle()).is20Safe(token);
     }
 
     function is721Safe(address token) public view returns (bool) {
         return IOracle(ICreator(this.creator()).oracle()).is721Safe(token);
+    }
+
+    function approveERC20(address token, address spender, uint256 amount) public returns(bool){
+        return IERC20(token).approve(spender, amount);
+    } 
+
+    function approveERC721(address token, address to, uint256 tokenId) public {
+        IERC721(token).approve(to, tokenId);
+    }
+
+    function approveERC1155(address token, address to) public {
+        IERC1155(token).setApprovalForAll(to, true);
     }
 
     function migrate() external override onlyCreator {

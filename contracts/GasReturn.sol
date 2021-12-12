@@ -25,7 +25,7 @@ interface INFT {
     function getProperties(uint256 i_id) external view returns (uint256); 
 }
 
-abstract contract GasReturn is AccessControl, DateTime
+contract GasReturn is AccessControl, DateTime
     {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;

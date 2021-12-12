@@ -1,0 +1,37 @@
+const factory = await Factory.at("0xfAB9A5dBd1dC0b590E3D77133ea5a2d623208594")
+const sw = await Wallet.at("0x7A0003E34fF767b5A3538bf570F446E9B52cF8Df")
+const recoO = await RecoveryOracle.at("0x8808874F60eBe53917D8aaD1e79250D18f15D923")
+
+create wallet
+-------------
+let recipet = await factory.createWallet(false)
+let myWallet = factory.getWallet("0x29bc20debbb95fefef4db8057121c8e84547e1a9") //0x5d38fDfb0a42387d3484d1abB9f08EB29800A126
+
+
+setMint to KiroboNFT contract
+-----------------------------
+
+//res = await KNFT.methods.mint("0x5d38fDfb0a42387d3484d1abB9f08EB29800A126").send({nonce:435})
+const KNFT = await new web3.eth.Contract(KiroboNFT.abi, "0xAFFc5812BE46a766c9D1B1E41d1e63CFb8E7d606")
+res = await KNFT.methods.mint("0x5d38fDfb0a42387d3484d1abB9f08EB29800A126").send({from:"0x29bc20debbb95fefef4db8057121c8e84547e1a9", nonce:435})
+//let KNFT = await KiroboNFT.at("0xAFFc5812BE46a766c9D1B1E41d1e63CFb8E7d606")
+KNFT.setMint(1638968982, 1639041780, 3000, 1000)
+KNFT.addToCollection(1,"1","75")
+KNFT.addToCollection(2,"2","50")
+
+
+mint an NFT for the wallet
+
+
+
+
+
+
+
+add staking to wallet
+configure gasReturn contract: 
+    1.staking
+    2.time between kiro price update
+    3.updateStakingAmountNeeded
+do transfers and see if gas is caclulated in gas return
+
