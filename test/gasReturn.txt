@@ -7,17 +7,23 @@ create wallet
 let recipet = await factory.createWallet(false)
 let myWallet = factory.getWallet("0x29bc20debbb95fefef4db8057121c8e84547e1a9") //0x5d38fDfb0a42387d3484d1abB9f08EB29800A126
 
+const kiroAddressRinkeby = "0xb678e95f83af08e7598ec21533f7585e83272799";
+
+const token = await Token.at("0xb678e95f83af08e7598ec21533f7585e83272799")
+token.approve("0x0CC8292C43B390C19636C06bC5fD7269ABf4a3F2", "10000000000000000000000",{nonce:552})
 
 setMint to KiroboNFT contract
 -----------------------------
 
 //res = await KNFT.methods.mint("0x5d38fDfb0a42387d3484d1abB9f08EB29800A126").send({nonce:435})
-const KNFT = await new web3.eth.Contract(KiroboNFT.abi, "0xAFFc5812BE46a766c9D1B1E41d1e63CFb8E7d606")
-res = await KNFT.methods.mint("0x5d38fDfb0a42387d3484d1abB9f08EB29800A126").send({from:"0x29bc20debbb95fefef4db8057121c8e84547e1a9", nonce:435})
-//let KNFT = await KiroboNFT.at("0xAFFc5812BE46a766c9D1B1E41d1e63CFb8E7d606")
-KNFT.setMint(1638968982, 1639041780, 3000, 1000)
-KNFT.addToCollection(1,"1","75")
-KNFT.addToCollection(2,"2","50")
+//res = await KNFT.methods.mint("0x5d38fDfb0a42387d3484d1abB9f08EB29800A126").send({from:"0x29bc20debbb95fefef4db8057121c8e84547e1a9"})
+//let KNFT = await KiroboNFT.at("0xA551B9A2445562c2B3BCad64C44fac41C0204473")
+web3.eth.handleRevert=true
+const KNFT = await new web3.eth.Contract(KiroboNFT.abi, "0x0CC8292C43B390C19636C06bC5fD7269ABf4a3F2")
+KNFT.methods.setMint(1639390256, 1639505160, "3000000000000000000000", "1000000000000000000000").send({from:"0x29bc20debbb95fefef4db8057121c8e84547e1a9"})
+KNFT.methods.addToCollection(1,"1","75").send({from:"0x29bc20debbb95fefef4db8057121c8e84547e1a9"})
+KNFT.methods.addToCollection(2,"2","50").send({from:"0x29bc20debbb95fefef4db8057121c8e84547e1a9"})
+let res = await KNFT.methods.mint("0x5d38fDfb0a42387d3484d1abB9f08EB29800A126").send({from:"0x29bc20debbb95fefef4db8057121c8e84547e1a9", nonce:557, gasPrice:470000000000, gas:2500000})
 
 
 mint an NFT for the wallet
@@ -35,3 +41,4 @@ configure gasReturn contract:
     3.updateStakingAmountNeeded
 do transfers and see if gas is caclulated in gas return
 
+0x76535cB462EB38EB8E9e7066E10C9Efc26754A51
