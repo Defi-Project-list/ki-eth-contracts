@@ -23,6 +23,7 @@ interface INFT {
     function getMintInfo() external view returns (uint256 nftPrice,uint256 startPrice,uint256 endPrice,uint256 startTime,uint256 endTime);
     function getId() external view returns (uint256);
     function getProperties(uint256 i_id) external view returns (uint256); 
+    function getGasReturnBaseValue() external view returns (uint256);
 }
 
 contract GasReturn is AccessControl, DateTime
@@ -132,14 +133,16 @@ contract GasReturn is AccessControl, DateTime
 
     function calcReward(uint256 yearMonth, uint256 amountOfGasInKiro) private onlyActivator returns(uint256 rewardInKiroToAdd){
         uint256 id = INFT(s_nft).getId();
+        uint256 gasReturnBaseValue = INFT(s_nft).getGasReturnBaseValue();
         uint256 rewardOfNFT = INFT(s_nft).getProperties(id);
+        uint256 totalGasReturnInKiro = (s_kiroPrice * gasReturnBaseValue * rewardOfNFT) / 100;
         uint256 curRewards = rewardsPerMonthPerNFT[yearMonth][id];
-        if(curRewards + amountOfGasInKiro >= rewardOfNFT){
+        if(curRewards + amountOfGasInKiro >= totalGasReturnInKiro){
             rewardsPerMonthPerNFT[yearMonth][id] += amountOfGasInKiro;
             rewardInKiroToAdd = amountOfGasInKiro;
         }
         else{//amountOfGasInKiro is grater then the rewards left according to the NFT data
-            rewardInKiroToAdd = rewardOfNFT - curRewards;
+            rewardInKiroToAdd = totalGasReturnInKiro - curRewards;
             rewardsPerMonthPerNFT[yearMonth][id] += rewardInKiroToAdd;
         }
     }

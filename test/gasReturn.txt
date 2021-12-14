@@ -10,7 +10,7 @@ let myWallet = factory.getWallet("0x29bc20debbb95fefef4db8057121c8e84547e1a9") /
 const kiroAddressRinkeby = "0xb678e95f83af08e7598ec21533f7585e83272799";
 
 const token = await Token.at("0xb678e95f83af08e7598ec21533f7585e83272799")
-token.approve("0x0CC8292C43B390C19636C06bC5fD7269ABf4a3F2", "10000000000000000000000",{nonce:552})
+token.approve("0x47FfaBC919FfaB62C6EbCD4D53278ae1beE0A841", "10000000000000000000000",{nonce:552})
 
 setMint to KiroboNFT contract
 -----------------------------
@@ -19,10 +19,11 @@ setMint to KiroboNFT contract
 //res = await KNFT.methods.mint("0x5d38fDfb0a42387d3484d1abB9f08EB29800A126").send({from:"0x29bc20debbb95fefef4db8057121c8e84547e1a9"})
 //let KNFT = await KiroboNFT.at("0xA551B9A2445562c2B3BCad64C44fac41C0204473")
 web3.eth.handleRevert=true
-const KNFT = await new web3.eth.Contract(KiroboNFT.abi, "0x0CC8292C43B390C19636C06bC5fD7269ABf4a3F2")
+const KNFT = await new web3.eth.Contract(KiroboNFT.abi, "0x47FfaBC919FfaB62C6EbCD4D53278ae1beE0A841")
 KNFT.methods.setMint(1639390256, 1639505160, "3000000000000000000000", "1000000000000000000000").send({from:"0x29bc20debbb95fefef4db8057121c8e84547e1a9"})
-KNFT.methods.addToCollection(1,"1","75").send({from:"0x29bc20debbb95fefef4db8057121c8e84547e1a9"})
-KNFT.methods.addToCollection(2,"2","50").send({from:"0x29bc20debbb95fefef4db8057121c8e84547e1a9"})
+KNFT.methods.addToCollection(1,"1","175").send({from:"0x29bc20debbb95fefef4db8057121c8e84547e1a9"})
+KNFT.methods.addToCollection(2,"2","150").send({from:"0x29bc20debbb95fefef4db8057121c8e84547e1a9"})
+KNFT.methods.updateGasReturnBaseValue("500")
 let res = await KNFT.methods.mint("0x5d38fDfb0a42387d3484d1abB9f08EB29800A126").send({from:"0x29bc20debbb95fefef4db8057121c8e84547e1a9", nonce:557, gasPrice:470000000000, gas:2500000})
 
 

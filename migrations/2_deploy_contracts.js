@@ -10,7 +10,7 @@ var RecoveryOracle = artifacts.require("RecoveryOracle");
 //var SmartWallet2 = artifacts.require("./test/Wallet2.sol");
 // var Root = artifacts.require("./Root.sol");
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
-const nftContractAddress = "0x0CC8292C43B390C19636C06bC5fD7269ABf4a3F2";
+const nftContractAddress = "0x47FfaBC919FfaB62C6EbCD4D53278ae1beE0A841";
 const oracleAddress = "0x04557cC70CDAE3bEF8ec1177E2b4a7e53089127a";
 const recoveryWalletAddress = "0x7A0003E34fF767b5A3538bf570F446E9B52cF8Df";
 
@@ -18,7 +18,7 @@ const recoveryWalletAddress = "0x7A0003E34fF767b5A3538bf570F446E9B52cF8Df";
 FactoryProxy - 0xfAB9A5dBd1dC0b590E3D77133ea5a2d623208594
 Factory - 0x13c65b2c54753DD24fA48ca3E7EF8fc132e7E972
 GasReturn - 0x88b46C68c546f46cC3B2A549B83090e72E0AF165
-kiroboNFT - 0x0CC8292C43B390C19636C06bC5fD7269ABf4a3F2
+kiroboNFT - 0x47FfaBC919FfaB62C6EbCD4D53278ae1beE0A841
 RecoveryWallet - 0x7A0003E34fF767b5A3538bf570F446E9B52cF8Df
 Oracle - 0x2358DF2B4B48F1F12bC7bdE9E6aaCeecEf0CFBF2
 recoveryOracle - 0x8808874F60eBe53917D8aaD1e79250D18f15D923
@@ -40,8 +40,8 @@ module.exports = function (deployer, network, accounts) {
 	const factory = await Factory.at(sw_factory_proxy.address);
 	await sw_factory_proxy.setTarget(factory.address, { from: accounts[0] });
     const factoryProxy = await FactoryProxy.at(sw_factory_proxy.address);*/
-	//const gasReturn = await deployer.deploy(GasReturn, accounts[0], "0xfAB9A5dBd1dC0b590E3D77133ea5a2d623208594", nftContractAddress, {from: accounts[0]});  
-	
+	const gasReturn = await deployer.deploy(GasReturn, accounts[0], "0xfAB9A5dBd1dC0b590E3D77133ea5a2d623208594", nftContractAddress, {from: accounts[0]});  
+	/*
 	//take gasReturn.address to hard code in RecoveryWallet contract and then run the next part
 	const factory = await Factory.at("0xfAB9A5dBd1dC0b590E3D77133ea5a2d623208594",{ from: accounts[0]});
 	//const sw = await deployer.deploy(Wallet, {from:accounts[0]})//, { gas, gasPrice });
