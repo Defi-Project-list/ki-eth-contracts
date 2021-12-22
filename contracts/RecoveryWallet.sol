@@ -17,7 +17,7 @@ contract RecoveryWallet is IStorage, Heritable, ReentrancyGuard {
     uint8 public constant VERSION_NUMBER = 0x1;
     string public constant NAME = "Kirobo OCW";
     string public constant VERSION = "1";
-    address public constant GAS_RETURN_CONTRACT = 0x88b46C68c546f46cC3B2A549B83090e72E0AF165;
+    address public constant GAS_RETURN_CONTRACT = 0x759733E1e7e73c347910eE0d012B6db1F6e7273B;
 
     event SentEther(
         address indexed creator,

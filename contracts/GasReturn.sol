@@ -19,10 +19,8 @@ interface IWallet {
 }
 
 interface INFT {
-    function getBlockTimestamp() external view returns (uint256) ;
     function getMintInfo() external view returns (uint256 nftPrice,uint256 startPrice,uint256 endPrice,uint256 startTime,uint256 endTime);
-    function getId() external view returns (uint256);
-    function getProperties(uint256 i_id) external view returns (uint256); 
+    function getProperties(uint256 i_id) external view returns (uint128 stakingBenefit, uint128 gasReturnBenefit); 
     function getGasReturnBaseValue() external view returns (uint256);
 }
 
@@ -32,6 +30,7 @@ contract GasReturn is AccessControl, DateTime
     using SafeERC20 for IERC20;
     uint256 public s_totalBalance;
     uint256 public s_kiroPrice;
+    uint256 public s_kiroPriceInUSD;
     uint256 private s_stakingAmountNeeded;
     uint256 private s_timeInStaking = 31556926; //180 days
     address private s_kiroEthPairAddress = 0x5CD136E8197Be513B06d39730dc674b1E0F6b7da;
@@ -42,25 +41,15 @@ contract GasReturn is AccessControl, DateTime
     
     // keccak256("ACTIVATOR_ROLE");
     bytes32 public constant ACTIVATOR_ROLE = 0xec5aad7bdface20c35bc02d6d2d5760df981277427368525d634f4e2603ea192;
-
     address public constant KIRO_ADDRESS = 0xB1191F691A355b43542Bea9B8847bc73e7Abb137;
-    
     uint8 private constant BACKUP_STATE_ACTIVATED = 3;
-    
-    /* struct User{
-        address userAddr;
-        uint256 amount;
-        uint256 lockedUntil;
-    } */
 
     event TransferReceived(address from, uint256 amount);
     event TransferSent(address from, address to, uint256 amount);
 
     mapping (uint256 => mapping(address => uint256)) balancesPerMonthPerWallet;
     mapping (uint256 => mapping(uint256 => uint256)) rewardsPerMonthPerNFT;
-    /* mapping (bytes32 => uint256) userStructs;
-    mapping (bytes32 => User) userAddresses;
- */
+ 
     modifier onlyActivator() {
         require(
             hasRole(ACTIVATOR_ROLE, msg.sender),
@@ -115,6 +104,7 @@ contract GasReturn is AccessControl, DateTime
 
     function updateKiroPrice() private onlyActivator{
         s_kiroPrice = getTokenPrice(s_kiroEthPairAddress, 1);
+        s_kiroPriceInUSD = s_kiroPrice * getTokenPrice(s_EthUSDPairAddress, 1);
     }
 
     function getKiroPrice() public view returns(uint256 kiroPrice){
@@ -134,10 +124,11 @@ contract GasReturn is AccessControl, DateTime
     function calcReward(uint256 yearMonth, uint256 amountOfGasInKiro) private onlyActivator returns(uint256 rewardInKiroToAdd){
         uint256 id = INFT(s_nft).getId();
         uint256 gasReturnBaseValue = INFT(s_nft).getGasReturnBaseValue();
-        uint256 rewardOfNFT = INFT(s_nft).getProperties(id);
-        uint256 totalGasReturnInKiro = (s_kiroPrice * gasReturnBaseValue * rewardOfNFT) / 100;
+        (uint128 stakingBenefit, uint128 gasReturnBenefit) = INFT(s_nft).getProperties(id);
+        uint256 kiroPriceInUSD ;
+        uint256 totalGasReturnInKiro = (s_kiroPriceInUSD * gasReturnBaseValue * gasReturnBenefit) / 100;
         uint256 curRewards = rewardsPerMonthPerNFT[yearMonth][id];
-        if(curRewards + amountOfGasInKiro >= totalGasReturnInKiro){
+        if(curRewards + amountOfGasInKiro <= totalGasReturnInKiro){
             rewardsPerMonthPerNFT[yearMonth][id] += amountOfGasInKiro;
             rewardInKiroToAdd = amountOfGasInKiro;
         }
@@ -153,9 +144,9 @@ contract GasReturn is AccessControl, DateTime
         require(wallet != address(0), "wallet address doesn't exist");
         require(IWallet(wallet).getBackupState() != BACKUP_STATE_ACTIVATED,"wallet owner is not in active state");
         uint256 yearMonth = getCurrentYearMonth();
-        //need to get the current kiro staking
+
         uint256 staking = IERC20(KIRO_ADDRESS).balanceOf(wallet);
-        require(staking >= s_stakingAmountNeeded);
+        require(staking >= s_stakingAmountNeeded, "Wallet must hold Kiro in order to make this action");
 
         res = IWallet(wallet).execute2(to, value, data);
         if( block.timestamp > s_lastUpdateDateOfPrice + s_timeBetweenKiroPriceUpdate )
